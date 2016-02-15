@@ -9,4 +9,3 @@ from account import models
 class VirtualDeviceSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = models.VirtualDevice
-        fields = ('url',)

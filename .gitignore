@@ -65,3 +65,5 @@ target/
 *.swp
 *.sqlite3
 0*_*.py
+/static/
+/media/
