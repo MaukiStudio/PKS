@@ -19,6 +19,7 @@ class ApiRootTest(APITestCase):
 
     def test_valid_json(self):
         decoded = json.JSONDecoder().decode(self.response.content)
+        self.assertEqual(type(decoded), type({}))
         encoded = json.JSONEncoder(separators=(',', ':')).encode(decoded)
         self.assertEqual(encoded, self.response.content)
 
@@ -29,3 +30,5 @@ class AdminTest(TestCase):
 
     def test_can_connect(self):
         self.assertEqual(self.response.status_code, status.HTTP_302_FOUND)
+        response2 = self.client.get(self.response.url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
