@@ -63,4 +63,5 @@ target/
 
 .idea/
 *.swp
+*.sqlite3
 
