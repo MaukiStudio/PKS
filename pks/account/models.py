@@ -5,4 +5,4 @@ from django.db import models
 
 
 class VirtualDevice(models.Model):
-    pass
+    name = models.CharField(max_length=30)
