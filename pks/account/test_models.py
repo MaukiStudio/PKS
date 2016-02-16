@@ -12,7 +12,7 @@ class VirtualDeviceSimpleTest(TestCase):
 
     def setUp(self):
         self.vd = models.VirtualDevice()
-        self.vd.name = SG('[\w\-]{30}').render()
+        self.vd.name = SG('[\w\-]{36}').render()
 
     def test_save_and_retreive(self):
         self.vd.save()
