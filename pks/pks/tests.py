@@ -19,7 +19,6 @@ class ApiRootTest(APITestCase):
 
     def test_valid_json(self):
         decoded = json.JSONDecoder().decode(self.response.content)
-        self.assertEqual(type(decoded), type({}))
         encoded = json.JSONEncoder(separators=(',', ':')).encode(decoded)
         self.assertEqual(encoded, self.response.content)
 
