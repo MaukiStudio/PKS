@@ -11,7 +11,7 @@ from strgen import StringGenerator as SG
 from account import models
 
 
-class VirtualDeviceSimpleTest(TestCase):
+class VDSimpleTest(TestCase):
 
     def setUp(self):
         self.user = User()

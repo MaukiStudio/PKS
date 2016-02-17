@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 
-class VirtualDeviceTest(APITestCase):
+class VDViewSetTest(APITestCase):
 
     def setUp(self):
         self.response1 = self.client.get(reverse('vd-list'))
