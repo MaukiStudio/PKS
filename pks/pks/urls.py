@@ -11,8 +11,8 @@ from account import views
 
 
 router = DefaultRouter()
-router.register(r'vds', views.VirtualDeviceViewset)
-#router.register(r'user', views.UserViewset)
+router.register(r'vds', views.VDViewset)
+router.register(r'user', views.UserViewset)
 
 
 urlpatterns = [

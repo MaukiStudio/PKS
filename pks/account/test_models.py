@@ -19,26 +19,26 @@ class VirtualDeviceSimpleTest(TestCase):
         self.user.password = SG('[\l]{6:10}&[\d]{2}').render()
         self.user.save()
 
-        self.vd = models.VirtualDevice()
+        self.vd = models.VD()
         self.vd.name = SG('[\w\-]{36}').render()
         self.vd.user = self.user
 
     def test_save_and_retreive(self):
         self.vd.save()
-        saved = models.VirtualDevice.objects.all()[0]
+        saved = models.VD.objects.all()[0]
         self.assertEqual(saved.name, self.vd.name)
         self.assertEqual(saved.user, self.user)
 
     def test_can_save_same_name(self):
         self.vd.save()
-        vd2 = models.VirtualDevice()
+        vd2 = models.VD()
         vd2.name = self.vd.name
         vd2.save()
         self.assertNotEqual(self.vd, vd2)
 
     def test_cannot_save_same_user(self):
         self.vd.save()
-        vd2 = models.VirtualDevice()
+        vd2 = models.VD()
         vd2.user = self.vd.user
         with self.assertRaises(IntegrityError):
             vd2.save()

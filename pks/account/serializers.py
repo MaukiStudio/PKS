@@ -12,6 +12,6 @@ class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
 
-class VirtualDeviceSerializer(HyperlinkedModelSerializer):
+class VDSerializer(HyperlinkedModelSerializer):
     class Meta:
-        model = models.VirtualDevice
+        model = models.VD

@@ -13,6 +13,6 @@ class UserViewset(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
-class VirtualDeviceViewset(ModelViewSet):
-    queryset = models.VirtualDevice.objects.all()
-    serializer_class = serializers.VirtualDeviceSerializer
+class VDViewset(ModelViewSet):
+    queryset = models.VD.objects.all()
+    serializer_class = serializers.VDSerializer

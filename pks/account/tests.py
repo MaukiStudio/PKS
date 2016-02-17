@@ -12,8 +12,8 @@ from rest_framework import status
 class VirtualDeviceTest(APITestCase):
 
     def setUp(self):
-        self.response1 = self.client.get(reverse('virtualdevice-list'))
-        self.response2 = self.client.get(reverse('virtualdevice-list'), {'format': 'api'})
+        self.response1 = self.client.get(reverse('vd-list'))
+        self.response2 = self.client.get(reverse('vd-list'), {'format': 'api'})
 
     def test_can_connect(self):
         self.assertEqual(self.response1.status_code, status.HTTP_200_OK)
