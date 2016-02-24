@@ -18,6 +18,8 @@ router.register(r'user', views.UserViewset)
 urlpatterns = [
     url(r'^', include(router.urls)),
 
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
     url(r'^admin/filebrowser/', include(fb_site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
