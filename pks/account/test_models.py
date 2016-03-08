@@ -4,7 +4,6 @@ from __future__ import print_function
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.db import IntegrityError
 
 from strgen import StringGenerator as SG
 
@@ -36,9 +35,11 @@ class VDSimpleTest(TestCase):
         vd2.save()
         self.assertNotEqual(self.vd, vd2)
 
-    def test_cannot_save_same_user(self):
+    def test_can_save_same_user(self):
         self.vd.save()
         vd2 = models.VD()
         vd2.user = self.vd.user
-        with self.assertRaises(IntegrityError):
-            vd2.save()
+        vd2.name = SG('[\w\-]{36}').render()
+        vd2.save()
+        self.assertNotEqual(self.vd, vd2)
+        self.assertEqual(self.vd.user, vd2.user)

@@ -11,8 +11,6 @@ from django.contrib.sessions.models import Session
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from account import models
-
 
 class VDViewSetTest(APITestCase):
 
@@ -30,7 +28,7 @@ class VDViewSetTest(APITestCase):
         self.assertEqual(encoded, self.response1.content)
 
 
-class UserLoginBasicTest(APITestCase):
+class UserLoginTest(APITestCase):
 
     def test_can_connect_by_browser(self):
         response = self.client.get('/api-auth/login/')
@@ -61,3 +59,14 @@ class UserLoginBasicTest(APITestCase):
         self.assertEqual(1, Session.objects.count())
         session = Session.objects.first()
         self.assertEqual(user.pk, int(session.get_decoded().get(SESSION_KEY)))
+
+
+class UserRegisterTest(APITestCase):
+
+    def test_register_normal(self):
+        response = self.client.post('/users/', {'username': 'gulby', 'password': 'pass'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_register_auto(self):
+        response = self.client.post('/users/')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
