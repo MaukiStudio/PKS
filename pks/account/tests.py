@@ -68,5 +68,7 @@ class UserRegisterTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_register_auto(self):
-        response = self.client.post('/users/')
+        response = self.client.post('/users/register/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    #제대로 DB에 들어가고, auth_token 이 제대로 넘어오는지 확인
