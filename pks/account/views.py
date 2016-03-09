@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from cryptography.fernet import Fernet
-
 from pks.settings import CRYPTOGRAPHY_KEY
 from account import models
 from account import serializers
@@ -29,7 +28,7 @@ class UserViewset(ModelViewSet):
         user.set_password(password)
         user.save()
         # generate token
-        raw_token = '%s|%s' % (username, password)
+        raw_token = '%s|%s|%s' % (user.pk, username, password)
         encrypter = Fernet(CRYPTOGRAPHY_KEY)
         token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
         # return result

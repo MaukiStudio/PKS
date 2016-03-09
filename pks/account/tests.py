@@ -7,9 +7,11 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import SESSION_KEY
 from django.contrib.sessions.models import Session
-
 from rest_framework.test import APITestCase
 from rest_framework import status
+
+from cryptography.fernet import Fernet
+from pks.settings import CRYPTOGRAPHY_KEY
 
 
 class VDViewSetTest(APITestCase):
@@ -70,5 +72,14 @@ class UserRegisterTest(APITestCase):
     def test_register_auto(self):
         response = self.client.post('/users/register/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    #제대로 DB에 들어가고, auth_token 이 제대로 넘어오는지 확인
+        result = json.loads(response.content)
+        self.assertIn('auth_token', result)
+        decrypter = Fernet(CRYPTOGRAPHY_KEY)
+        raw_token = decrypter.decrypt(result['auth_token'].encode(encoding='utf-8'))
+        pk = int(raw_token.split('|')[0])
+        username = raw_token.split('|')[1]
+        password = raw_token.split('|')[2]
+        user = User.objects.first()
+        self.assertEqual(pk, user.pk)
+        self.assertEqual(username, user.username)
+        self.assertTrue(user.check_password(password))
