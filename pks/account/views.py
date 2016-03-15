@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from cryptography.fernet import Fernet
-from pks.settings import CRYPTOGRAPHY_KEY
+from pks.settings import USER_ENC_KEY, VD_ENC_KEY
 from account import models
 from account import serializers
 
@@ -30,7 +30,7 @@ class UserViewset(ModelViewSet):
         user.save()
         # generate token
         raw_token = '%s|%s|%s' % (user.pk, username, password)
-        encrypter = Fernet(CRYPTOGRAPHY_KEY)
+        encrypter = Fernet(USER_ENC_KEY)
         token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
         # return result
         return Response({'auth_user_token': token}, status=status.HTTP_201_CREATED)
@@ -39,7 +39,7 @@ class UserViewset(ModelViewSet):
     def login(self, request):
         # auth_user_token
         token = request.data['auth_user_token']
-        decrypter = Fernet(CRYPTOGRAPHY_KEY)
+        decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
         pk = int(raw_token.split('|')[0])
         username = raw_token.split('|')[1]
@@ -58,3 +58,20 @@ class UserViewset(ModelViewSet):
 class VDViewset(ModelViewSet):
     queryset = models.VD.objects.all()
     serializer_class = serializers.VDSerializer
+
+    @list_route(methods=['post'])
+    def register(self, request):
+        # create VD
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        vd = serializer.instance
+
+        # generate token
+        raw_token = '%s|%s' % (vd.pk, request.user.pk)
+        encrypter = Fernet(VD_ENC_KEY)
+        token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+
+        # return result
+        return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)

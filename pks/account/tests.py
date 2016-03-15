@@ -10,8 +10,10 @@ from django.contrib.sessions.models import Session
 from rest_framework.test import APITestCase
 from rest_framework import status
 
+from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
-from pks.settings import CRYPTOGRAPHY_KEY
+from pks.settings import USER_ENC_KEY, VD_ENC_KEY
+from account import models
 
 
 class VDViewSetTest(APITestCase):
@@ -83,7 +85,7 @@ class UserAutoRegisterLoginTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json.loads(response.content)
         self.assertIn('auth_user_token', result)
-        decrypter = Fernet(CRYPTOGRAPHY_KEY)
+        decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(result['auth_user_token'].encode(encoding='utf-8'))
         pk = int(raw_token.split('|')[0])
         username = raw_token.split('|')[1]
@@ -113,3 +115,28 @@ class UserAutoRegisterLoginTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(0, Session.objects.count())
+
+
+class VDRegisterSetTest(APITestCase):
+    def setUp(self):
+        response = self.client.post('/users/register/')
+        auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        self.user = User.objects.first()
+
+    def test_register(self):
+        deviceName = SG('[\w\-]{36}').render()
+        deviceTypeName = 'LG-F460L'
+        response = self.client.post('/vds/register/', {'deviceTypeName': deviceTypeName, 'deviceName': deviceName})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        saved = models.VD.objects.first()
+
+        result = json.loads(response.content)
+        self.assertIn('auth_vd_token', result)
+        decrypter = Fernet(VD_ENC_KEY)
+        raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
+        pk = int(raw_token.split('|')[0])
+        user_pk = int(raw_token.split('|')[1])
+
+        self.assertEqual(pk, saved.pk)
+        self.assertEqual(user_pk, self.user.pk)

@@ -14,7 +14,7 @@ class NormalScenarioTest(APITestCase):
         res1 = self.client.post('/users/register/')
         self.assertEqual(res1.status_code, status.HTTP_201_CREATED)
 
-        # 토큰 로그인
+        # 유저 로그인 by 토큰
         auth_user_token = json.loads(res1.content)['auth_user_token']
         self.assertEqual(0, Session.objects.count())
         res2 = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
@@ -22,4 +22,8 @@ class NormalScenarioTest(APITestCase):
         self.assertEqual(1, Session.objects.count())
 
         # VD 등록
-        self.fail('VD 등록 구현')
+        res3 = self.client.post('/vds/register/')
+        self.assertEqual(res3.status_code, status.HTTP_201_CREATED)
+
+        # Session 에 VD 세팅 by 토큰
+        self.fail()
