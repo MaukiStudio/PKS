@@ -5,6 +5,7 @@ from __future__ import print_function
 import json
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.gis.geos import GEOSGeometry
 
 from strgen import StringGenerator as SG
 from account import models
@@ -45,9 +46,16 @@ class VDTest(TestCase):
         self.assertEqual(saved.deviceName, deviceName)
         self.assertEqual(saved.deviceTypeName, deviceTypeName)
 
-    def test_complex_properties(self):
+    def test_json_properties(self):
         j = '{"deviceName": "%s", "deviceTypeName": "%s"}' % (SG('[\w\-]{36}').render(), 'LG-F460L')
         self.vd.data = json.loads(j)
         self.vd.save()
         saved = models.VD.objects.first()
         self.assertEqual(j, json.dumps(saved.data, encoding='utf-8'))
+
+    def test_gis_properties(self):
+        point = GEOSGeometry('POINT(37.4005048 127.0850802)')
+        self.vd.last_latlon = point
+        self.vd.save()
+        saved = models.VD.objects.first()
+        self.assertEqual(point, saved.last_latlon)
