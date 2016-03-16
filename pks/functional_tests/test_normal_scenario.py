@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from django.contrib.sessions.models import Session
-from rest_framework.test import APITestCase
 from rest_framework import status
 
+from base.tests import APITestBase
 
-class NormalScenarioTest(APITestCase):
+
+class NormalScenarioTest(APITestBase):
     def test_first_by_app(self):
         # 자동 회원 가입
         res1 = self.client.post('/users/register/')
@@ -16,10 +16,10 @@ class NormalScenarioTest(APITestCase):
 
         # 유저 로그인 by 토큰
         auth_user_token = json.loads(res1.content)['auth_user_token']
-        self.assertEqual(0, Session.objects.count())
+        self.assertNotLogin()
         res2 = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         self.assertEqual(res2.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(1, Session.objects.count())
+        self.assertLogin()
 
         # VD 등록
         res3 = self.client.post('/vds/register/')
@@ -27,3 +27,5 @@ class NormalScenarioTest(APITestCase):
 
         # Session 에 VD 세팅 by 토큰
         self.fail()
+
+

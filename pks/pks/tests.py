@@ -4,12 +4,12 @@ from __future__ import print_function
 
 import json
 from django.test import TestCase
-
-from rest_framework.test import APITestCase
 from rest_framework import status
 
+from base.tests import APITestBase
 
-class ApiRootTest(APITestCase):
+
+class ApiRootTest(APITestBase):
 
     def setUp(self):
         self.response = self.client.get('/')

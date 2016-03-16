@@ -5,18 +5,16 @@ from __future__ import print_function
 import json
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth import SESSION_KEY
-from django.contrib.sessions.models import Session
-from rest_framework.test import APITestCase
 from rest_framework import status
 
 from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY, VD_ENC_KEY
 from account import models
+from base.tests import APITestBase
 
 
-class VDViewSetTest(APITestCase):
+class VDViewSetTest(APITestBase):
 
     def setUp(self):
         self.response1 = self.client.get(reverse('vd-list'))
@@ -32,7 +30,7 @@ class VDViewSetTest(APITestCase):
         self.assertEqual(encoded, self.response1.content)
 
 
-class UserManualRegisterLoginTest(APITestCase):
+class UserManualRegisterLoginTest(APITestBase):
 
     def test_register(self):
         response = self.client.post('/users/', {'username': 'gulby', 'password': 'pass'})
@@ -50,23 +48,20 @@ class UserManualRegisterLoginTest(APITestCase):
         user2 = User.objects.first()
         self.assertEqual(user, user2)
 
+        self.assertNotLogin()
         login_result = self.client.login(username='gulby', password='pass')
         self.assertTrue(login_result)
-        self.assertEqual(1, Session.objects.count())
-
-        session = Session.objects.first()
-        self.assertEqual(user.pk, int(session.get_decoded().get(SESSION_KEY)))
+        self.assertLogin(user)
 
     def test_login_external(self):
         user = User(username='gulby')
         user.set_password('pass')
         user.save()
-        response = self.client.post('/api-auth/login/', {'username': 'gulby', 'password': 'pass'})
+        self.assertNotLogin()
 
+        response = self.client.post('/api-auth/login/', {'username': 'gulby', 'password': 'pass'})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(1, Session.objects.count())
-        session = Session.objects.first()
-        self.assertEqual(user.pk, int(session.get_decoded().get(SESSION_KEY)))
+        self.assertLogin(user)
 
     def test_login_external_fail(self):
         user = User(username='gulby')
@@ -75,10 +70,10 @@ class UserManualRegisterLoginTest(APITestCase):
         response = self.client.post('/api-auth/login/', {'username': 'gulby', 'password': 'fail'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(0, Session.objects.count())
+        self.assertNotLogin()
 
 
-class UserAutoRegisterLoginTest(APITestCase):
+class UserAutoRegisterLoginTest(APITestBase):
 
     def test_register(self):
         response = self.client.post('/users/register/')
@@ -94,17 +89,17 @@ class UserAutoRegisterLoginTest(APITestCase):
         self.assertEqual(pk, user.pk)
         self.assertEqual(username, user.username)
         self.assertTrue(user.check_password(password))
+        self.assertNotLogin()
 
     def test_login(self):
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         user = User.objects.first()
-        response = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        self.assertNotLogin()
 
+        response = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(1, Session.objects.count())
-        session = Session.objects.first()
-        self.assertEqual(user.pk, int(session.get_decoded().get(SESSION_KEY)))
+        self.assertLogin(user)
 
     def test_login_fail(self):
         response = self.client.post('/users/register/')
@@ -114,10 +109,10 @@ class UserAutoRegisterLoginTest(APITestCase):
         response = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(0, Session.objects.count())
+        self.assertNotLogin()
 
 
-class VDRegisterSetTest(APITestCase):
+class VDRegisterSetTest(APITestBase):
     def setUp(self):
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
