@@ -54,8 +54,8 @@ class VDTest(TestCase):
         self.assertEqual(j, json.dumps(saved.data, encoding='utf-8'))
 
     def test_gis_properties(self):
-        point = GEOSGeometry('POINT(37.4005048 127.0850802)')
-        self.vd.last_latlon = point
+        point = GEOSGeometry('POINT(127.0850802 37.4005048)')
+        self.vd.last_lonlat = point
         self.vd.save()
         saved = models.VD.objects.first()
-        self.assertEqual(point, saved.last_latlon)
+        self.assertEqual(point, saved.last_lonlat)

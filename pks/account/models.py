@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 class VD(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None)
-    last_latlon = models.PointField(blank=True, null=True, default=None)
+    last_lonlat = models.PointField(blank=True, null=True, default=None)
     deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
     data = JSONField(blank=True, null=True, default=None)
