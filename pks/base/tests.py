@@ -15,10 +15,10 @@ class APITestBase(APITestCase):
         else:
             if user is None:
                 return True
-            elif user.pk == int(session_key):
+            elif str(user.pk) == session_key:
                 return True
             else:
-                self.fail('User in session != User in parameters')
+                self.fail('user in session (pk=%s) != user in parameters (pk=%s)' % (session_key, user.pk))
 
     def assertLogin(self, user=None):
         return self.assertTrue(self.check_login(user))
