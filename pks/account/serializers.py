@@ -2,15 +2,15 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer
 
 from account import models
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'password')
+        fields = ('id', 'username', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -20,6 +20,6 @@ class UserSerializer(HyperlinkedModelSerializer):
         return user
 
 
-class VDSerializer(HyperlinkedModelSerializer):
+class VDSerializer(ModelSerializer):
     class Meta:
         model = models.VD
