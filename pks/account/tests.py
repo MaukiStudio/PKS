@@ -117,16 +117,18 @@ class VDRegisterSetTest(APITestBase):
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        self.user = User.objects.first()
 
     def test_register(self):
         deviceName = SG('[\w\-]{36}').render()
         deviceTypeName = 'LG-F460L'
+        email = 'gulby@maukistudio.com'
         response = self.client.post('/vds/register/',
-                                    dict(deviceTypeName=deviceTypeName, deviceName=deviceName))
+                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         saved = models.VD.objects.first()
-        self.assertEqual(self.user, saved.owner)
+        user = User.objects.first()
+        self.assertEqual(user, saved.owner)
+        self.assertEqual(user.email, email)
 
         result = json.loads(response.content)
         self.assertIn('auth_vd_token', result)
@@ -136,4 +138,4 @@ class VDRegisterSetTest(APITestBase):
         user_pk = int(raw_token.split('|')[1])
 
         self.assertEqual(pk, saved.pk)
-        self.assertEqual(user_pk, self.user.pk)
+        self.assertEqual(user_pk, user.pk)

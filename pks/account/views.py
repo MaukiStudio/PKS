@@ -70,6 +70,9 @@ class VDViewset(ModelViewSet):
         if vd.owner is None:
             vd.owner = request.user
             vd.save()
+        if request.data['email']:
+            vd.owner.email = request.data['email']
+            vd.owner.save()
 
         # generate token
         raw_token = '%s|%s' % (vd.pk, request.user.pk)
