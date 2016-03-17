@@ -67,6 +67,8 @@ class VDViewset(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         vd = serializer.instance
+        vd.owner = request.user
+        vd.save()
 
         # generate token
         raw_token = '%s|%s' % (vd.pk, request.user.pk)

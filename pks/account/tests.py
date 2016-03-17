@@ -125,6 +125,7 @@ class VDRegisterSetTest(APITestBase):
         response = self.client.post('/vds/register/', {'deviceTypeName': deviceTypeName, 'deviceName': deviceName})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         saved = models.VD.objects.first()
+        self.assertEqual(self.user, saved.owner)
 
         result = json.loads(response.content)
         self.assertIn('auth_vd_token', result)
