@@ -79,5 +79,10 @@ class VDViewset(ModelViewSet):
         encrypter = Fernet(VD_ENC_KEY)
         token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
+        # TODO : send email
+
+        # Temporary : 곧바로 이메일 인증이 된 것으로 처리
+
+
         # return result
         return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)

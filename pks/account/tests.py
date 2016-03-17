@@ -125,9 +125,9 @@ class VDRegisterSetTest(APITestBase):
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        saved = models.VD.objects.first()
+        vd = models.VD.objects.first()
         user = User.objects.first()
-        self.assertEqual(user, saved.owner)
+        self.assertEqual(user, vd.owner)
         self.assertEqual(user.email, email)
 
         result = json.loads(response.content)
@@ -137,5 +137,21 @@ class VDRegisterSetTest(APITestBase):
         pk = int(raw_token.split('|')[0])
         user_pk = int(raw_token.split('|')[1])
 
-        self.assertEqual(pk, saved.pk)
+        self.assertEqual(pk, vd.pk)
         self.assertEqual(user_pk, user.pk)
+
+    def test_email_confirm(self):
+        # TODO : 향후 이메일 발송 루틴이 구현되면 테스트도 수정해야 한다.
+        deviceName = SG('[\w\-]{36}').render()
+        deviceTypeName = 'LG-F460L'
+        email = 'gulby@maukistudio.com'
+        response = self.client.post('/vds/register/',
+                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
+
+        # TODO : 이메일 인증 - 발송된 메일을 읽어서, 해당 링크를 호출하는 코드가 추가되어야 함
+
+        # assertion
+        vd = models.VD.objects.first()
+        self.assertIsNotNone(vd.realUser)
+        self.assertEqual(vd.owner.email, vd.realUser.email)
+
