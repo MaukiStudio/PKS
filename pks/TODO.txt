@@ -1,2 +1,4 @@
 Admin 사이트 로그인 테스트 기능 추가
 user-detail 뷰가 없을 시, 단위테스트에서는 문제가 없는데 브라우저에서는 에러가 나는 상황 파악 및 해결
+VD.owner 저장하는 부분 로직 튜닝
+register, login 등 RESTfull 하지 않은 API 들에 대한 재검토
