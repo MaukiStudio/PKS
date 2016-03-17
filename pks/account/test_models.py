@@ -20,21 +20,21 @@ class VDTest(TestCase):
         self.user.save()
 
         self.vd = models.VD()
-        self.vd.user = self.user
+        self.vd.owner = self.user
 
     def test_save_and_retreive(self):
         self.vd.save()
         saved = models.VD.objects.first()
         self.assertEqual(saved, self.vd)
-        self.assertEqual(saved.user, self.user)
+        self.assertEqual(saved.owner, self.user)
 
-    def test_can_save_same_user(self):
+    def test_can_save_same_owner(self):
         self.vd.save()
         vd2 = models.VD()
-        vd2.user = self.vd.user
+        vd2.owner = self.vd.owner
         vd2.save()
         self.assertNotEqual(self.vd, vd2)
-        self.assertEqual(self.vd.user, vd2.user)
+        self.assertEqual(self.vd.owner, vd2.owner)
 
     def test_simple_properties(self):
         deviceName = SG('[\w\-]{36}').render()
