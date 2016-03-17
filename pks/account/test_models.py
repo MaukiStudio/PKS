@@ -6,9 +6,37 @@ import json
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
+from django.db import IntegrityError
 
 from strgen import StringGenerator as SG
 from account import models
+
+
+class RealUserTest(TestCase):
+
+    def test_save_and_retreive(self):
+        realUser = models.RealUser(email='gulby@maukistudio.com')
+        realUser.save()
+        saved = models.RealUser.objects.first()
+        self.assertEqual(saved, realUser)
+
+    def test_email_not_null(self):
+        realUser = models.RealUser()
+        with self.assertRaises(IntegrityError):
+            realUser.save()
+
+    def test_email_property(self):
+        email = 'gulby@maukistudio.com'
+        realUser = models.RealUser(email=email)
+        self.assertEqual(realUser.email, email)
+        realUser.save()
+        saved = models.RealUser.objects.first()
+        self.assertEqual(saved.email, email)
+
+        realUser2 = models.RealUser(email=email)
+        with self.assertRaises(IntegrityError):
+            realUser2.save()
+
 
 
 class VDTest(TestCase):
@@ -19,30 +47,33 @@ class VDTest(TestCase):
         self.user.password = SG('[\l]{6:10}&[\d]{2}').render()
         self.user.save()
 
+        self.realUser = models.RealUser(email='gulby@maukistudio.com')
+        self.realUser.save()
+
     def test_save_and_retreive(self):
         vd = models.VD()
         vd.save()
         saved = models.VD.objects.first()
         self.assertEqual(saved, vd)
 
-    def test_owner_property(self):
-        vd = models.VD(owner=self.user)
+    def test_authOwner_property(self):
+        vd = models.VD(authOwner=self.user)
         vd.save()
         saved = models.VD.objects.first()
-        self.assertEqual(saved.owner, self.user)
+        self.assertEqual(saved.authOwner, self.user)
 
         vd2 = models.VD()
-        vd2.owner = vd.owner
+        vd2.authOwner = vd.authOwner
         vd2.save()
         self.assertNotEqual(vd, vd2)
-        self.assertEqual(vd.owner, vd2.owner)
+        self.assertEqual(vd.authOwner, vd2.authOwner)
 
-    def test_owner_relationship(self):
+    def test_authOwner_relationship(self):
         self.assertEqual(self.user.vd_set.all().count(), 0)
-        vd = models.VD(owner=self.user)
+        vd = models.VD(authOwner=self.user)
         vd.save()
         self.assertEqual(self.user.vd_set.all().count(), 1)
-        vd2 = models.VD(owner=self.user)
+        vd2 = models.VD(authOwner=self.user)
         vd2.save()
         self.assertEqual(self.user.vd_set.all().count(), 2)
 
@@ -73,12 +104,25 @@ class VDTest(TestCase):
         saved = models.VD.objects.first()
         self.assertEqual(point, saved.lastLonLat)
 
+    def test_realOwner_property(self):
+        vd = models.VD(realOwner=self.realUser)
+        vd.save()
+        saved = models.VD.objects.first()
+        self.assertEqual(saved.realOwner, self.realUser)
 
-class RealUserTest(TestCase):
+        vd2 = models.VD()
+        vd2.realOwner = vd.realOwner
+        vd2.save()
+        self.assertNotEqual(vd, vd2)
+        self.assertEqual(vd.realOwner, vd2.realOwner)
 
-    def test_save_and_retreive(self):
-        real_user = models.RealUser()
-        real_user.save()
-        saved = models.RealUser.objects.first()
-        self.assertEqual(saved, real_user)
+    def test_realOwner_relationship(self):
+        self.assertEqual(self.realUser.vd_set.all().count(), 0)
+        vd = models.VD(realOwner=self.realUser)
+        vd.save()
+        self.assertEqual(self.realUser.vd_set.all().count(), 1)
+        vd2 = models.VD(realOwner=self.realUser)
+        vd2.save()
+        self.assertEqual(self.realUser.vd_set.all().count(), 2)
+
 

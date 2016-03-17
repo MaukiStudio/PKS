@@ -112,7 +112,7 @@ class UserAutoRegisterLoginTest(APITestBase):
         self.assertNotLogin()
 
 
-class VDRegisterSetTest(APITestBase):
+class VDRegisterLoginTest(APITestBase):
     def setUp(self):
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
@@ -127,7 +127,7 @@ class VDRegisterSetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         vd = models.VD.objects.first()
         user = User.objects.first()
-        self.assertEqual(user, vd.owner)
+        self.assertEqual(user, vd.authOwner)
         self.assertEqual(user.email, email)
 
         result = json.loads(response.content)
@@ -152,6 +152,6 @@ class VDRegisterSetTest(APITestBase):
 
         # assertion
         vd = models.VD.objects.first()
-        self.assertIsNotNone(vd.realUser)
-        self.assertEqual(vd.owner.email, vd.realUser.email)
+        self.assertIsNotNone(vd.realOwner)
+        self.assertEqual(vd.authOwner.email, vd.realOwner.email)
 

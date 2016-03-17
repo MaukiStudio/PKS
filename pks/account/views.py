@@ -67,12 +67,12 @@ class VDViewset(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         vd = serializer.instance
-        if vd.owner is None:
-            vd.owner = request.user
+        if vd.authOwner is None:
+            vd.authOwner = request.user
             vd.save()
         if request.data['email']:
-            vd.owner.email = request.data['email']
-            vd.owner.save()
+            vd.authOwner.email = request.data['email']
+            vd.authOwner.save()
 
         # generate token
         raw_token = '%s|%s' % (vd.pk, request.user.pk)
