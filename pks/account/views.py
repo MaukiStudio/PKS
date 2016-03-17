@@ -82,7 +82,9 @@ class VDViewset(ModelViewSet):
         # TODO : send email
 
         # Temporary : 곧바로 이메일 인증이 된 것으로 처리
-
+        realUser, isCreated = models.RealUser.objects.get_or_create(email=vd.authOwner.email)
+        vd.realOwner = realUser
+        vd.save()
 
         # return result
         return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)
