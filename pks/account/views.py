@@ -109,6 +109,13 @@ class VDViewset(ModelViewSet):
         else:
             return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
 
+    def get_object(self):
+        pk = self.kwargs['pk']
+        if str(pk) == '0':
+            vd_pk = self.request.session[VD_SESSION_KEY]
+            return models.VD.objects.get(pk=vd_pk)
+        return super(VDViewset, self).get_object()
+
 
 class RealUserViewset(ModelViewSet):
     queryset = models.RealUser.objects.all()

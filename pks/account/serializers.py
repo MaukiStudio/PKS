@@ -7,7 +7,7 @@ from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializ
 from account import models
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'username', 'password', 'email')
@@ -20,11 +20,11 @@ class UserSerializer(HyperlinkedModelSerializer):
         return user
 
 
-class RealUserSerializer(HyperlinkedModelSerializer):
+class RealUserSerializer(ModelSerializer):
     class Meta:
         model = models.RealUser
 
 
-class VDSerializer(HyperlinkedModelSerializer):
+class VDSerializer(ModelSerializer):
     class Meta:
         model = models.VD
