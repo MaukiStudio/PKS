@@ -20,6 +20,11 @@ class UserSerializer(ModelSerializer):
         return user
 
 
+class RealUserSerializer(ModelSerializer):
+    class Meta:
+        model = models.RealUser
+
+
 class VDSerializer(ModelSerializer):
     class Meta:
         model = models.VD

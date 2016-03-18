@@ -13,6 +13,7 @@ from account import views
 router = DefaultRouter()
 router.register(r'vds', views.VDViewset)
 router.register(r'users', views.UserViewset)
+router.register(r'rus', views.RealUserViewset)
 
 
 urlpatterns = [

@@ -108,3 +108,8 @@ class VDViewset(ModelViewSet):
             return Response({'result': True}, status=status.HTTP_302_FOUND)
         else:
             return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class RealUserViewset(ModelViewSet):
+    queryset = models.RealUser.objects.all()
+    serializer_class = serializers.RealUserSerializer
