@@ -9,7 +9,7 @@ from rest_framework import status
 
 from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
-from pks.settings import USER_ENC_KEY, VD_ENC_KEY
+from pks.settings import USER_ENC_KEY, VD_ENC_KEY, VD_SESSION_KEY
 from account import models
 from base.tests import APITestBase
 
@@ -154,4 +154,27 @@ class VDRegisterLoginTest(APITestBase):
         vd = models.VD.objects.first()
         self.assertIsNotNone(vd.realOwner)
         self.assertEqual(vd.authOwner.email, vd.realOwner.email)
+
+    def test_login(self):
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        auth_vd_token = json.loads(response.content)['auth_vd_token']
+        vd = models.VD.objects.first()
+        self.assertVdNotLogin()
+
+        response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        print(vd.pk)
+        print(self.client.session[VD_SESSION_KEY])
+        self.assertVdLogin(vd)
+
+    def test_login_fail(self):
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        auth_vd_token = json.loads(response.content)['auth_vd_token']
+        vd = models.VD.objects.first()
+        vd.delete()
+        response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertVdNotLogin()
+
 

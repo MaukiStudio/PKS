@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from cryptography.fernet import Fernet
-from pks.settings import USER_ENC_KEY, VD_ENC_KEY
+from pks.settings import USER_ENC_KEY, VD_ENC_KEY, VD_SESSION_KEY
 from account import models
 from account import serializers
 
@@ -88,3 +88,23 @@ class VDViewset(ModelViewSet):
 
         # return result
         return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=['post'])
+    def login(self, request):
+        # auth_vd_token
+        token = request.data['auth_vd_token']
+        decrypter = Fernet(VD_ENC_KEY)
+        raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
+        vd_pk = int(raw_token.split('|')[0])
+        user_pk = int(raw_token.split('|')[1])
+
+        # check credentials
+        try:
+            vd = models.VD.objects.get(pk=vd_pk)
+        except models.VD.DoesNotExist:
+            vd = None
+        if vd and vd_pk and vd_pk == vd.pk and user_pk and request.user.is_authenticated() and user_pk == request.user.pk:
+            request.session[VD_SESSION_KEY] = vd_pk
+            return Response({'result': True}, status=status.HTTP_302_FOUND)
+        else:
+            return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
