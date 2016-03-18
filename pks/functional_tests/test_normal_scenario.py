@@ -9,13 +9,14 @@ from base.tests import APITestBase
 
 
 class FirstScenarioTest(APITestBase):
+
     def test_first_scenario(self):
         # 자동 회원 가입
         res1 = self.client.post('/users/register/')
         self.assertEqual(res1.status_code, status.HTTP_201_CREATED)
 
         # 유저 로그인 by 토큰
-        auth_user_token = json.loads(res1.content)['auth_user_token']
+        auth_user_token = json.loads(res1.content)['auth_user_token']   # post 와는 다른 storage 에 저장
         self.assertNotLogin()
         res2 = self.client.post('/users/login/', dict(auth_user_token=auth_user_token))
         self.assertEqual(res2.status_code, status.HTTP_302_FOUND)
@@ -23,13 +24,13 @@ class FirstScenarioTest(APITestBase):
 
         # VD 등록
         res3 = self.client.post('/vds/register/',
-                                dict(email='gulby@maukistudio.com',
-                                     deviceTypeName='LG-F460L',
-                                     deviceName='ed750c68-ecd1-11e5-b311-382c4a6424bd'))
+                                dict(email='gulby@maukistudio.com',     # required
+                                     deviceTypeName='LG-F460L',         # optional
+                                     deviceName='ed750c68-ecd1-11e5-b311-382c4a6424bd'))    # optional
         self.assertEqual(res3.status_code, status.HTTP_201_CREATED)
 
         # VD 로그인 by 토큰
-        auth_vd_token = json.loads(res3.content)['auth_vd_token']
+        auth_vd_token = json.loads(res3.content)['auth_vd_token']       # post 와 같은 storage 에 저장해도 무방
         res5 = self.client.post('/vds/login/', dict(auth_vd_token=auth_vd_token))
         self.assertEqual(res5.status_code, status.HTTP_302_FOUND)
 
