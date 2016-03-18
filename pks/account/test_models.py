@@ -56,8 +56,10 @@ class VDTest(TestCase):
         self.realUser.save()
 
     def test_string_representation(self):
-        vd = models.VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
-        self.assertEqual('gulby@maukistudio.com\'s LG-F460L (88:C9:D0:FA:79:57)', str(vd))
+        vd1 = models.VD()
+        self.assertEqual("unknown@email's unknown device", str(vd1))
+        vd2 = models.VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
+        self.assertEqual("gulby@maukistudio.com's LG-F460L (88:C9:D0:FA:79:57)", str(vd2))
 
     def test_save_and_retreive(self):
         vd = models.VD()

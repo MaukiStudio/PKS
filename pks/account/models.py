@@ -24,7 +24,7 @@ class VD(models.Model):
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
 
     def __str__(self):
-        email = self.realOwner.email or self.authOwner.email or 'unknown@email'
-        deviceTypeName = self.deviceTypeName or 'unknown device type'
-        deviceNameCaption = ' (%s)' % self.deviceName or ''
+        email = (self.realOwner and self.realOwner.email) or (self.authOwner and self.authOwner.email) or 'unknown@email'
+        deviceTypeName = self.deviceTypeName or 'unknown device'
+        deviceNameCaption = (self.deviceName and ' (%s)' % self.deviceName) or ''
         return '%s\'s %s%s' % (email, deviceTypeName, deviceNameCaption)
