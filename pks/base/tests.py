@@ -33,3 +33,9 @@ class APITestBase(APITestCase):
 
     def assertVdNotLogin(self):
         return self.assertFalse(self.check_vd_login())
+
+    def logout(self):
+        self.client.session[SESSION_KEY] = None
+        self.client.logout()
+
+
