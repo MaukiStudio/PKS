@@ -32,7 +32,7 @@ class VDViewSetTest(APITestBase):
 class UserManualRegisterLoginTest(APITestBase):
 
     def test_register(self):
-        response = self.client.post('/users/', {'username': 'gulby', 'password': 'pass'})
+        response = self.client.post('/users/', dict(username='gulby', password='pass', email='gulby@maukistudio.com'))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_can_connect_by_browser(self):
@@ -58,7 +58,7 @@ class UserManualRegisterLoginTest(APITestBase):
         user.save()
         self.assertNotLogin()
 
-        response = self.client.post('/api-auth/login/', {'username': 'gulby', 'password': 'pass'})
+        response = self.client.post('/api-auth/login/', dict(username='gulby', password='pass'))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertLogin(user)
 
@@ -66,7 +66,7 @@ class UserManualRegisterLoginTest(APITestBase):
         user = User(username='gulby')
         user.set_password('pass')
         user.save()
-        response = self.client.post('/api-auth/login/', {'username': 'gulby', 'password': 'fail'})
+        response = self.client.post('/api-auth/login/', dict(username='gulby', password='fail'))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotLogin()
