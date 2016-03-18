@@ -18,9 +18,8 @@ class ApiRootTest(APITestBase):
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
 
     def test_valid_json(self):
-        decoded = json.JSONDecoder().decode(self.response.content)
-        encoded = json.JSONEncoder(separators=(',', ':')).encode(decoded)
-        self.assertEqual(encoded, self.response.content)
+        json_dict = json.loads(self.response.content)
+        self.assertEqual(type(json_dict), dict)
 
 
 class AdminTest(TestCase):

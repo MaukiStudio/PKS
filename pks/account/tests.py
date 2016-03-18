@@ -25,9 +25,8 @@ class VDViewSetTest(APITestBase):
         self.assertEqual(self.response2.status_code, status.HTTP_200_OK)
 
     def test_valid_json(self):
-        decoded = json.JSONDecoder().decode(self.response1.content)
-        encoded = json.JSONEncoder(separators=(',', ':')).encode(decoded)
-        self.assertEqual(encoded, self.response1.content)
+        json_list = json.loads(self.response1.content)
+        self.assertEqual(type(json_list), list)
 
 
 class UserManualRegisterLoginTest(APITestBase):

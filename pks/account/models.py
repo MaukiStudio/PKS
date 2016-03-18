@@ -9,6 +9,9 @@ from django.contrib.auth.models import User
 class RealUser(models.Model):
     email = models.EmailField(unique=True, blank=False, null=False, default=None)
 
+    def __str__(self):
+        return self.email
+
 
 class VD(models.Model):
     authOwner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None)
@@ -19,3 +22,9 @@ class VD(models.Model):
 
     deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
+
+    def __str__(self):
+        email = self.realOwner.email or self.authOwner.email or 'unknown@email'
+        deviceTypeName = self.deviceTypeName or 'unknown device type'
+        deviceNameCaption = ' (%s)' % self.deviceName or ''
+        return '%s\'s %s%s' % (email, deviceTypeName, deviceNameCaption)

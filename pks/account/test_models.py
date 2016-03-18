@@ -14,6 +14,11 @@ from account import models
 
 class RealUserTest(TestCase):
 
+    def test_string_representation(self):
+        email = 'gulby@maukistudio.com'
+        realUser = models.RealUser(email=email)
+        self.assertEqual(email, str(realUser))
+
     def test_save_and_retreive(self):
         realUser = models.RealUser(email='gulby@maukistudio.com')
         realUser.save()
@@ -49,6 +54,10 @@ class VDTest(TestCase):
 
         self.realUser = models.RealUser(email='gulby@maukistudio.com')
         self.realUser.save()
+
+    def test_string_representation(self):
+        vd = models.VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
+        self.assertEqual('gulby@maukistudio.com\'s LG-F460L (88:C9:D0:FA:79:57)', str(vd))
 
     def test_save_and_retreive(self):
         vd = models.VD()
