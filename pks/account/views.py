@@ -20,7 +20,7 @@ class UserViewset(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
-    @list_route(methods=['post'])
+    @list_route(methods=['get', 'post'])
     def register(self, request):
         # create user
         username = urlsafe_b64encode(uuid1().bytes).replace('=', '.')
@@ -108,6 +108,12 @@ class VDViewset(ModelViewSet):
             return Response({'result': True}, status=status.HTTP_302_FOUND)
         else:
             return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
+
+    @list_route(methods=['get', 'post'])
+    def logout(self, request):
+        request.session[VD_SESSION_KEY] = None
+        del request.session[VD_SESSION_KEY]
+        return Response({'result': True}, status=status.HTTP_200_OK)
 
     def get_object(self):
         pk = self.kwargs['pk']

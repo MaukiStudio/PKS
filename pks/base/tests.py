@@ -36,6 +36,7 @@ class APITestBase(APITestCase):
 
     def logout(self):
         self.client.session[SESSION_KEY] = None
+        del self.client.session[SESSION_KEY]
         self.client.logout()
 
 

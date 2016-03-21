@@ -156,7 +156,7 @@ class UserAutoRegisterLoginTest(APITestBase):
         self.assertNotLogin()
 
 
-class VDRegisterLoginTest(APITestBase):
+class VDRegisterTest(APITestBase):
     def setUp(self):
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
@@ -199,26 +199,35 @@ class VDRegisterLoginTest(APITestBase):
         self.assertIsNotNone(vd.realOwner)
         self.assertEqual(vd.authOwner.email, vd.realOwner.email)
 
-    def test_login(self):
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        auth_vd_token = json.loads(response.content)['auth_vd_token']
-        vd = models.VD.objects.first()
-        self.assertVdNotLogin()
 
+class VDLoginTest(APITestBase):
+    def setUp(self):
+        response = self.client.post('/users/register/')
+        auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.vd = models.VD.objects.first()
+
+    def doLogin(self, auth_vd_token):
+        self.assertVdNotLogin()
         response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        print(vd.pk)
-        print(self.client.session[VD_SESSION_KEY])
-        self.assertVdLogin(vd)
+        self.assertVdLogin(self.vd)
 
-    def test_login_fail(self):
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        auth_vd_token = json.loads(response.content)['auth_vd_token']
-        vd = models.VD.objects.first()
-        vd.delete()
-        response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
+    def test_login_simple(self):
+        self.doLogin(self.auth_vd_token)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    def test_logout(self):
+        self.doLogin(self.auth_vd_token)
+        response = self.client.post('/vds/logout/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertVdNotLogin()
 
+    def test_login_fail(self):
+        self.assertVdNotLogin()
+        self.vd.delete()
+        response = self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertVdNotLogin()
 
