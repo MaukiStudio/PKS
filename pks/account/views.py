@@ -67,11 +67,14 @@ class VDViewset(ModelViewSet):
     @list_route(methods=['post'])
     def register(self, request):
         # create VD
+        # TODO : 여기서 불필요한 aid 계산이 일어남. 제거할 것
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         vd = serializer.instance
+
+        # 추가 처리
         if vd.authOwner is None:
             vd.authOwner = request.user
             vd.save()
@@ -121,11 +124,12 @@ class VDViewset(ModelViewSet):
         return Response({'result': True}, status=status.HTTP_200_OK)
 
     def get_object(self):
-        pk = self.kwargs['pk']
-        if str(pk) == 'mine':
+        aid = self.kwargs['pk']
+        if str(aid) == 'mine':
             vd_pk = self.request.session[VD_SESSION_KEY]
-            return models.VD.objects.get(pk=vd_pk)
-        return super(VDViewset, self).get_object()
+        else:
+            vd_pk = models.getVidIdFromAid(self.request.user, aid)
+        return models.VD.objects.get(pk=vd_pk)
 
 
 class RealUserViewset(ModelViewSet):

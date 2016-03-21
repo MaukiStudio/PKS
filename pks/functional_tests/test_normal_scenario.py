@@ -16,7 +16,7 @@ class FirstScenarioTest(APITestBase):
         self.assertEqual(res1.status_code, status.HTTP_201_CREATED)
 
         # 유저 로그인 by 토큰
-        auth_user_token = json.loads(res1.content)['auth_user_token']   # post 와는 다른 storage 에 저장
+        auth_user_token = json.loads(res1.content)['auth_user_token']   # post 와는 다른, 최대한 안전한 storage 에 저장
         self.assertNotLogin()
         res2 = self.client.post('/users/login/', dict(auth_user_token=auth_user_token))
         self.assertEqual(res2.status_code, status.HTTP_302_FOUND)
@@ -35,6 +35,7 @@ class FirstScenarioTest(APITestBase):
         res5 = self.client.post('/vds/login/', dict(auth_vd_token=auth_vd_token))
         self.assertEqual(res5.status_code, status.HTTP_302_FOUND)
         self.assertVdLogin()
+        auth_vd_token = json.loads(res5.content)['auth_vd_token']       # 로그인할 때마다 auth_vd_token 은 갱신
 
         # VD 정보 조회 : 향후 VD 로그인과 합칠 수도...
         # VD.pk == 0 은 로그인된 VD.pk 로 처리됨

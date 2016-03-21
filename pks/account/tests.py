@@ -8,37 +8,9 @@ from rest_framework import status
 
 from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
-from pks.settings import USER_ENC_KEY, VD_ENC_KEY, VD_SESSION_KEY
+from pks.settings import USER_ENC_KEY
 from account import models
 from base.tests import APITestBase
-
-
-class VDViewSetTest(APITestBase):
-
-    def setUp(self):
-        self.ru = models.RealUser(email='gulby@maukistudio.com')
-        self.ru.save()
-        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
-        self.vd2 = models.VD(deviceName='test vd 2')
-        self.vd1.save()
-        self.vd2.save()
-
-    def test_vds_list(self):
-        response = self.client.get('/vds/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(type(result), list)
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]['deviceName'], 'test vd 1')
-        self.assertEqual(result[1]['deviceName'], 'test vd 2')
-
-    def test_vds_detail(self):
-        response = self.client.get('/vds/%s/' % self.vd1.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(type(result), dict)
-        self.assertEqual(result['deviceName'], 'test vd 1')
-        self.assertEqual(result['realOwner'], self.vd1.realOwner.pk)
 
 
 class RealUserViewSetTest(APITestBase):
@@ -250,4 +222,31 @@ class VDLoginTest(APITestBase):
         response = self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertVdNotLogin()
+
+
+class VDViewSetTest(APITestBase):
+
+    def setUp(self):
+        response = self.client.post('/users/register/')
+        auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.vd = models.VD.objects.first()
+
+    def test_vds_list(self):
+        response = self.client.get('/vds/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(type(result), list)
+        self.assertEqual(len(result), 1)
+
+    def test_vds_detail(self):
+        aid = self.vd._aid
+        response = self.client.get('/vds/%s/' % aid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(type(result), dict)
+        self.assertEqual(result['id'], self.vd.id)
+
 
