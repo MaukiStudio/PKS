@@ -37,14 +37,13 @@ class FirstScenarioTest(APITestBase):
         self.assertVdLogin()
         auth_vd_token = json.loads(res5.content)['auth_vd_token']       # 로그인할 때마다 auth_vd_token 은 갱신
 
-        # VD 정보 조회 : 향후 VD 로그인과 합칠 수도...
-        # VD.pk == 0 은 로그인된 VD.pk 로 처리됨
-        res6 = self.client.get('/vds/mine/')
-        self.assertEqual(res6.status_code, status.HTTP_200_OK)
+        # RealUser(VD.realOwner) 에 매핑된 VD 목록 조회
+        res6 = self.client.get('/rus/mine/')
 
-        # VD.realOwner (RealUser) 정보가 없음을 확인 : 이메일 인증이 되지 않은 상태에서는 없어야 함
-        # TODO : 현재는 VD 등록 시점에서 바로 이메일 인증이 된 걸로 처리를 하면서 realOwner 정보가 세팅됨. 향후 제대로 구현 후 주석풀기
-        #self.assertIsNone(json.loads(res6.content)['realOwner'])
+        # 이메일 인증이 되지 않은 경우 404 Not Found 가 발생
+        # TODO : 현재는 임시로 VD 등록 시 이메일 인증도 완료된 걸로 처리되어 있음
+        # TODO : 따라서 404 가 발생하지 않음. 추후 주석 제거
+        self.assertEqual(res6.status_code, status.HTTP_404_NOT_FOUND)
 
         # 앱 종료
         self.logout()

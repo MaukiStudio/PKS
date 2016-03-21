@@ -135,3 +135,12 @@ class VDViewset(ModelViewSet):
 class RealUserViewset(ModelViewSet):
     queryset = models.RealUser.objects.all()
     serializer_class = serializers.RealUserSerializer
+
+    def get_object(self):
+        aid = self.kwargs['pk']
+        if str(aid) == 'mine':
+            vd_pk = self.request.session[VD_SESSION_KEY]
+            vd = models.VD.objects.get(pk=vd_pk)
+            return vd.realOwner
+        return super(RealUserViewset, self).get_object()
+

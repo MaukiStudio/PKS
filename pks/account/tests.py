@@ -13,39 +13,6 @@ from account import models
 from base.tests import APITestBase
 
 
-class RealUserViewSetTest(APITestBase):
-
-    def setUp(self):
-        self.ru = models.RealUser(email='gulby@maukistudio.com')
-        self.ru.save()
-        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
-        self.vd2 = models.VD(deviceName='test vd 2')
-        self.vd3 = models.VD(deviceName='test vd 3', realOwner=self.ru)
-        self.vd1.save()
-        self.vd2.save()
-        self.vd3.save()
-        self.ru_other = models.RealUser(email='hoonja@maukistudio.com')
-        self.ru_other.save()
-        self.vd4 = models.VD(deviceName='test vd 4', realOwner=self.ru_other)
-        self.vd4.save()
-
-    def test_vds_detail(self):
-        response = self.client.get('/rus/%s/' % self.ru.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        result = json.loads(response.content)
-        self.assertEqual(type(result), dict)
-        self.assertEqual(result['email'], 'gulby@maukistudio.com')
-        self.assertEqual(type(result['vds']), list)
-
-        vds = result['vds']
-        self.assertEqual(len(vds), 2)
-        self.assertIn(self.vd1.pk, vds)
-        self.assertIn(self.vd3.pk, vds)
-        self.assertNotIn(self.vd2.pk, vds)
-        self.assertNotIn(self.vd4.pk, vds)
-
-
 class UserManualRegisterLoginTest(APITestBase):
 
     def test_register(self):
@@ -233,6 +200,7 @@ class VDViewSetTest(APITestBase):
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
         self.vd = models.VD.objects.first()
+        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
 
     def test_vds_list(self):
         response = self.client.get('/vds/')
@@ -248,5 +216,56 @@ class VDViewSetTest(APITestBase):
         result = json.loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertEqual(result['id'], self.vd.id)
+
+
+class RealUserViewSetBasicTest(APITestBase):
+
+    def setUp(self):
+        self.ru = models.RealUser(email='gulby@maukistudio.com')
+        self.ru.save()
+        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
+        self.vd2 = models.VD(deviceName='test vd 2')
+        self.vd3 = models.VD(deviceName='test vd 3', realOwner=self.ru)
+        self.vd1.save()
+        self.vd2.save()
+        self.vd3.save()
+        self.ru_other = models.RealUser(email='hoonja@maukistudio.com')
+        self.ru_other.save()
+        self.vd4 = models.VD(deviceName='test vd 4', realOwner=self.ru_other)
+        self.vd4.save()
+
+    def test_rus_detail(self):
+        response = self.client.get('/rus/%s/' % self.ru.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = json.loads(response.content)
+        self.assertEqual(type(result), dict)
+        self.assertEqual(result['email'], 'gulby@maukistudio.com')
+        self.assertEqual(type(result['vds']), list)
+
+        vds = result['vds']
+        self.assertEqual(len(vds), 2)
+        self.assertIn(self.vd1.pk, vds)
+        self.assertIn(self.vd3.pk, vds)
+        self.assertNotIn(self.vd2.pk, vds)
+        self.assertNotIn(self.vd4.pk, vds)
+
+
+class RealUserViewsetTest(APITestBase):
+    def setUp(self):
+        response = self.client.post('/users/register/')
+        auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.vd = models.VD.objects.first()
+        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+        self.ru = models.RealUser.objects.get(email='gulby@maukistudio.com')
+
+    def test_rus_detail(self):
+        response = self.client.get('/rus/0/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.get('/rus/mine/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
