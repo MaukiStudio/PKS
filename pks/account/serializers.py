@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, ReadOnlyField
 
 from account import models
 
@@ -28,5 +28,7 @@ class RealUserSerializer(ModelSerializer):
 
 
 class VDSerializer(ModelSerializer):
+    aid = ReadOnlyField(source='_aid')
+
     class Meta:
         model = models.VD

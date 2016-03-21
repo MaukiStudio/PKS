@@ -9,6 +9,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.db import IntegrityError
 
 from strgen import StringGenerator as SG
+from cryptography.fernet import InvalidToken
 from account import models
 
 
@@ -136,4 +137,25 @@ class VDTest(TestCase):
         vd2.save()
         self.assertEqual(self.realUser.vds.all().count(), 2)
 
+    def test_aid(self):
+        vd1 = models.VD(authOwner=self.user)
+        vd1.save()
+        vd1_aid = str(vd1._aid)
+        user2 = User(username='another')
+        user2.save()
+        vd1.authOwner = user2
+        vd1_aid2 = str(vd1._aid)
+        vd2 = models.VD()
+        vd2.save()
+        vd2_aid = str(vd2._aid)
+        vd2_aid2 = str(vd2._aid)
+
+        self.assertGreater(len(vd1_aid), 32)
+        self.assertEqual(5, len({vd1_aid, vd1_aid2, vd2_aid, str(vd1.id), str(vd2.id)}))
+        with self.assertRaises(InvalidToken):
+            vd1.getIdFromAid(vd1_aid)
+        self.assertEqual(vd1.getIdFromAid(vd1_aid2), vd1.id)
+        self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.id)
+        self.assertNotEqual(vd2_aid, vd2_aid2)
+        self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.getIdFromAid(vd2_aid2))
 
