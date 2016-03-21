@@ -111,7 +111,7 @@ class VDViewset(ModelViewSet):
 
     def get_object(self):
         pk = self.kwargs['pk']
-        if str(pk) == '0':
+        if str(pk) == 'mine':
             vd_pk = self.request.session[VD_SESSION_KEY]
             return models.VD.objects.get(pk=vd_pk)
         return super(VDViewset, self).get_object()

@@ -38,7 +38,7 @@ class FirstScenarioTest(APITestBase):
 
         # VD 정보 조회 : 향후 VD 로그인과 합칠 수도...
         # VD.pk == 0 은 로그인된 VD.pk 로 처리됨
-        res6 = self.client.get('/vds/0/')
+        res6 = self.client.get('/vds/mine/')
         self.assertEqual(res6.status_code, status.HTTP_200_OK)
 
         # VD.realOwner (RealUser) 정보가 없음을 확인 : 이메일 인증이 되지 않은 상태에서는 없어야 함
@@ -67,11 +67,11 @@ class FirstScenarioTest(APITestBase):
         self.assertVdLogin()
 
         # VD 정보 조회
-        res9 = self.client.get('/vds/0/')
+        res9 = self.client.get('/vds/mine/')
         self.assertEqual(res6.status_code, status.HTTP_200_OK)
 
         # VD.realOwner 정보가 세팅되어 있음을 확인
-        realOwner = json.loads(res6.content)['realOwner']
+        realOwner = json.loads(res9.content)['realOwner']
         self.assertIsNotNone(realOwner)
 
         # realOwner 의 VD 목록 조회
