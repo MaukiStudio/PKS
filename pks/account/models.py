@@ -11,6 +11,15 @@ from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
 
 
+def getVdEncKey(user):
+    if user is None:
+        return VD_ENC_KEY
+    raw_key = '%d|%s' % (user.pk, VD_ENC_KEY)
+    h = sha256()
+    h.update(raw_key)
+    return urlsafe_b64encode(h.digest())
+
+
 class RealUser(models.Model):
     email = models.EmailField(unique=True, blank=False, null=False, default=None)
 
@@ -35,20 +44,11 @@ class VD(models.Model):
         return '%s\'s %s%s' % (email, deviceTypeName, deviceNameCaption)
 
     @property
-    def _encKey(self):
-        if self.authOwner is None:
-            return VD_ENC_KEY
-        raw_key = '%d|%s' % (self.authOwner.pk, VD_ENC_KEY)
-        h = sha256()
-        h.update(raw_key)
-        return urlsafe_b64encode(h.digest())
-
-    @property
     def _aid(self):
-        encrypter = Fernet(self._encKey)
+        encrypter = Fernet(getVdEncKey(self.authOwner))
         return encrypter.encrypt(str(self.id).encode(encoding='utf-8'))
 
     def getIdFromAid(self, aid):
-        decrypter = Fernet(self._encKey)
+        decrypter = Fernet(getVdEncKey(self.authOwner))
         return int(decrypter.decrypt(aid))
 

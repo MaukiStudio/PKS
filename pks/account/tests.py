@@ -176,7 +176,7 @@ class VDRegisterLoginTest(APITestBase):
 
         result = json.loads(response.content)
         self.assertIn('auth_vd_token', result)
-        decrypter = Fernet(VD_ENC_KEY)
+        decrypter = Fernet(models.getVdEncKey(user))
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
         pk = int(raw_token.split('|')[0])
         user_pk = int(raw_token.split('|')[1])

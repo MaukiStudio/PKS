@@ -76,7 +76,7 @@ class VDViewset(ModelViewSet):
 
         # generate token
         raw_token = '%s|%s' % (vd.pk, request.user.pk)
-        encrypter = Fernet(VD_ENC_KEY)
+        encrypter = Fernet(models.getVdEncKey(vd.authOwner))
         token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
         # TODO : send email
@@ -93,7 +93,7 @@ class VDViewset(ModelViewSet):
     def login(self, request):
         # auth_vd_token
         token = request.data['auth_vd_token']
-        decrypter = Fernet(VD_ENC_KEY)
+        decrypter = Fernet(models.getVdEncKey(request.user))
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
         vd_pk = int(raw_token.split('|')[0])
         user_pk = int(raw_token.split('|')[1])
