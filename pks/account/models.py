@@ -14,8 +14,8 @@ class RealUser(models.Model):
 
 
 class VD(models.Model):
-    authOwner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None)
-    realOwner = models.ForeignKey(RealUser, on_delete=models.SET_DEFAULT, null=True, default=None)
+    authOwner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='vds')
+    realOwner = models.ForeignKey(RealUser, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='vds')
 
     lastLonLat = models.PointField(blank=True, null=True, default=None)
     data = JSONField(blank=True, null=True, default=None)

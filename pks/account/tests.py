@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from rest_framework import status
 
@@ -17,16 +16,62 @@ from base.tests import APITestBase
 class VDViewSetTest(APITestBase):
 
     def setUp(self):
-        self.response1 = self.client.get(reverse('vd-list'))
-        self.response2 = self.client.get(reverse('vd-list'), {'format': 'api'})
+        self.ru = models.RealUser(email='gulby@maukistudio.com')
+        self.ru.save()
+        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
+        self.vd2 = models.VD(deviceName='test vd 2')
+        self.vd1.save()
+        self.vd2.save()
 
-    def test_can_connect(self):
-        self.assertEqual(self.response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.response2.status_code, status.HTTP_200_OK)
+    def test_vds_list(self):
+        response = self.client.get('/vds/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(type(result), list)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['deviceName'], 'test vd 1')
+        self.assertEqual(result[1]['deviceName'], 'test vd 2')
 
-    def test_valid_json(self):
-        json_list = json.loads(self.response1.content)
-        self.assertEqual(type(json_list), list)
+    def test_vds_detail(self):
+        response = self.client.get('/vds/%s/' % self.vd1.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(type(result), dict)
+        self.assertEqual(result['deviceName'], 'test vd 1')
+        self.assertEqual(result['realOwner'], self.vd1.realOwner.pk)
+
+
+class RealUserViewSetTest(APITestBase):
+
+    def setUp(self):
+        self.ru = models.RealUser(email='gulby@maukistudio.com')
+        self.ru.save()
+        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
+        self.vd2 = models.VD(deviceName='test vd 2')
+        self.vd3 = models.VD(deviceName='test vd 3', realOwner=self.ru)
+        self.vd1.save()
+        self.vd2.save()
+        self.vd3.save()
+        self.ru_other = models.RealUser(email='hoonja@maukistudio.com')
+        self.ru_other.save()
+        self.vd4 = models.VD(deviceName='test vd 4', realOwner=self.ru_other)
+        self.vd4.save()
+
+    def test_vds_detail(self):
+        response = self.client.get('/rus/%s/' % self.ru.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = json.loads(response.content)
+        self.assertEqual(type(result), dict)
+        self.assertEqual(result['email'], 'gulby@maukistudio.com')
+        self.assertEqual(type(result['vds']), list)
+
+        vds = result['vds']
+        self.assertEqual(len(vds), 2)
+        self.assertIn(self.vd1.pk, vds)
+        self.assertIn(self.vd3.pk, vds)
+        self.assertNotIn(self.vd2.pk, vds)
+        self.assertNotIn(self.vd4.pk, vds)
 
 
 class UserManualRegisterLoginTest(APITestBase):

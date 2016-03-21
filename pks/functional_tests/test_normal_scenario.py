@@ -79,7 +79,8 @@ class FirstScenarioTest(APITestBase):
         self.assertEqual(res10.status_code, status.HTTP_200_OK)
 
         # res10 에서 VD 목록이 있는지 확인
-        self.fail('res10 에서 VD 목록이 없음')
+        vds = json.loads(res10.content)['vds']
+        #self.assertListEqual(vds, [])
 
         # 장소 저장
         self.fail('장소 저장 로직 구현')

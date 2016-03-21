@@ -80,13 +80,13 @@ class VDTest(TestCase):
         self.assertEqual(vd.authOwner, vd2.authOwner)
 
     def test_authOwner_relationship(self):
-        self.assertEqual(self.user.vd_set.all().count(), 0)
+        self.assertEqual(self.user.vds.all().count(), 0)
         vd = models.VD(authOwner=self.user)
         vd.save()
-        self.assertEqual(self.user.vd_set.all().count(), 1)
+        self.assertEqual(self.user.vds.all().count(), 1)
         vd2 = models.VD(authOwner=self.user)
         vd2.save()
-        self.assertEqual(self.user.vd_set.all().count(), 2)
+        self.assertEqual(self.user.vds.all().count(), 2)
 
     def test_simple_properties(self):
         deviceName = SG('[\w\-]{36}').render()
@@ -128,12 +128,12 @@ class VDTest(TestCase):
         self.assertEqual(vd.realOwner, vd2.realOwner)
 
     def test_realOwner_relationship(self):
-        self.assertEqual(self.realUser.vd_set.all().count(), 0)
+        self.assertEqual(self.realUser.vds.all().count(), 0)
         vd = models.VD(realOwner=self.realUser)
         vd.save()
-        self.assertEqual(self.realUser.vd_set.all().count(), 1)
+        self.assertEqual(self.realUser.vds.all().count(), 1)
         vd2 = models.VD(realOwner=self.realUser)
         vd2.save()
-        self.assertEqual(self.realUser.vd_set.all().count(), 2)
+        self.assertEqual(self.realUser.vds.all().count(), 2)
 
 
