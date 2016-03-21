@@ -214,15 +214,35 @@ class VDLoginTest(APITestBase):
         response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertVdLogin(self.vd)
+        return json.loads(response.content)['auth_vd_token']
+
+    def doLogout(self):
+        response = self.client.post('/vds/logout/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertVdNotLogin()
 
     def test_login_simple(self):
         self.doLogin(self.auth_vd_token)
 
     def test_logout(self):
         self.doLogin(self.auth_vd_token)
-        response = self.client.post('/vds/logout/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.doLogout()
+
+    def test_login_complex(self):
+        new_token1 = self.doLogin(self.auth_vd_token)
+        self.doLogout()
+        self.doLogin(self.auth_vd_token)
+        self.doLogout()
+        self.doLogin(new_token1)
+        self.doLogout()
+
+        # 새로운 token 으로 login 을 하고 나면 기존 token 으로는 login 을 못함
+        # TODO : 이 기능은 나중에 구현
+        '''
+        response = self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertVdNotLogin()
+        '''
 
     def test_login_fail(self):
         self.assertVdNotLogin()

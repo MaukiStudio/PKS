@@ -59,6 +59,11 @@ class VDViewset(ModelViewSet):
     queryset = models.VD.objects.all()
     serializer_class = serializers.VDSerializer
 
+    def getToken(self, vd):
+        raw_token = '%s|%s' % (vd.pk, vd.authOwner.pk)
+        encrypter = Fernet(models.getVdEncKey(vd.authOwner))
+        return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+
     @list_route(methods=['post'])
     def register(self, request):
         # create VD
@@ -75,9 +80,7 @@ class VDViewset(ModelViewSet):
             vd.authOwner.save()
 
         # generate token
-        raw_token = '%s|%s' % (vd.pk, request.user.pk)
-        encrypter = Fernet(models.getVdEncKey(vd.authOwner))
-        token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+        token = self.getToken(vd)
 
         # TODO : send email
 
@@ -103,11 +106,13 @@ class VDViewset(ModelViewSet):
             vd = models.VD.objects.get(pk=vd_pk)
         except models.VD.DoesNotExist:
             vd = None
-        if vd and vd_pk and vd_pk == vd.pk and user_pk and request.user.is_authenticated() and user_pk == request.user.pk:
+        if vd and vd_pk and vd_pk == vd.pk and user_pk and request.user.is_authenticated()\
+                and user_pk == request.user.pk and user_pk == vd.authOwner.pk:
             request.session[VD_SESSION_KEY] = vd_pk
-            return Response({'result': True}, status=status.HTTP_302_FOUND)
+            token = self.getToken(vd)
+            return Response({'auth_vd_token': token}, status=status.HTTP_302_FOUND)
         else:
-            return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'auth_vd_token': None}, status=status.HTTP_401_UNAUTHORIZED)
 
     @list_route(methods=['get', 'post'])
     def logout(self, request):
