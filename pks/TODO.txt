@@ -3,7 +3,10 @@ user-detail 뷰가 없을 시, 단위테스트에서는 문제가 없는데 브�
 VD.owner 저장하는 부분 로직 튜닝
 register, login 등 RESTfull 하지 않은 API 들에 대한 재검토
 이메일 인증 처리
-VD 에도 password 추가
-getVdEncKey, getVidIdFromAid 관련 리팩토링
 Permission 관련 구현 추가
 불필요해 보이는 Interface, 사무실/개발전용 Permission 으로 해결
+
+AID 개선 : timestamp 값을 Model.lastModified 기반으로 처리되도록 변경
+    --> for 캐싱
+getVdEncKey, getVidIdFromAid 관련 리팩토링 : User class 새로 만들기, EncKey 값을 user.password 기반으로
+최상위 Model 만들고, AID, 캐싱, Permission 등 처리
