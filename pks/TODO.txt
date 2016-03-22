@@ -4,3 +4,6 @@ VD.owner 저장하는 부분 로직 튜닝
 register, login 등 RESTfull 하지 않은 API 들에 대한 재검토
 이메일 인증 처리
 VD 에도 password 추가
+getVdEncKey, getVidIdFromAid 관련 리팩토링
+Permission 관련 구현 추가
+불필요해 보이는 Interface, 사무실/개발전용 Permission 으로 해결
