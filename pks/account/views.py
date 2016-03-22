@@ -6,12 +6,12 @@ from base64 import urlsafe_b64encode
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework import status
 
 from cryptography.fernet import Fernet
-from pks.settings import USER_ENC_KEY, VD_ENC_KEY, VD_SESSION_KEY
+from pks.settings import USER_ENC_KEY, VD_SESSION_KEY
 from account import models
 from account import serializers
 
@@ -75,10 +75,10 @@ class VDViewset(ModelViewSet):
         vd = serializer.instance
 
         # 추가 처리
-        if vd.authOwner is None:
+        if vd.authOwner is None and request.user.is_authenticated:
             vd.authOwner = request.user
             vd.save()
-        if request.data['email']:
+        if 'email' in request.data:
             vd.authOwner.email = request.data['email']
             vd.authOwner.save()
 
@@ -88,9 +88,10 @@ class VDViewset(ModelViewSet):
         # TODO : send email
 
         # Temporary : 곧바로 이메일 인증이 된 것으로 처리
-        realUser, isCreated = models.RealUser.objects.get_or_create(email=vd.authOwner.email)
-        vd.realOwner = realUser
-        vd.save()
+        if vd.authOwner and vd.authOwner.email:
+            realUser, isCreated = models.RealUser.objects.get_or_create(email=vd.authOwner.email)
+            vd.realOwner = realUser
+            vd.save()
 
         # return result
         return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)
@@ -138,9 +139,20 @@ class RealUserViewset(ModelViewSet):
 
     def get_object(self):
         aid = self.kwargs['pk']
-        if str(aid) == 'mine':
+        if str(aid) == 'mine' and VD_SESSION_KEY in self.request.session:
             vd_pk = self.request.session[VD_SESSION_KEY]
+            if not vd_pk:
+                return None
             vd = models.VD.objects.get(pk=vd_pk)
+            if not vd:
+                return None
             return vd.realOwner
         return super(RealUserViewset, self).get_object()
+
+    @detail_route(methods=['get'])
+    def vds(self, request, pk=None):
+        ru = self.get_object()
+        vd_pk = self.request.session[VD_SESSION_KEY]
+        serializer = serializers.VDSerializer(ru.vds.exclude(pk=vd_pk), many=True)
+        return Response(serializer.data)
 

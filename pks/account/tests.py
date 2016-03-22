@@ -101,6 +101,23 @@ class VDRegisterTest(APITestBase):
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
 
+    def test_register_no_email(self):
+        response = self.client.post('/vds/register/')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        vd = models.VD.objects.first()
+        user = User.objects.first()
+        self.assertEqual(user, vd.authOwner)
+
+        result = json.loads(response.content)
+        self.assertIn('auth_vd_token', result)
+        decrypter = Fernet(models.getVdEncKey(user))
+        raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
+        pk = int(raw_token.split('|')[0])
+        user_pk = int(raw_token.split('|')[1])
+
+        self.assertEqual(pk, vd.pk)
+        self.assertEqual(user_pk, user.pk)
+
     def test_register(self):
         deviceName = SG('[\w\-]{36}').render()
         deviceTypeName = 'LG-F460L'
@@ -250,6 +267,10 @@ class RealUserViewSetBasicTest(APITestBase):
         self.assertNotIn(self.vd2.pk, vds)
         self.assertNotIn(self.vd4.pk, vds)
 
+    def test_rus_mine_without_login(self):
+        response = self.client.get('/rus/mine/vds/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class RealUserViewsetTest(APITestBase):
     def setUp(self):
@@ -268,4 +289,20 @@ class RealUserViewsetTest(APITestBase):
         response = self.client.get('/rus/mine/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_rus_mine_vds(self):
+        response = self.client.get('/rus/mine/vds/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        vds = json.loads(response.content)
+        self.assertEqual(len(vds), 0)   # Login VD 는 포함되지 않음
 
+        self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        response = self.client.get('/rus/mine/vds/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        vds = json.loads(response.content)
+        self.assertEqual(len(vds), 1)
+
+        self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com'))
+        response = self.client.get('/rus/mine/vds/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        vds = json.loads(response.content)
+        self.assertEqual(len(vds), 1)
