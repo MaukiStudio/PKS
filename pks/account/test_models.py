@@ -3,8 +3,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from uuid import uuid1
-from base64 import b16encode
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
@@ -160,19 +158,4 @@ class VDTest(TestCase):
         self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.id)
         self.assertNotEqual(vd2_aid, vd2_aid2)
         self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.getIdFromAid(vd2_aid2))
-
-
-class ImageTest(TestCase):
-
-    def test_string_representation(self):
-        uuid_img = uuid1()
-        img = models.Image(pk=uuid_img)
-        self.assertEqual('%s.jpg' % b16encode(uuid_img.bytes), str(img))
-
-    def test_save_and_retreive(self):
-        uuid_img = uuid1()
-        img = models.Image(pk=uuid_img)
-        img.save()
-        saved = models.Image.objects.first()
-        self.assertEqual(img, saved)
 
