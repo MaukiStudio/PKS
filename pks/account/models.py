@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from hashlib import sha256
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64encode, b16encode
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -58,4 +58,11 @@ class VD(models.Model):
 
     def getIdFromAid(self, aid):
         return getVidIdFromAid(self.authOwner, aid)
+
+
+class Image(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=None)
+
+    def __str__(self):
+        return '%s.jpg' % b16encode(self.uuid.bytes)
 
