@@ -23,6 +23,7 @@ class ApiRootTest(APITestBase):
 
 
 class AdminTest(TestCase):
+
     def setUp(self):
         self.response = self.client.get('/admin/')
 
