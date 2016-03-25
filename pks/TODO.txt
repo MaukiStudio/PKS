@@ -10,6 +10,7 @@ AID 개선 : timestamp 값을 Model.lastModified 기반으로 처리되도록 �
     --> for 캐싱
 getVdEncKey, getVidIdFromAid 관련 리팩토링 : User class 새로 만들기, EncKey 값을 user.password 기반으로
 최상위 Model 만들고, AID, 캐싱, Permission 등 처리
+테스트 후 파일 삭제 로직 만들기
 
 
 !!!

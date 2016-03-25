@@ -7,13 +7,15 @@ from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 from filebrowser.sites import site as fb_site
 
-from account import views
+from account import views as account_views
+from image import views as image_views
 
 
 router = DefaultRouter()
-router.register(r'vds', views.VDViewset)
-router.register(r'users', views.UserViewset)
-router.register(r'rus', views.RealUserViewset)
+router.register(r'vds', account_views.VDViewset)
+router.register(r'users', account_views.UserViewset)
+router.register(r'rus', account_views.RealUserViewset)
+router.register(r'imgs', image_views.ImageViewset)
 
 
 urlpatterns = [
