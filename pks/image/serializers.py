@@ -11,7 +11,7 @@ class ImageSerializer(ModelSerializer):
 
     class Meta:
         model = models.Image
-        read_only_fields = ('uuid',)
+        read_only_fields = ('uuid', 'exif',)
 
     def create(self, validated_data):
         img = models.Image(**validated_data)

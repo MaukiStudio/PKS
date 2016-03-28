@@ -5,6 +5,7 @@ register, login 등 RESTfull 하지 않은 API 들에 대한 재검토
 이메일 인증 처리
 Permission 관련 구현 추가
 불필요해 보이는 Interface, 사무실/개발전용 Permission 으로 해결
+exif_lib.py 리팩토링 및 튜닝
 
 AID 개선 : timestamp 값을 Model.lastModified 기반으로 처리되도록 변경
     --> for 캐싱

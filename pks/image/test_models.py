@@ -7,8 +7,11 @@ from base64 import b16encode
 from django.test import TestCase
 from django.core.files import File
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.contrib.gis.geos import GEOSGeometry
 
 from image import models
+from PIL import Image as PIL_Image
+from image import exif_lib
 
 
 class ImageTest(TestCase):
@@ -28,10 +31,49 @@ class ImageTest(TestCase):
         self.assertEqual(saved, img)
         self.assertNotEqual(saved.file.url.index(str(img).split('.')[0]), 0)
 
-    def test_uuid(self):
+    def __skip__test_uuid(self):
         uuid = models.Image.compute_uuid_from_file('image/test.jpg')
         uuid_256 = models.Image.compute_uuid_from_file('image/test_256.jpg')
+        uuid_480 = models.Image.compute_uuid_from_file('image/test_480.jpg')
         uuid_1200 = models.Image.compute_uuid_from_file('image/test_1200.jpg')
+        uuid_org = models.Image.compute_uuid_from_file('image/test_org.jpg')
+        uuid2 = models.Image.compute_uuid_from_file('image/test2.jpg')
 
-        self.assertEqual(uuid, uuid_256)
-        self.assertEqual(uuid, uuid_1200)
+        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_256), 0)
+        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_480), 1)
+        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_1200), 0)
+        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_org), 2)
+        self.assertGreater(models.Image.hamming_distance(uuid, uuid2), 10)
+
+    def test_gps_exif(self):
+        exif = exif_lib.get_exif_data(PIL_Image.open('image/gps_test.jpg'))
+        lonLat = exif_lib.get_lat_lon(exif)
+        point = GEOSGeometry('POINT(%f %f)' % lonLat)
+        print(point)
+
+        img = models.Image()
+        with open('image/gps_test.jpg', 'rb') as f:
+            ff = File(f)
+            img.file = InMemoryUploadedFile(ff, None, 'gps_test.jpg', 'image/jpeg', ff.size, None, None)
+            img.save()
+        saved = models.Image.objects.first()
+
+        self.assertEqual(point, img.lonLat)
+        self.assertEqual(img.lonLat, saved.lonLat)
+
+    def test_no_exif(self):
+        exif = exif_lib.get_exif_data(PIL_Image.open('image/no_exif_test.jpg'))
+        lonLat = exif_lib.get_lat_lon(exif)
+        self.assertIsNone(lonLat[0])
+        self.assertIsNone(lonLat[1])
+
+        img = models.Image()
+        with open('image/no_exif_test.jpg', 'rb') as f:
+            ff = File(f)
+            img.file = InMemoryUploadedFile(ff, None, 'no_exif_test.jpg', 'image/jpeg', ff.size, None, None)
+            img.save()
+        saved = models.Image.objects.first()
+
+        self.assertEqual(img, saved)
+        self.assertIsNone(img.lonLat)
+        self.assertIsNone(saved.lonLat)
