@@ -23,21 +23,21 @@ class ImageTest(TestCase):
 
     def test_file_property(self):
         img = models.Image()
-        with open('image/test.jpg', 'rb') as f:
+        with open('image/samples/test.jpg', 'rb') as f:
             ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'test.jpg', 'image/jpeg', ff.size, None, None)
+            img.file = InMemoryUploadedFile(ff, None, 'test.jpg', 'image/samples/jpeg', ff.size, None, None)
             img.save()
         saved = models.Image.objects.first()
         self.assertEqual(saved, img)
         self.assertNotEqual(saved.file.url.index(str(img).split('.')[0]), 0)
 
     def __skip__test_uuid(self):
-        uuid = models.Image.compute_uuid_from_file('image/test.jpg')
-        uuid_256 = models.Image.compute_uuid_from_file('image/test_256.jpg')
-        uuid_480 = models.Image.compute_uuid_from_file('image/test_480.jpg')
-        uuid_1200 = models.Image.compute_uuid_from_file('image/test_1200.jpg')
-        uuid_org = models.Image.compute_uuid_from_file('image/test_org.jpg')
-        uuid2 = models.Image.compute_uuid_from_file('image/test2.jpg')
+        uuid = models.Image.compute_uuid_from_file('image/samples/test.jpg')
+        uuid_256 = models.Image.compute_uuid_from_file('image/samples/test_256.jpg')
+        uuid_480 = models.Image.compute_uuid_from_file('image/samples/test_480.jpg')
+        uuid_1200 = models.Image.compute_uuid_from_file('image/samples/test_1200.jpg')
+        uuid_org = models.Image.compute_uuid_from_file('image/samples/test_org.jpg')
+        uuid2 = models.Image.compute_uuid_from_file('image/samples/test2.jpg')
 
         self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_256), 0)
         self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_480), 1)
@@ -46,15 +46,15 @@ class ImageTest(TestCase):
         self.assertGreater(models.Image.hamming_distance(uuid, uuid2), 10)
 
     def test_gps_exif(self):
-        exif = exif_lib.get_exif_data(PIL_Image.open('image/gps_test.jpg'))
+        exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lat_lon(exif)
         point = GEOSGeometry('POINT(%f %f)' % lonLat)
         print(point)
 
         img = models.Image()
-        with open('image/gps_test.jpg', 'rb') as f:
+        with open('image/samples/gps_test.jpg', 'rb') as f:
             ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'gps_test.jpg', 'image/jpeg', ff.size, None, None)
+            img.file = InMemoryUploadedFile(ff, None, 'gps_test.jpg', 'image/samples/jpeg', ff.size, None, None)
             img.save()
         saved = models.Image.objects.first()
 
@@ -62,15 +62,15 @@ class ImageTest(TestCase):
         self.assertEqual(img.lonLat, saved.lonLat)
 
     def test_no_exif(self):
-        exif = exif_lib.get_exif_data(PIL_Image.open('image/no_exif_test.jpg'))
+        exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/no_exif_test.jpg'))
         lonLat = exif_lib.get_lat_lon(exif)
         self.assertIsNone(lonLat[0])
         self.assertIsNone(lonLat[1])
 
         img = models.Image()
-        with open('image/no_exif_test.jpg', 'rb') as f:
+        with open('image/samples/no_exif_test.jpg', 'rb') as f:
             ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'no_exif_test.jpg', 'image/jpeg', ff.size, None, None)
+            img.file = InMemoryUploadedFile(ff, None, 'no_exif_test.jpg', 'image/samples/jpeg', ff.size, None, None)
             img.save()
         saved = models.Image.objects.first()
 
