@@ -234,6 +234,14 @@ class VDViewSetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertEqual(result['id'], self.vd.id)
 
+    def test_vds_mine_no_place(self):
+        response = self.client.get('/vds/mine/places/')
+        result = json.loads(response.content)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(dict, type(result))
+        self.assertIn('pss', result)
+        self.assertEqual(0, result['pss'])
+
 
 class RealUserViewSetBasicTest(APITestBase):
 

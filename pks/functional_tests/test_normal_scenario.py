@@ -39,7 +39,15 @@ class FirstScenarioTest(APITestBase):
         self.assertVdLogin()
         auth_vd_token = json.loads(response.content)['auth_vd_token']       # 로그인할 때마다 auth_vd_token 은 갱신
 
+        # VD 정보 조회
+        # 해당 VirtualDevice 에서 생성한 Place 정보만 조회됨
+        # 현재까지는 저장한 것이 하나도 없으므로 Place 조회 결과는 없음
+        response = self.client.get('/vds/mine/places/')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(0, len(json.loads(response.content)))
+
         # RealUser(VD.realOwner) 에 매핑된 VD 목록 조회
+        # 현재 로그인한 VD 는 빼고 조회됨
         response = self.client.get('/rus/mine/vds/')
 
         # 이메일 인증이 되지 않은 경우 404 Not Found 가 발생

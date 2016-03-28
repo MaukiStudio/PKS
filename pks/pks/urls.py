@@ -9,6 +9,7 @@ from filebrowser.sites import site as fb_site
 
 from account import views as account_views
 from image import views as image_views
+from place import views as place_views
 
 
 router = DefaultRouter()
@@ -16,6 +17,7 @@ router.register(r'vds', account_views.VDViewset)
 router.register(r'users', account_views.UserViewset)
 router.register(r'rus', account_views.RealUserViewset)
 router.register(r'imgs', image_views.ImageViewset)
+router.register(r'places', place_views.PlaceViewset)
 
 
 urlpatterns = [

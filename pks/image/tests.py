@@ -23,18 +23,18 @@ class ImageViewsetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create(self):
-        with open('image/test.jpg') as f:
+        with open('image/samples/test.jpg') as f:
             response = self.client.post('/imgs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_twice(self):
-        with open('image/test.jpg') as f:
+        with open('image/samples/test.jpg') as f:
             response = self.client.post('/imgs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img1 = models.Image.objects.first()
         url1 = img1.file.url
 
-        with open('image/test.jpg') as f:
+        with open('image/samples/test.jpg') as f:
             response = self.client.post('/imgs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img2 = models.Image.objects.get(pk=img1.pk)

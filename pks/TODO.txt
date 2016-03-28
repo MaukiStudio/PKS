@@ -13,6 +13,8 @@ getVdEncKey, getVidIdFromAid 관련 리팩토링 : User class 새로 만들기, 
 최상위 Model 만들고, AID, 캐싱, Permission 등 처리
 테스트 후 파일 삭제 로직 만들기
 
+같은 uuid 를 가지는 이미지가 올라왔을 때 처리
+
 
 !!!
 서버에 무조건 접속 베이스로 구현 변경
