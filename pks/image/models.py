@@ -50,9 +50,10 @@ class Image(models.Model):
             self.lonLat = point
 
     def save(self, *args, **kwargs):
-        if not self.uuid:
+        if self.file and not self.uuid:
             self.set_uuid()
-        self.process_exif()
+        if self.file and not self.lonLat:
+            self.process_exif()
         self.file.name = str(self)
         super(Image, self).save(*args, **kwargs)
 

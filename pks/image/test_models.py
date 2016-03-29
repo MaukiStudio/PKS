@@ -19,6 +19,13 @@ class ImageTest(APITestBase):
         img = models.Image(pk=uuid_img)
         self.assertEqual('%s.jpg' % b16encode(uuid_img.bytes), str(img))
 
+    def test_save_and_retreive(self):
+        img = models.Image()
+        img.uuid = uuid1()
+        img.save()
+        saved = models.Image.objects.first()
+        self.assertEqual(saved, img)
+
     def test_file_property(self):
         img = models.Image()
         img.file = self.uploadImage('test.jpg')
