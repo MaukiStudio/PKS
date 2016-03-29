@@ -12,8 +12,8 @@ from image import models
 class ImageViewsetTest(APITestBase):
     def setUp(self):
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
-        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
+        self.auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
