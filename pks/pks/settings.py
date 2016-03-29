@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'account',
     'image',
+    'url',
     'place',
 ]
 
