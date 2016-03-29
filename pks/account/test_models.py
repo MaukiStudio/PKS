@@ -3,17 +3,17 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.db import IntegrityError
 
+from base.tests import APITestBase
 from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
 from account import models
 
 
-class RealUserTest(TestCase):
+class RealUserTest(APITestBase):
 
     def test_string_representation(self):
         email = 'gulby@maukistudio.com'
@@ -45,7 +45,7 @@ class RealUserTest(TestCase):
 
 
 
-class VDTest(TestCase):
+class VDTest(APITestBase):
 
     def setUp(self):
         self.user = User()

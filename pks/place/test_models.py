@@ -2,13 +2,12 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from django.test import TestCase
-
+from base.tests import APITestBase
 from place import models
 from account.models import VD
 
 
-class PlaceTest(TestCase):
+class PlaceTest(APITestBase):
 
     def test_save_and_retreive(self):
         place = models.Place()
@@ -17,14 +16,13 @@ class PlaceTest(TestCase):
         self.assertEqual(saved, place)
 
 
-class PlaceContentTest(TestCase):
+class PlaceContentTest(APITestBase):
 
     def setUp(self):
         self.place = models.Place()
         self.place.save()
         self.vd = VD()
         self.vd.save()
-        self.image =
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -48,4 +46,3 @@ class PlaceContentTest(TestCase):
 
     def test_core_property(self):
         pc = models.PlaceContent()
-        pc.image =
