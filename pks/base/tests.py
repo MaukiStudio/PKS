@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from django.contrib.auth import SESSION_KEY
+from django.core.files import File
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework.test import APITestCase
 
 from pks.settings import VD_SESSION_KEY
@@ -39,4 +41,9 @@ class APITestBase(APITestCase):
         del self.client.session[SESSION_KEY]
         self.client.logout()
 
+    def uploadImage(self, img_file_name):
+        f = open('image/samples/%s' % img_file_name, 'rb')
+        ff = File(f)
+        result = InMemoryUploadedFile(ff, None, img_file_name, 'image/jpeg', ff.size, None, None)
+        return result
 

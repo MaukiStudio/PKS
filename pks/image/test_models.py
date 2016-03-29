@@ -4,17 +4,15 @@ from __future__ import print_function
 
 from uuid import uuid1
 from base64 import b16encode
-from django.test import TestCase
-from django.core.files import File
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.contrib.gis.geos import GEOSGeometry
 
+from base.tests import APITestBase
 from image import models
 from PIL import Image as PIL_Image
 from image import exif_lib
 
 
-class ImageTest(TestCase):
+class ImageTest(APITestBase):
 
     def test_string_representation(self):
         uuid_img = uuid1()
@@ -23,10 +21,8 @@ class ImageTest(TestCase):
 
     def test_file_property(self):
         img = models.Image()
-        with open('image/samples/test.jpg', 'rb') as f:
-            ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'test.jpg', 'image/samples/jpeg', ff.size, None, None)
-            img.save()
+        img.file = self.uploadImage('test.jpg')
+        img.save()
         saved = models.Image.objects.first()
         self.assertEqual(saved, img)
         self.assertNotEqual(saved.file.url.index(str(img).split('.')[0]), 0)
@@ -52,10 +48,8 @@ class ImageTest(TestCase):
         print(point)
 
         img = models.Image()
-        with open('image/samples/gps_test.jpg', 'rb') as f:
-            ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'gps_test.jpg', 'image/samples/jpeg', ff.size, None, None)
-            img.save()
+        img.file = self.uploadImage('gps_test.jpg')
+        img.save()
         saved = models.Image.objects.first()
 
         self.assertEqual(point, img.lonLat)
@@ -68,10 +62,8 @@ class ImageTest(TestCase):
         self.assertIsNone(lonLat[1])
 
         img = models.Image()
-        with open('image/samples/no_exif_test.jpg', 'rb') as f:
-            ff = File(f)
-            img.file = InMemoryUploadedFile(ff, None, 'no_exif_test.jpg', 'image/samples/jpeg', ff.size, None, None)
-            img.save()
+        img.file = self.uploadImage('no_exif_test.jpg')
+        img.save()
         saved = models.Image.objects.first()
 
         self.assertEqual(img, saved)
