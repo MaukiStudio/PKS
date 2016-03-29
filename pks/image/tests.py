@@ -18,7 +18,7 @@ class ImageViewsetTest(APITestBase):
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
 
-    def test_img_list(self):
+    def test_list(self):
         response = self.client.get('/imgs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

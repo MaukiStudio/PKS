@@ -10,3 +10,9 @@ class UrlSerializer(ModelSerializer):
 
     class Meta:
         model = models.Url
+
+    def create(self, validated_data):
+        url = models.Url(**validated_data)
+        uuid = url.set_uuid()
+        url.save()
+        return url
