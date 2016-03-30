@@ -9,3 +9,8 @@ from place import models
 class PlaceSerializer(ModelSerializer):
     class Meta:
         model = models.Place
+
+
+class PlaceContentSerializer(ModelSerializer):
+    class Meta:
+        model = models.PlaceContent

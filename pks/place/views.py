@@ -10,3 +10,8 @@ from place import serializers
 class PlaceViewset(ModelViewSet):
     queryset = models.Place.objects.all()
     serializer_class = serializers.PlaceSerializer
+
+
+class PlaceContentViewset(ModelViewSet):
+    queryset = models.PlaceContent.objects.all()
+    serializer_class = serializers.PlaceContentSerializer
