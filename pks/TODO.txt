@@ -21,4 +21,6 @@ getVdEncKey, getVidIdFromAid 관련 리팩토링 : User class 새로 만들기, 
 VD 속성에 Country, Language 추가
 위치 트래킹 기능 추가
 
-PlaceContent Tuning : flat 하게 흩어져 있는 속성들, 하나로 합치기
+PlaceContent Tuning : flat 하게 흩어져 있는 속성들 합치기
+Content Tuning : base class 만들고, image/url 합치기
+

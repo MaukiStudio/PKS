@@ -13,6 +13,5 @@ class UrlSerializer(ModelSerializer):
 
     def create(self, validated_data):
         url = models.Url(**validated_data)
-        uuid = url.set_uuid()
         url.save()
         return url

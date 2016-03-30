@@ -83,3 +83,6 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(pc.url, self.url)
         self.assertEqual(saved.url, self.url)
+
+    def test_fsVenue_property(self):
+        self.fail()
