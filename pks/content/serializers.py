@@ -26,3 +26,26 @@ class NoteSerializer(ModelSerializer):
         nt = models.Note(**validated_data)
         nt.save()
         return nt
+
+
+class NameSerializer(ModelSerializer):
+
+    class Meta:
+        model = models.Name
+
+    def create(self, validated_data):
+        name = models.Name(**validated_data)
+        name.save()
+        return name
+
+
+class AddressSerializer(ModelSerializer):
+
+    class Meta:
+        model = models.Address
+
+    def create(self, validated_data):
+        addr = models.Address(**validated_data)
+        addr.save()
+        return addr
+

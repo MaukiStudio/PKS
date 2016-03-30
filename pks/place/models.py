@@ -25,6 +25,5 @@ class PlaceContent(models.Model):
     fsVenue = models.ForeignKey(FsVenue, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     note = models.ForeignKey(Note, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
-
     def save(self, *args, **kwargs):
         super(PlaceContent, self).save(*args, **kwargs)

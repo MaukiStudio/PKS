@@ -22,6 +22,8 @@ router.register(r'urls', url_views.UrlViewset)
 router.register(r'places', place_views.PlaceViewset)
 router.register(r'fsvs', content_views.FsVenueViewset)
 router.register(r'notes', content_views.NoteViewset)
+router.register(r'names', content_views.NameViewset)
+router.register(r'addrs', content_views.AddressViewset)
 
 
 urlpatterns = [

@@ -8,5 +8,13 @@ class FsVenueAdmin(admin.ModelAdmin):
 class NoteAdmin(admin.ModelAdmin):
     pass
 
+class NameAdmin(admin.ModelAdmin):
+    pass
+
+class AddressAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(models.FsVenue, FsVenueAdmin)
 admin.site.register(models.Note, NoteAdmin)
+admin.site.register(models.Name, NameAdmin)
+admin.site.register(models.Address, AddressAdmin)
