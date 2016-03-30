@@ -12,6 +12,8 @@ from url.models import Url
 from content.models import FsVenue, Note, Name, Address
 from delorean import Delorean
 
+BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
+BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
 
 class PlaceTest(APITestBase):
 
@@ -57,11 +59,17 @@ class PlaceContentTest(APITestBase):
         d = Delorean()
         pc.save()
         self.assertNotEqual(pc.uuid, None)
-        self.assertAlmostEqual((pc.uuid.__int__() >> 8*8) & int('0x00FFFFFFFFFFFFFF', 16), d.epoch*1000, delta=1000)
-        self.assertEqual((pc.uuid.__int__() >> 2*8) & int('0x0000FFFFFFFFFFFF', 16), self.vd.pk)
+        self.assertEqual((pc.uuid.__int__() >> 16*8-2) & 1, 1)
+        self.assertAlmostEqual((pc.uuid.__int__() >> 8*8-2) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
+        self.assertEqual((pc.uuid.__int__() >> 2*8-2) & BIT_ON_6_BYTE, self.vd.pk)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.uuid, pc.uuid)
+
+    def test_uuid_property_with_no_vd(self):
+        pc = models.PlaceContent()
+        pc.save()
+        self.assertEqual((pc.uuid.__int__() >> 2*8-2) & BIT_ON_6_BYTE, 0)
 
     def test_place_property(self):
         pc = models.PlaceContent()

@@ -37,9 +37,13 @@ class PlaceContentViewSetTest(APITestBase):
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
 
-    def test_place_list_no_place(self):
+    def test_list_no_place(self):
         response = self.client.get('/pcs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)
         self.assertEqual(type(result), list)
         self.assertEqual(len(result), 0)
+
+    def test_create(self):
+        self.fail()
+

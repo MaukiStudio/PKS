@@ -36,7 +36,7 @@ class PlaceContent(models.Model):
     def set_uuid(self):
         timestamp = Delorean().epoch
         vd_pk = (self.vd and self.vd.pk) or 0
-        hstr = hex((int(round(timestamp*1000)) << 8*8) | (vd_pk << 2*8) | randrange(0, 65536))[2:-1]
+        hstr = hex((1 << 16*8-2) | (int(round(timestamp*1000)) << 8*8-2) | (vd_pk << 2*8-2) | randrange(0, 65536/4))[2:-1]
         self.uuid = UUID(hstr.rjust(32, b'0'))
         return self.uuid
 
