@@ -97,7 +97,7 @@ class AddressTest(APITestBase):
 
     def test_string_representation(self):
         addr = models.Address()
-        test_data = '능라'
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
         addr.content = test_data
         self.assertEqual(unicode(addr), test_data)
 
@@ -111,7 +111,7 @@ class AddressTest(APITestBase):
 
     def test_fsVenueId_property(self):
         addr = models.Address()
-        test_data = '능라'
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
         addr.content = test_data
         addr.save()
         saved = models.Address.objects.first()

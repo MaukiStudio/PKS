@@ -9,7 +9,7 @@ from place import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import FsVenue, Note
+from content.models import FsVenue, Note, Name, Address
 
 
 class PlaceTest(APITestBase):
@@ -39,7 +39,10 @@ class PlaceContentTest(APITestBase):
         self.fsVenue.save()
         self.note = Note(content='맛집')
         self.note.save()
-
+        self.name = Name(content='능라')
+        self.name.save()
+        self.addr = Address(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.addr.save()
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -107,5 +110,22 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.note, self.note)
 
+    def test_name_property(self):
+        pc = models.PlaceContent()
+        pc.name = self.name
+        pc.save()
+        saved = self.name.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.name, self.name)
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.name, self.name)
 
+
+    def test_addr_property(self):
+        pc = models.PlaceContent()
+        pc.addr = self.addr
+        pc.save()
+        saved = self.addr.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.addr, self.addr)
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.addr, self.addr)
 
