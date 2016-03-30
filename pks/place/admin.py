@@ -5,4 +5,8 @@ from place import models
 class PlaceAdmin(admin.ModelAdmin):
     pass
 
+class PlaceContentAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(models.Place, PlaceAdmin)
+admin.site.register(models.PlaceContent, PlaceContentAdmin)

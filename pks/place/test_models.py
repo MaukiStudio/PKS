@@ -9,6 +9,7 @@ from place import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
+from content.models import FsVenue, Note
 
 
 class PlaceTest(APITestBase):
@@ -31,9 +32,13 @@ class PlaceContentTest(APITestBase):
         self.image = Image()
         self.image.file = self.uploadImage('test.jpg')
         self.image.save()
-
         self.url = Url(url='http://maukistudio.com/')
         self.url.save()
+
+        self.fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3')
+        self.fsVenue.save()
+        self.note = Note(content='맛집')
+        self.note.save()
 
 
     def test_save_and_retreive(self):
@@ -69,9 +74,9 @@ class PlaceContentTest(APITestBase):
         pc.image = self.image
         pc.save()
         saved = self.image.pcs.get(pk=pc.pk)
-        self.assertEqual(saved, pc)
         self.assertEqual(pc.image, self.image)
         self.assertEqual(pc.lonLat, None)
+        self.assertEqual(saved, pc)
         self.assertEqual(saved.image, self.image)
         self.assertEqual(saved.lonLat, None)
 
@@ -80,9 +85,27 @@ class PlaceContentTest(APITestBase):
         pc.url = self.url
         pc.save()
         saved = self.url.pcs.get(pk=pc.pk)
-        self.assertEqual(saved, pc)
         self.assertEqual(pc.url, self.url)
+        self.assertEqual(saved, pc)
         self.assertEqual(saved.url, self.url)
 
     def test_fsVenue_property(self):
-        self.fail()
+        pc = models.PlaceContent()
+        pc.fsVenue = self.fsVenue
+        pc.save()
+        saved = self.fsVenue.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.fsVenue, self.fsVenue)
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.fsVenue, self.fsVenue)
+
+    def test_note_property(self):
+        pc = models.PlaceContent()
+        pc.note = self.note
+        pc.save()
+        saved = self.note.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.note, self.note)
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.note, self.note)
+
+
+
