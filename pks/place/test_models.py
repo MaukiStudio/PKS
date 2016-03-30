@@ -8,6 +8,7 @@ from base.tests import APITestBase
 from place import models
 from account.models import VD
 from image.models import Image
+from url.models import Url
 
 
 class PlaceTest(APITestBase):
@@ -26,9 +27,14 @@ class PlaceContentTest(APITestBase):
         self.place.save()
         self.vd = VD()
         self.vd.save()
+
         self.image = Image()
         self.image.file = self.uploadImage('test.jpg')
         self.image.save()
+
+        self.url = Url(url='http://maukistudio.com/')
+        self.url.save()
+
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -64,15 +70,16 @@ class PlaceContentTest(APITestBase):
         pc.save()
         saved = self.image.pcs.get(pk=pc.pk)
         self.assertEqual(saved, pc)
-        self.assertEqual(self.image.lonLat, pc.lonLat)
-        self.assertEqual(saved.lonLat, pc.lonLat)
+        self.assertEqual(pc.image, self.image)
+        self.assertEqual(pc.lonLat, None)
+        self.assertEqual(saved.image, self.image)
+        self.assertEqual(saved.lonLat, None)
 
     def test_url_property(self):
-        self.fail()
-
-    def test_fsVenueId_property(self):
-        self.fail()
-
-    def test_ggPlaceId_property(self):
-        self.fail()
-
+        pc = models.PlaceContent()
+        pc.url = self.url
+        pc.save()
+        saved = self.url.pcs.get(pk=pc.pk)
+        self.assertEqual(saved, pc)
+        self.assertEqual(pc.url, self.url)
+        self.assertEqual(saved.url, self.url)

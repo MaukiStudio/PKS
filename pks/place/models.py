@@ -5,6 +5,7 @@ from django.contrib.gis.db import models
 
 from account.models import VD
 from image.models import Image
+from url.models import Url
 
 
 class Place(models.Model):
@@ -12,13 +13,15 @@ class Place(models.Model):
 
 
 class PlaceContent(models.Model):
+    # References
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
-    image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    # Contents
     lonLat = models.PointField(blank=True, null=True, default=None)
+    image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+
 
     def save(self, *args, **kwargs):
-        if not self.lonLat and self.image and self.image.lonLat:
-            self.lonLat = self.image.lonLat
         super(PlaceContent, self).save(*args, **kwargs)
