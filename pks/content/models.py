@@ -9,7 +9,7 @@ from django.contrib.gis.db import models
 
 class FsVenue(models.Model):
     uuid = models.UUIDField(primary_key=True, default=None)
-    fsVenueId = models.CharField(max_length=64, blank=True, null=True, default=None)
+    fsVenueId = models.CharField(max_length=255, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return self.fsVenueId
@@ -28,7 +28,7 @@ class FsVenue(models.Model):
 
 class Note(models.Model):
     uuid = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=140, blank=True, null=True, default=None)
+    content = models.CharField(max_length=255, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return self.content

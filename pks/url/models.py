@@ -10,7 +10,7 @@ from django.contrib.gis.db import models
 
 class Url(models.Model):
     uuid = models.UUIDField(primary_key=True, default=None)
-    url = models.URLField(blank=True, null=True, default=None)
+    url = models.URLField(max_length=255, blank=True, null=True, default=None)
     content = models.TextField(blank=True, null=True, default=None)
     lastCrawlDate = models.DateTimeField(blank=True, null=True, default=None)
 
