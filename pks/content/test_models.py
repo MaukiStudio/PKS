@@ -35,3 +35,31 @@ class FsVenueTest(APITestBase):
         self.assertEqual(saved.uuid, fs.uuid)
         self.assertEqual(saved.fsVenueId, fs.fsVenueId)
         self.assertEqual(saved.uuid, UUID('00000000-40a5-5d80-f964-a52020f31ee3'))
+
+
+class NoteTest(APITestBase):
+
+    def test_string_representation(self):
+        nt = models.Note()
+        test_data = '맛집'
+        nt.content = test_data
+        self.assertEqual(unicode(nt), test_data)
+
+    def test_save_and_retreive(self):
+        nt = models.Note()
+        nt.uuid = uuid1()
+        nt.save()
+        saved = models.Note.objects.first()
+        self.assertEqual(saved, nt)
+        self.assertEqual(saved.uuid, nt.uuid)
+
+    def test_fsVenueId_property(self):
+        nt = models.Note()
+        test_data = '맛집'
+        nt.content = test_data
+        nt.save()
+        saved = models.Note.objects.first()
+        self.assertEqual(nt.content, test_data)
+        self.assertEqual(saved, nt)
+        self.assertEqual(saved.uuid, nt.uuid)
+        self.assertEqual(saved.content, nt.content)

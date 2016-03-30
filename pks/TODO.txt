@@ -22,5 +22,4 @@ VD 속성에 Country, Language 추가
 위치 트래킹 기능 추가
 
 PlaceContent Tuning : flat 하게 흩어져 있는 속성들 합치기
-Content Tuning : base class 만들고, image/url 합치기
-
+Content Tuning : base class 만들고, image/url 합치기, 이거 하면서 hash 충돌 문제도 체크하기

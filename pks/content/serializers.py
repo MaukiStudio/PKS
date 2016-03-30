@@ -15,3 +15,14 @@ class FsVenueSerializer(ModelSerializer):
         fs = models.FsVenue(**validated_data)
         fs.save()
         return fs
+
+
+class NoteSerializer(ModelSerializer):
+
+    class Meta:
+        model = models.Note
+
+    def create(self, validated_data):
+        nt = models.Note(**validated_data)
+        nt.save()
+        return nt

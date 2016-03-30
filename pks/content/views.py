@@ -10,3 +10,8 @@ from content import serializers
 class FsVenueViewset(ModelViewSet):
     queryset = models.FsVenue.objects.all()
     serializer_class = serializers.FsVenueSerializer
+
+
+class NoteViewset(ModelViewSet):
+    queryset = models.Note.objects.all()
+    serializer_class = serializers.NoteSerializer

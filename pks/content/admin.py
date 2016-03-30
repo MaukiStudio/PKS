@@ -5,4 +5,8 @@ from content import models
 class FsVenueAdmin(admin.ModelAdmin):
     pass
 
+class NoteAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(models.FsVenue, FsVenueAdmin)
+admin.site.register(models.Note, NoteAdmin)

@@ -48,3 +48,44 @@ class FsVenueViewsetTest(APITestBase):
         response = self.client.post('/fsvs/', dict(fsVenueId='40a55d80f964a52020f31ee4'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(2, models.FsVenue.objects.count())
+
+
+class NoteViewsetTest(APITestBase):
+
+    def setUp(self):
+        '''
+        response = self.client.post('/users/register/')
+        self.auth_user_token = json.loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+        '''
+
+        self.nt = models.Note(content='맛집')
+        self.nt.save()
+
+    def test_list(self):
+        response = self.client.get('/notes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(list, type(result))
+        self.assertEqual(1, len(result))
+
+        nt2 = models.Note(content='맛집2')
+        nt2.save()
+        response = self.client.get('/notes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json.loads(response.content)
+        self.assertEqual(list, type(result))
+        self.assertEqual(2, len(result))
+
+    def test_create(self):
+        self.assertEqual(1, models.Note.objects.count())
+        response = self.client.post('/notes/', dict(content=self.nt.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(1, models.Note.objects.count())
+
+        response = self.client.post('/notes/', dict(content='맛집2'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(2, models.Note.objects.count())
