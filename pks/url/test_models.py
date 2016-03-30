@@ -60,7 +60,6 @@ class UrlTest(APITestBase):
 
         url.content = 'content'
         url.save()
+        self.assertAlmostEqual(timezone.now(), url.lastCrawlDate, delta=timedelta(seconds=1))
         saved = models.Url.objects.first()
-        self.assertIsNotNone(url.lastCrawlDate)
-        self.assertAlmostEqual(timezone.now(), url.lastCrawlDate, delta=timedelta(seconds=10))
         self.assertEqual(saved.lastCrawlDate, url.lastCrawlDate)

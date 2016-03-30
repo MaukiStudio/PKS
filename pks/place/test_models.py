@@ -10,6 +10,7 @@ from account.models import VD
 from image.models import Image
 from url.models import Url
 from content.models import FsVenue, Note, Name, Address
+from delorean import Delorean
 
 
 class PlaceTest(APITestBase):
@@ -49,6 +50,18 @@ class PlaceContentTest(APITestBase):
         pc.save()
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
+
+    def test_uuid_property(self):
+        pc = models.PlaceContent(vd=self.vd)
+        self.assertEqual(pc.uuid, None)
+        d = Delorean()
+        pc.save()
+        self.assertNotEqual(pc.uuid, None)
+        self.assertAlmostEqual((pc.uuid.__int__() >> 8*8) & int('0x00FFFFFFFFFFFFFF', 16), d.epoch*1000, delta=1000)
+        self.assertEqual((pc.uuid.__int__() >> 2*8) & int('0x0000FFFFFFFFFFFF', 16), self.vd.pk)
+        saved = models.PlaceContent.objects.first()
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.uuid, pc.uuid)
 
     def test_place_property(self):
         pc = models.PlaceContent()
@@ -118,7 +131,6 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(pc.name, self.name)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.name, self.name)
-
 
     def test_addr_property(self):
         pc = models.PlaceContent()

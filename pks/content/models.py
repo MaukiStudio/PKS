@@ -15,9 +15,7 @@ class FsVenue(models.Model):
         return self.fsVenueId
 
     def set_uuid(self):
-        c = len(self.fsVenueId)
-        pad = '0'*32
-        self.uuid = UUID(pad[c:]+self.fsVenueId)
+        self.uuid = UUID(self.fsVenueId.rjust(32, b'0'))
         return self.uuid
 
     def save(self, *args, **kwargs):
