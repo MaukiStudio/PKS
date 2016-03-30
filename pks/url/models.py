@@ -28,5 +28,5 @@ class Url(models.Model):
             self.lastCrawlDate = timezone.now()
         super(Url, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.url

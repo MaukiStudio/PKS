@@ -18,7 +18,7 @@ class RealUserTest(APITestBase):
     def test_string_representation(self):
         email = 'gulby@maukistudio.com'
         realUser = models.RealUser(email=email)
-        self.assertEqual(email, str(realUser))
+        self.assertEqual(email, unicode(realUser))
 
     def test_save_and_retreive(self):
         realUser = models.RealUser(email='gulby@maukistudio.com')
@@ -58,9 +58,9 @@ class VDTest(APITestBase):
 
     def test_string_representation(self):
         vd1 = models.VD()
-        self.assertEqual("unknown@email's unknown device", str(vd1))
+        self.assertEqual("unknown@email's unknown device", unicode(vd1))
         vd2 = models.VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
-        self.assertEqual("gulby@maukistudio.com's LG-F460L (88:C9:D0:FA:79:57)", str(vd2))
+        self.assertEqual("gulby@maukistudio.com's LG-F460L (88:C9:D0:FA:79:57)", unicode(vd2))
 
     def test_save_and_retreive(self):
         vd = models.VD()

@@ -14,7 +14,7 @@ class FsVenueTest(APITestBase):
         fs = models.FsVenue()
         test_data = '40a55d80f964a52020f31ee3'
         fs.fsVenueId = test_data
-        self.assertEqual(str(fs), test_data)
+        self.assertEqual(unicode(fs), test_data)
 
     def test_save_and_retreive(self):
         fs = models.FsVenue()

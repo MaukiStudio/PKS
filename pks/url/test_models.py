@@ -16,7 +16,7 @@ class UrlTest(APITestBase):
     def test_string_representation(self):
         url = models.Url()
         url.url = 'http://www.maukistudio.com/'
-        self.assertEqual(str(url), url.url)
+        self.assertEqual(unicode(url), url.url)
 
     def test_save_and_retreive(self):
         url = models.Url()

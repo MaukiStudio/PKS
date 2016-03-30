@@ -11,7 +11,7 @@ class FsVenue(models.Model):
     uuid = models.UUIDField(primary_key=True, default=None)
     fsVenueId = models.CharField(max_length=64, blank=True, null=True, default=None)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.fsVenueId
 
     def set_uuid(self):

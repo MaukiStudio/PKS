@@ -29,7 +29,7 @@ def getVidIdFromAid(user, aid):
 class RealUser(models.Model):
     email = models.EmailField(unique=True, blank=False, null=False, default=None)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.email
 
 
@@ -43,7 +43,7 @@ class VD(models.Model):
     deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
 
-    def __str__(self):
+    def __unicode__(self):
         email = (self.realOwner and self.realOwner.email) or (self.authOwner and self.authOwner.email) or 'unknown@email'
         deviceTypeName = self.deviceTypeName or 'unknown device'
         deviceNameCaption = (self.deviceName and ' (%s)' % self.deviceName) or ''
