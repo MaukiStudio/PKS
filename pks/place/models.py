@@ -34,9 +34,9 @@ class PlaceContent(models.Model):
     addr = models.ForeignKey(Address, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     def set_uuid(self):
-        timestamp = Delorean().epoch
+        timestamp = int(round(Delorean().epoch*1000))
         vd_pk = (self.vd and self.vd.pk) or 0
-        hstr = hex((1 << 16*8-2) | (int(round(timestamp*1000)) << 8*8-2) | (vd_pk << 2*8-2) | randrange(0, 65536/4))[2:-1]
+        hstr = hex((1 << 16*8-2) | (timestamp << 8*8-2) | (vd_pk << 2*8-2) | randrange(0, 65536/4))[2:-1]
         self.uuid = UUID(hstr.rjust(32, b'0'))
         return self.uuid
 
