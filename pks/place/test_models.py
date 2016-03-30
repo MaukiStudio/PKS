@@ -66,3 +66,13 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(self.image.lonLat, pc.lonLat)
         self.assertEqual(saved.lonLat, pc.lonLat)
+
+    def test_url_property(self):
+        self.fail()
+
+    def test_fsVenueId_property(self):
+        self.fail()
+
+    def test_ggPlaceId_property(self):
+        self.fail()
+

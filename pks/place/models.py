@@ -14,8 +14,8 @@ class Place(models.Model):
 class PlaceContent(models.Model):
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
+    image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     lonLat = models.PointField(blank=True, null=True, default=None)
 
     def save(self, *args, **kwargs):
