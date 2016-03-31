@@ -159,3 +159,6 @@ class VDTest(APITestBase):
         self.assertNotEqual(vd2_aid, vd2_aid2)
         self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.getIdFromAid(vd2_aid2))
 
+    def test_posts(self):
+        self.fail()
+

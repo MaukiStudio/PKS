@@ -67,3 +67,4 @@ target/
 0*_*.py
 /static/
 /media/
+/temp/

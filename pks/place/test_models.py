@@ -15,6 +15,7 @@ from delorean import Delorean
 BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
 BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
 
+
 class PlaceTest(APITestBase):
 
     def test_save_and_retreive(self):
@@ -22,6 +23,9 @@ class PlaceTest(APITestBase):
         place.save()
         saved = models.Place.objects.first()
         self.assertEqual(saved, place)
+
+    def test_post(self):
+        self.fail()
 
 
 class PlaceContentTest(APITestBase):

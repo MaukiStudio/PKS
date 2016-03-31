@@ -40,9 +40,9 @@ class FirstScenarioTest(APITestBase):
         auth_vd_token = json.loads(response.content)['auth_vd_token']       # 로그인할 때마다 auth_vd_token 은 갱신
 
         # VD 정보 조회
-        # 해당 VirtualDevice 에서 생성한 Place 정보만 조회됨
-        # 현재까지는 저장한 것이 하나도 없으므로 Place 조회 결과는 없음
-        response = self.client.get('/vds/mine/places/')
+        # 해당 VirtualDevice 에서 생성한 PlaceContent 정보로 구성된 PlacePost 정보 조회
+        # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
+        response = self.client.get('/vds/mine/posts/')
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(0, len(json.loads(response.content)))
 
