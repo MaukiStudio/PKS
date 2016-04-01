@@ -21,15 +21,20 @@ STEXT_TYPE_IMAGE_NOTE = 4
 class Place(models.Model):
     @property
     def post(self):
-        result = dict(id=self.id, lonLat=None, images=list(), urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+        result = dict(id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+        images = list()
+        imgNotes = dict()
         for pc in self.pcs.all().order_by('-uuid'):
             if pc.lonLat and not result['lonLat']:
                 result['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
 
             if pc.image:
                 v = str(pc.image)
-                if v not in result['images']:
-                    result['images'].append(v)
+                if v not in images:
+                    images.append(v)
+                    imgNotes[v] = None
+                if not imgNotes[v] and pc.stext_type == STEXT_TYPE_IMAGE_NOTE:
+                    imgNotes[v] = pc.stext.content
 
             if pc.url:
                 v = pc.url.url
@@ -48,6 +53,7 @@ class Place(models.Model):
                 if pc.stext_type == STEXT_TYPE_ADDRESS:
                     if not result['addr']:
                         result['addr'] = pc.stext.content
+        result['images'] = [dict(uuid=img, note=imgNotes[img]) for img in images]
         return result
 
 

@@ -35,6 +35,7 @@ class PlaceTest(APITestBase):
         addr1 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
         note12 = ShortText(content='만두도 괜찮음'); note12.save()
+        imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
 
         # 현재 위치 저장
@@ -44,6 +45,8 @@ class PlaceTest(APITestBase):
         pc13 = models.PlaceContent(vd=vd1, place=place, stext=name1, stext_type=models.STEXT_TYPE_PLACE_NAME); pc13.save()
         # 노트 추가
         pc14 = models.PlaceContent(vd=vd1, place=place, stext=note12, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc14.save()
+        # 이미지노트 추가
+        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stext=imgNote1, stext_type=models.STEXT_TYPE_IMAGE_NOTE); pc15.save()
 
         vd2 = VD(); vd2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -51,7 +54,9 @@ class PlaceTest(APITestBase):
         addr2 = ShortText(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
         note21 = ShortText(content='여기 가게 바로 옆으로 이전'); note21.save()
         note22 = ShortText(content='평양냉면 맛집'); note22.save()
-        img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
+        img21 = Image(file=self.uploadImage('no_exif_test.jpg')); img21.save()
+        img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
+        imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(url='http://maukistudio.com/'); url2.save()
 
         # URL 저장
@@ -61,10 +66,14 @@ class PlaceTest(APITestBase):
         # 주소 지정
         pc23 = models.PlaceContent(vd=vd2, place=place, stext=addr2, stext_type=models.STEXT_TYPE_ADDRESS); pc23.save()
         # 이미지, 노트 추가
-        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img2, stext=note22, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc24.save()
+        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stext=note22, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc24.save()
         # 장소화
         fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3'); fsVenue.save()
         pc25 = models.PlaceContent(vd=vd1, place=place, fsVenue=fsVenue); pc25.save()
+        # 이미지노트 추가
+        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stext=imgNote2, stext_type=models.STEXT_TYPE_IMAGE_NOTE); pc26.save()
+        # (노트없는) 이미지 추가
+        pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save()
 
         want = json_loads('''
             {
@@ -73,12 +82,12 @@ class PlaceTest(APITestBase):
                 "name": "%s",
                 "addr": "%s",
                 "notes": ["%s", "%s", "%s", "%s"],
-                "images": ["%s", "%s"],
+                "images": [{"uuid": "%s", "note": null}, {"uuid": "%s", "note": "%s"}, {"uuid": "%s", "note": "%s"}],
                 "urls": ["%s"],
                 "fsVenue": "%s"
             }
         ''' % (place.id, 127.1037430, 37.3997320, name2, addr2, note22, note21, note12, note11,
-               img2, img1, url2, fsVenue,))
+               img22, img21, imgNote2, img1, imgNote1, url2, fsVenue,))
         print(place.post)
         print(want)
         self.assertDictEqual(place.post, want)
