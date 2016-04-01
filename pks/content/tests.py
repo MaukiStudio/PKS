@@ -50,97 +50,33 @@ class FsVenueViewsetTest(APITestBase):
         self.assertEqual(2, models.FsVenue.objects.count())
 
 
-class NoteViewsetTest(APITestBase):
+class ShortTextViewsetTest(APITestBase):
 
     def setUp(self):
-        self.nt = models.Note(content='맛집')
-        self.nt.save()
+        self.stext = models.ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.stext.save()
 
     def test_list(self):
-        response = self.client.get('/notes/')
+        response = self.client.get('/stexts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)
         self.assertEqual(list, type(result))
         self.assertEqual(1, len(result))
 
-        nt2 = models.Note(content='맛집2')
-        nt2.save()
-        response = self.client.get('/notes/')
+        stext2 = models.ShortText(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
+        stext2.save()
+        response = self.client.get('/stexts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)
         self.assertEqual(list, type(result))
         self.assertEqual(2, len(result))
 
     def test_create(self):
-        self.assertEqual(1, models.Note.objects.count())
-        response = self.client.post('/notes/', dict(content=self.nt.content))
+        self.assertEqual(1, models.ShortText.objects.count())
+        response = self.client.post('/stexts/', dict(content=self.stext.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(1, models.Note.objects.count())
+        self.assertEqual(1, models.ShortText.objects.count())
 
-        response = self.client.post('/notes/', dict(content='맛집2'))
+        response = self.client.post('/stexts/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(2, models.Note.objects.count())
-
-
-class NameViewsetTest(APITestBase):
-
-    def setUp(self):
-        self.name = models.Name(content='능라')
-        self.name.save()
-
-    def test_list(self):
-        response = self.client.get('/names/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(1, len(result))
-
-        name2 = models.Name(content='맛집2')
-        name2.save()
-        response = self.client.get('/names/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(2, len(result))
-
-    def test_create(self):
-        self.assertEqual(1, models.Name.objects.count())
-        response = self.client.post('/names/', dict(content=self.name.content))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(1, models.Name.objects.count())
-
-        response = self.client.post('/names/', dict(content='봉피양'))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(2, models.Name.objects.count())
-
-
-class AddressViewsetTest(APITestBase):
-
-    def setUp(self):
-        self.addr = models.Address(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.addr.save()
-
-    def test_list(self):
-        response = self.client.get('/addrs/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(1, len(result))
-
-        addr2 = models.Address(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
-        addr2.save()
-        response = self.client.get('/addrs/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(2, len(result))
-
-    def test_create(self):
-        self.assertEqual(1, models.Address.objects.count())
-        response = self.client.post('/addrs/', dict(content=self.addr.content))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(1, models.Address.objects.count())
-
-        response = self.client.post('/addrs/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(2, models.Address.objects.count())
+        self.assertEqual(2, models.ShortText.objects.count())

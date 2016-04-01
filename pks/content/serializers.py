@@ -17,35 +17,12 @@ class FsVenueSerializer(ModelSerializer):
         return fs
 
 
-class NoteSerializer(ModelSerializer):
+class ShortTextSerializer(ModelSerializer):
 
     class Meta:
-        model = models.Note
+        model = models.ShortText
 
     def create(self, validated_data):
-        nt = models.Note(**validated_data)
-        nt.save()
-        return nt
-
-
-class NameSerializer(ModelSerializer):
-
-    class Meta:
-        model = models.Name
-
-    def create(self, validated_data):
-        name = models.Name(**validated_data)
-        name.save()
-        return name
-
-
-class AddressSerializer(ModelSerializer):
-
-    class Meta:
-        model = models.Address
-
-    def create(self, validated_data):
-        addr = models.Address(**validated_data)
-        addr.save()
-        return addr
-
+        stext = models.ShortText(**validated_data)
+        stext.save()
+        return stext

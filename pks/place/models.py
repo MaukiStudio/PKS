@@ -8,7 +8,7 @@ from django.contrib.gis.db import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import FsVenue, Note, Name, Address
+from content.models import FsVenue, ShortText
 from delorean import Delorean
 
 
@@ -46,9 +46,7 @@ class PlaceContent(models.Model):
     image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     fsVenue = models.ForeignKey(FsVenue, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    note = models.ForeignKey(Note, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    name = models.ForeignKey(Name, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    addr = models.ForeignKey(Address, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    stext = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     def set_uuid(self):
         timestamp = int(round(Delorean().epoch*1000))

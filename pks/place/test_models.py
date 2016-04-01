@@ -10,7 +10,7 @@ from place import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import FsVenue, Note, Name, Address
+from content.models import FsVenue, ShortText
 from delorean import Delorean
 
 BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
@@ -25,7 +25,7 @@ class PlaceTest(APITestBase):
         saved = models.Place.objects.first()
         self.assertEqual(saved, place)
 
-    def test_post(self):
+    def __skip__test_post(self):
         place = models.Place()
         place.save()
 
@@ -85,12 +85,8 @@ class PlaceContentTest(APITestBase):
 
         self.fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3')
         self.fsVenue.save()
-        self.note = Note(content='맛집')
-        self.note.save()
-        self.name = Name(content='능라')
-        self.name.save()
-        self.addr = Address(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.addr.save()
+        self.stext = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.stext.save()
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -167,30 +163,11 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.fsVenue, self.fsVenue)
 
-    def test_note_property(self):
+    def test_stext_property(self):
         pc = models.PlaceContent()
-        pc.note = self.note
+        pc.stext = self.stext
         pc.save()
-        saved = self.note.pcs.get(pk=pc.pk)
-        self.assertEqual(pc.note, self.note)
+        saved = self.stext.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.stext, self.stext)
         self.assertEqual(saved, pc)
-        self.assertEqual(saved.note, self.note)
-
-    def test_name_property(self):
-        pc = models.PlaceContent()
-        pc.name = self.name
-        pc.save()
-        saved = self.name.pcs.get(pk=pc.pk)
-        self.assertEqual(pc.name, self.name)
-        self.assertEqual(saved, pc)
-        self.assertEqual(saved.name, self.name)
-
-    def test_addr_property(self):
-        pc = models.PlaceContent()
-        pc.addr = self.addr
-        pc.save()
-        saved = self.addr.pcs.get(pk=pc.pk)
-        self.assertEqual(pc.addr, self.addr)
-        self.assertEqual(saved, pc)
-        self.assertEqual(saved.addr, self.addr)
-
+        self.assertEqual(saved.stext, self.stext)
