@@ -31,6 +31,10 @@ class ShortText(models.Model):
     def __unicode__(self):
         return self.content
 
+    @property
+    def uuid_json(self):
+        return '%s.stext' % b16encode(self.uuid.bytes)
+
     def set_uuid(self):
         m = md5()
         m.update(self.content.encode(encoding='utf-8'))

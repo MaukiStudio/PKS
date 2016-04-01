@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from uuid import uuid1, UUID
+from base64 import b16encode
 
 from base.tests import APITestBase
 from content import models
@@ -47,11 +48,14 @@ class ShortTextTest(APITestBase):
 
     def test_save_and_retreive(self):
         stext = models.ShortText()
-        stext.uuid = uuid1()
+        test_uuid = uuid1()
+        stext.uuid = test_uuid
         stext.save()
         saved = models.ShortText.objects.first()
+        self.assertEqual(stext.uuid, test_uuid)
+        self.assertEqual(stext.uuid_json, '%s.stext' % b16encode(test_uuid.bytes))
         self.assertEqual(saved, stext)
-        self.assertEqual(saved.uuid, stext.uuid)
+        self.assertEqual(saved.uuid, test_uuid)
 
     def test_content_property(self):
         stext = models.ShortText()

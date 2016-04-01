@@ -126,7 +126,7 @@ class VDViewset(ModelViewSet):
 
     def get_object(self):
         aid = self.kwargs['pk']
-        if str(aid) == 'mine':
+        if str(aid) == 'myself':
             vd_pk = self.request.session[VD_SESSION_KEY]
         else:
             vd_pk = models.getVidIdFromAid(self.request.user, aid)
@@ -139,7 +139,7 @@ class RealUserViewset(ModelViewSet):
 
     def get_object(self):
         aid = self.kwargs['pk']
-        if str(aid) == 'mine' and VD_SESSION_KEY in self.request.session:
+        if str(aid) == 'myself' and VD_SESSION_KEY in self.request.session:
             vd_pk = self.request.session[VD_SESSION_KEY]
             if not vd_pk:
                 return None

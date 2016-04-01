@@ -39,16 +39,25 @@ class FirstScenarioTest(APITestBase):
         self.assertVdLogin()
         auth_vd_token = json.loads(response.content)['auth_vd_token']       # 로그인할 때마다 auth_vd_token 은 갱신
 
+        '''
         # VD 정보 조회
         # 해당 VirtualDevice 에서 생성한 PlaceContent 정보로 구성된 PlacePost 정보 조회
         # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
-        response = self.client.get('/vds/mine/posts/')
+        response = self.client.get('/vds/myself/posts/')
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(0, len(json.loads(response.content)))
 
         # RealUser(VD.realOwner) 에 매핑된 VD 목록 조회
         # 현재 로그인한 VD 는 빼고 조회됨
-        response = self.client.get('/rus/mine/vds/')
+        response = self.client.get('/rus/myself/vds/')
+        '''
+
+        # 장소 목록 조회
+        # 이메일 인증이 되지 않은 시점에서도 ru=myself 는 동작함
+        # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
+        response = self.client.get('/places/?ru=myself')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(0, len(json.loads(response.content)))
 
         # 이메일 인증이 되지 않은 경우 404 Not Found 가 발생
         # TODO : 현재는 임시로 VD 등록 시 이메일 인증도 완료된 걸로 처리되어 있음
@@ -61,6 +70,7 @@ class FirstScenarioTest(APITestBase):
         # 이메일 인증
         # TODO : 현재는 임시로 VD 등록 시 이메일 인증도 완료된 걸로 처리되어 있음
         # TODO : 나중에 이메일을 읽어 인증 링크를 클릭하도록 구현 수정
+
 
         # 앱 재시작
 
@@ -76,8 +86,9 @@ class FirstScenarioTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertVdLogin()
 
+        '''
         # RealUser(VD.realOwner) 에 매핑된 VD 목록 조회
-        response = self.client.get('/rus/mine/vds/')
+        response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 하나도 없음을 확인 : 자기자신은 포함되지 않으므로 하나도 없음
@@ -96,18 +107,23 @@ class FirstScenarioTest(APITestBase):
         self.assertVdLogin()
 
         # RealUser(VD.realOwner) 에 매핑된 VD 목록 조회
-        response = self.client.get('/rus/mine/vds/')
+        response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 앞서 생성되어 있던 VD 1개가 존재함을 확인
         vds = json.loads(response.content)
         self.assertEqual(len(vds), 1)
         self.assertEqual(vd.id, vds[0]['id'])
+        '''
 
+        # 장소 목록 조회
+        response = self.client.get('/places/?ru=myself')
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(0, len(json.loads(response.content)))
 
+        # 장소 저장을 위한 Content 생성
+        self.fail()
 
+        # Post 생성
 
-
-        # 장소 저장
-        self.fail('장소 저장 로직 구현')
-
+        # 장소 목록 조회

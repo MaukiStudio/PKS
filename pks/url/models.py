@@ -30,3 +30,7 @@ class Url(models.Model):
 
     def __unicode__(self):
         return self.url
+
+    @property
+    def uuid_json(self):
+        return '%s.url' % b16encode(self.uuid.bytes)

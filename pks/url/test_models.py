@@ -6,6 +6,7 @@ from django.utils import timezone
 from datetime import timedelta
 from uuid import uuid1
 from django.db import IntegrityError
+from base64 import b16encode
 
 from base.tests import APITestBase
 from url import models
@@ -20,11 +21,14 @@ class UrlTest(APITestBase):
 
     def test_save_and_retreive(self):
         url = models.Url()
-        url.uuid = uuid1()
+        test_uuid = uuid1()
+        url.uuid = test_uuid
         url.save()
         saved = models.Url.objects.first()
+        self.assertEqual(url.uuid, test_uuid)
+        self.assertEqual(url.uuid_json, '%s.url' % b16encode(test_uuid.bytes))
         self.assertEqual(saved, url)
-        self.assertEqual(saved.uuid, url.uuid)
+        self.assertEqual(saved.uuid, test_uuid)
 
     def test_url_property(self):
         url = models.Url()

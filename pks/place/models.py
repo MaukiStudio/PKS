@@ -38,7 +38,7 @@ class Place(models.Model):
                     result[postType]['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
 
                 if pc.image:
-                    v = str(pc.image)
+                    v = pc.image.uuid_json
                     if v not in images[postType]:
                         images[postType].append(v)
                         imgNotes[postType][v] = None
