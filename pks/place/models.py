@@ -13,7 +13,24 @@ from delorean import Delorean
 
 
 class Place(models.Model):
-    pass
+    post_cache = None
+
+    @property
+    def post(self):
+        if self.post_cache:
+            return self.post_cache
+        result = dict(id=self.id, latitude=None, longitude=None, images=list(), urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+        for pc in self.pcs.all().order_by('-uuid'):
+            if pc.lonLat and not result['latitude']: result['latitude'] = pc.lonLat.y
+            if pc.lonLat and not result['longitude']: result['longitude'] = pc.lonLat.x
+            if pc.image: result['images'].append(pc.image.file.url)
+            if pc.url: result['urls'].append(pc.url.url)
+            if pc.fsVenue and not result['fsVenue']: result['fsVenue'] = pc.fsVenue.fsVenueId
+            if pc.note: result['notes'].append(pc.note.content)
+            if pc.name and not result['name']: result['name'] = pc.name.content
+            if pc.addr and not result['addr']: result['addr'] = pc.addr.content
+        self.post_cache = result
+        return self.post_cache
 
 
 class PlaceContent(models.Model):

@@ -26,6 +26,10 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(type(result), list)
         self.assertEqual(len(result), 0)
 
+    def test_create_post(self):
+        response = self.client.put('/places/unknown/post/')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class PlaceContentViewSetTest(APITestBase):
 
@@ -43,7 +47,4 @@ class PlaceContentViewSetTest(APITestBase):
         result = json.loads(response.content)
         self.assertEqual(type(result), list)
         self.assertEqual(len(result), 0)
-
-    def test_create(self):
-        self.fail()
 

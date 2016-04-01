@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
+from json import loads as json_loads
 from django.contrib.gis.geos import GEOSGeometry
 
 from base.tests import APITestBase
@@ -25,7 +26,47 @@ class PlaceTest(APITestBase):
         self.assertEqual(saved, place)
 
     def test_post(self):
-        self.fail()
+        place = models.Place()
+        place.save()
+
+        vd1 = VD(); vd1.save()
+        name1 = Name(content='능라'); name1.save()
+        addr1 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
+        note11 = Note(content='분당 냉면 최고'); note11.save()
+        note12 = Note(content='만두도 괜찮음'); note12.save()
+        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        url1 = Url(url='http://maukistudio.com/'); url1.save()
+        pc11 = models.PlaceContent(vd=vd1, place=place, name=name1, addr=addr1, note=note11, image=img1, url=url1); pc11.save()
+        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=GEOSGeometry('POINT(127 37)'), note=note12); pc12.save()
+
+        vd2 = VD(); vd2.save()
+        name2 = Name(content='능라도'); name2.save()
+        addr2 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
+        note21 = Note(content='여기 가게 바로 옆으로 이전'); note21.save()
+        note22 = Note(content='평양냉면 맛집'); note22.save()
+        img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
+        url2 = Url(url='http://maukistudio.com/2'); url2.save()
+        pc21 = models.PlaceContent(vd=vd2, place=place, name=name2, addr=addr2, note=note21, image=img2, url=url2); pc21.save()
+        pc22 = models.PlaceContent(vd=vd2, place=place, lonLat=GEOSGeometry('POINT(127.1037430 37.3997320)'), note=note22); pc22.save()
+
+        fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3'); fsVenue.save()
+        pc13 = models.PlaceContent(vd=vd1, place=place, fsVenue=fsVenue); pc13.save()
+
+        want = json_loads('''
+            {
+                "id": %d,
+                "latitude": %f,
+                "longitude": %f,
+                "name": "%s",
+                "addr": "%s",
+                "notes": ["%s", "%s", "%s", "%s"],
+                "images": ["%s", "%s"],
+                "urls": ["%s", "%s"],
+                "fsVenue": "%s"
+            }
+        ''' % (place.id, 37.3997320, 127.1037430, name2, addr2, note22, note21, note12, note11,
+               img2.file.url, img1.file.url, url2, url1, fsVenue,))
+        self.assertDictEqual(place.post, want)
 
 
 class PlaceContentTest(APITestBase):
