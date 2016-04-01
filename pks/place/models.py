@@ -19,42 +19,53 @@ STEXT_TYPE_IMAGE_NOTE = 4
 
 
 class Place(models.Model):
-    @property
-    def post(self):
-        result = dict(id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
-        images = list()
-        imgNotes = dict()
+
+    def getPost(self, myVds):
+        result = [None, None]
+        images = [None, None]
+        imgNotes = [None, None]
+        for postType in (0, 1):
+            result[postType] = dict(id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+            images[postType] = list()
+            imgNotes[postType] = dict()
+
         for pc in self.pcs.all().order_by('-uuid'):
-            if pc.lonLat and not result['lonLat']:
-                result['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
+            for postType in (0, 1):
+                if postType == 0 and pc.vd.pk not in myVds:
+                    continue
 
-            if pc.image:
-                v = str(pc.image)
-                if v not in images:
-                    images.append(v)
-                    imgNotes[v] = None
-                if not imgNotes[v] and pc.stext_type == STEXT_TYPE_IMAGE_NOTE:
-                    imgNotes[v] = pc.stext.content
+                if pc.lonLat and not result[postType]['lonLat']:
+                    result[postType]['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
 
-            if pc.url:
-                v = pc.url.url
-                if v not in result['urls']:
-                    result['urls'].append(v)
+                if pc.image:
+                    v = str(pc.image)
+                    if v not in images[postType]:
+                        images[postType].append(v)
+                        imgNotes[postType][v] = None
+                    if not imgNotes[postType][v] and pc.stext_type == STEXT_TYPE_IMAGE_NOTE:
+                        imgNotes[postType][v] = pc.stext.content
 
-            if pc.fsVenue and not result['fsVenue']:
-                result['fsVenue'] = pc.fsVenue.fsVenueId
+                if pc.url:
+                    v = pc.url.url
+                    if v not in result[postType]['urls']:
+                        result[postType]['urls'].append(v)
 
-            if pc.stext:
-                if pc.stext_type == STEXT_TYPE_PLACE_NOTE:
-                    result['notes'].append(pc.stext.content)
-                if pc.stext_type == STEXT_TYPE_PLACE_NAME:
-                    if not result['name']:
-                        result['name'] = pc.stext.content
-                if pc.stext_type == STEXT_TYPE_ADDRESS:
-                    if not result['addr']:
-                        result['addr'] = pc.stext.content
-        result['images'] = [dict(uuid=img, note=imgNotes[img]) for img in images]
-        return result
+                if pc.fsVenue and not result[postType]['fsVenue']:
+                    result[postType]['fsVenue'] = pc.fsVenue.fsVenueId
+
+                if pc.stext:
+                    if pc.stext_type == STEXT_TYPE_PLACE_NOTE:
+                        result[postType]['notes'].append(pc.stext.content)
+                    if pc.stext_type == STEXT_TYPE_PLACE_NAME:
+                        if not result[postType]['name']:
+                            result[postType]['name'] = pc.stext.content
+                    if pc.stext_type == STEXT_TYPE_ADDRESS:
+                        if not result[postType]['addr']:
+                            result[postType]['addr'] = pc.stext.content
+
+        for postType in (0, 1):
+            result[postType]['images'] = [dict(uuid=img, note=imgNotes[postType][img]) for img in images[postType]]
+        return dict(myPost=result[0], publicPost=result[1])
 
 
 class PlaceContent(models.Model):

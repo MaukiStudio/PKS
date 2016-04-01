@@ -69,14 +69,25 @@ class PlaceTest(APITestBase):
         pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stext=note22, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc24.save()
         # 장소화
         fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3'); fsVenue.save()
-        pc25 = models.PlaceContent(vd=vd1, place=place, fsVenue=fsVenue); pc25.save()
+        pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save()
         # 이미지노트 추가
         pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stext=imgNote2, stext_type=models.STEXT_TYPE_IMAGE_NOTE); pc26.save()
         # (노트없는) 이미지 추가
         pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save()
 
-        want = json_loads('''
-            {
+        json_str = '''
+        {
+            "myPost": {
+                "id": %d,
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": "%s",
+                "addr": "%s",
+                "notes": ["%s", "%s"],
+                "images": [{"uuid": "%s", "note": "%s"}],
+                "urls": [],
+                "fsVenue": null
+            },
+            "publicPost": {
                 "id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": "%s",
@@ -86,11 +97,17 @@ class PlaceTest(APITestBase):
                 "urls": ["%s"],
                 "fsVenue": "%s"
             }
-        ''' % (place.id, 127.1037430, 37.3997320, name2, addr2, note22, note21, note12, note11,
-               img22, img21, imgNote2, img1, imgNote1, url2, fsVenue,))
-        print(place.post)
-        print(want)
-        self.assertDictEqual(place.post, want)
+        }
+        ''' % (place.id, 127, 37, name1, addr1, note12, note11, img1, imgNote1,
+               place.id, 127.1037430, 37.3997320, name2, addr2, note22, note21, note12, note11,
+               img22, img21, imgNote2, img1, imgNote1, url2, fsVenue,)
+        want = json_loads(json_str)
+        result = place.getPost([vd1.pk])
+        print(want['myPost'])
+        print(result['myPost'])
+        self.assertEqual(result['publicPost'], want['publicPost'])
+        self.assertEqual(result['myPost'], want['myPost'])
+        self.assertDictEqual(result, want)
 
 
 class PlaceContentTest(APITestBase):
