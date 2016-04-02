@@ -28,3 +28,8 @@ class Url(models.Model):
     @property
     def uuid(self):
         return '%s.url' % b16encode(self.id.bytes)
+
+    @classmethod
+    def get_from_uuid(cls, _uuid):
+        _id = UUID(_uuid.split('.')[0])
+        return cls.objects.get(id=_id)

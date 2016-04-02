@@ -29,3 +29,4 @@ Place.parent, Place.representative 속성 만들고 구현하기
 해시 collision 해결 : collision 이 발생하면 앞에 공백을 붙여서 다시 재시도
 Point 타입에 왜 gist 인덱스가 걸려 있는지 확인
 content 조회를 파일 access 로 바꾸면서, uuid 조회는 join 을 하지 않도록 수정
+Post 관련 Tuning : Foreign Key 를 끊어서, Content 모델 조회 없이 바로 uuid 를 저장하도록. 혹은 content 값에서 double check 를 하거나 (CPU 만 쓰면 되므로)

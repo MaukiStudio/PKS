@@ -60,6 +60,7 @@ class PlaceTest(APITestBase):
         img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
+        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save();
 
         # URL 저장
         pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
@@ -70,7 +71,6 @@ class PlaceTest(APITestBase):
         # 이미지, 노트 추가
         pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
         # 장소화
-        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save(); sleep(0.001)
         pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save(); sleep(0.001)
         # 이미지노트 추가
         pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)

@@ -60,6 +60,11 @@ class Image(models.Model):
     def uuid(self):
         return '%s.jpg' % b16encode(self.id.bytes)
 
+    @classmethod
+    def get_from_uuid(cls, _uuid):
+        _id = UUID(_uuid.split('.')[0])
+        return cls.objects.get(id=_id)
+
     def __unicode__(self):
         return self.uuid
 

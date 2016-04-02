@@ -29,6 +29,8 @@ class UrlTest(APITestBase):
         self.assertEqual(url.uuid, '%s.url' % b16encode(test_id.bytes))
         self.assertEqual(saved, url)
         self.assertEqual(saved.id, test_id)
+        saved2 = models.Url.get_from_uuid(url.uuid)
+        self.assertEqual(saved2, url)
 
     def test_content_property(self):
         url = models.Url()

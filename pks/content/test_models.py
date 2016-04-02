@@ -24,6 +24,8 @@ class FsVenueTest(APITestBase):
         saved = models.FsVenue.objects.first()
         self.assertEqual(saved, fs)
         self.assertEqual(saved.id, fs.id)
+        saved2 = models.FsVenue.get_from_uuid(fs.uuid)
+        self.assertEqual(saved2, fs)
 
     def test_content_property(self):
         fs = models.FsVenue()
@@ -56,6 +58,8 @@ class ShortTextTest(APITestBase):
         self.assertEqual(stxt.uuid, '%s.stxt' % b16encode(test_id.bytes))
         self.assertEqual(saved, stxt)
         self.assertEqual(saved.id, test_id)
+        saved2 = models.ShortText.get_from_uuid(stxt.uuid)
+        self.assertEqual(saved2, stxt)
 
     def test_content_property(self):
         stxt = models.ShortText()

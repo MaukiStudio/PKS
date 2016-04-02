@@ -16,7 +16,12 @@ class FsVenue(models.Model):
 
     @property
     def uuid(self):
-        return '%s.fsv' % self.content
+        return '%s.fsv' % b16encode(self.id.bytes)
+
+    @classmethod
+    def get_from_uuid(cls, _uuid):
+        _id = UUID(_uuid.split('.')[0])
+        return cls.objects.get(id=_id)
 
     def set_id(self):
         self.id = UUID(self.content.rjust(32, b'0'))
@@ -37,6 +42,11 @@ class ShortText(models.Model):
     @property
     def uuid(self):
         return '%s.stxt' % b16encode(self.id.bytes)
+
+    @classmethod
+    def get_from_uuid(cls, _uuid):
+        _id = UUID(_uuid.split('.')[0])
+        return cls.objects.get(id=_id)
 
     def set_id(self):
         m = md5()

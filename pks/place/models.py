@@ -120,5 +120,6 @@ class UserPost(models.Model):
 
     @property
     def userPost(self):
+        # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
         self.place.computePost([self.vd.id])
         return self.place._userPost
