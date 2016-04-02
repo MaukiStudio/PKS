@@ -9,16 +9,20 @@ from django.contrib.gis.db import models
 
 class FsVenue(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
-    fsVenueId = models.CharField(max_length=255, blank=True, null=True, default=None)
+    content = models.CharField(max_length=255, blank=True, null=True, default=None)
 
     def __unicode__(self):
-        return self.fsVenueId
+        return self.content
+
+    @property
+    def uuid(self):
+        return '%s.fsv' % self.content
 
     def set_id(self):
-        self.id = UUID(self.fsVenueId.rjust(32, b'0'))
+        self.id = UUID(self.content.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
-        if self.fsVenueId and not self.id:
+        if not self.id and self.content:
             self.set_id()
         super(FsVenue, self).save(*args, **kwargs)
 

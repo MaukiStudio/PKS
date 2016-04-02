@@ -21,7 +21,7 @@ class FsVenueViewsetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         '''
 
-        self.fs = models.FsVenue(fsVenueId='40a55d80f964a52020f31ee3')
+        self.fs = models.FsVenue(content='40a55d80f964a52020f31ee3')
         self.fs.save()
 
     def test_list(self):
@@ -31,7 +31,7 @@ class FsVenueViewsetTest(APITestBase):
         self.assertEqual(list, type(result))
         self.assertEqual(1, len(result))
 
-        fs2 = models.FsVenue(fsVenueId='40a55d80f964a52020f31ee4')
+        fs2 = models.FsVenue(content='40a55d80f964a52020f31ee4')
         fs2.save()
         response = self.client.get('/fsvs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -41,11 +41,11 @@ class FsVenueViewsetTest(APITestBase):
 
     def test_create(self):
         self.assertEqual(1, models.FsVenue.objects.count())
-        response = self.client.post('/fsvs/', dict(fsVenueId=self.fs.fsVenueId))
+        response = self.client.post('/fsvs/', dict(content=self.fs.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(1, models.FsVenue.objects.count())
 
-        response = self.client.post('/fsvs/', dict(fsVenueId='40a55d80f964a52020f31ee4'))
+        response = self.client.post('/fsvs/', dict(content='40a55d80f964a52020f31ee4'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(2, models.FsVenue.objects.count())
 

@@ -68,7 +68,7 @@ class PlaceTest(APITestBase):
         # 이미지, 노트 추가
         pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save()
         # 장소화
-        fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3'); fsVenue.save()
+        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save()
         pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save()
         # 이미지노트 추가
         pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save()
@@ -100,7 +100,7 @@ class PlaceTest(APITestBase):
         }
         ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.uuid, imgNote1.content,
                place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
-               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.content, fsVenue.fsVenueId,)
+               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.content, fsVenue.content,)
         want = json_loads(json_str)
         result = place.getPost([vd1.id])
         print(want['myPost'])
@@ -124,7 +124,7 @@ class PlaceContentTest(APITestBase):
         self.url = Url(content='http://maukistudio.com/')
         self.url.save()
 
-        self.fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3')
+        self.fsVenue = FsVenue(content='40a55d80f964a52020f31ee3')
         self.fsVenue.save()
         self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
         self.stxt.save()

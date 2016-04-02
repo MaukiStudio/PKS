@@ -42,7 +42,7 @@ class Place(models.Model):
                     if v not in images[postType]:
                         images[postType].append(v)
                         imgNotes[postType][v] = None
-                    if not imgNotes[postType][v] and pc.stxt_type == STXT_TYPE_IMAGE_NOTE:
+                    if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and not imgNotes[postType][v]:
                         imgNotes[postType][v] = pc.stxt.content
 
                 if pc.url:
@@ -51,17 +51,17 @@ class Place(models.Model):
                         result[postType]['urls'].append(v)
 
                 if pc.fsVenue and not result[postType]['fsVenue']:
-                    result[postType]['fsVenue'] = pc.fsVenue.fsVenueId
+                    v = pc.fsVenue.content
+                    result[postType]['fsVenue'] = result[postType]['fsVenue'] or v
 
                 if pc.stxt:
+                    v = pc.stxt.content
                     if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
-                        result[postType]['notes'].append(pc.stxt.content)
+                        result[postType]['notes'].append(v)
                     if pc.stxt_type == STXT_TYPE_PLACE_NAME:
-                        if not result[postType]['name']:
-                            result[postType]['name'] = pc.stxt.content
+                        result[postType]['name'] = result[postType]['name'] or v
                     if pc.stxt_type == STXT_TYPE_ADDRESS:
-                        if not result[postType]['addr']:
-                            result[postType]['addr'] = pc.stxt.content
+                        result[postType]['addr'] = result[postType]['addr'] or v
 
         for postType in (0, 1):
             result[postType]['images'] = [dict(uuid=img, note=imgNotes[postType][img]) for img in images[postType]]
