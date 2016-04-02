@@ -44,33 +44,33 @@ class Place(models.Model):
                     result[postType]['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
 
                 if pc.image:
-                    v = pc.image.content
-                    if v not in images[postType]:
-                        images[postType].append(v)
-                        imgNotes[postType][v] = None
-                    if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and not imgNotes[postType][v]:
-                        imgNotes[postType][v] = pc.stxt.content
+                    uuid = pc.image.uuid
+                    if uuid not in [d['uuid'] for d in images[postType]]:
+                        images[postType].append(dict(uuid=uuid, content=pc.image.content))
+                        imgNotes[postType][uuid] = None
+                    if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content and not imgNotes[postType][uuid]:
+                        imgNotes[postType][uuid] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content)
 
                 if pc.url:
-                    v = pc.url.content
-                    if v not in result[postType]['urls']:
-                        result[postType]['urls'].append(v)
+                    uuid = pc.url.uuid
+                    if uuid not in [d['uuid'] for d in result[postType]['urls']]:
+                        result[postType]['urls'].append(dict(uuid=uuid, content=pc.url.content))
 
                 if pc.fsVenue and not result[postType]['fsVenue']:
-                    v = pc.fsVenue.content
-                    result[postType]['fsVenue'] = result[postType]['fsVenue'] or v
+                    uuid = pc.fsVenue.uuid
+                    result[postType]['fsVenue'] = result[postType]['fsVenue'] or dict(uuid=uuid, content=pc.fsVenue.content)
 
                 if pc.stxt:
-                    v = pc.stxt.content
+                    uuid = pc.stxt.uuid
                     if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
-                        result[postType]['notes'].append(v)
+                        result[postType]['notes'].append(dict(uuid=uuid, content=pc.stxt.content))
                     if pc.stxt_type == STXT_TYPE_PLACE_NAME:
-                        result[postType]['name'] = result[postType]['name'] or v
+                        result[postType]['name'] = result[postType]['name'] or dict(uuid=uuid, content=pc.stxt.content)
                     if pc.stxt_type == STXT_TYPE_ADDRESS:
-                        result[postType]['addr'] = result[postType]['addr'] or v
+                        result[postType]['addr'] = result[postType]['addr'] or dict(uuid=uuid, content=pc.stxt.content)
 
         for postType in (0, 1):
-            result[postType]['images'] = [dict(uuid=img, note=imgNotes[postType][img]) for img in images[postType]]
+            result[postType]['images'] = [dict(uuid=uuid, content=content, note=imgNotes[postType][uuid]) for (uuid, content) in [(d['uuid'], d['content']) for d in images[postType]]]
         self.post_cache = dict(userPost=result[0], placePost=result[1])
 
     @property

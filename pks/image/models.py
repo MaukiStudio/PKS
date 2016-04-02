@@ -65,5 +65,5 @@ class Image(models.Model):
 
     @property
     def content(self):
-        return self.uuid
+        return None
 

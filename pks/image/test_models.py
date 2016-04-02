@@ -19,7 +19,7 @@ class ImageTest(APITestBase):
         img = models.Image(id=img_id)
         self.assertEqual(unicode(img), '%s.jpg' % b16encode(img_id.bytes))
         self.assertEqual(img.uuid, unicode(img))
-        self.assertEqual(img.content, img.uuid)
+        self.assertEqual(img.content, None)
 
     def test_save_and_retreive(self):
         img = models.Image()

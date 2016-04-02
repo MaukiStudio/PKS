@@ -81,27 +81,39 @@ class PlaceTest(APITestBase):
             {
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
-                "name": "%s",
-                "addr": "%s",
-                "notes": ["%s", "%s"],
-                "images": [{"uuid": "%s", "note": "%s"}],
+                "name": {"uuid": "%s", "content": "%s"},
+                "addr": {"uuid": "%s", "content": "%s"},
+                "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
+                "images": [{"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
                 "fsVenue": null
             }
-        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.content, imgNote1.content,)
+        ''' % (place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
+               note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, imgNote1.uuid, imgNote1.content,)
         json_placePost = '''
             {
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
-                "name": "%s",
-                "addr": "%s",
-                "notes": ["%s", "%s", "%s", "%s"],
-                "images": [{"uuid": "%s", "note": null}, {"uuid": "%s", "note": "%s"}, {"uuid": "%s", "note": "%s"}],
-                "urls": ["%s"],
-                "fsVenue": "%s"
+                "name": {"uuid": "%s", "content": "%s"},
+                "addr": {"uuid": "%s", "content": "%s"},
+                "notes": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
+                "images": [
+                    {"uuid": "%s", "content": null, "note": null},
+                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
+                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
+                ],
+                "urls": [{"uuid": "%s", "content": "%s"}],
+                "fsVenue": {"uuid": "%s", "content": "%s"}
             }
-        ''' % (place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
-               img22.content, img21.content, imgNote2.content, img1.content, imgNote1.content, url2.content, fsVenue.content,)
+        ''' % (place.id, point2.x, point2.y, name2.uuid, name2.content, addr2.uuid, addr2.content,
+               note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
+               img22.uuid, img21.uuid, imgNote2.uuid, imgNote2.content, img1.uuid, imgNote1.uuid, imgNote1.content,
+               url2.uuid, url2.content, fsVenue.uuid, fsVenue.content,)
         want_userPost = json_loads(json_userPost)
         want_placePost = json_loads(json_placePost)
         place.computePost([vd1.id])

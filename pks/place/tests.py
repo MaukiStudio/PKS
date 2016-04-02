@@ -102,15 +102,22 @@ class UserPostViewSetTest(APITestBase):
             {
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
-                "name": "%s",
-                "addr": "%s",
-                "notes": ["%s", "%s"],
-                "images": [{"uuid": "%s", "note": "%s"}, {"uuid": "%s", "note": null}],
-                "urls": ["%s"],
+                "name": {"uuid": "%s", "content": "%s"},
+                "addr": {"uuid": "%s", "content": "%s"},
+                "notes": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
+                "images": [
+                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
+                    {"uuid": "%s", "content": null, "note": null}
+                ],
+                "urls": [{"uuid": "%s", "content": "%s"}],
                 "fsVenue": null
             }
-        ''' % (self.place.id, point1.x, point1.y, name1.uuid, addr1.uuid, note12.uuid, note11.uuid,
-               img1.uuid, imgNote1.uuid, img2.uuid, url1.uuid)
+        ''' % (self.place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
+               note12.uuid, note12.content, note11.uuid, note11.content,
+               img1.uuid, imgNote1.uuid, imgNote1.content, img2.uuid, url1.uuid, url1.content,)
 
         self.assertEqual(models.UserPost.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
