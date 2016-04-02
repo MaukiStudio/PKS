@@ -5,6 +5,7 @@ from __future__ import print_function
 from json import loads as json_loads
 from django.contrib.gis.geos import GEOSGeometry
 from time import sleep
+from django.db import IntegrityError
 
 from base.tests import APITestBase
 from place import models
@@ -76,10 +77,9 @@ class PlaceTest(APITestBase):
         # (노트없는) 이미지 추가
         pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save(); sleep(0.001)
 
-        json_str = '''
-        {
-            "myPost": {
-                "id": %d,
+        json_userPost = '''
+            {
+                "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": "%s",
                 "addr": "%s",
@@ -87,9 +87,11 @@ class PlaceTest(APITestBase):
                 "images": [{"uuid": "%s", "note": "%s"}],
                 "urls": [],
                 "fsVenue": null
-            },
-            "publicPost": {
-                "id": %d,
+            }
+        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.content, imgNote1.content,)
+        json_placePost = '''
+            {
+                "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": "%s",
                 "addr": "%s",
@@ -98,17 +100,19 @@ class PlaceTest(APITestBase):
                 "urls": ["%s"],
                 "fsVenue": "%s"
             }
-        }
-        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.content, imgNote1.content,
-               place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
+        ''' % (place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
                img22.content, img21.content, imgNote2.content, img1.content, imgNote1.content, url2.content, fsVenue.content,)
-        want = json_loads(json_str)
-        result = place.getPost([vd1.id])
-        print(want['publicPost'])
-        print(result['publicPost'])
-        self.assertEqual(result['publicPost'], want['publicPost'])
-        self.assertEqual(result['myPost'], want['myPost'])
-        self.assertDictEqual(result, want)
+        want_userPost = json_loads(json_userPost)
+        want_placePost = json_loads(json_placePost)
+        place.computePost([vd1.id])
+
+        self.assertDictEqual(place._userPost, want_userPost)
+        self.assertDictEqual(place.placePost, want_placePost)
+
+        # UserPostTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
+        post, created = models.UserPost.objects.get_or_create(vd=vd1, place=place)
+        self.assertEqual(created, True)
+        self.assertEqual(post.userPost, place._userPost)
 
 
 class PlaceContentTest(APITestBase):
@@ -215,3 +219,36 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.stxt, self.stxt)
         self.assertEqual(saved.stxt_type, models.STXT_TYPE_PLACE_NOTE)
+
+
+class UserPostTest(APITestBase):
+
+    def setUp(self):
+        self.place = models.Place()
+        self.place.save()
+        self.vd = VD()
+        self.vd.save()
+
+    def test_save_and_retreive(self):
+        post = models.UserPost(vd=self.vd, place=self.place)
+        post.save()
+        saved = models.UserPost.objects.first()
+        self.assertEqual(saved, post)
+
+    def test_unique_vd_place(self):
+        post = models.UserPost(vd=self.vd, place=self.place)
+        post.save()
+        post2 = models.UserPost(vd=self.vd, place=self.place)
+        with self.assertRaises(IntegrityError):
+            post2.save()
+
+    def test_get_or_create(self):
+        post, created = models.UserPost.objects.get_or_create(vd=self.vd, place=self.place)
+        self.assertEqual(created, True)
+        post2, created = models.UserPost.objects.get_or_create(vd=self.vd, place=self.place)
+        self.assertEqual(created, False)
+        self.assertEqual(post, post2)
+
+    def test_userPost(self):
+        # 편의상 PlaceTest.test_post() 에 구현
+        pass

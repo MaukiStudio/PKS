@@ -14,3 +14,8 @@ class PlaceSerializer(ModelSerializer):
 class PlaceContentSerializer(ModelSerializer):
     class Meta:
         model = models.PlaceContent
+
+
+class UserPostSerializer(ModelSerializer):
+    class Meta:
+        model = models.UserPost

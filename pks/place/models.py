@@ -20,12 +20,18 @@ STXT_TYPE_IMAGE_NOTE = 4
 
 class Place(models.Model):
 
-    def getPost(self, myVds):
+    def __init__(self, *args, **kwargs):
+        self.post_cache = None
+        super(Place, self).__init__(*args, **kwargs)
+
+    def computePost(self, myVds):
+        if self.post_cache: return
+
         result = [None, None]
         images = [None, None]
         imgNotes = [None, None]
         for postType in (0, 1):
-            result[postType] = dict(id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
             images[postType] = list()
             imgNotes[postType] = dict()
 
@@ -65,7 +71,15 @@ class Place(models.Model):
 
         for postType in (0, 1):
             result[postType]['images'] = [dict(uuid=img, note=imgNotes[postType][img]) for img in images[postType]]
-        return dict(myPost=result[0], publicPost=result[1])
+        self.post_cache = dict(userPost=result[0], placePost=result[1])
+
+    @property
+    def _userPost(self):
+        return self.post_cache['userPost']
+
+    @property
+    def placePost(self):
+        return self.post_cache['placePost']
 
 
 class PlaceContent(models.Model):
@@ -94,3 +108,17 @@ class PlaceContent(models.Model):
         if not self.id:
             self.set_id()
         super(PlaceContent, self).save(*args, **kwargs)
+
+
+class UserPost(models.Model):
+
+    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uposts')
+    place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uposts')
+
+    class Meta:
+        unique_together = ('vd', 'place')
+
+    @property
+    def userPost(self):
+        self.place.computePost([self.vd.id])
+        return self.place._userPost
