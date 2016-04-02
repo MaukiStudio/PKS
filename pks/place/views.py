@@ -64,6 +64,17 @@ class UserPostViewset(ModelViewSet):
         if 'fsVenue' in add and add['fsVenue']:
             fsVenue = FsVenue.get_from_uuid(add['fsVenue']['uuid'])
 
+        # stxts 조회
+        stxts = list()
+        if 'notes' in add and add['notes'] and add['notes'][0]:
+            stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_uuid(add['notes'][0]['uuid'])))
+        if 'name' in add and add['name']:
+            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_uuid(add['name']['uuid'])))
+        if 'addr' in add and add['addr']:
+            stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_uuid(add['addr']['uuid'])))
+        first_stxt = (None, None)
+        if len(stxts) > 0: first_stxt = stxts[0]
+
         # images
         first_image = None
         saved = False
@@ -72,25 +83,20 @@ class UserPostViewset(ModelViewSet):
             # json 에 넘어온 순서대로 조회되도록 reverse 한다
             for d in reversed(add['images']):
                 img = Image.get_from_uuid(d['uuid'])
-                imgNote = None; stxt_type = None
+                stxt = (None, None)
                 if 'note' in d and d['note']:
                     imgNote = ShortText.get_from_uuid(d['note']['uuid'])
                     if imgNote: stxt_type = models.STXT_TYPE_IMAGE_NOTE
+                    stxt = (stxt_type, imgNote)
                 else:
                     # 첫번째 이미지인데 이미지노트가 없다면? 여기서 저장하지 않고 하단에서 저장
                     if img == first_image: continue
+                    stxt = first_stxt
                 pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue,
-                                         image=img, stxt_type=stxt_type, stxt=imgNote,)
+                                         image=img, stxt_type=stxt[0], stxt=stxt[1],)
                 pc.save(); saved = True
 
-        # stxts
-        stxts = list()
-        if 'name' in add and add['name']:
-            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_uuid(add['name']['uuid'])))
-        if 'addr' in add and add['addr']:
-            stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_uuid(add['addr']['uuid'])))
-        if 'notes' in add and add['notes'] and add['notes'][0]:
-            stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_uuid(add['notes'][0]['uuid'])))
+        # stxts 저장
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue,
