@@ -57,7 +57,7 @@ class PlaceTest(APITestBase):
         img21 = Image(file=self.uploadImage('no_exif_test.jpg')); img21.save()
         img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
-        url2 = Url(url='http://maukistudio.com/'); url2.save()
+        url2 = Url(content='http://maukistudio.com/'); url2.save()
 
         # URL 저장
         pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save()
@@ -100,7 +100,7 @@ class PlaceTest(APITestBase):
         }
         ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.uuid, imgNote1.content,
                place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
-               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.url, fsVenue.fsVenueId,)
+               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.content, fsVenue.fsVenueId,)
         want = json_loads(json_str)
         result = place.getPost([vd1.id])
         print(want['myPost'])
@@ -121,7 +121,7 @@ class PlaceContentTest(APITestBase):
         self.image = Image()
         self.image.file = self.uploadImage('test.jpg')
         self.image.save()
-        self.url = Url(url='http://maukistudio.com/')
+        self.url = Url(content='http://maukistudio.com/')
         self.url.save()
 
         self.fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3')

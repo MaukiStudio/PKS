@@ -48,7 +48,7 @@ class PlaceViewSetTest(APITestBase):
         imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
         img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
-        url1 = Url(url='http://maukistudio.com/'); url1.save()
+        url1 = Url(content='http://maukistudio.com/'); url1.save()
 
         json_str = '''
             {

@@ -21,7 +21,7 @@ class UrlViewsetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         '''
 
-        self.url = models.Url(url='http://www.maukistudio.com/', content='<html>content</html>')
+        self.url = models.Url(content='http://www.maukistudio.com/')
         self.url.save()
 
     def test_list(self):
@@ -31,7 +31,7 @@ class UrlViewsetTest(APITestBase):
         self.assertEqual(list, type(result))
         self.assertEqual(1, len(result))
 
-        url2 = models.Url(url='http://www.maukistudio.com/2')
+        url2 = models.Url(content='http://www.maukistudio.com/2')
         url2.save()
         response = self.client.get('/urls/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -41,10 +41,10 @@ class UrlViewsetTest(APITestBase):
 
     def test_create(self):
         self.assertEqual(1, models.Url.objects.count())
-        response = self.client.post('/urls/', dict(url=self.url.url, content=self.url.content))
+        response = self.client.post('/urls/', dict(content=self.url.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(1, models.Url.objects.count())
 
-        response = self.client.post('/urls/', dict(url='http://www.maukistudio.com/2', content='<html>content2</html>'))
+        response = self.client.post('/urls/', dict(content='http://www.maukistudio.com/2'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(2, models.Url.objects.count())

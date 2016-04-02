@@ -46,7 +46,7 @@ class Place(models.Model):
                         imgNotes[postType][v] = pc.stxt.content
 
                 if pc.url:
-                    v = pc.url.url
+                    v = pc.url.content
                     if v not in result[postType]['urls']:
                         result[postType]['urls'].append(v)
 
