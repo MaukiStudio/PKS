@@ -23,6 +23,6 @@ class ShortTextSerializer(ModelSerializer):
         model = models.ShortText
 
     def create(self, validated_data):
-        stext = models.ShortText(**validated_data)
-        stext.save()
-        return stext
+        stxt = models.ShortText(**validated_data)
+        stxt.save()
+        return stxt

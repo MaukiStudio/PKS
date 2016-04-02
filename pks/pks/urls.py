@@ -21,7 +21,7 @@ router.register(r'rus', account_views.RealUserViewset)
 router.register(r'imgs', image_views.ImageViewset)
 router.register(r'urls', url_views.UrlViewset)
 router.register(r'fsvs', content_views.FsVenueViewset)
-router.register(r'stexts', content_views.ShortTextViewset)
+router.register(r'stxts', content_views.ShortTextViewset)
 
 router.register(r'places', place_views.PlaceViewset)
 router.register(r'pcs', place_views.PlaceContentViewset)

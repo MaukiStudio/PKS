@@ -25,3 +25,5 @@ PlaceContent Tuning : flat 하게 흩어져 있는 속성들 합치기
 Content Tuning : base class 만들고, image/url 합치기, 이거 하면서 hash 충돌 문제도 체크하기
 
 Place.parent, Place.representative 속성 만들고 구현하기
+
+해시 collision 해결 : collision 이 발생하면 앞에 공백을 붙여서 다시 재시도

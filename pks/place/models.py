@@ -11,11 +11,11 @@ from url.models import Url
 from content.models import FsVenue, ShortText
 from delorean import Delorean
 
-# stext_type
-STEXT_TYPE_PLACE_NOTE = 1
-STEXT_TYPE_PLACE_NAME = 2
-STEXT_TYPE_ADDRESS = 3
-STEXT_TYPE_IMAGE_NOTE = 4
+# stxt_type
+STXT_TYPE_PLACE_NOTE = 1
+STXT_TYPE_PLACE_NAME = 2
+STXT_TYPE_ADDRESS = 3
+STXT_TYPE_IMAGE_NOTE = 4
 
 
 class Place(models.Model):
@@ -42,8 +42,8 @@ class Place(models.Model):
                     if v not in images[postType]:
                         images[postType].append(v)
                         imgNotes[postType][v] = None
-                    if not imgNotes[postType][v] and pc.stext_type == STEXT_TYPE_IMAGE_NOTE:
-                        imgNotes[postType][v] = pc.stext.content
+                    if not imgNotes[postType][v] and pc.stxt_type == STXT_TYPE_IMAGE_NOTE:
+                        imgNotes[postType][v] = pc.stxt.content
 
                 if pc.url:
                     v = pc.url.url
@@ -53,15 +53,15 @@ class Place(models.Model):
                 if pc.fsVenue and not result[postType]['fsVenue']:
                     result[postType]['fsVenue'] = pc.fsVenue.fsVenueId
 
-                if pc.stext:
-                    if pc.stext_type == STEXT_TYPE_PLACE_NOTE:
-                        result[postType]['notes'].append(pc.stext.content)
-                    if pc.stext_type == STEXT_TYPE_PLACE_NAME:
+                if pc.stxt:
+                    if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
+                        result[postType]['notes'].append(pc.stxt.content)
+                    if pc.stxt_type == STXT_TYPE_PLACE_NAME:
                         if not result[postType]['name']:
-                            result[postType]['name'] = pc.stext.content
-                    if pc.stext_type == STEXT_TYPE_ADDRESS:
+                            result[postType]['name'] = pc.stxt.content
+                    if pc.stxt_type == STXT_TYPE_ADDRESS:
                         if not result[postType]['addr']:
-                            result[postType]['addr'] = pc.stext.content
+                            result[postType]['addr'] = pc.stxt.content
 
         for postType in (0, 1):
             result[postType]['images'] = [dict(uuid=img, note=imgNotes[postType][img]) for img in images[postType]]
@@ -78,11 +78,11 @@ class PlaceContent(models.Model):
     image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     fsVenue = models.ForeignKey(FsVenue, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    stext = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    stxt = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     # value
     lonLat = models.PointField(blank=True, null=True, default=None)
-    stext_type = models.SmallIntegerField(blank=True, null=True, default=None)
+    stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def set_uuid(self):
         timestamp = int(round(Delorean().epoch*1000))

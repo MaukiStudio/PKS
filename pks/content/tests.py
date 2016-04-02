@@ -53,19 +53,19 @@ class FsVenueViewsetTest(APITestBase):
 class ShortTextViewsetTest(APITestBase):
 
     def setUp(self):
-        self.stext = models.ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.stext.save()
+        self.stxt = models.ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.stxt.save()
 
     def test_list(self):
-        response = self.client.get('/stexts/')
+        response = self.client.get('/stxts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)
         self.assertEqual(list, type(result))
         self.assertEqual(1, len(result))
 
-        stext2 = models.ShortText(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
-        stext2.save()
-        response = self.client.get('/stexts/')
+        stxt2 = models.ShortText(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
+        stxt2.save()
+        response = self.client.get('/stxts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)
         self.assertEqual(list, type(result))
@@ -73,10 +73,10 @@ class ShortTextViewsetTest(APITestBase):
 
     def test_create(self):
         self.assertEqual(1, models.ShortText.objects.count())
-        response = self.client.post('/stexts/', dict(content=self.stext.content))
+        response = self.client.post('/stxts/', dict(content=self.stxt.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(1, models.ShortText.objects.count())
 
-        response = self.client.post('/stexts/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
+        response = self.client.post('/stxts/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(2, models.ShortText.objects.count())

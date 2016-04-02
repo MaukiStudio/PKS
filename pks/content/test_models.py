@@ -41,29 +41,29 @@ class FsVenueTest(APITestBase):
 class ShortTextTest(APITestBase):
 
     def test_string_representation(self):
-        stext = models.ShortText()
+        stxt = models.ShortText()
         test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
-        stext.content = test_data
-        self.assertEqual(unicode(stext), test_data)
+        stxt.content = test_data
+        self.assertEqual(unicode(stxt), test_data)
 
     def test_save_and_retreive(self):
-        stext = models.ShortText()
+        stxt = models.ShortText()
         test_uuid = uuid1()
-        stext.uuid = test_uuid
-        stext.save()
+        stxt.uuid = test_uuid
+        stxt.save()
         saved = models.ShortText.objects.first()
-        self.assertEqual(stext.uuid, test_uuid)
-        self.assertEqual(stext.uuid_json, '%s.stext' % b16encode(test_uuid.bytes))
-        self.assertEqual(saved, stext)
+        self.assertEqual(stxt.uuid, test_uuid)
+        self.assertEqual(stxt.uuid_json, '%s.stxt' % b16encode(test_uuid.bytes))
+        self.assertEqual(saved, stxt)
         self.assertEqual(saved.uuid, test_uuid)
 
     def test_content_property(self):
-        stext = models.ShortText()
+        stxt = models.ShortText()
         test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
-        stext.content = test_data
-        stext.save()
+        stxt.content = test_data
+        stxt.save()
         saved = models.ShortText.objects.first()
-        self.assertEqual(stext.content, test_data)
-        self.assertEqual(saved, stext)
-        self.assertEqual(saved.uuid, stext.uuid)
-        self.assertEqual(saved.content, stext.content)
+        self.assertEqual(stxt.content, test_data)
+        self.assertEqual(saved, stxt)
+        self.assertEqual(saved.uuid, stxt.uuid)
+        self.assertEqual(saved.content, stxt.content)

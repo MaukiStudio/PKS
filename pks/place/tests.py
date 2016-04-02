@@ -65,6 +65,8 @@ class PlaceViewSetTest(APITestBase):
                img1.uuid_json, imgNote1.uuid_json, img2.uuid_json, url1.uuid_json)
 
         response = self.client.put('/places/post/', dict(post=json_str))
+        print(json_str)
+        print(json_loads(json_str))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.place.getPost(None), json_loads(json_str))
 

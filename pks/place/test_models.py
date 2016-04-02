@@ -39,14 +39,14 @@ class PlaceTest(APITestBase):
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
 
         # 현재 위치 저장
-        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stext=addr1, stext_type=models.STEXT_TYPE_ADDRESS); pc11.save()
-        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stext=note11, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc12.save()
+        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save()
+        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc12.save()
         # 이름 지정
-        pc13 = models.PlaceContent(vd=vd1, place=place, stext=name1, stext_type=models.STEXT_TYPE_PLACE_NAME); pc13.save()
+        pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=models.STXT_TYPE_PLACE_NAME); pc13.save()
         # 노트 추가
-        pc14 = models.PlaceContent(vd=vd1, place=place, stext=note12, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc14.save()
+        pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc14.save()
         # 이미지노트 추가
-        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stext=imgNote1, stext_type=models.STEXT_TYPE_IMAGE_NOTE); pc15.save()
+        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc15.save()
 
         vd2 = VD(); vd2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -60,18 +60,18 @@ class PlaceTest(APITestBase):
         url2 = Url(url='http://maukistudio.com/'); url2.save()
 
         # URL 저장
-        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stext=note21, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc21.save()
+        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save()
         # 이름 지정
-        pc22 = models.PlaceContent(vd=vd2, place=place, stext=name2, stext_type=models.STEXT_TYPE_PLACE_NAME); pc22.save()
+        pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=models.STXT_TYPE_PLACE_NAME); pc22.save()
         # 주소 지정
-        pc23 = models.PlaceContent(vd=vd2, place=place, stext=addr2, stext_type=models.STEXT_TYPE_ADDRESS); pc23.save()
+        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_ADDRESS); pc23.save()
         # 이미지, 노트 추가
-        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stext=note22, stext_type=models.STEXT_TYPE_PLACE_NOTE); pc24.save()
+        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save()
         # 장소화
         fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3'); fsVenue.save()
         pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save()
         # 이미지노트 추가
-        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stext=imgNote2, stext_type=models.STEXT_TYPE_IMAGE_NOTE); pc26.save()
+        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save()
         # (노트없는) 이미지 추가
         pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save()
 
@@ -126,8 +126,8 @@ class PlaceContentTest(APITestBase):
 
         self.fsVenue = FsVenue(fsVenueId='40a55d80f964a52020f31ee3')
         self.fsVenue.save()
-        self.stext = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.stext.save()
+        self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.stxt.save()
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -204,13 +204,13 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.fsVenue, self.fsVenue)
 
-    def test_stext_property(self):
+    def test_stxt_property(self):
         pc = models.PlaceContent()
-        pc.stext = self.stext
-        pc.stext_type = models.STEXT_TYPE_PLACE_NOTE
+        pc.stxt = self.stxt
+        pc.stxt_type = models.STXT_TYPE_PLACE_NOTE
         pc.save()
-        saved = self.stext.pcs.get(pk=pc.pk)
-        self.assertEqual(pc.stext, self.stext)
+        saved = self.stxt.pcs.get(pk=pc.pk)
+        self.assertEqual(pc.stxt, self.stxt)
         self.assertEqual(saved, pc)
-        self.assertEqual(saved.stext, self.stext)
-        self.assertEqual(saved.stext_type, models.STEXT_TYPE_PLACE_NOTE)
+        self.assertEqual(saved.stxt, self.stxt)
+        self.assertEqual(saved.stxt_type, models.STXT_TYPE_PLACE_NOTE)
