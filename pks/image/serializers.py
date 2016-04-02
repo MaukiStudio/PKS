@@ -11,15 +11,15 @@ class ImageSerializer(ModelSerializer):
 
     class Meta:
         model = models.Image
-        read_only_fields = ('uuid', 'exif',)
+        read_only_fields = ('id', 'exif',)
 
     def create(self, validated_data):
         img = models.Image(**validated_data)
-        uuid = img.set_uuid()
+        img.set_id()
 
         # TODO : 문제가 있는 구현. 향후 개선해야 함
         try:
-            result = models.Image.objects.get(pk=uuid)
+            result = models.Image.objects.get(id=img.id)
         except models.Image.DoesNotExist:
             img.save()
             result = img

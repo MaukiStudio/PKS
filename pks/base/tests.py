@@ -14,7 +14,7 @@ class APITestBase(APITestCase):
 
     def check_login(self, user=None):
         session_key = self.client.session.get(SESSION_KEY)
-        if session_key and (not user or session_key == str(user.pk)):
+        if session_key and (not user or session_key == str(user.id)):
             return True
         return False
 
@@ -25,8 +25,8 @@ class APITestBase(APITestCase):
         return self.assertFalse(self.check_login())
 
     def check_vd_login(self, vd=None):
-        vd_pk_str = self.client.session.get(VD_SESSION_KEY)
-        if vd_pk_str and (not vd or vd_pk_str == vd.pk):
+        vd_id_str = self.client.session.get(VD_SESSION_KEY)
+        if vd_id_str and (not vd or vd_id_str == vd.id):
             return True
         return False
 

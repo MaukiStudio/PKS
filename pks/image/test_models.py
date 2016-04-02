@@ -15,14 +15,14 @@ from image import exif_lib
 class ImageTest(APITestBase):
 
     def test_string_representation(self):
-        uuid_img = uuid1()
-        img = models.Image(pk=uuid_img)
-        self.assertEqual(unicode(img), '%s.jpg' % b16encode(uuid_img.bytes))
+        img_id = uuid1()
+        img = models.Image(id=img_id)
+        self.assertEqual(unicode(img), '%s.jpg' % b16encode(img_id.bytes))
         self.assertEqual(img.uuid_json, unicode(img))
 
     def test_save_and_retreive(self):
         img = models.Image()
-        img.uuid = uuid1()
+        img.id = uuid1()
         img.save()
         saved = models.Image.objects.first()
         self.assertEqual(saved, img)
@@ -35,19 +35,19 @@ class ImageTest(APITestBase):
         self.assertEqual(saved, img)
         self.assertNotEqual(saved.file.url.index(str(img).split('.')[0]), 0)
 
-    def __skip__test_uuid(self):
-        uuid = models.Image.compute_uuid_from_file('image/samples/test.jpg')
-        uuid_256 = models.Image.compute_uuid_from_file('image/samples/test_256.jpg')
-        uuid_480 = models.Image.compute_uuid_from_file('image/samples/test_480.jpg')
-        uuid_1200 = models.Image.compute_uuid_from_file('image/samples/test_1200.jpg')
-        uuid_org = models.Image.compute_uuid_from_file('image/samples/test_org.jpg')
-        uuid2 = models.Image.compute_uuid_from_file('image/samples/test2.jpg')
+    def __skip__test_id(self):
+        id_640 = models.Image.compute_id_from_file('image/samples/test.jpg')
+        id_256 = models.Image.compute_id_from_file('image/samples/test_256.jpg')
+        id_480 = models.Image.compute_id_from_file('image/samples/test_480.jpg')
+        id_1200 = models.Image.compute_id_from_file('image/samples/test_1200.jpg')
+        id_org = models.Image.compute_id_from_file('image/samples/test_org.jpg')
+        id2 = models.Image.compute_id_from_file('image/samples/test2.jpg')
 
-        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_256), 0)
-        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_480), 1)
-        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_1200), 0)
-        self.assertLessEqual(models.Image.hamming_distance(uuid, uuid_org), 2)
-        self.assertGreater(models.Image.hamming_distance(uuid, uuid2), 10)
+        self.assertLessEqual(models.Image.hamming_distance(id_640, id_256), 0)
+        self.assertLessEqual(models.Image.hamming_distance(id_640, id_480), 1)
+        self.assertLessEqual(models.Image.hamming_distance(id_640, id_1200), 0)
+        self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
+        self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)
 
     def test_gps_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))

@@ -29,7 +29,7 @@ class UserViewset(ModelViewSet):
         user.set_password(password)
         user.save()
         # generate token
-        raw_token = '%s|%s|%s' % (user.pk, username, password)
+        raw_token = '%s|%s|%s' % (user.id, username, password)
         encrypter = Fernet(USER_ENC_KEY)
         token = encrypter.encrypt(raw_token.encode(encoding='utf-8'))
         # return result
@@ -41,13 +41,13 @@ class UserViewset(ModelViewSet):
         token = request.data['auth_user_token']
         decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
-        pk = int(raw_token.split('|')[0])
+        user_id = int(raw_token.split('|')[0])
         username = raw_token.split('|')[1]
         password = raw_token.split('|')[2]
 
         # check credentials
         user = authenticate(username=username, password=password)
-        if not user or user.pk != pk or user.is_active is False:
+        if not user or user.id != user_id or user.is_active is False:
             return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
 
         # login
@@ -60,7 +60,7 @@ class VDViewset(ModelViewSet):
     serializer_class = serializers.VDSerializer
 
     def getToken(self, vd):
-        raw_token = '%s|%s' % (vd.pk, vd.authOwner.pk)
+        raw_token = '%s|%s' % (vd.id, vd.authOwner_id)
         encrypter = Fernet(models.getVdEncKey(vd.authOwner))
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
@@ -102,17 +102,17 @@ class VDViewset(ModelViewSet):
         token = request.data['auth_vd_token']
         decrypter = Fernet(models.getVdEncKey(request.user))
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
-        vd_pk = int(raw_token.split('|')[0])
-        user_pk = int(raw_token.split('|')[1])
+        vd_id = int(raw_token.split('|')[0])
+        user_id = int(raw_token.split('|')[1])
 
         # check credentials
         try:
-            vd = models.VD.objects.get(pk=vd_pk)
+            vd = models.VD.objects.get(id=vd_id)
         except models.VD.DoesNotExist:
             vd = None
-        if vd and vd_pk and vd_pk == vd.pk and user_pk and request.user.is_authenticated()\
-                and user_pk == request.user.pk and user_pk == vd.authOwner.pk:
-            request.session[VD_SESSION_KEY] = vd_pk
+        if vd and vd_id and vd_id == vd.id and user_id and request.user.is_authenticated()\
+                and user_id == request.user.id and user_id == vd.authOwner_id:
+            request.session[VD_SESSION_KEY] = vd_id
             token = self.getToken(vd)
             return Response({'auth_vd_token': token}, status=status.HTTP_302_FOUND)
         else:
@@ -127,10 +127,10 @@ class VDViewset(ModelViewSet):
     def get_object(self):
         aid = self.kwargs['pk']
         if str(aid) == 'myself':
-            vd_pk = self.request.session[VD_SESSION_KEY]
+            vd_id = self.request.session[VD_SESSION_KEY]
         else:
-            vd_pk = models.getVidIdFromAid(self.request.user, aid)
-        return models.VD.objects.get(pk=vd_pk)
+            vd_id = models.getVidIdFromAid(self.request.user, aid)
+        return models.VD.objects.get(id=vd_id)
 
 
 class RealUserViewset(ModelViewSet):
@@ -140,10 +140,10 @@ class RealUserViewset(ModelViewSet):
     def get_object(self):
         aid = self.kwargs['pk']
         if str(aid) == 'myself' and VD_SESSION_KEY in self.request.session:
-            vd_pk = self.request.session[VD_SESSION_KEY]
-            if not vd_pk:
+            vd_id = self.request.session[VD_SESSION_KEY]
+            if not vd_id:
                 return None
-            vd = models.VD.objects.get(pk=vd_pk)
+            vd = models.VD.objects.get(id=vd_id)
             if not vd:
                 return None
             return vd.realOwner
@@ -152,7 +152,7 @@ class RealUserViewset(ModelViewSet):
     @detail_route(methods=['get'])
     def vds(self, request, pk=None):
         ru = self.get_object()
-        vd_pk = self.request.session[VD_SESSION_KEY]
-        serializer = serializers.VDSerializer(ru.vds.exclude(pk=vd_pk), many=True)
+        vd_id = self.request.session[VD_SESSION_KEY]
+        serializer = serializers.VDSerializer(ru.vds.exclude(id=vd_id), many=True)
         return Response(serializer.data)
 

@@ -8,24 +8,23 @@ from django.contrib.gis.db import models
 
 
 class FsVenue(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=None)
+    id = models.UUIDField(primary_key=True, default=None)
     fsVenueId = models.CharField(max_length=255, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return self.fsVenueId
 
-    def set_uuid(self):
-        self.uuid = UUID(self.fsVenueId.rjust(32, b'0'))
-        return self.uuid
+    def set_id(self):
+        self.id = UUID(self.fsVenueId.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
-        if self.fsVenueId and not self.uuid:
-            self.set_uuid()
+        if self.fsVenueId and not self.id:
+            self.set_id()
         super(FsVenue, self).save(*args, **kwargs)
 
 
 class ShortText(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=None)
+    id = models.UUIDField(primary_key=True, default=None)
     content = models.CharField(max_length=255, blank=True, null=True, default=None)
 
     def __unicode__(self):
@@ -33,16 +32,15 @@ class ShortText(models.Model):
 
     @property
     def uuid_json(self):
-        return '%s.stxt' % b16encode(self.uuid.bytes)
+        return '%s.stxt' % b16encode(self.id.bytes)
 
-    def set_uuid(self):
+    def set_id(self):
         m = md5()
         m.update(self.content.encode(encoding='utf-8'))
         h = m.digest()
-        self.uuid = UUID(b16encode(h))
-        return self.uuid
+        self.id = UUID(b16encode(h))
 
     def save(self, *args, **kwargs):
-        if self.content and not self.uuid:
-            self.set_uuid()
+        if self.content and not self.id:
+            self.set_id()
         super(ShortText, self).save(*args, **kwargs)

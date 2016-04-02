@@ -21,14 +21,14 @@ class UrlTest(APITestBase):
 
     def test_save_and_retreive(self):
         url = models.Url()
-        test_uuid = uuid1()
-        url.uuid = test_uuid
+        test_id = uuid1()
+        url.id = test_id
         url.save()
         saved = models.Url.objects.first()
-        self.assertEqual(url.uuid, test_uuid)
-        self.assertEqual(url.uuid_json, '%s.url' % b16encode(test_uuid.bytes))
+        self.assertEqual(url.id, test_id)
+        self.assertEqual(url.uuid_json, '%s.url' % b16encode(test_id.bytes))
         self.assertEqual(saved, url)
-        self.assertEqual(saved.uuid, test_uuid)
+        self.assertEqual(saved.id, test_id)
 
     def test_url_property(self):
         url = models.Url()

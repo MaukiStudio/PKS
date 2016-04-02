@@ -15,30 +15,29 @@ IMAGE_PATH = 'images'
 
 
 class Image(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=None)
+    id = models.UUIDField(primary_key=True, default=None)
     file = models.ImageField(blank=True, null=True, default=None, upload_to=IMAGE_PATH)
     lonLat = models.PointField(blank=True, null=True, default=None)
 
     @classmethod
-    def compute_uuid_from_file(cls, file):
+    def compute_id_from_file(cls, file):
         pil = PIL_Image.open(file)
         d1 = dhash(pil)
         d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
         return UUID('%s%s' % (d1, d2))
 
     @classmethod
-    def hamming_distance(cls, uuid1, uuid2):
-        count, z = 0, uuid1.int ^ uuid2.int
+    def hamming_distance(cls, id1, id2):
+        count, z = 0, id1.int ^ id2.int
         while z:
             count += 1
             z &= z - 1
         return count
 
-    def set_uuid(self):
+    def set_id(self):
         self.file.open()
-        self.uuid = Image.compute_uuid_from_file(self.file)
+        self.id = Image.compute_id_from_file(self.file)
         self.file.open()
-        return self.uuid
 
     def process_exif(self):
         self.file.open()
@@ -50,8 +49,8 @@ class Image(models.Model):
             self.lonLat = point
 
     def save(self, *args, **kwargs):
-        if self.file and not self.uuid:
-            self.set_uuid()
+        if self.file and not self.id:
+            self.set_id()
         if self.file and not self.lonLat:
             self.process_exif()
         self.file.name = str(self)
@@ -59,7 +58,7 @@ class Image(models.Model):
 
     @property
     def uuid_json(self):
-        return '%s.jpg' % b16encode(self.uuid.bytes)
+        return '%s.jpg' % b16encode(self.id.bytes)
 
     def __unicode__(self):
         return self.uuid_json

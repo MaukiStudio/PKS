@@ -32,7 +32,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(len(result), 1)
 
     def test_detail(self):
-        response = self.client.get('/places/%s/' % self.place.pk)
+        response = self.client.get('/places/%s/' % self.place.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
@@ -64,7 +64,7 @@ class PlaceViewSetTest(APITestBase):
         ''' % (self.place.id, point1.x, point1.y, name1.uuid_json, addr1.uuid_json, note12.uuid_json, note11.uuid_json,
                img1.uuid_json, imgNote1.uuid_json, img2.uuid_json, url1.uuid_json)
 
-        response = self.client.put('/places/post/', dict(post=json_str))
+        response = self.client.put('/places/post', dict(myPost=json_str))
         print(json_str)
         print(json_loads(json_str))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

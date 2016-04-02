@@ -12,9 +12,9 @@ from pks.settings import VD_ENC_KEY
 
 
 def getVdEncKey(user):
-    if not user or not user.pk:
+    if not user or not user.id:
         return VD_ENC_KEY
-    raw_key = '%d|%s' % (user.pk, VD_ENC_KEY)
+    raw_key = '%d|%s' % (user.id, VD_ENC_KEY)
     h = sha256()
     h.update(raw_key)
     return urlsafe_b64encode(h.digest())
@@ -53,7 +53,7 @@ class VD(models.Model):
     def _aid(self):
         key = getVdEncKey(self.authOwner)
         encrypter = Fernet(key)
-        result = encrypter.encrypt(str(self.pk).encode(encoding='utf-8'))
+        result = encrypter.encrypt(str(self.id).encode(encoding='utf-8'))
         return result
 
     def getIdFromAid(self, aid):

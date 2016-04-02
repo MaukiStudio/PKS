@@ -65,11 +65,11 @@ class UserAutoRegisterLoginTest(APITestBase):
         self.assertIn('auth_user_token', result)
         decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(result['auth_user_token'].encode(encoding='utf-8'))
-        pk = int(raw_token.split('|')[0])
+        user_id = int(raw_token.split('|')[0])
         username = raw_token.split('|')[1]
         password = raw_token.split('|')[2]
         user = User.objects.first()
-        self.assertEqual(pk, user.pk)
+        self.assertEqual(user_id, user.id)
         self.assertEqual(username, user.username)
         self.assertTrue(user.check_password(password))
         self.assertNotLogin()
@@ -112,11 +112,11 @@ class VDRegisterTest(APITestBase):
         self.assertIn('auth_vd_token', result)
         decrypter = Fernet(models.getVdEncKey(user))
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
-        pk = int(raw_token.split('|')[0])
-        user_pk = int(raw_token.split('|')[1])
+        vd_id = int(raw_token.split('|')[0])
+        user_id = int(raw_token.split('|')[1])
 
-        self.assertEqual(pk, vd.pk)
-        self.assertEqual(user_pk, user.pk)
+        self.assertEqual(vd_id, vd.id)
+        self.assertEqual(user_id, user.id)
 
     def test_register(self):
         deviceName = SG('[\w\-]{36}').render()
@@ -134,11 +134,11 @@ class VDRegisterTest(APITestBase):
         self.assertIn('auth_vd_token', result)
         decrypter = Fernet(models.getVdEncKey(user))
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
-        pk = int(raw_token.split('|')[0])
-        user_pk = int(raw_token.split('|')[1])
+        vd_id = int(raw_token.split('|')[0])
+        user_id = int(raw_token.split('|')[1])
 
-        self.assertEqual(pk, vd.pk)
-        self.assertEqual(user_pk, user.pk)
+        self.assertEqual(vd_id, vd.id)
+        self.assertEqual(user_id, user.id)
 
     def test_email_confirm(self):
         # TODO : 향후 이메일 발송 루틴이 구현되면 테스트도 수정해야 한다.
@@ -254,7 +254,7 @@ class RealUserViewSetBasicTest(APITestBase):
         self.vd4.save()
 
     def test_rus_detail(self):
-        response = self.client.get('/rus/%s/' % self.ru.pk)
+        response = self.client.get('/rus/%s/' % self.ru.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         result = json.loads(response.content)
@@ -264,10 +264,10 @@ class RealUserViewSetBasicTest(APITestBase):
 
         vds = result['vds']
         self.assertEqual(len(vds), 2)
-        self.assertIn(self.vd1.pk, vds)
-        self.assertIn(self.vd3.pk, vds)
-        self.assertNotIn(self.vd2.pk, vds)
-        self.assertNotIn(self.vd4.pk, vds)
+        self.assertIn(self.vd1.id, vds)
+        self.assertIn(self.vd3.id, vds)
+        self.assertNotIn(self.vd2.id, vds)
+        self.assertNotIn(self.vd4.id, vds)
 
     def test_rus_myself_without_login(self):
         response = self.client.get('/rus/myself/vds/')

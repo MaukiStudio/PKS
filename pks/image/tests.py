@@ -37,7 +37,7 @@ class ImageViewsetTest(APITestBase):
         with open('image/samples/test.jpg') as f:
             response = self.client.post('/imgs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        img2 = models.Image.objects.get(pk=img1.pk)
+        img2 = models.Image.objects.get(id=img1.id)
         url2 = img2.file.url
 
         self.assertEqual(url1, url2)

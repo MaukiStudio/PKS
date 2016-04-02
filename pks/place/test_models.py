@@ -102,7 +102,7 @@ class PlaceTest(APITestBase):
                place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
                img22.uuid_json, img21.uuid_json, imgNote2.content, img1.uuid_json, imgNote1.content, url2.url, fsVenue.fsVenueId,)
         want = json_loads(json_str)
-        result = place.getPost([vd1.pk])
+        result = place.getPost([vd1.id])
         print(want['myPost'])
         print(result['myPost'])
         self.assertEqual(result['publicPost'], want['publicPost'])
@@ -135,36 +135,36 @@ class PlaceContentTest(APITestBase):
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
 
-    def test_uuid_property(self):
+    def test_id_property(self):
         pc = models.PlaceContent(vd=self.vd)
-        self.assertEqual(pc.uuid, None)
+        self.assertEqual(pc.id, None)
         d = Delorean()
         pc.save()
-        self.assertNotEqual(pc.uuid, None)
-        self.assertEqual((int(pc.uuid) >> 16*8-2) & 1, 1)
-        self.assertAlmostEqual((int(pc.uuid) >> 8*8-2) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
-        self.assertEqual((int(pc.uuid) >> 2*8-2) & BIT_ON_6_BYTE, self.vd.pk)
+        self.assertNotEqual(pc.id, None)
+        self.assertEqual((int(pc.id) >> 16*8-2) & 1, 1)
+        self.assertAlmostEqual((int(pc.id) >> 8*8-2) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
+        self.assertEqual((int(pc.id) >> 2*8-2) & BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
-        self.assertEqual(saved.uuid, pc.uuid)
+        self.assertEqual(saved.id, pc.id)
 
-    def test_uuid_property_with_no_vd(self):
+    def test_id_property_with_no_vd(self):
         pc = models.PlaceContent()
         pc.save()
-        self.assertEqual((int(pc.uuid) >> 2*8-2) & BIT_ON_6_BYTE, 0)
+        self.assertEqual((int(pc.id) >> 2*8-2) & BIT_ON_6_BYTE, 0)
 
     def test_place_property(self):
         pc = models.PlaceContent()
         pc.place = self.place
         pc.save()
-        saved = self.place.pcs.get(pk=pc.pk)
+        saved = self.place.pcs.get(id=pc.id)
         self.assertEqual(saved, pc)
 
     def test_vd_property(self):
         pc = models.PlaceContent()
         pc.vd = self.vd
         pc.save()
-        saved = self.vd.pcs.get(pk=pc.pk)
+        saved = self.vd.pcs.get(id=pc.id)
         self.assertEqual(saved, pc)
 
     def test_lonLat_property(self):
@@ -179,7 +179,7 @@ class PlaceContentTest(APITestBase):
         pc = models.PlaceContent()
         pc.image = self.image
         pc.save()
-        saved = self.image.pcs.get(pk=pc.pk)
+        saved = self.image.pcs.get(id=pc.id)
         self.assertEqual(pc.image, self.image)
         self.assertEqual(pc.lonLat, None)
         self.assertEqual(saved, pc)
@@ -190,7 +190,7 @@ class PlaceContentTest(APITestBase):
         pc = models.PlaceContent()
         pc.url = self.url
         pc.save()
-        saved = self.url.pcs.get(pk=pc.pk)
+        saved = self.url.pcs.get(id=pc.id)
         self.assertEqual(pc.url, self.url)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.url, self.url)
@@ -199,7 +199,7 @@ class PlaceContentTest(APITestBase):
         pc = models.PlaceContent()
         pc.fsVenue = self.fsVenue
         pc.save()
-        saved = self.fsVenue.pcs.get(pk=pc.pk)
+        saved = self.fsVenue.pcs.get(id=pc.id)
         self.assertEqual(pc.fsVenue, self.fsVenue)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.fsVenue, self.fsVenue)
@@ -209,7 +209,7 @@ class PlaceContentTest(APITestBase):
         pc.stxt = self.stxt
         pc.stxt_type = models.STXT_TYPE_PLACE_NOTE
         pc.save()
-        saved = self.stxt.pcs.get(pk=pc.pk)
+        saved = self.stxt.pcs.get(id=pc.id)
         self.assertEqual(pc.stxt, self.stxt)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.stxt, self.stxt)

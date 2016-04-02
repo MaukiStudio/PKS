@@ -19,11 +19,11 @@ class FsVenueTest(APITestBase):
 
     def test_save_and_retreive(self):
         fs = models.FsVenue()
-        fs.uuid = uuid1()
+        fs.id = uuid1()
         fs.save()
         saved = models.FsVenue.objects.first()
         self.assertEqual(saved, fs)
-        self.assertEqual(saved.uuid, fs.uuid)
+        self.assertEqual(saved.id, fs.id)
 
     def test_fsVenueId_property(self):
         fs = models.FsVenue()
@@ -33,9 +33,9 @@ class FsVenueTest(APITestBase):
         saved = models.FsVenue.objects.first()
         self.assertEqual(fs.fsVenueId, test_data)
         self.assertEqual(saved, fs)
-        self.assertEqual(saved.uuid, fs.uuid)
+        self.assertEqual(saved.id, fs.id)
         self.assertEqual(saved.fsVenueId, fs.fsVenueId)
-        self.assertEqual(saved.uuid, UUID('00000000-40a5-5d80-f964-a52020f31ee3'))
+        self.assertEqual(saved.id, UUID('00000000-40a5-5d80-f964-a52020f31ee3'))
 
 
 class ShortTextTest(APITestBase):
@@ -48,14 +48,14 @@ class ShortTextTest(APITestBase):
 
     def test_save_and_retreive(self):
         stxt = models.ShortText()
-        test_uuid = uuid1()
-        stxt.uuid = test_uuid
+        test_id = uuid1()
+        stxt.id = test_id
         stxt.save()
         saved = models.ShortText.objects.first()
-        self.assertEqual(stxt.uuid, test_uuid)
-        self.assertEqual(stxt.uuid_json, '%s.stxt' % b16encode(test_uuid.bytes))
+        self.assertEqual(stxt.id, test_id)
+        self.assertEqual(stxt.uuid_json, '%s.stxt' % b16encode(test_id.bytes))
         self.assertEqual(saved, stxt)
-        self.assertEqual(saved.uuid, test_uuid)
+        self.assertEqual(saved.id, test_id)
 
     def test_content_property(self):
         stxt = models.ShortText()
@@ -65,5 +65,5 @@ class ShortTextTest(APITestBase):
         saved = models.ShortText.objects.first()
         self.assertEqual(stxt.content, test_data)
         self.assertEqual(saved, stxt)
-        self.assertEqual(saved.uuid, stxt.uuid)
+        self.assertEqual(saved.id, stxt.id)
         self.assertEqual(saved.content, stxt.content)

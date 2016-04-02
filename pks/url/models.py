@@ -9,21 +9,20 @@ from django.contrib.gis.db import models
 
 
 class Url(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=None)
+    id = models.UUIDField(primary_key=True, default=None)
     url = models.URLField(max_length=255, blank=True, null=True, default=None)
     content = models.TextField(blank=True, null=True, default=None)
     lastCrawlDate = models.DateTimeField(blank=True, null=True, default=None)
 
-    def set_uuid(self):
+    def set_id(self):
         m = md5()
         m.update(self.url)
         h = m.digest()
-        self.uuid = UUID(b16encode(h))
-        return self.uuid
+        self.id = UUID(b16encode(h))
 
     def save(self, *args, **kwargs):
-        if self.url and not self.uuid:
-            self.set_uuid()
+        if self.url and not self.id:
+            self.set_id()
         if self.content:
             self.lastCrawlDate = timezone.now()
         super(Url, self).save(*args, **kwargs)
@@ -33,4 +32,4 @@ class Url(models.Model):
 
     @property
     def uuid_json(self):
-        return '%s.url' % b16encode(self.uuid.bytes)
+        return '%s.url' % b16encode(self.id.bytes)

@@ -29,9 +29,9 @@ class Place(models.Model):
             images[postType] = list()
             imgNotes[postType] = dict()
 
-        for pc in self.pcs.all().order_by('-uuid'):
+        for pc in self.pcs.all().order_by('-id'):
             for postType in (0, 1):
-                if postType == 0 and pc.vd.pk not in myVds:
+                if postType == 0 and pc.vd_id not in myVds:
                     continue
 
                 if pc.lonLat and not result[postType]['lonLat']:
@@ -69,8 +69,8 @@ class Place(models.Model):
 
 
 class PlaceContent(models.Model):
-    # uuid
-    uuid = models.UUIDField(primary_key=True, default=None)
+    # id
+    id = models.UUIDField(primary_key=True, default=None)
 
     # node
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
@@ -84,14 +84,13 @@ class PlaceContent(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None)
     stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
-    def set_uuid(self):
+    def set_id(self):
         timestamp = int(round(Delorean().epoch*1000))
-        vd_pk = (self.vd and self.vd.pk) or 0
-        hstr = hex((1 << 16*8-2) | (timestamp << 8*8-2) | (vd_pk << 2*8-2) | randrange(0, 65536/4))[2:-1]
-        self.uuid = UUID(hstr.rjust(32, b'0'))
-        return self.uuid
+        vd_id = self.vd_id or 0
+        hstr = hex((1 << 16*8-2) | (timestamp << 8*8-2) | (vd_id << 2*8-2) | randrange(0, 65536/4))[2:-1]
+        self.id = UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
-        if not self.uuid:
-            self.set_uuid()
+        if not self.id:
+            self.set_id()
         super(PlaceContent, self).save(*args, **kwargs)
