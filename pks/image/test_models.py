@@ -34,7 +34,7 @@ class ImageTest(APITestBase):
         img.save()
         saved = models.Image.objects.first()
         self.assertEqual(saved, img)
-        self.assertNotEqual(saved.file.url.index(str(img).split('.')[0]), 0)
+        self.assertNotEqual(saved.file.url.index(unicode(img).split('.')[0]), 0)
 
     def __skip__test_id(self):
         id_640 = models.Image.compute_id_from_file('image/samples/test.jpg')

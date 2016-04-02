@@ -126,7 +126,7 @@ class VDViewset(ModelViewSet):
 
     def get_object(self):
         aid = self.kwargs['pk']
-        if str(aid) == 'myself':
+        if unicode(aid) == 'myself':
             vd_id = self.request.session[VD_SESSION_KEY]
         else:
             vd_id = models.getVidIdFromAid(self.request.user, aid)
@@ -139,7 +139,7 @@ class RealUserViewset(ModelViewSet):
 
     def get_object(self):
         aid = self.kwargs['pk']
-        if str(aid) == 'myself' and VD_SESSION_KEY in self.request.session:
+        if unicode(aid) == 'myself' and VD_SESSION_KEY in self.request.session:
             vd_id = self.request.session[VD_SESSION_KEY]
             if not vd_id:
                 return None

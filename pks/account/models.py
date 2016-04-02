@@ -53,7 +53,7 @@ class VD(models.Model):
     def aid(self):
         key = getVdEncKey(self.authOwner)
         encrypter = Fernet(key)
-        result = encrypter.encrypt(str(self.id).encode(encoding='utf-8'))
+        result = encrypter.encrypt(unicode(self.id).encode(encoding='utf-8'))
         return result
 
     def getIdFromAid(self, aid):

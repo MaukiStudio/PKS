@@ -53,7 +53,7 @@ class Image(models.Model):
             self.set_id()
         if self.file and not self.lonLat:
             self.process_exif()
-        self.file.name = str(self)
+        self.file.name = unicode(self)
         super(Image, self).save(*args, **kwargs)
 
     @property

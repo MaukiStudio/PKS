@@ -14,7 +14,7 @@ class APITestBase(APITestCase):
 
     def check_login(self, user=None):
         session_key = self.client.session.get(SESSION_KEY)
-        if session_key and (not user or session_key == str(user.id)):
+        if session_key and (not user or session_key == unicode(user.id)):
             return True
         return False
 
