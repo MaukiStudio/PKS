@@ -105,6 +105,8 @@ class UserPostViewset(ModelViewSet):
 
         # 한번도 저장되지 않았다면? 최소 1회는 저장
         if not saved:
+            if not (lonLat or url or fsVenue or first_image):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue, image=first_image,)
             pc.save()
 

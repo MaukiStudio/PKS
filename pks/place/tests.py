@@ -270,3 +270,16 @@ class UserPostViewSetTest(APITestBase):
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.place.placePost, want)
 
+    def test_create_case5_no_info(self):
+        json_add = '''
+            {
+            }
+        '''
+
+        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
+        response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
+
