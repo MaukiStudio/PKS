@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from json import loads as json_loads
 from django.contrib.gis.geos import GEOSGeometry
+from time import sleep
 
 from base.tests import APITestBase
 from place import models
@@ -39,14 +40,14 @@ class PlaceTest(APITestBase):
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
 
         # 현재 위치 저장
-        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save()
-        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc12.save()
+        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save(); sleep(0.001)
+        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc12.save(); sleep(0.001)
         # 이름 지정
-        pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=models.STXT_TYPE_PLACE_NAME); pc13.save()
+        pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=models.STXT_TYPE_PLACE_NAME); pc13.save(); sleep(0.001)
         # 노트 추가
-        pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc14.save()
+        pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc14.save(); sleep(0.001)
         # 이미지노트 추가
-        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc15.save()
+        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc15.save(); sleep(0.001)
 
         vd2 = VD(); vd2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -60,20 +61,20 @@ class PlaceTest(APITestBase):
         url2 = Url(content='http://maukistudio.com/'); url2.save()
 
         # URL 저장
-        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save()
+        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
         # 이름 지정
-        pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=models.STXT_TYPE_PLACE_NAME); pc22.save()
+        pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=models.STXT_TYPE_PLACE_NAME); pc22.save(); sleep(0.001)
         # 주소 지정
-        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_ADDRESS); pc23.save()
+        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_ADDRESS); pc23.save(); sleep(0.001)
         # 이미지, 노트 추가
-        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save()
+        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
         # 장소화
-        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save()
-        pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save()
+        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save(); sleep(0.001)
+        pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save(); sleep(0.001)
         # 이미지노트 추가
-        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save()
+        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)
         # (노트없는) 이미지 추가
-        pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save()
+        pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save(); sleep(0.001)
 
         json_str = '''
         {
@@ -98,13 +99,13 @@ class PlaceTest(APITestBase):
                 "fsVenue": "%s"
             }
         }
-        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.uuid, imgNote1.content,
+        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.content, imgNote1.content,
                place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
-               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.content, fsVenue.content,)
+               img22.content, img21.content, imgNote2.content, img1.content, imgNote1.content, url2.content, fsVenue.content,)
         want = json_loads(json_str)
         result = place.getPost([vd1.id])
-        print(want['myPost'])
-        print(result['myPost'])
+        print(want['publicPost'])
+        print(result['publicPost'])
         self.assertEqual(result['publicPost'], want['publicPost'])
         self.assertEqual(result['myPost'], want['myPost'])
         self.assertDictEqual(result, want)

@@ -63,3 +63,7 @@ class Image(models.Model):
     def __unicode__(self):
         return self.uuid
 
+    @property
+    def content(self):
+        return self.uuid
+
