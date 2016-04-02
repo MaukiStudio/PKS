@@ -70,7 +70,7 @@ class UserPostViewSetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.place = models.Place(); self.place.save()
         self.vd = VD.objects.first()
-        self.post = models.UserPost(vd=self.vd, place=self.place);
+        self.post = models.UserPost(vd=self.vd, place=self.place)
 
     def test_list(self):
         self.post.save()
@@ -98,7 +98,7 @@ class UserPostViewSetTest(APITestBase):
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
         img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
         url1 = Url(content='http://maukistudio.com/'); url1.save()
-        fsVenue1 = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue1.save();
+        fsVenue1 = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue1.save()
 
         json_add = '''
             {
@@ -108,20 +108,22 @@ class UserPostViewSetTest(APITestBase):
                 "addr": {"uuid": "%s", "content": "%s"},
                 "notes": [{"uuid": "%s", "content": "%s"}],
                 "images": [
-                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
-                    {"uuid": "%s", "content": null, "note": null}
+                    {"uuid": "%s", "content": null, "note": null},
+                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
                 ],
                 "urls": [{"uuid": "%s", "content": "%s"}],
                 "fsVenue": {"uuid": "%s", "content": "%s"}
             }
         ''' % (self.place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
-               note11.uuid, note11.content, img1.uuid, imgNote1.uuid, imgNote1.content, img2.uuid,
+               note11.uuid, note11.content, img2.uuid, img1.uuid, imgNote1.uuid, imgNote1.content,
                url1.uuid, url1.content, fsVenue1.uuid, fsVenue1.content,)
         want = json_loads(json_add)
 
         self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
         self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.Place.objects.count(), 1)
         print(json_add)
         print(want)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -138,14 +140,31 @@ class UserPostViewSetTest(APITestBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "images": [{"uuid": "%s", "content": null, "note": null}]
             }
-        ''' % (point1.x, point1.y,img1.uuid,)
-        want = json_loads(json_add)
+        ''' % (point1.x, point1.y, img1.uuid,)
 
         self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
         self.assertEqual(models.UserPost.objects.count(), 1)
-        print(json_add)
+        self.assertEqual(models.Place.objects.count(), 2)
+
+        self.post = models.UserPost.objects.first()
+        json_want = '''
+            {
+                "place_id": %d,
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": null,
+                "addr": null,
+                "notes": [],
+                "images": [{"uuid": "%s", "content": null, "note": null}],
+                "urls": [],
+                "fsVenue": null
+            }
+        ''' % (self.post.userPost['place_id'], point1.x, point1.y, img1.uuid,)
+        want = json_loads(json_want)
+        print(json_want)
         print(want)
+        print(self.post.userPost)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.place.placePost, want)
+        self.assertDictEqual(self.post.place.placePost, want)

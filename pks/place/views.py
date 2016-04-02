@@ -31,6 +31,7 @@ class UserPostViewset(ModelViewSet):
     serializer_class = serializers.UserPostSerializer
 
     def create(self, request, *args, **kwargs):
+        # vd 조회
         # TODO : 리팩토링
         vd_id = request.session[VD_SESSION_KEY]
         vd = VD.objects.get(id=vd_id)
@@ -39,10 +40,13 @@ class UserPostViewset(ModelViewSet):
         # TODO : add 외에 remove 도 구현, 기타 다른 create mode 는 지원하지 않음
         add = json_loads(request.data['add'])
 
-        # TODO : place_id 가 없는 경우에 대한 구현 제대로
-        place_id = add['place_id']
-
-        place = models.Place.objects.get(id=place_id)
+        # place 조회
+        if 'place_id' in add:
+            place_id = add['place_id']
+            place = models.Place.objects.get(id=place_id)
+        else:
+            # TODO : place_id 가 없는 경우에 대한 구현 제대로
+            place = models.Place.objects.create()
         if not place: return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # add 를 이용한 post create (기존 post + add) 시에는 notes 및 urls 는 0개 혹은 1개만 허용된다.
