@@ -140,15 +140,15 @@ class VDTest(APITestBase):
     def test_aid(self):
         vd1 = models.VD(authOwner=self.user)
         vd1.save()
-        vd1_aid = str(vd1._aid)
+        vd1_aid = str(vd1.aid)
         user2 = User(username='another')
         user2.save()
         vd1.authOwner = user2
-        vd1_aid2 = str(vd1._aid)
+        vd1_aid2 = str(vd1.aid)
         vd2 = models.VD()
         vd2.save()
-        vd2_aid = str(vd2._aid)
-        vd2_aid2 = str(vd2._aid)
+        vd2_aid = str(vd2.aid)
+        vd2_aid2 = str(vd2.aid)
 
         self.assertGreater(len(vd1_aid), 32)
         self.assertEqual(5, len({vd1_aid, vd1_aid2, vd2_aid, str(vd1.id), str(vd2.id)}))

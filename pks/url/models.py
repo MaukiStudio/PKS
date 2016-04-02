@@ -31,5 +31,5 @@ class Url(models.Model):
         return self.url
 
     @property
-    def uuid_json(self):
+    def uuid(self):
         return '%s.url' % b16encode(self.id.bytes)

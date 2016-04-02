@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import IntegrityError
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, ReadOnlyField
 
 from image import models
 
 
 class ImageSerializer(ModelSerializer):
+    uuid = ReadOnlyField()
 
     class Meta:
         model = models.Image

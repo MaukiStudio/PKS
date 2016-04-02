@@ -26,7 +26,7 @@ class UrlTest(APITestBase):
         url.save()
         saved = models.Url.objects.first()
         self.assertEqual(url.id, test_id)
-        self.assertEqual(url.uuid_json, '%s.url' % b16encode(test_id.bytes))
+        self.assertEqual(url.uuid, '%s.url' % b16encode(test_id.bytes))
         self.assertEqual(saved, url)
         self.assertEqual(saved.id, test_id)
 

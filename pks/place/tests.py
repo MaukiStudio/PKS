@@ -61,8 +61,8 @@ class PlaceViewSetTest(APITestBase):
                 "urls": ["%s"],
                 "fsVenue": null
             }
-        ''' % (self.place.id, point1.x, point1.y, name1.uuid_json, addr1.uuid_json, note12.uuid_json, note11.uuid_json,
-               img1.uuid_json, imgNote1.uuid_json, img2.uuid_json, url1.uuid_json)
+        ''' % (self.place.id, point1.x, point1.y, name1.uuid, addr1.uuid, note12.uuid, note11.uuid,
+               img1.uuid, imgNote1.uuid, img2.uuid, url1.uuid)
 
         response = self.client.put('/places/post', dict(myPost=json_str))
         print(json_str)

@@ -28,7 +28,7 @@ class RealUserSerializer(ModelSerializer):
 
 
 class VDSerializer(ModelSerializer):
-    aid = ReadOnlyField(source='_aid')
+    aid = ReadOnlyField()
 
     class Meta:
         model = models.VD

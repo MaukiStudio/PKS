@@ -50,7 +50,7 @@ class VD(models.Model):
         return '%s\'s %s%s' % (email, deviceTypeName, deviceNameCaption)
 
     @property
-    def _aid(self):
+    def aid(self):
         key = getVdEncKey(self.authOwner)
         encrypter = Fernet(key)
         result = encrypter.encrypt(str(self.id).encode(encoding='utf-8'))

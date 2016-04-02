@@ -53,7 +53,7 @@ class ShortTextTest(APITestBase):
         stxt.save()
         saved = models.ShortText.objects.first()
         self.assertEqual(stxt.id, test_id)
-        self.assertEqual(stxt.uuid_json, '%s.stxt' % b16encode(test_id.bytes))
+        self.assertEqual(stxt.uuid, '%s.stxt' % b16encode(test_id.bytes))
         self.assertEqual(saved, stxt)
         self.assertEqual(saved.id, test_id)
 

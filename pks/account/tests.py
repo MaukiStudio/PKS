@@ -229,7 +229,7 @@ class VDViewSetTest(APITestBase):
         self.assertEqual(len(result), 1)
 
     def test_vds_detail(self):
-        aid = self.vd._aid
+        aid = self.vd.aid
         response = self.client.get('/vds/%s/' % aid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json.loads(response.content)

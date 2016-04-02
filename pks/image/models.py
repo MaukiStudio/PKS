@@ -57,9 +57,9 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
 
     @property
-    def uuid_json(self):
+    def uuid(self):
         return '%s.jpg' % b16encode(self.id.bytes)
 
     def __unicode__(self):
-        return self.uuid_json
+        return self.uuid
 

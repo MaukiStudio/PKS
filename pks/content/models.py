@@ -31,7 +31,7 @@ class ShortText(models.Model):
         return self.content
 
     @property
-    def uuid_json(self):
+    def uuid(self):
         return '%s.stxt' % b16encode(self.id.bytes)
 
     def set_id(self):

@@ -98,9 +98,9 @@ class PlaceTest(APITestBase):
                 "fsVenue": "%s"
             }
         }
-        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.uuid_json, imgNote1.content,
+        ''' % (place.id, point1.x, point1.y, name1.content, addr1.content, note12.content, note11.content, img1.uuid, imgNote1.content,
                place.id, point2.x, point2.y, name2.content, addr2.content, note22.content, note21.content, note12.content, note11.content,
-               img22.uuid_json, img21.uuid_json, imgNote2.content, img1.uuid_json, imgNote1.content, url2.url, fsVenue.fsVenueId,)
+               img22.uuid, img21.uuid, imgNote2.content, img1.uuid, imgNote1.content, url2.url, fsVenue.fsVenueId,)
         want = json_loads(json_str)
         result = place.getPost([vd1.id])
         print(want['myPost'])
