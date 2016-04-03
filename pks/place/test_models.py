@@ -158,9 +158,8 @@ class PlaceContentTest(APITestBase):
         d = Delorean()
         pc.save()
         self.assertNotEqual(pc.id, None)
-        self.assertEqual((int(pc.id) >> 16*8-2) & 1, 1)
-        self.assertAlmostEqual((int(pc.id) >> 8*8-2) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
-        self.assertEqual((int(pc.id) >> 2*8-2) & BIT_ON_6_BYTE, self.vd.id)
+        self.assertAlmostEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.id, pc.id)
@@ -168,7 +167,7 @@ class PlaceContentTest(APITestBase):
     def test_id_property_with_no_vd(self):
         pc = models.PlaceContent()
         pc.save()
-        self.assertEqual((int(pc.id) >> 2*8-2) & BIT_ON_6_BYTE, 0)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, 0)
 
     def test_place_property(self):
         pc = models.PlaceContent()

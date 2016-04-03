@@ -101,7 +101,7 @@ class PlaceContent(models.Model):
     def set_id(self):
         timestamp = int(round(Delorean().epoch*1000))
         vd_id = self.vd_id or 0
-        hstr = hex((1 << 16*8-2) | (timestamp << 8*8-2) | (vd_id << 2*8-2) | randrange(0, 65536/4))[2:-1]
+        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
         self.id = UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
