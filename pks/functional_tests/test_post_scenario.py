@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads
+from json import loads as json_loads, dumps as json_dumps
 from rest_framework import status
 
 from functional_tests.ftbase import FunctionalTestAfterLoginBase
@@ -17,16 +17,20 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # 현재 위치 저장 누르자마자 높은 정확도의 GPS 정보 조회 : GPS 정확도를 높이기 위함
         lon, lat = self.get_gps_info()
 
+        # 사진 찍기
         photo = self.take_picture()
+
+        # 최종적으로 사용할 GPS 정보
+        lon, lat = self.get_gps_info()
 
         # 작은쪽이 640 을 넘지 않도록 하는 ratio 보존 사이즈 줄이기
         # EXIF 정보가 있다면 보존 (Orientation 정보는 상황에 따라 바뀔 수도...)
         resized = self.resize_image(photo)
 
-        # 최종적으로 사용할 GPS 정보
-        lon, lat = self.get_gps_info()
-
         # 주소값 조회
+        # 주소쪽은 아직 정확히 어찌할 지에 대해 결정을 못한 상태
+        # - 어차피 lonLat 에 의해 계산되는 값에 불과? 그래도 중요 데이터로 취급해야?
+        # 4/6 까지 관련 인터페이스 확정 예정
 
         # 사진찍은 직후에 서버에 등록 : 현재 위치 저장 완료 하기 전에 미리 진행
         with open(resized) as f:
@@ -35,14 +39,17 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         img_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(img_uuid)
 
+        # 노트 입력 받기
+        note = self.input_from_user('장소 노트')
+
         # 노트 등록 : 가능한한 빨리 미리 등록
-        response = self.client.post('/stxts/', dict(content='장소 노트'))
+        response = self.client.post('/stxts/', dict(content=note))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         note_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(note_uuid)
 
         # 드디어! 현재 위치 저장
-        # notes 가 list type 이지만 post create 시엔 1개만 가능
+        # notes 가 list type 이지만 post create 시엔 1개만 가능 : 여러개 필요시 말해주어~
         # image 는 여러개가 가능하지만, 일단 place 를 만든 다음에 추가하는 식으로 UI를 짜는게 좋지 않을까...
         # image 가 여러개인 경우, list 상의 첫번째 사진이 중요. 유저가 방금 찍은 사진이 되도록...
         json_add = '''
@@ -60,5 +67,95 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         userPost = result['userPost']
         placePost = result['placePost']
 
+        # place_id 조회
+        place_id = userPost['place_id']
+        self.assertEqual(type(place_id), int)
 
+        # placePost.name == null 이면 장소 정보 수집중... 이라 표시하면 됨
+        is_progress = placePost['name'] is None
+        self.assertEqual(is_progress, True)
+
+        # 사진 추가 with 사진노트
+        with open('image/samples/no_exif_test.jpg') as f:
+            response = self.client.post('/imgs/', dict(file=f))
+        img_uuid = json_loads(response.content)['uuid']
+        note = self.input_from_user('사진 노트')
+        response = self.client.post('/stxts/', dict(content=note))
+        note_uuid = json_loads(response.content)['uuid']
+        json_add = '''
+            {
+                "place_id": %d,
+                "images": [
+                    {
+                        "uuid": "%s",
+                        "content": null,
+                        "note": {"uuid": "%s", "content": null}
+                    }
+                ]
+            }
+        ''' % (place_id, img_uuid, note_uuid,)
+        response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        result = json_loads(response.content)
+        userPost = result['userPost']
+        placePost = result['placePost']
+
+
+    def test_post_by_url(self):
+
+        # URL 입력 받음
+        url = self.input_from_user('http://maukistudio.com/')
+
+        # 프리뷰...
+        # URL 에서 뽑은 대표 이미지를 등록?
+        # 만약 등록한다면 post:/images/createByUrl 추가 구현 필요
+        # 필요하다면 4/6 까지 완성 및 제공
+
+        # URL 등록
+        # URL-result 관련 처리를 어떻게 할지 결정하지 못함
+        # 협의 필요. 협의 후 4/6 까지 완성 및 제공
+        response = self.client.post('/urls/', dict(content=url))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        url_uuid = json_loads(response.content)['uuid']
+        self.assertValidUuid(url_uuid)
+
+        # 노트 입력 받기
+        note = self.input_from_user('URL 노트')
+
+        # 노트 등록
+        response = self.client.post('/stxts/', dict(content=note))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        note_uuid = json_loads(response.content)['uuid']
+        self.assertValidUuid(note_uuid)
+
+        # 드디어! URL 위치 저장
+        # urls 가 list type 이지만 post create 시엔 1개만 가능 : 여러개 동시 필요시 말해주어
+        json_add = '''
+            {
+                "notes": [{"uuid": "%s", "content": null}],
+                "urls": [{"uuid": "%s", "content": null}]
+            }
+        ''' % (note_uuid, url_uuid,)
+        response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # 결과값에서 userPost, placePost 조회
+        result = json_loads(response.content)
+        userPost = result['userPost']
+        placePost = result['placePost']
+
+        # place_id 조회
+        place_id = userPost['place_id']
+        self.assertEqual(type(place_id), int)
+
+        # placePost.name == null 이면 장소 정보 수집중... 이라 표시하면 됨
+        is_progress = placePost['name'] is None
+        self.assertEqual(is_progress, True)
+
+
+    def test_post_by_FourSquare(self):
+
+        # FsVenue 모델 수정한 후 구현
+        # 4/6 까지 완성 및 제공
+        self.fail()
 

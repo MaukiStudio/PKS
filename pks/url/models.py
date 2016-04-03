@@ -18,7 +18,7 @@ class Url(models.Model):
         self.id = UUID(b16encode(h))
 
     def save(self, *args, **kwargs):
-        if self.content and not self.id:
+        if not self.id and self.content:
             self.set_id()
         super(Url, self).save(*args, **kwargs)
 

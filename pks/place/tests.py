@@ -37,6 +37,8 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
+        self.assertIn('id', result)
+        self.assertNotIn('vds', result)
         response = self.client.get('/places/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -130,6 +132,14 @@ class UserPostViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertDictEqual(result['userPost'], want)
         self.assertDictEqual(result['placePost'], want)
+
+        dummy_place = models.Place(); dummy_place.save()
+        response = self.client.get('/places/?ru=myself')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json_loads(response.content)
+        self.assertEqual(type(result), list)
+        self.assertEqual(len(result), 1)
+
 
     def test_create_case1_current_pos_only_with_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')

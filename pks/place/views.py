@@ -21,6 +21,15 @@ class PlaceViewset(ModelViewSet):
     queryset = models.Place.objects.all()
     serializer_class = serializers.PlaceSerializer
 
+    def get_queryset(self):
+        if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
+            # TODO : 리팩토링
+            vd_id = self.request.session[VD_SESSION_KEY]
+            vd = VD.objects.get(id=vd_id)
+            if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return vd.places
+        return super(PlaceViewset, self).get_queryset()
+
 
 class PlaceContentViewset(ModelViewSet):
     queryset = models.PlaceContent.objects.all()

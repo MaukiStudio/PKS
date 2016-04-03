@@ -67,6 +67,10 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_loads(response.content), list())
 
+        # 현재는 id (place_id) 목록만 넘어감
+        # 이 부분 협의하여 조정 필요
+        # 4/6 까지 완성 및 제공
+
 
     def test_places_pos_with_no_place(self):
 
@@ -76,3 +80,6 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_loads(response.content), list())
 
+        # 이는 아직 구현되지 않은 상태
+        # GeoDjango 및 내장소가 아닌 다른 장소 처리와 관련하여 좀 더 고민이 필요
+        # 4/6 까지 완성 및 제공

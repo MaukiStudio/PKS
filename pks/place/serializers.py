@@ -9,6 +9,7 @@ from place import models
 class PlaceSerializer(ModelSerializer):
     class Meta:
         model = models.Place
+        exclude = ('vds',)
 
 
 class PlaceContentSerializer(ModelSerializer):

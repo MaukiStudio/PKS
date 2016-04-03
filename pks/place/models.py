@@ -21,6 +21,8 @@ STXT_TYPE_REMOVE_CONTENT = 255
 
 class Place(models.Model):
 
+    vds = models.ManyToManyField(VD, through='UserPost', through_fields=('place', 'vd'), related_name='places')
+
     def __init__(self, *args, **kwargs):
         self.post_cache = None
         super(Place, self).__init__(*args, **kwargs)
