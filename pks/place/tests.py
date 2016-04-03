@@ -122,13 +122,14 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
-        print(json_add)
-        print(want)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.place.placePost, want)
+        result = json_loads(response.content)
+        self.assertDictEqual(result['userPost'], want)
+        self.assertDictEqual(result['placePost'], want)
 
     def test_create_case1_current_pos_only_with_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
@@ -144,6 +145,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
@@ -161,7 +163,6 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, img1.uuid,)
         want = json_loads(json_want)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.place.placePost, want)
 
@@ -181,6 +182,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
@@ -198,7 +200,6 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, note11.uuid, note11.content, img1.uuid,)
         want = json_loads(json_want)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.place.placePost, want)
 
@@ -214,6 +215,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
@@ -231,7 +233,6 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (self.post.userPost['place_id'], url1.uuid, url1.content,)
         want = json_loads(json_want)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.place.placePost, want)
 
@@ -249,6 +250,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
         response = self.client.post('/uposts/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
@@ -266,7 +268,6 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (self.post.userPost['place_id'], note11.uuid, note11.content, url1.uuid, url1.content,)
         want = json_loads(json_want)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.place.placePost, want)
 

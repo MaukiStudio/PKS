@@ -13,10 +13,16 @@ class FunctionalTestBase(APITestBase):
         self.normalStorage = dict()
         super(FunctionalTestBase, self).__init__(*args, **kwargs)
 
-    def user_input(self, default='gulby@maukistudio.com'):
+    def input_from_user(self, default='gulby@maukistudio.com'):
         return default
 
-    def gps_input(self, default=(127.0, 37.0)):
+    def get_gps_info(self, default=(127.0, 37.0)):
+        return default
+
+    def take_picture(self, default='image/samples/test.jpg'):
+        return default
+
+    def resize_image(self, default='image/samples/test.jpg'):
         return default
 
 
@@ -26,7 +32,7 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
         response = self.client.post('/users/register/')
         self.secureStorage['auth_user_token'] = json_loads(response.content)['auth_user_token']
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
-        email = self.user_input('gulby@maukistudio.com')
+        email = self.input_from_user()
         response = self.client.post('/vds/register/', dict(email=email,))
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
         response = self.client.post('/vds/login/', dict(auth_vd_token=self.normalStorage['auth_vd_token']))

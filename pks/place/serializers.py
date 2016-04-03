@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, ReadOnlyField
 
 from place import models
 
@@ -17,5 +17,9 @@ class PlaceContentSerializer(ModelSerializer):
 
 
 class UserPostSerializer(ModelSerializer):
+    userPost = ReadOnlyField()
+    placePost = ReadOnlyField(source='place.placePost')
+
     class Meta:
         model = models.UserPost
+        exclude = ('vd', 'place',)

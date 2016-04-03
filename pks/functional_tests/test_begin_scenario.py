@@ -23,7 +23,7 @@ class RegisterScenarioTest(FunctionalTestBase):
         self.assertLogin()
 
         # Register VD
-        email = self.user_input('gulby@maukistudio.com')
+        email = self.input_from_user()
         response = self.client.post('/vds/register/', dict(email=email,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
@@ -35,7 +35,7 @@ class LoginScenarioTest(FunctionalTestBase):
         response = self.client.post('/users/register/')
         self.secureStorage['auth_user_token'] = json_loads(response.content)['auth_user_token']
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
-        email = self.user_input('gulby@maukistudio.com')
+        email = self.input_from_user()
         response = self.client.post('/vds/register/', dict(email=email,))
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
         self.logout()
