@@ -9,7 +9,7 @@ from account.models import VD
 from image.models import Image
 from url.models import Url
 from content.models import FsVenue, ShortText
-from delorean import Delorean
+from base.utils import get_timestamp
 
 # stxt_type
 STXT_TYPE_PLACE_NOTE = 1
@@ -98,15 +98,15 @@ class PlaceContent(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None)
     stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
-    def set_id(self):
-        timestamp = int(round(Delorean().epoch*1000))
+    def set_id(self, timestamp):
         vd_id = self.vd_id or 0
         hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
         self.id = UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.set_id()
+            timestamp = kwargs.pop('timestamp', get_timestamp())
+            self.set_id(timestamp)
         super(PlaceContent, self).save(*args, **kwargs)
 
 

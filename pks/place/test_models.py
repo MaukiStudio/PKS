@@ -13,7 +13,7 @@ from account.models import VD
 from image.models import Image
 from url.models import Url
 from content.models import FsVenue, ShortText
-from delorean import Delorean
+from base.utils import get_timestamp
 
 BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
 BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
@@ -155,10 +155,20 @@ class PlaceContentTest(APITestBase):
     def test_id_property(self):
         pc = models.PlaceContent(vd=self.vd)
         self.assertEqual(pc.id, None)
-        d = Delorean()
+        timestamp = get_timestamp()
         pc.save()
         self.assertNotEqual(pc.id, None)
-        self.assertAlmostEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, d.epoch*1000, delta=1000)
+        self.assertAlmostEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp, delta=1000)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        saved = models.PlaceContent.objects.first()
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.id, pc.id)
+
+    def test_id_property_with_timestamp(self):
+        pc = models.PlaceContent(vd=self.vd)
+        timestamp = get_timestamp()
+        pc.save(timestamp=timestamp)
+        self.assertEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
         self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
