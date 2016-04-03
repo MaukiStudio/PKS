@@ -16,6 +16,7 @@ STXT_TYPE_PLACE_NOTE = 1
 STXT_TYPE_PLACE_NAME = 2
 STXT_TYPE_ADDRESS = 3
 STXT_TYPE_IMAGE_NOTE = 4
+STXT_TYPE_REMOVE_CONTENT = 255
 
 
 class Place(models.Model):
@@ -35,6 +36,7 @@ class Place(models.Model):
             images[postType] = list()
             imgNotes[postType] = dict()
 
+        # TODO : 향후 삭제 처리 구현 필요. 특정 Content 를 삭제하고 싶은 경우 노트타입을 삭제로 붙임. 이 노트타입은 노트뿐만 아니라 다른 Content 에도 적용
         for pc in self.pcs.all().order_by('-id'):
             for postType in (0, 1):
                 if postType == 0 and pc.vd_id not in myVds:
@@ -45,29 +47,33 @@ class Place(models.Model):
 
                 if pc.image:
                     uuid = pc.image.uuid
-                    if uuid not in [d['uuid'] for d in images[postType]]:
-                        images[postType].append(dict(uuid=uuid, content=pc.image.content))
+                    dl = images[postType]
+                    if uuid not in [d['uuid'] for d in dl]:
+                        dl.append(dict(uuid=uuid, content=pc.image.content))
                         imgNotes[postType][uuid] = None
                     if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content and not imgNotes[postType][uuid]:
                         imgNotes[postType][uuid] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content)
 
                 if pc.url:
                     uuid = pc.url.uuid
-                    if uuid not in [d['uuid'] for d in result[postType]['urls']]:
-                        result[postType]['urls'].append(dict(uuid=uuid, content=pc.url.content))
+                    dl = result[postType]['urls']
+                    if uuid not in [d['uuid'] for d in dl]:
+                        dl.append(dict(uuid=uuid, content=pc.url.content))
 
                 if pc.fsVenue and not result[postType]['fsVenue']:
                     uuid = pc.fsVenue.uuid
-                    result[postType]['fsVenue'] = result[postType]['fsVenue'] or dict(uuid=uuid, content=pc.fsVenue.content)
+                    result[postType]['fsVenue'] = dict(uuid=uuid, content=pc.fsVenue.content)
 
                 if pc.stxt:
                     uuid = pc.stxt.uuid
                     if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
-                        result[postType]['notes'].append(dict(uuid=uuid, content=pc.stxt.content))
-                    if pc.stxt_type == STXT_TYPE_PLACE_NAME:
-                        result[postType]['name'] = result[postType]['name'] or dict(uuid=uuid, content=pc.stxt.content)
-                    if pc.stxt_type == STXT_TYPE_ADDRESS:
-                        result[postType]['addr'] = result[postType]['addr'] or dict(uuid=uuid, content=pc.stxt.content)
+                        dl = result[postType]['notes']
+                        if uuid not in [d['uuid'] for d in dl]:
+                            dl.append(dict(uuid=uuid, content=pc.stxt.content))
+                    if pc.stxt_type == STXT_TYPE_PLACE_NAME and not result[postType]['name']:
+                        result[postType]['name'] = dict(uuid=uuid, content=pc.stxt.content)
+                    if pc.stxt_type == STXT_TYPE_ADDRESS and not result[postType]['addr']:
+                        result[postType]['addr'] = dict(uuid=uuid, content=pc.stxt.content)
 
         for postType in (0, 1):
             result[postType]['images'] = [dict(uuid=uuid, content=content, note=imgNotes[postType][uuid]) for (uuid, content) in [(d['uuid'], d['content']) for d in images[postType]]]
