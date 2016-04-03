@@ -37,8 +37,9 @@ class APITestBase(APITestCase):
         return self.assertFalse(self.check_vd_login())
 
     def logout(self):
-        self.client.session[SESSION_KEY] = None
-        del self.client.session[SESSION_KEY]
+        if SESSION_KEY in self.client.session:
+            self.client.session[SESSION_KEY] = None
+            del self.client.session[SESSION_KEY]
         self.client.logout()
 
     def uploadImage(self, img_file_name):
@@ -46,4 +47,3 @@ class APITestBase(APITestCase):
         ff = File(f)
         result = InMemoryUploadedFile(ff, None, img_file_name, 'image/jpeg', ff.size, None, None)
         return result
-

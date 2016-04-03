@@ -20,7 +20,7 @@ class UserViewset(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
-    @list_route(methods=['get', 'post'])
+    @list_route(methods=['post'])
     def register(self, request):
         # create user
         username = urlsafe_b64encode(uuid1().bytes).replace('=', '.')
