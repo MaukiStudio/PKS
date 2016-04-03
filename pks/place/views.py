@@ -14,6 +14,7 @@ from pks.settings import VD_SESSION_KEY
 from url.models import Url
 from content.models import FsVenue, ShortText
 from image.models import Image
+from base.utils import get_timestamp
 
 
 class PlaceViewset(ModelViewSet):
@@ -81,6 +82,7 @@ class UserPostViewset(ModelViewSet):
                 stxt = first_stxt
                 if 'note' in d and d['note']:
                     imgNote = ShortText.get_from_uuid(d['note']['uuid'])
+                    stxt_type = None
                     if imgNote: stxt_type = models.STXT_TYPE_IMAGE_NOTE
                     stxt = (stxt_type, imgNote)
                 else:
@@ -113,24 +115,32 @@ class UserPostViewset(ModelViewSet):
         # SAVE PART
         #----------------------------------------
 
+        timestamp = get_timestamp()
+
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         saved = False
         for t in images:
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue,
                                      image=t[0], stxt_type=t[1][0], stxt=t[1][1],)
-            pc.save(); saved = True
+            pc.save(timestamp=timestamp)
+            saved = True
+            timestamp += 1
 
         # stxts 저장
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue,
                                      image=first_image, stxt_type=stxt[0], stxt=stxt[1],)
-            pc.save(); saved = True
+            pc.save(timestamp=timestamp)
+            saved = True
+            timestamp += 1
 
         # 한번도 저장되지 않았다면? 최소 1회는 저장
         if not saved:
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue, image=first_image,)
-            pc.save()
+            pc.save(timestamp=timestamp)
+            saved = True
+            timestamp += 1
 
         # 결과 처리
         post, created = models.UserPost.objects.get_or_create(vd=vd, place=place)
