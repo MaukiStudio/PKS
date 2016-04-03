@@ -13,7 +13,10 @@ class FunctionalTestBase(APITestBase):
         self.normalStorage = dict()
         super(FunctionalTestBase, self).__init__(*args, **kwargs)
 
-    def user_input(self, default):
+    def user_input(self, default='gulby@maukistudio.com'):
+        return default
+
+    def gps_input(self, default=(127.0, 37.0)):
         return default
 
 

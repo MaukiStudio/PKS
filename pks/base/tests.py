@@ -6,6 +6,7 @@ from django.contrib.auth import SESSION_KEY
 from django.core.files import File
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework.test import APITestCase
+from uuid import UUID
 
 from pks.settings import VD_SESSION_KEY
 
@@ -47,3 +48,10 @@ class APITestBase(APITestCase):
         ff = File(f)
         result = InMemoryUploadedFile(ff, None, img_file_name, 'image/jpeg', ff.size, None, None)
         return result
+
+    def assertValidUuid(self, uuid_json):
+        hex_str = uuid_json.split('.')[0]
+        type_str = uuid_json.split('.')[1]
+        _uuid = UUID(hex_str)
+        self.assertEqual(type(_uuid), UUID)
+        return self.assertIn(type_str, ('jpg', 'stxt', 'url', 'fsv'))
