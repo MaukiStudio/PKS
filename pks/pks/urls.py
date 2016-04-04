@@ -6,12 +6,14 @@ from django.contrib import admin
 
 from rest_framework.routers import DefaultRouter
 from filebrowser.sites import site as fb_site
-
+from django.conf import settings
+from django.conf.urls.static import static
 from account import views as account_views
 from image import views as image_views
 from url import views as url_views
 from place import views as place_views
 from content import views as content_views
+
 
 router = DefaultRouter()
 router.register(r'vds', account_views.VDViewset)
@@ -36,4 +38,4 @@ urlpatterns = [
     url(r'^admin/filebrowser/', include(fb_site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
