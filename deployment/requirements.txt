@@ -1,0 +1,14 @@
+django
+django-grappelli
+django-filebrowser
+djangorestframework
+django-extensions
+psycopg2
+cryptography
+imagehash
+delorean
+pytest
+pytest-cov
+pytest-django
+pytest-xdist
+StringGenerator

@@ -1,0 +1,1 @@
+ALTER ROLE pks_user WITH SUPERUSER;
