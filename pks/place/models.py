@@ -82,7 +82,7 @@ class Place(models.Model):
         self.post_cache = dict(userPost=result[0], placePost=result[1])
 
     @property
-    def _userPost(self):
+    def userPost(self):
         return self.post_cache['userPost']
 
     @property
@@ -130,4 +130,10 @@ class UserPost(models.Model):
     def userPost(self):
         # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
         self.place.computePost([self.vd.id])
-        return self.place._userPost
+        return self.place.userPost
+
+    @property
+    def placePost(self):
+        # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
+        self.place.computePost([self.vd.id])
+        return self.place.placePost

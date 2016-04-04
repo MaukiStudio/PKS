@@ -118,13 +118,13 @@ class PlaceTest(APITestBase):
         want_placePost = json_loads(json_placePost)
         place.computePost([vd1.id])
 
-        self.assertDictEqual(place._userPost, want_userPost)
+        self.assertDictEqual(place.userPost, want_userPost)
         self.assertDictEqual(place.placePost, want_placePost)
 
         # UserPostTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
         post, created = models.UserPost.objects.get_or_create(vd=vd1, place=place)
         self.assertEqual(created, True)
-        self.assertEqual(post.userPost, place._userPost)
+        self.assertEqual(post.userPost, place.userPost)
 
 
 class PlaceContentTest(APITestBase):

@@ -81,7 +81,7 @@ class UserAutoRegisterLoginTest(APITestBase):
         self.assertNotLogin()
 
         response = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertLogin(user)
 
     def test_login_fail(self):
@@ -170,7 +170,7 @@ class VDLoginTest(APITestBase):
     def doLogin(self, auth_vd_token):
         self.assertVdNotLogin()
         response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertVdLogin(self.vd)
         return json.loads(response.content)['auth_vd_token']
 

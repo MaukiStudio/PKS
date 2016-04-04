@@ -21,15 +21,6 @@ class PlaceViewset(ModelViewSet):
     queryset = models.Place.objects.all()
     serializer_class = serializers.PlaceSerializer
 
-    def get_queryset(self):
-        if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
-            # TODO : 리팩토링
-            vd_id = self.request.session[VD_SESSION_KEY]
-            vd = VD.objects.get(id=vd_id)
-            if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
-            return vd.places
-        return super(PlaceViewset, self).get_queryset()
-
 
 class PlaceContentViewset(ModelViewSet):
     queryset = models.PlaceContent.objects.all()
@@ -39,6 +30,14 @@ class PlaceContentViewset(ModelViewSet):
 class UserPostViewset(ModelViewSet):
     queryset = models.UserPost.objects.all()
     serializer_class = serializers.UserPostSerializer
+
+    def get_queryset(self):
+        if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
+            # TODO : 리팩토링, vd=myself 구현을 진짜 ru=myself 구현으로 변경
+            vd_id = self.request.session[VD_SESSION_KEY]
+            return self.queryset.filter(vd_id=vd_id)
+        return super(UserPostViewset, self).get_queryset()
+
 
     def create(self, request, *args, **kwargs):
         #----------------------------------------

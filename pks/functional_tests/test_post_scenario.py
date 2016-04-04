@@ -14,9 +14,6 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # 사전에 (앱 실행 직후) 높은 정확도의 GPS 정보 조회 : GPS 정확도를 높이기 위함
         lon, lat = self.get_gps_info()
 
-        # 현재 위치 저장 누르자마자 높은 정확도의 GPS 정보 조회 : GPS 정확도를 높이기 위함
-        lon, lat = self.get_gps_info()
-
         # 사진 찍기
         photo = self.take_picture()
 
@@ -99,6 +96,13 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         result = json_loads(response.content)
         userPost = result['userPost']
         placePost = result['placePost']
+
+        response = self.client.get('/uposts/?ru=myself')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json_loads(response.content)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['userPost'], userPost)
+        self.assertEqual(result[0]['placePost'], placePost)
 
 
     def test_post_by_url(self):

@@ -31,6 +31,7 @@ class PlaceViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertEqual(type(result), list)
         self.assertEqual(len(result), 1)
+        self.assertIn('placePost', result[0])
 
     def test_detail(self):
         response = self.client.get('/places/%s/' % self.place.id)
@@ -39,6 +40,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertIn('id', result)
         self.assertNotIn('vds', result)
+        self.assertIn('placePost', result)
         response = self.client.get('/places/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -81,6 +83,9 @@ class UserPostViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertEqual(type(result), list)
         self.assertEqual(len(result), 1)
+        self.assertIn('userPost', result[0])
+        self.assertIn('placePost', result[0])
+        self.assertNotIn('id', result[0])
 
     def test_detail(self):
         self.post.save()
@@ -88,6 +93,9 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
+        self.assertIn('userPost', result)
+        self.assertIn('placePost', result)
+        self.assertNotIn('id', result)
         response = self.client.get('/uposts/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -134,7 +142,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertDictEqual(result['placePost'], want)
 
         dummy_place = models.Place(); dummy_place.save()
-        response = self.client.get('/places/?ru=myself')
+        response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), list)
@@ -174,7 +182,7 @@ class UserPostViewSetTest(APITestBase):
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, img1.uuid,)
         want = json_loads(json_want)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.post.place.placePost, want)
+        self.assertDictEqual(self.post.placePost, want)
 
     def test_create_case2_current_pos_with_note_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
@@ -211,7 +219,7 @@ class UserPostViewSetTest(APITestBase):
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, note11.uuid, note11.content, img1.uuid,)
         want = json_loads(json_want)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.post.place.placePost, want)
+        self.assertDictEqual(self.post.placePost, want)
 
     def test_create_case3_only_url(self):
         url1 = Url(content='http://maukistudio.com/'); url1.save()
@@ -244,7 +252,7 @@ class UserPostViewSetTest(APITestBase):
         ''' % (self.post.userPost['place_id'], url1.uuid, url1.content,)
         want = json_loads(json_want)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.post.place.placePost, want)
+        self.assertDictEqual(self.post.placePost, want)
 
     def test_create_case4_only_url_and_note(self):
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
@@ -279,7 +287,7 @@ class UserPostViewSetTest(APITestBase):
         ''' % (self.post.userPost['place_id'], note11.uuid, note11.content, url1.uuid, url1.content,)
         want = json_loads(json_want)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.post.place.placePost, want)
+        self.assertDictEqual(self.post.placePost, want)
 
     def test_create_case5_no_info(self):
         json_add = '''

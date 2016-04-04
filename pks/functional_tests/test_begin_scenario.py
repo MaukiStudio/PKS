@@ -19,7 +19,7 @@ class RegisterScenarioTest(FunctionalTestBase):
         # User Login by Token
         self.assertNotLogin()
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertLogin()
 
         # Register VD
@@ -45,13 +45,13 @@ class LoginScenarioTest(FunctionalTestBase):
         # User 로그인 by Token
         self.assertNotLogin()
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertLogin()
 
         # VD 로그인
         self.assertVdNotLogin()
         response = self.client.post('/vds/login/', dict(auth_vd_token=self.normalStorage['auth_vd_token']))
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertVdLogin()
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
 
@@ -63,9 +63,10 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         # 내 장소 목록 조회
         # 이메일 인증이 되지 않은 시점에서도 ru=myself 는 동작하며, vd=myself 와 동일
         # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
-        response = self.client.get('/places/?ru=myself')
+        response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(json_loads(response.content), list())
+        result = json_loads(response.content)
+        self.assertEqual(result, list())
 
 
     def test_places_pos_with_no_place(self):
@@ -74,4 +75,5 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         # 현재까지는 DB 에 아무것도 없으므로 조회 결과는 없음
         response = self.client.get('/places/?lon=127.0&lat=37.0&r=1000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(json_loads(response.content), list())
+        result = json_loads(response.content)
+        self.assertEqual(result, list())
