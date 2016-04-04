@@ -60,7 +60,7 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
 
     def test_places_myself_with_no_place(self):
 
-        # 내 장소 목록 조회
+        # 내 장소 목록 조회 : userPost 와 placePost 가 한꺼번에 넘어옴
         # 이메일 인증이 되지 않은 시점에서도 ru=myself 는 동작하며, vd=myself 와 동일
         # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
         response = self.client.get('/uposts/?ru=myself')
@@ -73,7 +73,16 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
 
         # 위치 기반 장소 목록 조회
         # 현재까지는 DB 에 아무것도 없으므로 조회 결과는 없음
+        # TODO : 아직 구현되어 있지 않음. 구현해야 함. 일단 /uposts/?ru=myself 만 사용할 것
+
+        # publicPost 조회
         response = self.client.get('/places/?lon=127.0&lat=37.0&r=1000')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json_loads(response.content)
+        self.assertEqual(result, list())
+
+        # userPost 조회
+        response = self.client.get('/uposts/?lon=127.0&lat=37.0&r=1000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(result, list())

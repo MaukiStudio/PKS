@@ -1,5 +1,5 @@
 [Now]
-Place 목록 내려보낼때, 아싸리 post 전체를 내려보내도록 수정
+post add 시, uuid 없이 content 만 올라오더라도 처리하도록 수정
 
 현재 버전 서버에 올리기
 FsVenue --> LegacyPlace 개편 및 리팩토링

@@ -97,6 +97,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         userPost = result['userPost']
         placePost = result['placePost']
 
+        # Only for server test... (Not interface guide)
         response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
@@ -155,6 +156,14 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # placePost.name == null 이면 장소 정보 수집중... 이라 표시하면 됨
         is_progress = placePost['name'] is None
         self.assertEqual(is_progress, True)
+
+        # Only for server test... (Not interface guide)
+        response = self.client.get('/uposts/?ru=myself')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json_loads(response.content)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['userPost'], userPost)
+        self.assertEqual(result[0]['placePost'], placePost)
 
 
     def test_post_by_FourSquare(self):
