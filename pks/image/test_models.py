@@ -54,21 +54,22 @@ class ImageTest(APITestBase):
 
     def test_gps_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
-        lonLat = exif_lib.get_lat_lon(exif)
+        lonLat = exif_lib.get_lon_lat(exif)
         point = GEOSGeometry('POINT(%f %f)' % lonLat)
-        print(point)
+        self.assertEqual(point.x, 127.103744)  # lon(경도)
+        self.assertEqual(point.y, 37.399731)  # lat(위도)
 
         img = models.Image()
         img.file = self.uploadImage('gps_test.jpg')
         img.save()
         saved = models.Image.objects.first()
 
-        self.assertEqual(point, img.lonLat)
-        self.assertEqual(img.lonLat, saved.lonLat)
+        self.assertEqual(img.lonLat, point)
+        self.assertEqual(saved.lonLat, point)
 
     def test_no_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/no_exif_test.jpg'))
-        lonLat = exif_lib.get_lat_lon(exif)
+        lonLat = exif_lib.get_lon_lat(exif)
         self.assertIsNone(lonLat[0])
         self.assertIsNone(lonLat[1])
 

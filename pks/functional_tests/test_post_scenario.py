@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads, dumps as json_dumps
+from json import loads as json_loads
 from rest_framework import status
 
 from functional_tests.ftbase import FunctionalTestAfterLoginBase

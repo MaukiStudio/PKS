@@ -43,7 +43,7 @@ class Image(models.Model):
         self.file.open()
         exif = exif_lib.get_exif_data(PIL_Image.open(self.file))
         self.file.open()
-        lonLat = exif_lib.get_lat_lon(exif)
+        lonLat = exif_lib.get_lon_lat(exif)
         if lonLat[0] and lonLat[1]:
             point = GEOSGeometry('POINT(%f %f)' % lonLat)
             self.lonLat = point
