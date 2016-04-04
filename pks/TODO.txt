@@ -1,3 +1,13 @@
+[Now]
+Place 목록 내려보낼때, 아싸리 post 전체를 내려보내도록 수정
+
+현재 버전 서버에 올리기
+FsVenue --> LegacyPlace 개편 및 리팩토링
+NaverPlace 기능 추가하고 어드민 만들기
+
+
+
+[Later]
 Admin 사이트 로그인 테스트 기능 추가
 user-detail 뷰가 없을 시, 단위테스트에서는 문제가 없는데 브라우저에서는 에러가 나는 상황 파악 및 해결
 VD.owner 저장하는 부분 로직 튜닝

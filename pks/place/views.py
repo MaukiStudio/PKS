@@ -52,7 +52,10 @@ class UserPostViewset(ModelViewSet):
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # TODO : add 외에 remove 도 구현, 기타 다른 create mode 는 지원하지 않음
-        add = json_loads(request.data['add'])
+        # DRF 의 Test Client 쪽 버그로 인해 하기와 같이 구현해야 함
+        add = request.data['add']
+        if type(add) is str or type(add) is unicode:
+            add = json_loads(add)
 
         # add 를 이용한 post create (기존 post + add) 시에는 notes 및 urls 는 0개 혹은 1개만 허용된다.
         if 'notes' in add and add['notes'] and len(add['notes']) > 1:
