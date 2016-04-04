@@ -147,10 +147,12 @@ class VDRegisterTest(APITestBase):
         email = 'gulby@maukistudio.com'
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # TODO : 이메일 인증 - 발송된 메일을 읽어서, 해당 링크를 호출하는 코드를 추가하고, 하기 테스트코드의 주석을 해제
         vd = models.VD.objects.first()
         #self.assertEqual(vd.realOwner, None)
+
         #이메일 인증 처리
 
         # assertion

@@ -67,6 +67,9 @@ class VDViewset(ModelViewSet):
 
     @list_route(methods=['post'])
     def register(self, request):
+        if not request.user.is_authenticated():
+            return Response({'auth_vd_token': None}, status=status.HTTP_401_UNAUTHORIZED)
+
         # create VD
         # TODO : 여기서 불필요한 aid 계산이 일어남. 제거할 것
         serializer = self.get_serializer(data=request.data)
@@ -76,7 +79,7 @@ class VDViewset(ModelViewSet):
         vd = serializer.instance
 
         # 추가 처리
-        if vd.authOwner is None and request.user.is_authenticated:
+        if vd.authOwner is None:
             vd.authOwner = request.user
             vd.save()
         if 'email' in request.data:
