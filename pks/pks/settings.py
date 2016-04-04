@@ -54,6 +54,10 @@ INSTALLED_APPS = [
     'place',
 ]
 
+class DisableCSRF(object):
+    def process_request(self, request):
+            setattr(request, '_dont_enforce_csrf_checks', True)
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,6 +67,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pks.settings.DisableCSRF',
 ]
 
 ROOT_URLCONF = 'pks.urls'
