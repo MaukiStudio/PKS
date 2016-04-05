@@ -20,7 +20,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # 최종적으로 사용할 GPS 정보
         lon, lat = self.get_gps_info()
 
-        # 작은쪽이 640 을 넘지 않도록 하는 ratio 보존 사이즈 줄이기
+        # 큰쪽이 1280 을 넘지 않도록 하는 ratio 보존 사이즈 줄이기
         # EXIF 정보가 있다면 보존 (Orientation 정보는 상황에 따라 바뀔 수도...)
         resized = self.resize_image(photo)
 
