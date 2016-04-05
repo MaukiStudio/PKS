@@ -21,16 +21,16 @@ class UrlTest(APITestBase):
 
     def test_save_and_retreive(self):
         url = models.Url()
-        test_id = uuid1()
-        url.id = test_id
+        url.content = 'http://www.maukistudio.com/'
         url.save()
         saved = models.Url.objects.first()
-        self.assertEqual(url.id, test_id)
-        self.assertEqual(url.uuid, '%s.url' % b16encode(test_id.bytes))
+        self.assertEqual(url.uuid, '%s.url' % b16encode(url.id.bytes))
         self.assertEqual(saved, url)
-        self.assertEqual(saved.id, test_id)
-        saved2 = models.Url.get_from_uuid(url.uuid)
+        self.assertEqual(saved.id, url.id)
+        saved2 = models.Url.get_from_json('{"uuid": "%s", "content": null}' % url.uuid)
         self.assertEqual(saved2, url)
+        saved3 = models.Url.get_from_json('{"uuid": null, "content": "%s"}' % url.content)
+        self.assertEqual(saved3, url)
 
     def test_content_property(self):
         url = models.Url()

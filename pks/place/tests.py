@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads
+from json import loads as json_loads, dumps as json_dumps
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 
@@ -153,7 +153,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
         self.assertDictEqual(self.post.userPost, want)
-        self.assertDictEqual(self.place.placePost, want)
+        self.assertDictEqual(self.post.placePost, want)
         result = json_loads(response.content)
         self.assertDictEqual(result['userPost'], want)
         self.assertDictEqual(result['placePost'], want)
@@ -321,3 +321,74 @@ class UserPostViewSetTest(APITestBase):
         self.assertEqual(models.UserPost.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
 
+    def test_create_full_with_no_uuid_except_image(self):
+        point1 = GEOSGeometry('POINT(127 37)')
+        name1_content = '능라'
+        addr1_content='경기도 성남시 분당구 운중동 883-3'
+        note11_content='분당 냉면 최고'
+        note12_content='을밀대가 좀 더 낫나? ㅋ'
+        note13_content='평양냉면'
+        imgNote1_content='냉면 사진'
+        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
+        img3 = Image(file=self.uploadImage('test_480.jpg')); img3.save()
+        url11_content='http://maukistudio.com/'
+        url12_content='http://maukistudio.com/2/'
+        url13_content='http://maukistudio.com/3/'
+        fsVenue1 = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue1.save()
+
+        json_add = '''
+            {
+                "place_id": %d,
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"uuid": null, "content": "%s"},
+                "addr": {"uuid": null, "content": "%s"},
+                "notes": [
+                    {"uuid": null, "content": "%s"},
+                    {"uuid": null, "content": "%s"},
+                    {"uuid": null, "content": "%s"}
+                ],
+                "images": [
+                    {"uuid": "%s", "content": null, "note": {"uuid": null, "content": "%s"}},
+                    {"uuid": "%s", "content": null, "note": null},
+                    {"uuid": "%s", "content": null, "note": null}
+                ],
+                "urls": [
+                    {"uuid": null, "content": "%s"},
+                    {"uuid": null, "content": "%s"},
+                    {"uuid": null, "content": "%s"}
+                ],
+                "fsVenue": {"uuid": "%s", "content": "%s"}
+            }
+        ''' % (self.place.id, point1.x, point1.y,
+               name1_content, addr1_content,
+               note11_content, note12_content, note13_content,
+               img1.uuid, imgNote1_content, img2.uuid, img3.uuid,
+               url11_content, url12_content, url13_content,
+               fsVenue1.uuid, fsVenue1.content,)
+        want = json_loads(json_add)
+
+        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
+        response = self.client.post('/uposts/', dict(add=json_add))
+
+        # TODO : 향후 json 안에 null 인 uuid 를 채우는 수정 필요
+        want = self.post.userPost
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertDictEqual(self.post.userPost, want)
+        self.assertDictEqual(self.post.placePost, want)
+        result = json_loads(response.content)
+        self.assertDictEqual(result['userPost'], want)
+        self.assertDictEqual(result['placePost'], want)
+
+        dummy_place = models.Place(); dummy_place.save()
+        response = self.client.get('/uposts/?ru=myself')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+        self.assertDictEqual(results[0]['userPost'], want)
+        self.assertDictEqual(results[0]['placePost'], want)

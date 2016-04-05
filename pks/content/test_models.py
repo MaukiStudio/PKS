@@ -19,13 +19,16 @@ class FsVenueTest(APITestBase):
 
     def test_save_and_retreive(self):
         fs = models.FsVenue()
-        fs.id = uuid1()
+        test_data = '40a55d80f964a52020f31ee3'
+        fs.content = test_data
         fs.save()
         saved = models.FsVenue.objects.first()
         self.assertEqual(saved, fs)
         self.assertEqual(saved.id, fs.id)
-        saved2 = models.FsVenue.get_from_uuid(fs.uuid)
+        saved2 = models.FsVenue.get_from_json('{"uuid": "%s", "content": null}' % fs.uuid)
         self.assertEqual(saved2, fs)
+        saved3 = models.FsVenue.get_from_json('{"uuid": null, "content": "%s"}' % fs.content)
+        self.assertEqual(saved3, fs)
 
     def test_content_property(self):
         fs = models.FsVenue()
@@ -50,16 +53,17 @@ class ShortTextTest(APITestBase):
 
     def test_save_and_retreive(self):
         stxt = models.ShortText()
-        test_id = uuid1()
-        stxt.id = test_id
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
+        stxt.content = test_data
         stxt.save()
         saved = models.ShortText.objects.first()
-        self.assertEqual(stxt.id, test_id)
-        self.assertEqual(stxt.uuid, '%s.stxt' % b16encode(test_id.bytes))
+        self.assertEqual(stxt.uuid, '%s.stxt' % b16encode(stxt.id.bytes))
         self.assertEqual(saved, stxt)
-        self.assertEqual(saved.id, test_id)
-        saved2 = models.ShortText.get_from_uuid(stxt.uuid)
+        self.assertEqual(saved.id, stxt.id)
+        saved2 = models.ShortText.get_from_json('{"uuid": "%s", "content": null}' % stxt.uuid)
         self.assertEqual(saved2, stxt)
+        saved3 = models.ShortText.get_from_json('{"uuid": null, "content": "%s"}' % stxt.content)
+        self.assertEqual(saved3, stxt)
 
     def test_content_property(self):
         stxt = models.ShortText()

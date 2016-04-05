@@ -27,8 +27,12 @@ class ImageTest(APITestBase):
         img.save()
         saved = models.Image.objects.first()
         self.assertEqual(saved, img)
-        saved2 = models.Image.get_from_uuid(img.uuid)
+        saved2 = models.Image.get_from_json('{"uuid": "%s", "content": null}' % img.uuid)
         self.assertEqual(saved2, img)
+        saved3 = models.Image.get_from_json('{"uuid": "%s", "content": null, "note": {"uuid": null, "content": null}}' % img.uuid)
+        self.assertEqual(saved3, img)
+        with self.assertRaises(NotImplementedError):
+            models.Image.get_from_json('{"uuid": null, "content": "%s"}' % img.content)
 
     def test_file_property(self):
         img = models.Image()

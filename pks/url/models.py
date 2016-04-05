@@ -5,6 +5,7 @@ from hashlib import md5
 from uuid import UUID
 from base64 import b16encode
 from django.contrib.gis.db import models
+from json import loads as json_loads
 
 
 class Url(models.Model):
@@ -30,6 +31,13 @@ class Url(models.Model):
         return '%s.url' % b16encode(self.id.bytes)
 
     @classmethod
-    def get_from_uuid(cls, _uuid):
-        _id = UUID(_uuid.split('.')[0])
-        return cls.objects.get(id=_id)
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        result = None
+        if 'uuid' in json and json['uuid']:
+            _id = UUID(json['uuid'].split('.')[0])
+            result = cls.objects.get(id=_id)
+        elif 'content' in json and json['content']:
+            result, created = cls.objects.get_or_create(content=json['content'])
+        return result

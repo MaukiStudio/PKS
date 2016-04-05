@@ -60,39 +60,39 @@ class UserPostViewset(ModelViewSet):
         if 'lonLat' in add and add['lonLat']:
             lonLat = GEOSGeometry('POINT(%f %f)' % (add['lonLat']['lon'], add['lonLat']['lat']))
         if 'fsVenue' in add and add['fsVenue']:
-            fsVenue = FsVenue.get_from_uuid(add['fsVenue']['uuid'])
+            fsVenue = FsVenue.get_from_json(add['fsVenue'])
 
         # urls 조회
         first_url = None
         urls = list()
         if 'urls' in add and add['urls']:
             for url in reversed(add['urls']):
-                urls.append(Url.get_from_uuid(url['uuid']))
+                urls.append(Url.get_from_json(url))
         if len(urls) > 0: first_url = urls.pop()
 
         # stxts 조회
         first_stxt = (None, None)
         stxts = list()
         if 'name' in add and add['name']:
-            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_uuid(add['name']['uuid'])))
+            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
         if 'addr' in add and add['addr']:
-            stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_uuid(add['addr']['uuid'])))
+            stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_json(add['addr'])))
         if 'notes' in add and add['notes']:
             for note in reversed(add['notes']):
-                stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_uuid(note['uuid'])))
+                stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_json(note)))
         if len(stxts) > 0: first_stxt = stxts.pop()
 
         # images 조회
         first_image = None
         images = list()
         if 'images' in add and add['images'] and add['images'][0]:
-            first_image = Image.get_from_uuid(add['images'][0]['uuid'])
+            first_image = Image.get_from_json(add['images'][0])
             # json 에 넘어온 순서대로 조회되도록 reverse 한다
             for d in reversed(add['images']):
-                img = Image.get_from_uuid(d['uuid'])
+                img = Image.get_from_json(d)
                 stxt = first_stxt
                 if 'note' in d and d['note']:
-                    imgNote = ShortText.get_from_uuid(d['note']['uuid'])
+                    imgNote = ShortText.get_from_json(d['note'])
                     stxt_type = None
                     if imgNote: stxt_type = models.STXT_TYPE_IMAGE_NOTE
                     stxt = (stxt_type, imgNote)

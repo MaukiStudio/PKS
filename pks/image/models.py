@@ -5,6 +5,7 @@ from base64 import b16encode
 from uuid import UUID
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
+from json import loads as json_loads
 
 from imagehash import dhash
 from PIL import Image as PIL_Image
@@ -61,9 +62,16 @@ class Image(models.Model):
         return '%s.jpg' % b16encode(self.id.bytes)
 
     @classmethod
-    def get_from_uuid(cls, _uuid):
-        _id = UUID(_uuid.split('.')[0])
-        return cls.objects.get(id=_id)
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        result = None
+        if 'uuid' in json and json['uuid']:
+            _id = UUID(json['uuid'].split('.')[0])
+            result = cls.objects.get(id=_id)
+        elif 'content' in json and json['content']:
+            raise NotImplementedError
+        return result
 
     def __unicode__(self):
         return self.uuid
