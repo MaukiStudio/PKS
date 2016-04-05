@@ -8,7 +8,7 @@ from django.contrib.gis.db import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import FsVenue, ShortText
+from content.models import LegacyPlace, ShortText
 from base.utils import get_timestamp
 
 # stxt_type
@@ -34,7 +34,7 @@ class Place(models.Model):
         images = [None, None]
         imgNotes = [None, None]
         for postType in (0, 1):
-            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), fsVenue=None, notes=list(), name=None, addr=None,)
+            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), lp=None, notes=list(), name=None, addr=None,)
             images[postType] = list()
             imgNotes[postType] = dict()
 
@@ -62,9 +62,9 @@ class Place(models.Model):
                     if uuid not in [d['uuid'] for d in dl]:
                         dl.append(dict(uuid=uuid, content=pc.url.content))
 
-                if pc.fsVenue and not result[postType]['fsVenue']:
-                    uuid = pc.fsVenue.uuid
-                    result[postType]['fsVenue'] = dict(uuid=uuid, content=pc.fsVenue.content)
+                if pc.lp and not result[postType]['lp']:
+                    uuid = pc.lp.uuid
+                    result[postType]['lp'] = dict(uuid=uuid, content=pc.lp.content)
 
                 if pc.stxt:
                     uuid = pc.stxt.uuid
@@ -99,7 +99,7 @@ class PlaceContent(models.Model):
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    fsVenue = models.ForeignKey(FsVenue, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    lp = models.ForeignKey(LegacyPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     stxt = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     # value

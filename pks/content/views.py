@@ -7,9 +7,9 @@ from content import models
 from content import serializers
 
 
-class FsVenueViewset(ModelViewSet):
-    queryset = models.FsVenue.objects.all()
-    serializer_class = serializers.FsVenueSerializer
+class LegacyPlaceViewset(ModelViewSet):
+    queryset = models.LegacyPlace.objects.all()
+    serializer_class = serializers.LegacyPlaceSerializer
 
 
 class ShortTextViewset(ModelViewSet):

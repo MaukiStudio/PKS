@@ -9,7 +9,7 @@ from base.tests import APITestBase
 from content import models
 
 
-class FsVenueViewsetTest(APITestBase):
+class LegacyPlaceViewsetTest(APITestBase):
 
     def setUp(self):
         '''
@@ -21,39 +21,39 @@ class FsVenueViewsetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         '''
 
-        self.fs = models.FsVenue(content='40a55d80f964a52020f31ee3')
-        self.fs.save()
+        self.lp = models.LegacyPlace(content='40a55d80f964a52020f31ee3')
+        self.lp.save()
 
     def test_list(self):
-        response = self.client.get('/fsvs/')
+        response = self.client.get('/lps/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
 
-        fs2 = models.FsVenue(content='40a55d80f964a52020f31ee4')
-        fs2.save()
-        response = self.client.get('/fsvs/')
+        lp2 = models.LegacyPlace(content='40a55d80f964a52020f31ee4')
+        lp2.save()
+        response = self.client.get('/lps/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 2)
 
     def test_create(self):
-        self.assertEqual(1, models.FsVenue.objects.count())
-        response = self.client.post('/fsvs/', dict(content=self.fs.content))
+        self.assertEqual(1, models.LegacyPlace.objects.count())
+        response = self.client.post('/lps/', dict(content=self.lp.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(1, models.FsVenue.objects.count())
+        self.assertEqual(1, models.LegacyPlace.objects.count())
         result = json_loads(response.content)
         self.assertIn('uuid', result)
         self.assertNotIn('id', result)
-        self.assertEqual(result['uuid'], self.fs.uuid)
+        self.assertEqual(result['uuid'], self.lp.uuid)
 
-        response = self.client.post('/fsvs/', dict(content='40a55d80f964a52020f31ee4'))
+        response = self.client.post('/lps/', dict(content='40a55d80f964a52020f31ee4'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(models.FsVenue.objects.count(), 2)
+        self.assertEqual(models.LegacyPlace.objects.count(), 2)
         result = json_loads(response.content)
-        self.assertNotEqual(result['uuid'], self.fs.uuid)
+        self.assertNotEqual(result['uuid'], self.lp.uuid)
 
 
 class ShortTextViewsetTest(APITestBase):

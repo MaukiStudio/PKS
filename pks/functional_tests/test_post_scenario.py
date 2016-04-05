@@ -168,7 +168,5 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
 
     def test_post_by_FourSquare(self):
 
-        # FsVenue 모델 수정한 후 구현
-        # 4/6 까지 완성 및 제공
         self.fail()
 

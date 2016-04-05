@@ -12,7 +12,7 @@ from place import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import FsVenue, ShortText
+from content.models import LegacyPlace, ShortText
 from base.utils import get_timestamp
 
 BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
@@ -60,7 +60,7 @@ class PlaceTest(APITestBase):
         img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
-        fsVenue = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue.save();
+        lp = LegacyPlace(content='40a55d80f964a52020f31ee3'); lp.save();
 
         # URL 저장
         pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
@@ -71,7 +71,7 @@ class PlaceTest(APITestBase):
         # 이미지, 노트 추가
         pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
         # 장소화
-        pc25 = models.PlaceContent(vd=vd2, place=place, fsVenue=fsVenue); pc25.save(); sleep(0.001)
+        pc25 = models.PlaceContent(vd=vd2, place=place, lp=lp); pc25.save(); sleep(0.001)
         # 이미지노트 추가
         pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)
         # (노트없는) 이미지 추가
@@ -86,7 +86,7 @@ class PlaceTest(APITestBase):
                 "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "images": [{"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
-                "fsVenue": null
+                "lp": null
             }
         ''' % (place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
                note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, imgNote1.uuid, imgNote1.content,)
@@ -108,12 +108,12 @@ class PlaceTest(APITestBase):
                     {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
                 ],
                 "urls": [{"uuid": "%s", "content": "%s"}],
-                "fsVenue": {"uuid": "%s", "content": "%s"}
+                "lp": {"uuid": "%s", "content": "%s"}
             }
         ''' % (place.id, point2.x, point2.y, name2.uuid, name2.content, addr2.uuid, addr2.content,
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
                img22.uuid, img21.uuid, imgNote2.uuid, imgNote2.content, img1.uuid, imgNote1.uuid, imgNote1.content,
-               url2.uuid, url2.content, fsVenue.uuid, fsVenue.content,)
+               url2.uuid, url2.content, lp.uuid, lp.content,)
         want_userPost = json_loads(json_userPost)
         want_placePost = json_loads(json_placePost)
         place.computePost([vd1.id])
@@ -141,8 +141,8 @@ class PlaceContentTest(APITestBase):
         self.url = Url(content='http://maukistudio.com/')
         self.url.save()
 
-        self.fsVenue = FsVenue(content='40a55d80f964a52020f31ee3')
-        self.fsVenue.save()
+        self.lp = LegacyPlace(content='40a55d80f964a52020f31ee3')
+        self.lp.save()
         self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
         self.stxt.save()
 
@@ -221,14 +221,14 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.url, self.url)
 
-    def test_fsVenue_property(self):
+    def test_lp_property(self):
         pc = models.PlaceContent()
-        pc.fsVenue = self.fsVenue
+        pc.lp = self.lp
         pc.save()
-        saved = self.fsVenue.pcs.get(id=pc.id)
-        self.assertEqual(pc.fsVenue, self.fsVenue)
+        saved = self.lp.pcs.get(id=pc.id)
+        self.assertEqual(pc.lp, self.lp)
         self.assertEqual(saved, pc)
-        self.assertEqual(saved.fsVenue, self.fsVenue)
+        self.assertEqual(saved.lp, self.lp)
 
     def test_stxt_property(self):
         pc = models.PlaceContent()

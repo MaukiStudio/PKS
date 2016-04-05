@@ -7,18 +7,18 @@ from content import models
 from base.utils import HashCollisionError
 
 
-class FsVenueSerializer(ModelSerializer):
+class LegacyPlaceSerializer(ModelSerializer):
     uuid = ReadOnlyField()
 
     class Meta:
-        model = models.FsVenue
+        model = models.LegacyPlace
         exclude = ('id',)
 
     def create(self, validated_data):
-        fs, created = models.FsVenue.objects.get_or_create(**validated_data)
-        if fs.content != validated_data['content']:
+        lp, created = models.LegacyPlace.objects.get_or_create(**validated_data)
+        if lp.content != validated_data['content']:
             raise HashCollisionError
-        return fs
+        return lp
 
 
 class ShortTextSerializer(ModelSerializer):

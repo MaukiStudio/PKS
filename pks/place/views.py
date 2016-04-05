@@ -12,7 +12,7 @@ from place import serializers
 from account.models import VD
 from pks.settings import VD_SESSION_KEY
 from url.models import Url
-from content.models import FsVenue, ShortText
+from content.models import LegacyPlace, ShortText
 from image.models import Image
 from base.utils import get_timestamp
 
@@ -56,11 +56,11 @@ class UserPostViewset(ModelViewSet):
             add = json_loads(add)
 
         # 단일 Content 조회
-        lonLat = None; fsVenue = None
+        lonLat = None; lp = None
         if 'lonLat' in add and add['lonLat']:
             lonLat = GEOSGeometry('POINT(%f %f)' % (add['lonLat']['lon'], add['lonLat']['lat']))
-        if 'fsVenue' in add and add['fsVenue']:
-            fsVenue = FsVenue.get_from_json(add['fsVenue'])
+        if 'lp' in add and add['lp']:
+            lp = LegacyPlace.get_from_json(add['lp'])
 
         # urls 조회
         first_url = None
@@ -113,7 +113,7 @@ class UserPostViewset(ModelViewSet):
             place = models.Place.objects.get(id=place_id)
 
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
-        if not (lonLat or first_url or fsVenue or (place and (first_stxt or first_image))):
+        if not (lonLat or first_url or lp or (place and (first_stxt or first_image))):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # place_id 가 넘어오지 않은 경우
@@ -129,7 +129,7 @@ class UserPostViewset(ModelViewSet):
 
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         for t in images:
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, fsVenue=fsVenue,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                                      image=t[0], stxt_type=t[1][0], stxt=t[1][1],)
             pc.save(timestamp=timestamp)
             timestamp += 1
@@ -137,20 +137,20 @@ class UserPostViewset(ModelViewSet):
         # stxts 저장
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, fsVenue=fsVenue,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                                      image=first_image, stxt_type=stxt[0], stxt=stxt[1],)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # urls 저장
         for url in urls:
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, fsVenue=fsVenue,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, lp=lp,
                                      image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # base transaction(PlaceContent) 저장
-        pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, fsVenue=fsVenue,
+        pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                                  image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
         pc.save(timestamp=timestamp)
         timestamp += 1

@@ -54,4 +54,4 @@ class APITestBase(APITestCase):
         type_str = uuid_json.split('.')[1]
         _uuid = UUID(hex_str)
         self.assertEqual(type(_uuid), UUID)
-        return self.assertIn(type_str, ('jpg', 'stxt', 'url', 'fsv'))
+        return self.assertIn(type_str, ('jpg', 'stxt', 'url', '4square'))
