@@ -17,7 +17,7 @@ class ImageTest(APITestBase):
     def test_string_representation(self):
         img_id = uuid1()
         img = models.Image(id=img_id)
-        self.assertEqual(unicode(img), '%s.jpg' % b16encode(img_id.bytes))
+        self.assertEqual(unicode(img), '%s.img' % b16encode(img_id.bytes))
         self.assertEqual(img.uuid, unicode(img))
         self.assertEqual(img.content, None)
 

@@ -59,7 +59,7 @@ class Image(models.Model):
 
     @property
     def uuid(self):
-        return '%s.jpg' % b16encode(self.id.bytes)
+        return '%s.img' % b16encode(self.id.bytes)
 
     @classmethod
     def get_from_json(cls, json):
