@@ -13,26 +13,54 @@ class LegacyPlaceTest(APITestBase):
 
     def test_string_representation_4square(self):
         lp = models.LegacyPlace()
-        test_data = '40a55d80f964a52020f31ee3.4square'
+        test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         self.assertEqual(unicode(lp), test_data)
 
     def test_save_and_retreive_4square(self):
         lp = models.LegacyPlace()
-        test_data = '40a55d80f964a52020f31ee3.4square'
+        test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
         saved = models.LegacyPlace.objects.first()
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
         saved2 = models.LegacyPlace.get_from_json('{"uuid": "%s", "content": null}' % lp.uuid)
-        self.assertEqual(saved2, lp)
+        self.assertEqual(saved2.content, lp.content)
         saved3 = models.LegacyPlace.get_from_json('{"uuid": null, "content": "%s"}' % lp.content)
         self.assertEqual(saved3, lp)
 
-    def test_content_property_4square(self):
+    def test_content_property_4square_case1(self):
         lp = models.LegacyPlace()
-        test_data = '40a55d80f964a52020f31ee3.4square'
+        test_data = 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
+        normalized_test_data = '4ccffc63f6378cfaace1b1d6.4square'
+        lp.content = test_data
+        lp.save()
+        saved = models.LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000001-4ccf-fc63-f637-8cfaace1b1d6'))
+
+    def test_content_property_4square_case2(self):
+        lp = models.LegacyPlace()
+        test_data = 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
+        normalized_test_data = '4ccffc63f6378cfaace1b1d6.4square'
+        lp.content = test_data
+        lp.save()
+        saved = models.LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000001-4ccf-fc63-f637-8cfaace1b1d6'))
+
+    def test_content_property_naver_case1(self):
+        lp = models.LegacyPlace()
+        test_data = '21149144.naver'
         lp.content = test_data
         lp.save()
         saved = models.LegacyPlace.objects.first()
@@ -40,7 +68,21 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
         self.assertEqual(saved.content, lp.content)
-        self.assertEqual(saved.id, UUID('00000001-40a5-5d80-f964-a52020f31ee3'))
+        self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
+
+    def test_content_property_naver_case2(self):
+        lp = models.LegacyPlace()
+        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        normalized_test_data = '21149144.naver'
+        lp.content = test_data
+        lp.save()
+        saved = models.LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
 
 
 class ShortTextTest(APITestBase):

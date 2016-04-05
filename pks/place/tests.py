@@ -113,7 +113,7 @@ class UserPostViewSetTest(APITestBase):
         url11 = Url(content='http://maukistudio.com/'); url11.save()
         url12 = Url(content='http://maukistudio.com/2/'); url12.save()
         url13 = Url(content='http://maukistudio.com/3/'); url13.save()
-        lp1 = LegacyPlace(content='40a55d80f964a52020f31ee3'); lp1.save()
+        lp1 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp1.save()
 
         json_add = '''
             {
@@ -335,7 +335,7 @@ class UserPostViewSetTest(APITestBase):
         url11_content='http://maukistudio.com/'
         url12_content='http://maukistudio.com/2/'
         url13_content='http://maukistudio.com/3/'
-        lp1 = LegacyPlace(content='40a55d80f964a52020f31ee3'); lp1.save()
+        lp1 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp1.save()
 
         json_add = '''
             {

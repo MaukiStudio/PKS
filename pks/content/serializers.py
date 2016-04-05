@@ -16,8 +16,6 @@ class LegacyPlaceSerializer(ModelSerializer):
 
     def create(self, validated_data):
         lp, created = models.LegacyPlace.objects.get_or_create(**validated_data)
-        if lp.content != validated_data['content']:
-            raise HashCollisionError
         return lp
 
 

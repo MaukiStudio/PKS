@@ -6,6 +6,16 @@ from hashlib import md5
 from base64 import b16encode
 from django.contrib.gis.db import models
 from json import loads as json_loads
+from re import compile as re_compile
+
+LP_REGEXS = (
+    (re_compile(r'(?P<PlaceId>[a-z0-9]+)\.4square'), '4square'),
+    (re_compile(r'(?P<PlaceId>[0-9]+)\.naver'), 'naver'),
+
+    (re_compile(r'http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)'), 'naver'),
+    (re_compile(r'https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)'), '4square'),
+    (re_compile(r'https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)'), '4square'),
+)
 
 
 class LegacyPlace(models.Model):
@@ -31,11 +41,23 @@ class LegacyPlace(models.Model):
             result, created = cls.objects.get_or_create(content=json['content'])
         return result
 
+    def normalize_content(self):
+        for regex in LP_REGEXS:
+            searcher = regex[0].search(self.content)
+            if searcher:
+                self.content = '%s.%s' % (searcher.group('PlaceId'), regex[1])
+                return
+
     def set_id(self):
-        self.id = UUID(b'00000001%s' % self.content.split('.')[0].rjust(24, b'0'))
+        splits = self.content.split('.')
+        if splits[1] == '4square':
+            self.id = UUID(b'00000001%s' % splits[0].rjust(24, b'0'))
+        elif splits[1] == 'naver':
+            self.id = UUID(b'00000002%s' % splits[0].rjust(24, b'0'))
 
     def save(self, *args, **kwargs):
         if not self.id and self.content:
+            self.normalize_content()
             self.set_id()
         super(LegacyPlace, self).save(*args, **kwargs)
 

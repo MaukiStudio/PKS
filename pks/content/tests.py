@@ -21,7 +21,7 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         '''
 
-        self.lp = models.LegacyPlace(content='40a55d80f964a52020f31ee3')
+        self.lp = models.LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square')
         self.lp.save()
 
     def test_list(self):
@@ -31,7 +31,7 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
 
-        lp2 = models.LegacyPlace(content='40a55d80f964a52020f31ee4')
+        lp2 = models.LegacyPlace(content='http://map.naver.com/local/siteview.nhn?code=21149144')
         lp2.save()
         response = self.client.get('/lps/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -49,7 +49,7 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.assertNotIn('id', result)
         self.assertEqual(result['uuid'], self.lp.uuid)
 
-        response = self.client.post('/lps/', dict(content='40a55d80f964a52020f31ee4'))
+        response = self.client.post('/lps/', dict(content='http://map.naver.com/local/siteview.nhn?code=21149144'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(models.LegacyPlace.objects.count(), 2)
         result = json_loads(response.content)

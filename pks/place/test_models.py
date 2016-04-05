@@ -60,7 +60,7 @@ class PlaceTest(APITestBase):
         img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
-        lp = LegacyPlace(content='40a55d80f964a52020f31ee3'); lp.save();
+        lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp.save();
 
         # URL 저장
         pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
@@ -141,7 +141,7 @@ class PlaceContentTest(APITestBase):
         self.url = Url(content='http://maukistudio.com/')
         self.url.save()
 
-        self.lp = LegacyPlace(content='40a55d80f964a52020f31ee3')
+        self.lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square')
         self.lp.save()
         self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
         self.stxt.save()
