@@ -41,7 +41,7 @@ class PlaceTest(APITestBase):
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
 
         # 현재 위치 저장
-        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save(); sleep(0.001)
+        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_POS_DESC); pc11.save(); sleep(0.001)
         pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc12.save(); sleep(0.001)
         # 이름 지정
         pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=models.STXT_TYPE_PLACE_NAME); pc13.save(); sleep(0.001)
@@ -67,7 +67,7 @@ class PlaceTest(APITestBase):
         # 이름 지정
         pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=models.STXT_TYPE_PLACE_NAME); pc22.save(); sleep(0.001)
         # 주소 지정
-        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_ADDRESS); pc23.save(); sleep(0.001)
+        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_POS_DESC); pc23.save(); sleep(0.001)
         # 이미지, 노트 추가
         pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
         # 장소화
@@ -82,11 +82,11 @@ class PlaceTest(APITestBase):
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
-                "addr": {"uuid": "%s", "content": "%s"},
+                "posDesc": {"uuid": "%s", "content": "%s"},
                 "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "images": [{"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
-                "lp": null
+                "lps": []
             }
         ''' % (place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
                note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, imgNote1.uuid, imgNote1.content,)
@@ -95,7 +95,7 @@ class PlaceTest(APITestBase):
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
-                "addr": {"uuid": "%s", "content": "%s"},
+                "posDesc": {"uuid": "%s", "content": "%s"},
                 "notes": [
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"},
@@ -108,7 +108,7 @@ class PlaceTest(APITestBase):
                     {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
                 ],
                 "urls": [{"uuid": "%s", "content": "%s"}],
-                "lp": {"uuid": "%s", "content": "%s"}
+                "lps": [{"uuid": "%s", "content": "%s"}]
             }
         ''' % (place.id, point2.x, point2.y, name2.uuid, name2.content, addr2.uuid, addr2.content,
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,

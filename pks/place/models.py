@@ -14,7 +14,7 @@ from base.utils import get_timestamp
 # stxt_type
 STXT_TYPE_PLACE_NOTE = 1
 STXT_TYPE_PLACE_NAME = 2
-STXT_TYPE_ADDRESS = 3
+STXT_TYPE_POS_DESC = 3
 STXT_TYPE_IMAGE_NOTE = 4
 STXT_TYPE_REMOVE_CONTENT = 255
 
@@ -34,7 +34,7 @@ class Place(models.Model):
         images = [None, None]
         imgNotes = [None, None]
         for postType in (0, 1):
-            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), lp=None, notes=list(), name=None, addr=None,)
+            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), lps=list(), notes=list(), name=None, posDesc=None,)
             images[postType] = list()
             imgNotes[postType] = dict()
 
@@ -62,9 +62,11 @@ class Place(models.Model):
                     if uuid not in [d['uuid'] for d in dl]:
                         dl.append(dict(uuid=uuid, content=pc.url.content))
 
-                if pc.lp and not result[postType]['lp']:
+                if pc.lp:
                     uuid = pc.lp.uuid
-                    result[postType]['lp'] = dict(uuid=uuid, content=pc.lp.content)
+                    dl = result[postType]['lps']
+                    if uuid not in [d['uuid'] for d in dl]:
+                        dl.append(dict(uuid=uuid, content=pc.lp.content))
 
                 if pc.stxt:
                     uuid = pc.stxt.uuid
@@ -74,8 +76,8 @@ class Place(models.Model):
                             dl.append(dict(uuid=uuid, content=pc.stxt.content))
                     if pc.stxt_type == STXT_TYPE_PLACE_NAME and not result[postType]['name']:
                         result[postType]['name'] = dict(uuid=uuid, content=pc.stxt.content)
-                    if pc.stxt_type == STXT_TYPE_ADDRESS and not result[postType]['addr']:
-                        result[postType]['addr'] = dict(uuid=uuid, content=pc.stxt.content)
+                    if pc.stxt_type == STXT_TYPE_POS_DESC and not result[postType]['posDesc']:
+                        result[postType]['posDesc'] = dict(uuid=uuid, content=pc.stxt.content)
 
         for postType in (0, 1):
             result[postType]['images'] = [dict(uuid=uuid, content=content, note=imgNotes[postType][uuid]) for (uuid, content) in [(d['uuid'], d['content']) for d in images[postType]]]

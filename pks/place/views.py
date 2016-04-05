@@ -55,12 +55,18 @@ class UserPostViewset(ModelViewSet):
         if type(add) is str or type(add) is unicode:
             add = json_loads(add)
 
-        # 단일 Content 조회
-        lonLat = None; lp = None
+        # Simple Property 조회 : 현재는 lonLat 뿐임
+        lonLat = None
         if 'lonLat' in add and add['lonLat']:
             lonLat = GEOSGeometry('POINT(%f %f)' % (add['lonLat']['lon'], add['lonLat']['lat']))
-        if 'lp' in add and add['lp']:
-            lp = LegacyPlace.get_from_json(add['lp'])
+
+        # lps 조회
+        first_lp = None
+        lps = list()
+        if 'lps' in add and add['lps']:
+            for lp in reversed(add['lps']):
+                lps.append(LegacyPlace.get_from_json(lp))
+        if len(lps) > 0: first_lp = lps.pop()
 
         # urls 조회
         first_url = None
@@ -75,8 +81,8 @@ class UserPostViewset(ModelViewSet):
         stxts = list()
         if 'name' in add and add['name']:
             stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
-        if 'addr' in add and add['addr']:
-            stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_json(add['addr'])))
+        if 'posDesc' in add and add['posDesc']:
+            stxts.append((models.STXT_TYPE_POS_DESC, ShortText.get_from_json(add['posDesc'])))
         if 'notes' in add and add['notes']:
             for note in reversed(add['notes']):
                 stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_json(note)))
@@ -113,7 +119,7 @@ class UserPostViewset(ModelViewSet):
             place = models.Place.objects.get(id=place_id)
 
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
-        if not (lonLat or first_url or lp or (place and (first_stxt or first_image))):
+        if not (lonLat or first_url or first_lp or (place and (first_stxt or first_image))):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # place_id 가 넘어오지 않은 경우
@@ -129,7 +135,7 @@ class UserPostViewset(ModelViewSet):
 
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         for t in images:
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                                      image=t[0], stxt_type=t[1][0], stxt=t[1][1],)
             pc.save(timestamp=timestamp)
             timestamp += 1
@@ -137,20 +143,27 @@ class UserPostViewset(ModelViewSet):
         # stxts 저장
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                                      image=first_image, stxt_type=stxt[0], stxt=stxt[1],)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # urls 저장
         for url in urls:
-            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, lp=lp,
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
+                                     image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
+            pc.save(timestamp=timestamp)
+            timestamp += 1
+
+        # lps 저장
+        for lp in lps:
+            pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                                      image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # base transaction(PlaceContent) 저장
-        pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
+        pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                                  image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
         pc.save(timestamp=timestamp)
         timestamp += 1

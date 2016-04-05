@@ -7,6 +7,7 @@ from django.core.files import File
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework.test import APITestCase
 from uuid import UUID
+from json import dumps as json_dumps
 
 from pks.settings import VD_SESSION_KEY
 
@@ -55,3 +56,9 @@ class APITestBase(APITestCase):
         _uuid = UUID(hex_str)
         self.assertEqual(type(_uuid), UUID)
         return self.assertIn(type_str, ('img', 'stxt', 'url', '4square', 'naver', 'google',))
+
+    def printJson(self, json):
+        if type(json) is dict:
+            json = json_dumps(json)
+        print(json)
+

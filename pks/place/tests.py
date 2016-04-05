@@ -113,14 +113,16 @@ class UserPostViewSetTest(APITestBase):
         url11 = Url(content='http://maukistudio.com/'); url11.save()
         url12 = Url(content='http://maukistudio.com/2/'); url12.save()
         url13 = Url(content='http://maukistudio.com/3/'); url13.save()
-        lp1 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp1.save()
+        lp11 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp11.save()
+        lp12 = LegacyPlace(content='http://map.naver.com/local/siteview.nhn?code=21149144'); lp12.save()
+        lp13 = LegacyPlace(content='ChIJrTLr-GyuEmsRBfy61i59si0.google'); lp13.save()
 
         json_add = '''
             {
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
-                "addr": {"uuid": "%s", "content": "%s"},
+                "posDesc": {"uuid": "%s", "content": "%s"},
                 "notes": [
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"},
@@ -136,14 +138,18 @@ class UserPostViewSetTest(APITestBase):
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"}
                 ],
-                "lp": {"uuid": "%s", "content": "%s"}
+                "lps": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ]
             }
         ''' % (self.place.id, point1.x, point1.y,
                name1.uuid, name1.content, addr1.uuid, addr1.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
                img1.uuid, imgNote1.uuid, imgNote1.content, img2.uuid, img3.uuid,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
-               lp1.uuid, lp1.content,)
+               lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = json_loads(json_add)
 
         self.assertEqual(models.UserPost.objects.count(), 0)
@@ -192,11 +198,11 @@ class UserPostViewSetTest(APITestBase):
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": null,
-                "addr": null,
+                "posDesc": null,
                 "notes": [],
                 "images": [{"uuid": "%s", "content": null, "note": null}],
                 "urls": [],
-                "lp": null
+                "lps": []
             }
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, img1.uuid,)
         want = json_loads(json_want)
@@ -229,11 +235,11 @@ class UserPostViewSetTest(APITestBase):
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": null,
-                "addr": null,
+                "posDesc": null,
                 "notes": [{"uuid": "%s", "content": "%s"}],
                 "images": [{"uuid": "%s", "content": null, "note": null}],
                 "urls": [],
-                "lp": null
+                "lps": []
             }
         ''' % (self.post.userPost['place_id'], point1.x, point1.y, note11.uuid, note11.content, img1.uuid,)
         want = json_loads(json_want)
@@ -262,11 +268,11 @@ class UserPostViewSetTest(APITestBase):
                 "place_id": %d,
                 "lonLat": null,
                 "name": null,
-                "addr": null,
+                "posDesc": null,
                 "notes": [],
                 "images": [],
                 "urls": [{"uuid": "%s", "content": "%s"}],
-                "lp": null
+                "lps": []
             }
         ''' % (self.post.userPost['place_id'], url1.uuid, url1.content,)
         want = json_loads(json_want)
@@ -297,11 +303,11 @@ class UserPostViewSetTest(APITestBase):
                 "place_id": %d,
                 "lonLat": null,
                 "name": null,
-                "addr": null,
+                "posDesc": null,
                 "notes": [{"uuid": "%s", "content": "%s"}],
                 "images": [],
                 "urls": [{"uuid": "%s", "content": "%s"}],
-                "lp": null
+                "lps": []
             }
         ''' % (self.post.userPost['place_id'], note11.uuid, note11.content, url1.uuid, url1.content,)
         want = json_loads(json_want)
@@ -342,7 +348,7 @@ class UserPostViewSetTest(APITestBase):
                 "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": null, "content": "%s"},
-                "addr": {"uuid": null, "content": "%s"},
+                "posDesc": {"uuid": null, "content": "%s"},
                 "notes": [
                     {"uuid": null, "content": "%s"},
                     {"uuid": null, "content": "%s"},
@@ -358,14 +364,14 @@ class UserPostViewSetTest(APITestBase):
                     {"uuid": null, "content": "%s"},
                     {"uuid": null, "content": "%s"}
                 ],
-                "lp": {"uuid": "%s", "content": "%s"}
+                "lps": [{"uuid": null, "content": "%s"}]
             }
         ''' % (self.place.id, point1.x, point1.y,
                name1_content, addr1_content,
                note11_content, note12_content, note13_content,
                img1.uuid, imgNote1_content, img2.uuid, img3.uuid,
                url11_content, url12_content, url13_content,
-               lp1.uuid, lp1.content,)
+               lp1.content,)
         want = json_loads(json_add)
 
         self.assertEqual(models.UserPost.objects.count(), 0)

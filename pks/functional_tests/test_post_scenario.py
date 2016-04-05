@@ -10,28 +10,32 @@ from functional_tests.ftbase import FunctionalTestAfterLoginBase
 
 class PostScenarioTest(FunctionalTestAfterLoginBase):
     ''' Post Json Schema
-        {
-            "place_id": %d,
-            "lonLat": {"lon": %f, "lat": %f},
-            "name": {"uuid": "%s", "content": "%s"},
-            "addr": {"uuid": "%s", "content": "%s"},
-            "notes": [
-                {"uuid": "%s", "content": "%s"},
-                {"uuid": "%s", "content": "%s"},
-                {"uuid": "%s", "content": "%s"}
-            ],
-            "images": [
-                {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
-                {"uuid": "%s", "content": null, "note": null},
-                {"uuid": "%s", "content": null, "note": null}
-            ],
-            "urls": [
-                {"uuid": "%s", "content": "%s"},
-                {"uuid": "%s", "content": "%s"},
-                {"uuid": "%s", "content": "%s"}
-            ],
-            "lp": {"uuid": "%s", "content": "%s"}
-        }
+            {
+                "place_id": %d,
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"uuid": "%s", "content": "%s"},
+                "posDesc": {"uuid": "%s", "content": "%s"},
+                "notes": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
+                "images": [
+                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
+                    {"uuid": "%s", "content": null, "note": null},
+                    {"uuid": "%s", "content": null, "note": null}
+                ],
+                "urls": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
+                "lps": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ]
+            }
     '''
 
     def test_post_by_current_pos(self):
