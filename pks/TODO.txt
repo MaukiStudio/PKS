@@ -1,5 +1,5 @@
 [Now]
-post add 시, uuid 없이 content 만 올라오더라도 처리하도록 수정
+Image 처리 기반 구조 변경
 
 FsVenue --> LegacyPlace 개편 및 리팩토링
 NaverPlace 기능 추가하고 어드민 만들기
