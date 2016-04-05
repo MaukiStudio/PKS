@@ -1,7 +1,5 @@
 [Now]
 post add 시, uuid 없이 content 만 올라오더라도 처리하도록 수정
-로그인 안된 상태에서는 VD register 가 안되도록 수정
-DRF 기본 Pagenation 적용
 
 FsVenue --> LegacyPlace 개편 및 리팩토링
 NaverPlace 기능 추가하고 어드민 만들기

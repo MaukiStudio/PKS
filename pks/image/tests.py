@@ -24,9 +24,9 @@ class ImageViewsetTest(APITestBase):
     def test_list(self):
         response = self.client.get('/imgs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(type(result), list)
-        self.assertEqual(len(result), 1)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
 
     def test_detail(self):
         response = self.client.get('/imgs/%s/' % self.img.id)

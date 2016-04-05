@@ -27,17 +27,17 @@ class FsVenueViewsetTest(APITestBase):
     def test_list(self):
         response = self.client.get('/fsvs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(1, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
 
         fs2 = models.FsVenue(content='40a55d80f964a52020f31ee4')
         fs2.save()
         response = self.client.get('/fsvs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(2, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
 
     def test_create(self):
         self.assertEqual(1, models.FsVenue.objects.count())
@@ -51,7 +51,7 @@ class FsVenueViewsetTest(APITestBase):
 
         response = self.client.post('/fsvs/', dict(content='40a55d80f964a52020f31ee4'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(2, models.FsVenue.objects.count())
+        self.assertEqual(models.FsVenue.objects.count(), 2)
         result = json_loads(response.content)
         self.assertNotEqual(result['uuid'], self.fs.uuid)
 
@@ -65,23 +65,23 @@ class ShortTextViewsetTest(APITestBase):
     def test_list(self):
         response = self.client.get('/stxts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(1, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
 
         stxt2 = models.ShortText(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
         stxt2.save()
         response = self.client.get('/stxts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(2, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
 
     def test_create(self):
         self.assertEqual(1, models.ShortText.objects.count())
         response = self.client.post('/stxts/', dict(content=self.stxt.content))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(1, models.ShortText.objects.count())
+        self.assertEqual(models.ShortText.objects.count(), 1)
         result = json_loads(response.content)
         self.assertIn('uuid', result)
         self.assertNotIn('id', result)
@@ -89,6 +89,6 @@ class ShortTextViewsetTest(APITestBase):
 
         response = self.client.post('/stxts/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(2, models.ShortText.objects.count())
+        self.assertEqual(models.ShortText.objects.count(), 2)
         result = json_loads(response.content)
         self.assertNotEqual(result['uuid'], self.stxt.uuid)

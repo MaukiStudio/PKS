@@ -65,8 +65,8 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         # 현재까지는 저장한 것이 하나도 없으므로 조회 결과는 없음
         response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(result, list())
+        results = json_loads(response.content)['results']
+        self.assertEqual(results, list())
 
 
     def test_places_pos_with_no_place(self):
@@ -78,11 +78,11 @@ class StartScenarioTest(FunctionalTestAfterLoginBase):
         # publicPost 조회
         response = self.client.get('/places/?lon=127.0&lat=37.0&r=1000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(result, list())
+        results = json_loads(response.content)['results']
+        self.assertEqual(results, list())
 
         # userPost 조회
         response = self.client.get('/uposts/?lon=127.0&lat=37.0&r=1000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(result, list())
+        results = json_loads(response.content)['results']
+        self.assertEqual(results, list())

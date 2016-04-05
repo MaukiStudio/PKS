@@ -27,17 +27,17 @@ class UrlViewsetTest(APITestBase):
     def test_list(self):
         response = self.client.get('/urls/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(1, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
 
         url2 = models.Url(content='http://www.maukistudio.com/2')
         url2.save()
         response = self.client.get('/urls/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(list, type(result))
-        self.assertEqual(2, len(result))
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
 
     def test_create(self):
         self.assertEqual(1, models.Url.objects.count())

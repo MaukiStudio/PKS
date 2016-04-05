@@ -29,9 +29,9 @@ class PlaceViewSetTest(APITestBase):
         response = self.client.get('/places/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
-        self.assertEqual(type(result), list)
-        self.assertEqual(len(result), 1)
-        self.assertIn('placePost', result[0])
+        self.assertIn('results', result)
+        self.assertEqual(len(result['results']), 1)
+        self.assertIn('placePost', result['results'][0])
 
     def test_detail(self):
         response = self.client.get('/places/%s/' % self.place.id)
@@ -59,8 +59,8 @@ class PlaceContentViewSetTest(APITestBase):
         response = self.client.get('/pcs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
-        self.assertEqual(type(result), list)
-        self.assertEqual(len(result), 0)
+        self.assertIn('results', result)
+        self.assertEqual(len(result['results']), 0)
 
 
 class UserPostViewSetTest(APITestBase):
@@ -81,11 +81,11 @@ class UserPostViewSetTest(APITestBase):
         response = self.client.get('/uposts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
-        self.assertEqual(type(result), list)
-        self.assertEqual(len(result), 1)
-        self.assertIn('userPost', result[0])
-        self.assertIn('placePost', result[0])
-        self.assertNotIn('id', result[0])
+        self.assertIn('results', result)
+        self.assertEqual(len(result['results']), 1)
+        self.assertIn('userPost', result['results'][0])
+        self.assertIn('placePost', result['results'][0])
+        self.assertNotIn('id', result['results'][0])
 
     def test_detail(self):
         self.post.save()
@@ -104,10 +104,12 @@ class UserPostViewSetTest(APITestBase):
         name1 = ShortText(content='능라'); name1.save()
         addr1 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
+        note12 = ShortText(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
         imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
         img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
-        url1 = Url(content='http://maukistudio.com/'); url1.save()
+        url11 = Url(content='http://maukistudio.com/'); url11.save()
+        url12 = Url(content='http://maukistudio.com/2/'); url12.save()
         fsVenue1 = FsVenue(content='40a55d80f964a52020f31ee3'); fsVenue1.save()
 
         json_add = '''
@@ -116,17 +118,17 @@ class UserPostViewSetTest(APITestBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
                 "addr": {"uuid": "%s", "content": "%s"},
-                "notes": [{"uuid": "%s", "content": "%s"}],
+                "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "images": [
                     {"uuid": "%s", "content": null, "note": null},
                     {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
                 ],
-                "urls": [{"uuid": "%s", "content": "%s"}],
+                "urls": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "fsVenue": {"uuid": "%s", "content": "%s"}
             }
         ''' % (self.place.id, point1.x, point1.y, name1.uuid, name1.content, addr1.uuid, addr1.content,
-               note11.uuid, note11.content, img2.uuid, img1.uuid, imgNote1.uuid, imgNote1.content,
-               url1.uuid, url1.content, fsVenue1.uuid, fsVenue1.content,)
+               note11.uuid, note11.content, note12.uuid, note12.content, img2.uuid, img1.uuid, imgNote1.uuid, imgNote1.content,
+               url11.uuid, url11.content, url12.uuid, url12.content, fsVenue1.uuid, fsVenue1.content,)
         want = json_loads(json_add)
 
         self.assertEqual(models.UserPost.objects.count(), 0)

@@ -100,10 +100,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # Only for server test... (Not interface guide)
         response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['userPost'], userPost)
-        self.assertEqual(result[0]['placePost'], placePost)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['userPost'], userPost)
+        self.assertEqual(results[0]['placePost'], placePost)
 
 
     def test_post_by_url(self):
@@ -160,10 +160,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # Only for server test... (Not interface guide)
         response = self.client.get('/uposts/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json_loads(response.content)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['userPost'], userPost)
-        self.assertEqual(result[0]['placePost'], placePost)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['userPost'], userPost)
+        self.assertEqual(results[0]['placePost'], placePost)
 
 
     def test_post_by_FourSquare(self):
