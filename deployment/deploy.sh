@@ -9,6 +9,9 @@ sudo apt-get install -y libpq-dev postgresql-9.5 postgresql-contrib-9.5 postgres
 sudo apt-get install -y postgresql-9.5-postgis-2.2
 sudo apt-get install -y python-psycopg2
 
+sudo easy_install -U pip
+hash -r
+
 sudo pip install -r requirements.txt --upgrade
 sudo -u postgres psql -a -f initdb.sql
 

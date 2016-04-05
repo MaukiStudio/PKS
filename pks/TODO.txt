@@ -1,10 +1,10 @@
 [Now]
-Image 처리 기반 구조 변경
-
 FsVenue --> LegacyPlace 개편 및 리팩토링
 NaverPlace 기능 추가하고 어드민 만들기
 
 lonLat 기반 목록 검색 기능 만들기
+
+Image 처리 기반 구조 변경
 
 
 

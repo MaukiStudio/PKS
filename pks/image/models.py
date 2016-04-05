@@ -10,7 +10,7 @@ from json import loads as json_loads
 from imagehash import dhash
 from PIL import Image as PIL_Image
 from image import exif_lib
-
+import requests
 
 IMAGE_PATH = 'images'
 

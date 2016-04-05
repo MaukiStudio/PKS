@@ -42,19 +42,19 @@ class ImageTest(APITestBase):
         self.assertEqual(saved, img)
         self.assertNotEqual(saved.file.url.index(unicode(img).split('.')[0]), 0)
 
-    def __skip__test_id(self):
+    def test_id(self):
         id_640 = models.Image.compute_id_from_file('image/samples/test.jpg')
         id_256 = models.Image.compute_id_from_file('image/samples/test_256.jpg')
         id_480 = models.Image.compute_id_from_file('image/samples/test_480.jpg')
-        id_1200 = models.Image.compute_id_from_file('image/samples/test_1200.jpg')
-        id_org = models.Image.compute_id_from_file('image/samples/test_org.jpg')
-        id2 = models.Image.compute_id_from_file('image/samples/test2.jpg')
+        #id_1200 = models.Image.compute_id_from_file('image/samples/test_1200.jpg')
+        #id_org = models.Image.compute_id_from_file('image/samples/test_org.jpg')
+        id2 = models.Image.compute_id_from_file('image/samples/no_exif_test.jpg')
 
         self.assertLessEqual(models.Image.hamming_distance(id_640, id_256), 0)
         self.assertLessEqual(models.Image.hamming_distance(id_640, id_480), 1)
-        self.assertLessEqual(models.Image.hamming_distance(id_640, id_1200), 0)
-        self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
-        self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)
+        #self.assertLessEqual(models.Image.hamming_distance(id_640, id_1200), 0)
+        #self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
+        self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)  # distance = 59
 
     def test_gps_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
