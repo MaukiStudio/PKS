@@ -84,6 +84,30 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
 
+    def test_content_property_google_case1(self):
+        lp = models.LegacyPlace()
+        test_data = 'ChIJN1t_tDeuEmsRUsoyG83frY4.google'
+        lp.content = test_data
+        lp.save()
+        saved = models.LegacyPlace.objects.first()
+        self.assertEqual(lp.content, test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('DB8EC763BF050034C79174B5DA189FC8'))
+
+    def test_content_property_google_case2(self):
+        lp = models.LegacyPlace()
+        test_data = 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
+        lp.content = test_data
+        lp.save()
+        saved = models.LegacyPlace.objects.first()
+        self.assertEqual(lp.content, test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('fdc64a309ca7409a8a143be959307efe'))
+
 
 class ShortTextTest(APITestBase):
 

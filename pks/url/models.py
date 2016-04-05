@@ -15,8 +15,8 @@ class Url(models.Model):
     def set_id(self):
         m = md5()
         m.update(self.content)
-        h = m.digest()
-        self.id = UUID(b16encode(h))
+        h = m.hexdigest()
+        self.id = UUID(h)
 
     def save(self, *args, **kwargs):
         if not self.id and self.content:
