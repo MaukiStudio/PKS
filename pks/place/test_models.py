@@ -114,6 +114,17 @@ class PlaceTest(APITestBase):
         want_placePost = models.Post(json_placePost)
         place.computePost([vd1.id])
 
+        self.assertIn('timestamp', place.placePost.json['lonLat'])
+        self.assertIn('timestamp', place.placePost.json['name'])
+        self.assertIn('timestamp', place.placePost.json['posDesc'])
+        self.assertIn('timestamp', place.placePost.json['notes'][0])
+        self.assertIn('timestamp', place.placePost.json['images'][0])
+        self.assertIn('timestamp', place.placePost.json['images'][1]['note'])
+        self.assertIn('timestamp', place.placePost.json['urls'][0])
+        self.assertIn('timestamp', place.placePost.json['lps'][0])
+        timestamp = place.placePost.json['lonLat']['timestamp']
+        self.assertAlmostEqual(get_timestamp(), timestamp, delta=1000)
+
         self.printJson(want_userPost.json)
         self.printJson(place.userPost.json)
         self.assertTrue(want_userPost.isSubsetOf(place.userPost))
@@ -123,6 +134,7 @@ class PlaceTest(APITestBase):
         post, created = models.UserPlace.objects.get_or_create(vd=vd1, place=place)
         self.assertEqual(created, True)
         self.assertEqual(post.userPost, place.userPost)
+        self.assertEqual(post.placePost, place.placePost)
 
 
 class PlaceContentTest(APITestBase):

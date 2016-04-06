@@ -42,13 +42,13 @@ class Post(object):
 
     def add_pc(self, pc):
         if pc.lonLat and not self.json['lonLat']:
-            self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
+            self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y, timestamp=pc.timestamp)
 
         if pc.image:
             uuid = pc.image.uuid
             dl = self.json['images']
             if uuid not in [d['uuid'] for d in dl]:
-                dl.append(dict(uuid=uuid, content=pc.image.content, note=None))
+                dl.append(dict(uuid=uuid, content=pc.image.content, note=None, timestamp=pc.timestamp))
             if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content:
                 d = None
                 for dt in dl:
@@ -56,30 +56,30 @@ class Post(object):
                         d = dt
                         break
                 if d and not d['note']:
-                    d['note'] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content)
+                    d['note'] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content, timestamp=pc.timestamp)
 
         if pc.url:
             uuid = pc.url.uuid
             dl = self.json['urls']
             if uuid not in [d['uuid'] for d in dl]:
-                dl.append(dict(uuid=uuid, content=pc.url.content))
+                dl.append(dict(uuid=uuid, content=pc.url.content, timestamp=pc.timestamp))
 
         if pc.lp:
             uuid = pc.lp.uuid
             dl = self.json['lps']
             if uuid not in [d['uuid'] for d in dl]:
-                dl.append(dict(uuid=uuid, content=pc.lp.content))
+                dl.append(dict(uuid=uuid, content=pc.lp.content, timestamp=pc.timestamp))
 
         if pc.stxt:
             uuid = pc.stxt.uuid
             if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
                 dl = self.json['notes']
                 if uuid not in [d['uuid'] for d in dl]:
-                    dl.append(dict(uuid=uuid, content=pc.stxt.content))
+                    dl.append(dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp))
             if pc.stxt_type == STXT_TYPE_PLACE_NAME and not self.json['name']:
-                self.json['name'] = dict(uuid=uuid, content=pc.stxt.content)
+                self.json['name'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
             if pc.stxt_type == STXT_TYPE_POS_DESC and not self.json['posDesc']:
-                self.json['posDesc'] = dict(uuid=uuid, content=pc.stxt.content)
+                self.json['posDesc'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
 
 
     def isSubsetOf(self, other):
