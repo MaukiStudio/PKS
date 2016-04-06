@@ -13,7 +13,7 @@ class PlaceField(ReadOnlyField):
 
 
 class PlaceSerializer(ModelSerializer):
-    placePost = PlaceField()
+    placePost = PlaceField(source='placePost.json')
 
     class Meta:
         model = models.Place
@@ -26,9 +26,9 @@ class PlaceContentSerializer(ModelSerializer):
 
 
 class UserPlaceSerializer(ModelSerializer):
-    userPost = ReadOnlyField()
-    placePost = ReadOnlyField()
+    userPost = ReadOnlyField(source='userPost.json')
+    placePost = ReadOnlyField(source='placePost.json')
 
     class Meta:
         model = models.UserPlace
-        exclude = ('id',)
+        exclude = ('id', 'place', 'vd',)

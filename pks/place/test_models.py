@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads
 from django.contrib.gis.geos import GEOSGeometry
 from time import sleep
 from django.db import IntegrityError
@@ -14,9 +13,6 @@ from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText
 from base.utils import get_timestamp
-
-BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
-BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
 
 
 class PlaceTest(APITestBase):
@@ -114,12 +110,14 @@ class PlaceTest(APITestBase):
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
                img22.uuid, img21.uuid, imgNote2.uuid, imgNote2.content, img1.uuid, imgNote1.uuid, imgNote1.content,
                url2.uuid, url2.content, lp.uuid, lp.content,)
-        want_userPost = json_loads(json_userPost)
-        want_placePost = json_loads(json_placePost)
+        want_userPost = models.Post(json_userPost)
+        want_placePost = models.Post(json_placePost)
         place.computePost([vd1.id])
 
-        self.assertDictEqual(place.userPost, want_userPost)
-        self.assertDictEqual(place.placePost, want_placePost)
+        self.printJson(want_userPost.json)
+        self.printJson(place.userPost.json)
+        self.assertTrue(want_userPost.isSubsetOf(place.userPost))
+        self.assertTrue(want_placePost.isSubsetOf(place.placePost))
 
         # UserPlaceTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
         post, created = models.UserPlace.objects.get_or_create(vd=vd1, place=place)
@@ -158,18 +156,23 @@ class PlaceContentTest(APITestBase):
         timestamp = get_timestamp()
         pc.save()
         self.assertNotEqual(pc.id, None)
-        self.assertAlmostEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp, delta=1000)
-        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        self.assertAlmostEqual((int(pc.id) >> 8*8) & models.BIT_ON_8_BYTE, timestamp, delta=1000)
+        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.id, pc.id)
+
+        # for timestamp property
+        self.assertEqual(saved.timestamp, pc.timestamp)
+        self.assertAlmostEqual(pc.timestamp, timestamp, delta=1000)
+
 
     def test_id_property_with_timestamp(self):
         pc = models.PlaceContent(vd=self.vd)
         timestamp = get_timestamp()
         pc.save(timestamp=timestamp)
-        self.assertEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
-        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        self.assertEqual((int(pc.id) >> 8*8) & models.BIT_ON_8_BYTE, timestamp)
+        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.id, pc.id)
@@ -177,7 +180,7 @@ class PlaceContentTest(APITestBase):
     def test_id_property_with_no_vd(self):
         pc = models.PlaceContent()
         pc.save()
-        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, 0)
+        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, 0)
 
     def test_place_property(self):
         pc = models.PlaceContent()

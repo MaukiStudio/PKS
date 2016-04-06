@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from uuid import UUID
 from hashlib import md5
-from base64 import b16encode, b16decode
+from base64 import b16encode
 from django.contrib.gis.db import models
 from json import loads as json_loads
 from re import compile as re_compile

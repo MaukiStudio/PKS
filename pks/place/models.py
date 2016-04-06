@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from json import loads as json_loads
 from uuid import UUID
 from random import randrange
 from django.contrib.gis.db import models
@@ -18,6 +19,110 @@ STXT_TYPE_POS_DESC = 3
 STXT_TYPE_IMAGE_NOTE = 4
 STXT_TYPE_REMOVE_CONTENT = 255
 
+# bit mask for id (timestamp, vd)
+BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
+BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
+
+
+# TODO : 향후 삭제 처리 구현 필요. 특정 Content 를 삭제하고 싶은 경우 노트타입을 삭제로 붙임. 이 노트타입은 노트뿐만 아니라 다른 Content 에도 적용
+class Post(object):
+
+    def __init__(self, value=None):
+        self.place_id = None
+        t = type(value)
+        if t is int or t is long:
+            self.place_id = value
+            self.json = dict(place_id=self.place_id, lonLat=None, images=list(), urls=list(), lps=list(), notes=list(), name=None, posDesc=None,)
+        elif t is unicode or t is str:
+            self.json = json_loads(value)
+        elif t is dict:
+            self.json = value
+        else:
+            raise NotImplementedError
+
+    def add_pc(self, pc):
+        if pc.lonLat and not self.json['lonLat']:
+            self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
+
+        if pc.image:
+            uuid = pc.image.uuid
+            dl = self.json['images']
+            if uuid not in [d['uuid'] for d in dl]:
+                dl.append(dict(uuid=uuid, content=pc.image.content, note=None))
+            if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content:
+                d = None
+                for dt in dl:
+                    if dt['uuid'] == uuid:
+                        d = dt
+                        break
+                if d and not d['note']:
+                    d['note'] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content)
+
+        if pc.url:
+            uuid = pc.url.uuid
+            dl = self.json['urls']
+            if uuid not in [d['uuid'] for d in dl]:
+                dl.append(dict(uuid=uuid, content=pc.url.content))
+
+        if pc.lp:
+            uuid = pc.lp.uuid
+            dl = self.json['lps']
+            if uuid not in [d['uuid'] for d in dl]:
+                dl.append(dict(uuid=uuid, content=pc.lp.content))
+
+        if pc.stxt:
+            uuid = pc.stxt.uuid
+            if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
+                dl = self.json['notes']
+                if uuid not in [d['uuid'] for d in dl]:
+                    dl.append(dict(uuid=uuid, content=pc.stxt.content))
+            if pc.stxt_type == STXT_TYPE_PLACE_NAME and not self.json['name']:
+                self.json['name'] = dict(uuid=uuid, content=pc.stxt.content)
+            if pc.stxt_type == STXT_TYPE_POS_DESC and not self.json['posDesc']:
+                self.json['posDesc'] = dict(uuid=uuid, content=pc.stxt.content)
+
+
+    def isSubsetOf(self, other):
+        def isSubsetOf_dict(d1, d2):
+            if not d1: return True
+            elif not d2: return False
+            elif type(d2) is not dict: return False
+
+            for key, value in d1.iteritems():
+                if not value:
+                    continue
+                elif type(value) is dict:
+                    if key not in d2 or not isSubsetOf_dict(value, d2[key]):
+                        return False
+                elif type(value) is list:
+                    if key not in d2 or not isSubsetOf_list(value, d2[key]):
+                        return False
+                else:
+                    if key not in d2 or value != d2[key]:
+                        return False
+            return True
+        def isSubsetOf_list(l1, l2):
+            if not l1: return True
+            elif not l2: return False
+            elif type(l2) is not list: return False
+            elif len(l1) != len(l2): return False
+
+            for key, value in enumerate(l1):
+                if not value:
+                    if l2[key]:
+                        return False
+                elif type(value) is dict:
+                    if not isSubsetOf_dict(value, l2[key]):
+                        return False
+                elif type(value) is list:
+                    if not isSubsetOf_list(value, l2[key]):
+                        return False
+                else:
+                    if value != l2[key]:
+                        return False
+            return True
+        return isSubsetOf_dict(self.json, other.json)
+
 
 class Place(models.Model):
 
@@ -30,66 +135,26 @@ class Place(models.Model):
     def computePost(self, myVds):
         if self.post_cache: return
 
-        result = [None, None]
-        images = [None, None]
-        imgNotes = [None, None]
-        for postType in (0, 1):
-            result[postType] = dict(place_id=self.id, lonLat=None, images=None, urls=list(), lps=list(), notes=list(), name=None, posDesc=None,)
-            images[postType] = list()
-            imgNotes[postType] = dict()
+        posts = [Post(self.id), Post(self.id)]
 
-        # TODO : 향후 삭제 처리 구현 필요. 특정 Content 를 삭제하고 싶은 경우 노트타입을 삭제로 붙임. 이 노트타입은 노트뿐만 아니라 다른 Content 에도 적용
         for pc in self.pcs.all().order_by('-id'):
             for postType in (0, 1):
                 if postType == 0 and pc.vd_id not in myVds:
                     continue
+                posts[postType].add_pc(pc)
 
-                if pc.lonLat and not result[postType]['lonLat']:
-                    result[postType]['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y)
+        self.post_cache = posts
 
-                if pc.image:
-                    uuid = pc.image.uuid
-                    dl = images[postType]
-                    if uuid not in [d['uuid'] for d in dl]:
-                        dl.append(dict(uuid=uuid, content=pc.image.content))
-                        imgNotes[postType][uuid] = None
-                    if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content and not imgNotes[postType][uuid]:
-                        imgNotes[postType][uuid] = dict(uuid=pc.stxt.uuid, content=pc.stxt.content)
-
-                if pc.url:
-                    uuid = pc.url.uuid
-                    dl = result[postType]['urls']
-                    if uuid not in [d['uuid'] for d in dl]:
-                        dl.append(dict(uuid=uuid, content=pc.url.content))
-
-                if pc.lp:
-                    uuid = pc.lp.uuid
-                    dl = result[postType]['lps']
-                    if uuid not in [d['uuid'] for d in dl]:
-                        dl.append(dict(uuid=uuid, content=pc.lp.content))
-
-                if pc.stxt:
-                    uuid = pc.stxt.uuid
-                    if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
-                        dl = result[postType]['notes']
-                        if uuid not in [d['uuid'] for d in dl]:
-                            dl.append(dict(uuid=uuid, content=pc.stxt.content))
-                    if pc.stxt_type == STXT_TYPE_PLACE_NAME and not result[postType]['name']:
-                        result[postType]['name'] = dict(uuid=uuid, content=pc.stxt.content)
-                    if pc.stxt_type == STXT_TYPE_POS_DESC and not result[postType]['posDesc']:
-                        result[postType]['posDesc'] = dict(uuid=uuid, content=pc.stxt.content)
-
-        for postType in (0, 1):
-            result[postType]['images'] = [dict(uuid=uuid, content=content, note=imgNotes[postType][uuid]) for (uuid, content) in [(d['uuid'], d['content']) for d in images[postType]]]
-        self.post_cache = dict(userPost=result[0], placePost=result[1])
+    def clearCache(self):
+        self.post_cache = None
 
     @property
     def userPost(self):
-        return self.post_cache['userPost']
+        return self.post_cache[0]
 
     @property
     def placePost(self):
-        return self.post_cache['placePost']
+        return self.post_cache[1]
 
 
 class PlaceContent(models.Model):
@@ -118,6 +183,10 @@ class PlaceContent(models.Model):
             timestamp = kwargs.pop('timestamp', get_timestamp())
             self.set_id(timestamp)
         super(PlaceContent, self).save(*args, **kwargs)
+
+    @property
+    def timestamp(self):
+        return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
 
 class UserPlace(models.Model):
