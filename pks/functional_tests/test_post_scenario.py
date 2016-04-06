@@ -41,7 +41,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
 
     '''
         LegacyPlace content spec
-        
+
         LP_REGEXS = (
             # '4ccffc63f6378cfaace1b1d6.4square'
             (re_compile(r'(?P<PlaceId>[a-z0-9]+)\.4square'), '4square'),
@@ -109,7 +109,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "images": [{"uuid": "%s", "content": null, "note": null}]
             }
         ''' % (lon, lat, note_uuid, img_uuid,)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # 결과값에서 userPost, placePost 조회
@@ -144,14 +144,14 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 ]
             }
         ''' % (place_id, img_uuid, note_uuid,)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)
         userPost = result['userPost']
         placePost = result['placePost']
 
         # Only for server test... (Not interface guide)
-        response = self.client.get('/uposts/?ru=myself')
+        response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 1)
@@ -194,7 +194,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "urls": [{"uuid": "%s", "content": null}]
             }
         ''' % (note_uuid, url_uuid,)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # 결과값에서 userPost, placePost 조회
@@ -211,7 +211,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(is_progress, True)
 
         # Only for server test... (Not interface guide)
-        response = self.client.get('/uposts/?ru=myself')
+        response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 1)

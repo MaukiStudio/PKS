@@ -121,8 +121,8 @@ class PlaceTest(APITestBase):
         self.assertDictEqual(place.userPost, want_userPost)
         self.assertDictEqual(place.placePost, want_placePost)
 
-        # UserPostTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
-        post, created = models.UserPost.objects.get_or_create(vd=vd1, place=place)
+        # UserPlaceTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
+        post, created = models.UserPlace.objects.get_or_create(vd=vd1, place=place)
         self.assertEqual(created, True)
         self.assertEqual(post.userPost, place.userPost)
 
@@ -242,7 +242,7 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved.stxt_type, models.STXT_TYPE_PLACE_NOTE)
 
 
-class UserPostTest(APITestBase):
+class UserPlaceTest(APITestBase):
 
     def setUp(self):
         self.place = models.Place()
@@ -251,22 +251,22 @@ class UserPostTest(APITestBase):
         self.vd.save()
 
     def test_save_and_retreive(self):
-        post = models.UserPost(vd=self.vd, place=self.place)
+        post = models.UserPlace(vd=self.vd, place=self.place)
         post.save()
-        saved = models.UserPost.objects.first()
+        saved = models.UserPlace.objects.first()
         self.assertEqual(saved, post)
 
     def test_unique_vd_place(self):
-        post = models.UserPost(vd=self.vd, place=self.place)
+        post = models.UserPlace(vd=self.vd, place=self.place)
         post.save()
-        post2 = models.UserPost(vd=self.vd, place=self.place)
+        post2 = models.UserPlace(vd=self.vd, place=self.place)
         with self.assertRaises(IntegrityError):
             post2.save()
 
     def test_get_or_create(self):
-        post, created = models.UserPost.objects.get_or_create(vd=self.vd, place=self.place)
+        post, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
         self.assertEqual(created, True)
-        post2, created = models.UserPost.objects.get_or_create(vd=self.vd, place=self.place)
+        post2, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
         self.assertEqual(created, False)
         self.assertEqual(post, post2)
 

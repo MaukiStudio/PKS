@@ -63,7 +63,7 @@ class PlaceContentViewSetTest(APITestBase):
         self.assertEqual(len(result['results']), 0)
 
 
-class UserPostViewSetTest(APITestBase):
+class UserPlaceViewSetTest(APITestBase):
 
     def setUp(self):
         response = self.client.post('/users/register/')
@@ -74,11 +74,11 @@ class UserPostViewSetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.place = models.Place(); self.place.save()
         self.vd = VD.objects.first()
-        self.post = models.UserPost(vd=self.vd, place=self.place)
+        self.post = models.UserPlace(vd=self.vd, place=self.place)
 
     def test_list(self):
         self.post.save()
-        response = self.client.get('/uposts/')
+        response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertIn('results', result)
@@ -89,14 +89,14 @@ class UserPostViewSetTest(APITestBase):
 
     def test_detail(self):
         self.post.save()
-        response = self.client.get('/uposts/%s/' % self.post.id)
+        response = self.client.get('/uplaces/%s/' % self.post.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertIn('userPost', result)
         self.assertIn('placePost', result)
         self.assertNotIn('id', result)
-        response = self.client.get('/uposts/null/')
+        response = self.client.get('/uplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_full(self):
@@ -152,11 +152,11 @@ class UserPostViewSetTest(APITestBase):
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = json_loads(json_add)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.placePost, want)
@@ -165,7 +165,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertDictEqual(result['placePost'], want)
 
         dummy_place = models.Place(); dummy_place.save()
-        response = self.client.get('/uposts/?ru=myself')
+        response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
@@ -185,14 +185,14 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (point1.x, point1.y, img1.uuid,)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
-        self.post = models.UserPost.objects.first()
+        self.post = models.UserPlace.objects.first()
         json_want = '''
             {
                 "place_id": %d,
@@ -222,14 +222,14 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (point1.x, point1.y, note11.uuid, img1.uuid,)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
-        self.post = models.UserPost.objects.first()
+        self.post = models.UserPlace.objects.first()
         json_want = '''
             {
                 "place_id": %d,
@@ -255,14 +255,14 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (url1.uuid,)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
-        self.post = models.UserPost.objects.first()
+        self.post = models.UserPlace.objects.first()
         json_want = '''
             {
                 "place_id": %d,
@@ -290,14 +290,14 @@ class UserPostViewSetTest(APITestBase):
             }
         ''' % (note11.uuid, url1.uuid,)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 2)
 
-        self.post = models.UserPost.objects.first()
+        self.post = models.UserPlace.objects.first()
         json_want = '''
             {
                 "place_id": %d,
@@ -320,11 +320,11 @@ class UserPostViewSetTest(APITestBase):
             }
         '''
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
 
     def test_create_full_with_no_uuid_except_image(self):
@@ -374,15 +374,15 @@ class UserPostViewSetTest(APITestBase):
                lp1.content,)
         want = json_loads(json_add)
 
-        self.assertEqual(models.UserPost.objects.count(), 0)
+        self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uposts/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add))
 
         # TODO : 향후 json 안에 null 인 uuid 를 채우는 수정 필요
         want = self.post.userPost
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPost.objects.count(), 1)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
         self.assertDictEqual(self.post.userPost, want)
         self.assertDictEqual(self.post.placePost, want)
@@ -391,7 +391,7 @@ class UserPostViewSetTest(APITestBase):
         self.assertDictEqual(result['placePost'], want)
 
         dummy_place = models.Place(); dummy_place.save()
-        response = self.client.get('/uposts/?ru=myself')
+        response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)

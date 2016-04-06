@@ -27,16 +27,16 @@ class PlaceContentViewset(ModelViewSet):
     serializer_class = serializers.PlaceContentSerializer
 
 
-class UserPostViewset(ModelViewSet):
-    queryset = models.UserPost.objects.all()
-    serializer_class = serializers.UserPostSerializer
+class UserPlaceViewset(ModelViewSet):
+    queryset = models.UserPlace.objects.all()
+    serializer_class = serializers.UserPlaceSerializer
 
     def get_queryset(self):
         if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
             # TODO : 리팩토링, vd=myself 구현을 진짜 ru=myself 구현으로 변경
             vd_id = self.request.session[VD_SESSION_KEY]
             return self.queryset.filter(vd_id=vd_id)
-        return super(UserPostViewset, self).get_queryset()
+        return super(UserPlaceViewset, self).get_queryset()
 
     def create(self, request, *args, **kwargs):
         #########################################
@@ -169,6 +169,6 @@ class UserPostViewset(ModelViewSet):
         timestamp += 1
 
         # 결과 처리
-        post, created = models.UserPost.objects.get_or_create(vd=vd, place=place)
+        post, created = models.UserPlace.objects.get_or_create(vd=vd, place=place)
         serializer = self.get_serializer(post)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

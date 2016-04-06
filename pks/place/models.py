@@ -21,7 +21,7 @@ STXT_TYPE_REMOVE_CONTENT = 255
 
 class Place(models.Model):
 
-    vds = models.ManyToManyField(VD, through='UserPost', through_fields=('place', 'vd'), related_name='places')
+    vds = models.ManyToManyField(VD, through='UserPlace', through_fields=('place', 'vd'), related_name='places')
 
     def __init__(self, *args, **kwargs):
         self.post_cache = None
@@ -120,10 +120,10 @@ class PlaceContent(models.Model):
         super(PlaceContent, self).save(*args, **kwargs)
 
 
-class UserPost(models.Model):
+class UserPlace(models.Model):
 
-    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uposts')
-    place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uposts')
+    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
+    place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
 
     class Meta:
         unique_together = ('vd', 'place')

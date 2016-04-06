@@ -25,10 +25,10 @@ class PlaceContentSerializer(ModelSerializer):
         model = models.PlaceContent
 
 
-class UserPostSerializer(ModelSerializer):
+class UserPlaceSerializer(ModelSerializer):
     userPost = ReadOnlyField()
     placePost = ReadOnlyField()
 
     class Meta:
-        model = models.UserPost
+        model = models.UserPlace
         exclude = ('id',)
