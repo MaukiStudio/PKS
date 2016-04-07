@@ -24,6 +24,7 @@ router.register(r'imgs', image_views.ImageViewset)
 router.register(r'urls', url_views.UrlViewset)
 router.register(r'lps', content_views.LegacyPlaceViewset)
 router.register(r'stxts', content_views.ShortTextViewset)
+router.register(r'phones', content_views.PhoneNumberViewset)
 
 router.register(r'places', place_views.PlaceViewset)
 router.register(r'pcs', place_views.PlaceContentViewset)

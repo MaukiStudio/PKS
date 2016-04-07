@@ -141,3 +141,38 @@ class ShortTextTest(APITestBase):
         self.assertEqual(saved, stxt)
         self.assertEqual(saved.id, stxt.id)
         self.assertEqual(saved.content, stxt.content)
+
+
+class PhoneNumberTest(APITestBase):
+
+    def test_string_representation(self):
+        phone = models.PhoneNumber()
+        test_data = '+821055979245'
+        phone.content = test_data
+        self.assertEqual(unicode(phone), test_data)
+
+    def test_save_and_retreive(self):
+        phone = models.PhoneNumber()
+        test_data = '+82 10-5597-9245'
+        phone.content = test_data
+        phone.save()
+        saved = models.PhoneNumber.objects.first()
+        self.assertEqual(phone.uuid, '%s.phone' % b16encode(phone.id.bytes))
+        self.assertEqual(saved, phone)
+        self.assertEqual(saved.id, phone.id)
+        saved2 = models.PhoneNumber.get_from_json('{"uuid": "%s", "content": null}' % phone.uuid)
+        self.assertEqual(saved2, phone)
+        saved3 = models.PhoneNumber.get_from_json('{"uuid": null, "content": "%s"}' % phone.content)
+        self.assertEqual(saved3, phone)
+
+    def test_content_property(self):
+        phone = models.PhoneNumber()
+        test_data = '010-5597-9245'
+        phone.content = test_data
+        phone.save()
+        saved = models.PhoneNumber.objects.first()
+        normalized_data = models.PhoneNumber.normalize_content(test_data)
+        self.assertEqual(phone.content, normalized_data)
+        self.assertEqual(saved, phone)
+        self.assertEqual(saved.id, phone.id)
+        self.assertEqual(saved.content, phone.content)

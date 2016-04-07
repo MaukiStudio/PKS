@@ -5,6 +5,7 @@ from rest_framework.serializers import ModelSerializer, ReadOnlyField
 
 from content import models
 from base.utils import HashCollisionError
+from base.serializers import ContentSerializer
 
 
 class LegacyPlaceSerializer(ModelSerializer):
@@ -31,3 +32,9 @@ class ShortTextSerializer(ModelSerializer):
         if stxt.content != validated_data['content']:
             raise HashCollisionError
         return stxt
+
+
+class PhoneNumberSerializer(ContentSerializer):
+    class Meta:
+        model = models.PhoneNumber
+        exclude = ('id',)

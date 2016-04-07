@@ -1,6 +1,5 @@
 [Now]
-Content abstract model 도입. Content 최초 생성자 정보 추가, content 컬럼 길이 254 로
-phonenumber Content 추가
+post 에 PhoneNumber Content 적용
 
 NaverPlace 기능 추가하고 어드민 만들기
 
@@ -9,6 +8,7 @@ lonLat 기반 목록 검색 기능 만들기
 다른 Content model 들도 abstract model 적용하는 리팩토링 시행
 Image 처리 기반 구조 변경
 
+전화번호 국가 처리
 
 
 [Later]

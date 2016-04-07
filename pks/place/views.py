@@ -2,40 +2,36 @@
 from __future__ import unicode_literals
 
 from json import loads as json_loads
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 
 from place import models
 from place import serializers
-from account.models import VD
-from pks.settings import VD_SESSION_KEY
 from url.models import Url
 from content.models import LegacyPlace, ShortText
 from image.models import Image
 from base.utils import get_timestamp
+from base.views import BaseViewset
 
 
-class PlaceViewset(ModelViewSet):
+class PlaceViewset(BaseViewset):
     queryset = models.Place.objects.all()
     serializer_class = serializers.PlaceSerializer
 
 
-class PlaceContentViewset(ModelViewSet):
+class PlaceContentViewset(BaseViewset):
     queryset = models.PlaceContent.objects.all()
     serializer_class = serializers.PlaceContentSerializer
 
 
-class UserPlaceViewset(ModelViewSet):
+class UserPlaceViewset(BaseViewset):
     queryset = models.UserPlace.objects.all()
     serializer_class = serializers.UserPlaceSerializer
 
     def get_queryset(self):
         if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
-            # TODO : 리팩토링, vd=myself 구현을 진짜 ru=myself 구현으로 변경
-            vd_id = self.request.session[VD_SESSION_KEY]
-            return self.queryset.filter(vd_id=vd_id).order_by('-modified')
+            return self.queryset.filter(vd_id__in=self.vd.realOwner.vd_ids).order_by('-modified')
         return super(UserPlaceViewset, self).get_queryset()
 
     def create(self, request, *args, **kwargs):
@@ -44,9 +40,7 @@ class UserPlaceViewset(ModelViewSet):
         #########################################
 
         # vd 조회
-        # TODO : 리팩토링
-        vd_id = request.session[VD_SESSION_KEY]
-        vd = VD.objects.get(id=vd_id)
+        vd = self.vd
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # TODO : add 외에 remove 도 구현, 기타 다른 create mode 는 지원하지 않음

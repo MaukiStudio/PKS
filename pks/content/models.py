@@ -8,6 +8,10 @@ from django.contrib.gis.db import models
 from json import loads as json_loads
 from re import compile as re_compile
 
+from base.models import Content
+from phonenumbers import parse, format_number, PhoneNumberFormat
+
+
 LP_REGEXS = (
     # '4ccffc63f6378cfaace1b1d6.4square'
     (re_compile(r'^(?P<PlaceId>[a-z0-9]+)\.4square$'), '4square'),
@@ -113,3 +117,28 @@ class ShortText(models.Model):
         if not self.id and self.content:
             self.set_id()
         super(ShortText, self).save(*args, **kwargs)
+
+
+class PhoneNumber(Content):
+
+    # MUST override
+    @property
+    def contentType(self):
+        return 'phone'
+
+    @property
+    def accessedType(self):
+        return 'txt'
+
+
+    # CAN override
+    @classmethod
+    def normalize_content(cls, raw_content, *args, **kwargs):
+        # TODO : 국가 관련 처리 개선
+        p = parse(raw_content, 'KR')
+        r = format_number(p, PhoneNumberFormat.E164)
+        return r
+
+    @property
+    def _id(self):
+        return UUID(self.content[1:].rjust(32, b'0'))

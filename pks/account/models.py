@@ -32,6 +32,10 @@ class RealUser(models.Model):
     def __unicode__(self):
         return self.email
 
+    @property
+    def vd_ids(self):
+        return [vd.id for vd in self.vds.all()]
+
 
 class VD(models.Model):
     authOwner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='vds')

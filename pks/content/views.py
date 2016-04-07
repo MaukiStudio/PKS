@@ -5,6 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from content import models
 from content import serializers
+from base.views import ContentViewset
 
 
 class LegacyPlaceViewset(ModelViewSet):
@@ -15,3 +16,9 @@ class LegacyPlaceViewset(ModelViewSet):
 class ShortTextViewset(ModelViewSet):
     queryset = models.ShortText.objects.all()
     serializer_class = serializers.ShortTextSerializer
+
+
+class PhoneNumberViewset(ContentViewset):
+    queryset = models.PhoneNumber.objects.all()
+    serializer_class = serializers.PhoneNumberSerializer
+

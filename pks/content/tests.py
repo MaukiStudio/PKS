@@ -92,3 +92,41 @@ class ShortTextViewsetTest(APITestBase):
         self.assertEqual(models.ShortText.objects.count(), 2)
         result = json_loads(response.content)
         self.assertNotEqual(result['uuid'], self.stxt.uuid)
+
+
+class PhoneNumberViewsetTest(APITestBase):
+
+    def setUp(self):
+        self.phone = models.PhoneNumber(content='010-5475-9245')
+        self.phone.save()
+
+    def test_list(self):
+        response = self.client.get('/phones/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+
+        phone2 = models.PhoneNumber(content='010-5686-1613')
+        phone2.save()
+        response = self.client.get('/phones/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
+
+    def test_create(self):
+        self.assertEqual(1, models.PhoneNumber.objects.count())
+        response = self.client.post('/phones/', dict(content=self.phone.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PhoneNumber.objects.count(), 1)
+        result = json_loads(response.content)
+        self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertEqual(result['uuid'], self.phone.uuid)
+
+        response = self.client.post('/phones/', dict(content='010-5686-1613'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PhoneNumber.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertNotEqual(result['uuid'], self.phone.uuid)
