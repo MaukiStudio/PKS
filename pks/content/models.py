@@ -31,7 +31,7 @@ LP_REGEXS = (
 
 class LegacyPlace(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=255, blank=True, null=True, default=None)
+    content = models.CharField(max_length=254, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return self.content
@@ -82,7 +82,7 @@ class LegacyPlace(models.Model):
 
 class ShortText(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=255, blank=True, null=True, default=None)
+    content = models.CharField(max_length=254, blank=True, null=True, default=None)
 
     def __unicode__(self):
         return self.content

@@ -10,7 +10,7 @@ from json import loads as json_loads
 
 class Url(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
-    content = models.URLField(max_length=255, blank=True, null=True, default=None)
+    content = models.URLField(max_length=254, blank=True, null=True, default=None)
 
     def set_id(self):
         m = md5()
