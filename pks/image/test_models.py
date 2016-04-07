@@ -43,7 +43,7 @@ class ImageTest(APITestBase):
 
         url = img.file.url
         self.assertEqual(img.content, url)
-        regex = re_compile(r'^.*images/\d{4}/\d{1,2}/\d{1,2}/.+\.jpg')
+        regex = re_compile(r'^.*images/\d{4}/\d{1,2}/\d{1,2}/.+\.jpg$')
         self.assertNotEqual(regex.match(url), None)
         self.assertEqual(url.endswith('.jpg'), True)
         self.assertEqual(saved, img)

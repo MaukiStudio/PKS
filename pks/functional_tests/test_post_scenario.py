@@ -48,22 +48,22 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
 
         LP_REGEXS = (
             # '4ccffc63f6378cfaace1b1d6.4square'
-            (re_compile(r'(?P<PlaceId>[a-z0-9]+)\.4square'), '4square'),
+            (re_compile(r'^(?P<PlaceId>[a-z0-9]+)\.4square$'), '4square'),
 
             # '21149144.naver'
-            (re_compile(r'(?P<PlaceId>[0-9]+)\.naver'), 'naver'),
+            (re_compile(r'^(?P<PlaceId>[0-9]+)\.naver$'), 'naver'),
 
             # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
-            (re_compile(r'(?P<PlaceId>[A-za-z0-9_\-]+)\.google'), 'google'),
+            (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
 
             # 'http://map.naver.com/local/siteview.nhn?code=21149144'
-            (re_compile(r'http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)'), 'naver'),
+            (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
 
             # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
-            (re_compile(r'https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)'), '4square'),
+            (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
 
             # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
-            (re_compile(r'https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)'), '4square'),
+            (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
         )
     '''
 

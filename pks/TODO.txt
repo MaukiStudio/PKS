@@ -1,7 +1,4 @@
 [Now]
-Image, content 에 URL 채워서 내려보내기
-regex, 앞뒤에 ^$ 붙이기
-
 VD 등록 시 locale, language, timezone 저장
 Content abstract model 도입하는 리팩토링
 phonenumber Content 추가

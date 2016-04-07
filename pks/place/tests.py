@@ -172,8 +172,6 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertTrue(want.isSubsetOf(self.post.placePost))
         self.assertFalse(self.post.userPost.isSubsetOf(want))
         self.assertFalse(self.post.placePost.isSubsetOf(want))
-        self.printJson(self.post.userPost.json)
-        self.fail()
 
         result = json_loads(response.content)
         result_userPost = models.Post(result['userPost'])
