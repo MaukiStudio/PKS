@@ -204,6 +204,8 @@ class UserPlace(models.Model):
 
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
+    created = models.BigIntegerField(blank=True, null=True, default=None)
+    modified = models.BigIntegerField(blank=True, null=True, default=None)
 
     class Meta:
         unique_together = ('vd', 'place')
@@ -219,3 +221,9 @@ class UserPlace(models.Model):
         # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
         self.place.computePost([self.vd.id])
         return self.place.placePost
+
+    def save(self, *args, **kwargs):
+        self.modified = kwargs.pop('modified', get_timestamp())
+        if not self.created:
+            self.created = self.modified
+        super(UserPlace, self).save(*args, **kwargs)

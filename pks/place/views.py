@@ -35,7 +35,7 @@ class UserPlaceViewset(ModelViewSet):
         if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
             # TODO : 리팩토링, vd=myself 구현을 진짜 ru=myself 구현으로 변경
             vd_id = self.request.session[VD_SESSION_KEY]
-            return self.queryset.filter(vd_id=vd_id)
+            return self.queryset.filter(vd_id=vd_id).order_by('-modified')
         return super(UserPlaceViewset, self).get_queryset()
 
     def create(self, request, *args, **kwargs):
@@ -118,9 +118,10 @@ class UserPlaceViewset(ModelViewSet):
 
         # place 조회
         place = None
-        if 'place_id' in add:
-            place_id = add['place_id']
-            place = models.Place.objects.get(id=place_id)
+        if 'place_id' in add and add['place_id']:
+            place = models.Place.objects.get(id=add['place_id'])
+        elif 'place_id' in request.data and request.data['place_id']:
+            place = models.Place.objects.get(id=request.data['place_id'])
 
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
         if not (lonLat or first_url or first_lp or (place and (first_stxt or first_image))):
@@ -173,6 +174,8 @@ class UserPlaceViewset(ModelViewSet):
         timestamp += 1
 
         # 결과 처리
-        post, created = models.UserPlace.objects.get_or_create(vd=vd, place=place)
-        serializer = self.get_serializer(post)
+        upost, created = models.UserPlace.objects.get_or_create(vd=vd, place=place)
+        if not created:
+            upost.save(modified=timestamp)
+        serializer = self.get_serializer(upost)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

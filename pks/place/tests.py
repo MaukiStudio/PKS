@@ -2,9 +2,10 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads, dumps as json_dumps
+from json import loads as json_loads
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
+from time import sleep
 
 from base.tests import APITestBase
 from place import models
@@ -85,6 +86,9 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(len(result['results']), 1)
         self.assertIn('userPost', result['results'][0])
         self.assertIn('placePost', result['results'][0])
+        self.assertIn('created', result['results'][0])
+        self.assertIn('modified', result['results'][0])
+        self.assertIn('place_id', result['results'][0])
         self.assertNotIn('id', result['results'][0])
         self.assertNotIn('place', result['results'][0])
         self.assertNotIn('vd', result['results'][0])
@@ -164,7 +168,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_full))
+        response = self.client.post('/uplaces/', dict(add=json_full)); sleep(0.001)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
@@ -175,13 +179,43 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertFalse(self.post.placePost.isSubsetOf(want))
 
         result = json_loads(response.content)
+        self.assertIn('created', result)
+        self.assertIn('modified', result)
+        t1 = result['modified']
+        self.assertIn('place_id', result)
+        place_id = result['place_id']
         result_userPost = models.Post(result['userPost'])
         result_placePost = models.Post(result['placePost'])
         self.assertDictEqual(result_userPost.json, self.post.userPost.json)
         self.assertDictEqual(result_placePost.json, self.post.placePost.json)
 
-        dummy_place = models.Place(); dummy_place.save()
+        # 한번 더...
         self.post.place.clearCache()
+        response = self.client.post('/uplaces/', dict(add=json_full, place_id=place_id,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
+        self.assertEqual(models.Place.objects.count(), 1)
+
+        self.assertTrue(want.isSubsetOf(self.post.userPost))
+        self.assertTrue(want.isSubsetOf(self.post.placePost))
+        self.assertFalse(self.post.userPost.isSubsetOf(want))
+        self.assertFalse(self.post.placePost.isSubsetOf(want))
+
+        result = json_loads(response.content)
+        self.assertIn('created', result)
+        self.assertIn('modified', result)
+        t2 = result['modified']
+        result_userPost = models.Post(result['userPost'])
+        result_placePost = models.Post(result['placePost'])
+        self.assertDictEqual(result_userPost.json, self.post.userPost.json)
+        self.assertDictEqual(result_placePost.json, self.post.placePost.json)
+
+        self.assertGreater(t2, t1)
+        self.assertAlmostEqual(t2, t1, delta=1000)
+
+        # 내장소 목록
+        self.post.place.clearCache()
+        dummy_place = models.Place(); dummy_place.save()
         response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
@@ -327,7 +361,6 @@ class UserPlaceViewSetTest(APITestBase):
 
         json_add = '''
             {
-                "place_id": %d,
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": null, "content": "%s"},
                 "posDesc": {"uuid": null, "content": "%s"},
@@ -348,7 +381,7 @@ class UserPlaceViewSetTest(APITestBase):
                 ],
                 "lps": [{"uuid": null, "content": "%s"}]
             }
-        ''' % (self.place.id, point1.x, point1.y,
+        ''' % (point1.x, point1.y,
                name1_content, addr1_content,
                note11_content, note12_content, note13_content,
                img1.uuid, imgNote1_content, img2.uuid, img3.uuid,
@@ -358,7 +391,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        response = self.client.post('/uplaces/', dict(add=json_add, place_id=self.place.id))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)

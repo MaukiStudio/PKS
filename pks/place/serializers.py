@@ -28,6 +28,7 @@ class PlaceContentSerializer(ModelSerializer):
 class UserPlaceSerializer(ModelSerializer):
     userPost = ReadOnlyField(source='userPost.json')
     placePost = ReadOnlyField(source='placePost.json')
+    place_id = ReadOnlyField(source='place.id')
 
     class Meta:
         model = models.UserPlace

@@ -303,3 +303,21 @@ class UserPlaceTest(APITestBase):
     def test_userPost(self):
         # 편의상 PlaceTest.test_post() 에 구현
         pass
+
+    def test_created_modified(self):
+        upost = models.UserPlace(vd=self.vd, place=self.place)
+        self.assertEqual(upost.created, None)
+        self.assertEqual(upost.modified, None)
+        upost.save(); sleep(0.001)
+        t1 = upost.modified
+        self.assertNotEqual(t1, None)
+        self.assertEqual(upost.created, t1)
+        self.assertAlmostEqual(t1, get_timestamp(), delta=1000)
+        upost.save(); sleep(0.001)
+        self.assertGreater(upost.modified, t1)
+        self.assertAlmostEqual(upost.modified, t1, delta=1000)
+        self.assertEqual(upost.created, t1)
+        t2 = get_timestamp()
+        upost.save(modified=t2)
+        self.assertEqual(upost.modified, t2)
+        self.assertEqual(upost.created, t1)
