@@ -13,3 +13,4 @@ pytest-django
 pytest-xdist
 StringGenerator
 requests
+phonenumbers

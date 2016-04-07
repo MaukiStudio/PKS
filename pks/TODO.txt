@@ -1,5 +1,9 @@
 [Now]
-FsVenue --> LegacyPlace 개편 및 리팩토링
+address stxt 다시 추가
+VD 등록 시 locale, language, timezone 저장
+Content abstract model 도입하는 리팩토링
+phonenumber Content 추가
+
 NaverPlace 기능 추가하고 어드민 만들기
 
 lonLat 기반 목록 검색 기능 만들기
