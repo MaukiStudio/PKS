@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from uuid import uuid1, UUID
+from uuid import UUID
 from base64 import b16encode
 
 from base.tests import APITestBase
@@ -22,6 +22,7 @@ class LegacyPlaceTest(APITestBase):
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], '4square')
         saved = models.LegacyPlace.objects.first()
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
@@ -36,6 +37,7 @@ class LegacyPlaceTest(APITestBase):
         normalized_test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], '4square')
         saved = models.LegacyPlace.objects.first()
         self.assertNotEqual(lp.content, test_data)
         self.assertEqual(lp.content, normalized_test_data)
@@ -50,6 +52,7 @@ class LegacyPlaceTest(APITestBase):
         normalized_test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], '4square')
         saved = models.LegacyPlace.objects.first()
         self.assertNotEqual(lp.content, test_data)
         self.assertEqual(lp.content, normalized_test_data)
@@ -63,6 +66,7 @@ class LegacyPlaceTest(APITestBase):
         test_data = '21149144.naver'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'naver')
         saved = models.LegacyPlace.objects.first()
         self.assertEqual(lp.content, test_data)
         self.assertEqual(saved, lp)
@@ -76,6 +80,7 @@ class LegacyPlaceTest(APITestBase):
         normalized_test_data = '21149144.naver'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'naver')
         saved = models.LegacyPlace.objects.first()
         self.assertNotEqual(lp.content, test_data)
         self.assertEqual(lp.content, normalized_test_data)
@@ -89,6 +94,7 @@ class LegacyPlaceTest(APITestBase):
         test_data = 'ChIJN1t_tDeuEmsRUsoyG83frY4.google'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'google')
         saved = models.LegacyPlace.objects.first()
         self.assertEqual(lp.content, test_data)
         self.assertEqual(saved, lp)
@@ -101,6 +107,7 @@ class LegacyPlaceTest(APITestBase):
         test_data = 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
         lp.content = test_data
         lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'google')
         saved = models.LegacyPlace.objects.first()
         self.assertEqual(lp.content, test_data)
         self.assertEqual(saved, lp)

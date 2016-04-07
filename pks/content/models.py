@@ -3,9 +3,6 @@ from __future__ import unicode_literals
 
 from uuid import UUID
 from hashlib import md5
-from base64 import b16encode
-from django.contrib.gis.db import models
-from json import loads as json_loads
 from re import compile as re_compile
 
 from base.models import Content
@@ -33,90 +30,56 @@ LP_REGEXS = (
 )
 
 
-class LegacyPlace(models.Model):
-    id = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=254, blank=True, null=True, default=None)
+class LegacyPlace(Content):
 
-    def __unicode__(self):
-        return self.content
+    # MUST override
+    @property
+    def contentType(self):
+        splits = self.content.split('.')
+        return splits[1]
 
     @property
-    def uuid(self):
-        return '%s.4square' % b16encode(self.id.bytes)
+    def accessedType(self):
+        splits = self.content.split('.')
+        if splits[1] == 'google':
+            return 'json'
+        else:
+            return 'html'
 
     @classmethod
-    def get_from_json(cls, json):
-        if type(json) is unicode or type(json) is str:
-            json =json_loads(json)
-        result = None
-        if 'uuid' in json and json['uuid']:
-            _id = UUID(json['uuid'].split('.')[0])
-            result = cls.objects.get(id=_id)
-        elif 'content' in json and json['content']:
-            result, created = cls.objects.get_or_create(content=json['content'])
-        return result
-
-    def normalize_content(self):
+    def normalize_content(self, raw_content):
         for regex in LP_REGEXS:
-            searcher = regex[0].search(self.content)
+            searcher = regex[0].search(raw_content)
             if searcher:
-                self.content = '%s.%s' % (searcher.group('PlaceId'), regex[1])
-                return
+                return '%s.%s' % (searcher.group('PlaceId'), regex[1])
 
-    def set_id(self):
+    @property
+    def _id(self):
         splits = self.content.split('.')
         if splits[1] == '4square':
-            self.id = UUID(b'00000001%s' % splits[0].rjust(24, b'0'))
+            return UUID(b'00000001%s' % splits[0].rjust(24, b'0'))
         elif splits[1] == 'naver':
-            self.id = UUID(b'00000002%s' % splits[0].rjust(24, b'0'))
+            return UUID(b'00000002%s' % splits[0].rjust(24, b'0'))
         elif splits[1] == 'google':
             # TODO : 나중에 튜닝하기 ㅠ_ㅜ
             m = md5()
             m.update(splits[0].encode(encoding='utf-8'))
             h = m.hexdigest()
             h0 = hex(int(h[0], 16) | 8)[2:]
-            self.id = UUID('%s%s' % (h0, h[1:]))
-
-    def save(self, *args, **kwargs):
-        if not self.id and self.content:
-            self.normalize_content()
-            self.set_id()
-        super(LegacyPlace, self).save(*args, **kwargs)
+            return UUID('%s%s' % (h0, h[1:]))
+        else:
+            raise NotImplementedError
 
 
-class ShortText(models.Model):
-    id = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=254, blank=True, null=True, default=None)
-
-    def __unicode__(self):
-        return self.content
+class ShortText(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'stxt'
 
     @property
-    def uuid(self):
-        return '%s.stxt' % b16encode(self.id.bytes)
-
-    @classmethod
-    def get_from_json(cls, json):
-        if type(json) is unicode or type(json) is str:
-            json =json_loads(json)
-        result = None
-        if 'uuid' in json and json['uuid']:
-            _id = UUID(json['uuid'].split('.')[0])
-            result = cls.objects.get(id=_id)
-        elif 'content' in json and json['content']:
-            result, created = cls.objects.get_or_create(content=json['content'])
-        return result
-
-    def set_id(self):
-        m = md5()
-        m.update(self.content.encode(encoding='utf-8'))
-        h = m.hexdigest()
-        self.id = UUID(h)
-
-    def save(self, *args, **kwargs):
-        if not self.id and self.content:
-            self.set_id()
-        super(ShortText, self).save(*args, **kwargs)
+    def accessedType(self):
+        return 'txt'
 
 
 class PhoneNumber(Content):
@@ -133,7 +96,7 @@ class PhoneNumber(Content):
 
     # CAN override
     @classmethod
-    def normalize_content(cls, raw_content, *args, **kwargs):
+    def normalize_content(cls, raw_content):
         # TODO : 국가 관련 처리 개선
         p = parse(raw_content, 'KR')
         r = format_number(p, PhoneNumberFormat.E164)

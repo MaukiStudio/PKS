@@ -30,7 +30,7 @@ class Content(models.Model):
 
     # CAN override
     @classmethod
-    def normalize_content(cls, raw_content, *args, **kwargs):
+    def normalize_content(cls, raw_content):
         return raw_content.strip()
 
     @property

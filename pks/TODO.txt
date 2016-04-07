@@ -1,6 +1,5 @@
 [Now]
-post 에 PhoneNumber Content 적용
-
+Url, Content 상속받도록 리팩토링
 NaverPlace 기능 추가하고 어드민 만들기
 
 lonLat 기반 목록 검색 기능 만들기
