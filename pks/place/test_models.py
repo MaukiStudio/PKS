@@ -87,12 +87,12 @@ class PlaceTest(APITestBase):
                 "posDesc": {"uuid": "%s", "content": "%s"},
                 "addrs": [{"uuid": "%s", "content": "%s"}],
                 "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
-                "images": [{"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}],
+                "images": [{"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
                 "lps": []
             }
         ''' % (place.id, point1.x, point1.y, name1.uuid, name1.content, posDesc1.uuid, posDesc1.content, addr1.uuid, addr1.content,
-               note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, imgNote1.uuid, imgNote1.content,)
+               note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,)
         json_placePost = '''
             {
                 "place_id": %d,
@@ -110,9 +110,9 @@ class PlaceTest(APITestBase):
                     {"uuid": "%s", "content": "%s"}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": null, "note": null},
-                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
-                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}}
+                    {"uuid": "%s", "content": "%s", "note": null},
+                    {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}},
+                    {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}}
                 ],
                 "urls": [{"uuid": "%s", "content": "%s"}],
                 "lps": [{"uuid": "%s", "content": "%s"}]
@@ -120,7 +120,7 @@ class PlaceTest(APITestBase):
         ''' % (place.id, point2.x, point2.y, name2.uuid, name2.content, posDesc2.uuid, posDesc2.content,
                addr2.uuid, addr2.content, addr1.uuid, addr1.content,
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
-               img22.uuid, img21.uuid, imgNote2.uuid, imgNote2.content, img1.uuid, imgNote1.uuid, imgNote1.content,
+               img22.uuid, img22.content, img21.uuid, img21.content, imgNote2.uuid, imgNote2.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,
                url2.uuid, url2.content, lp.uuid, lp.content,)
         want_userPost = models.Post(json_userPost)
         want_placePost = models.Post(json_placePost)
@@ -138,6 +138,7 @@ class PlaceTest(APITestBase):
         self.assertAlmostEqual(get_timestamp(), timestamp, delta=1000)
 
         self.assertIn('phone', place.placePost.json)
+        self.assertNotEqual(place.placePost.json['images'][0]['content'], None)
 
         self.printJson(want_userPost.json)
         self.printJson(place.userPost.json)

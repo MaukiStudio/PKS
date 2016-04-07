@@ -137,9 +137,9 @@ class UserPlaceViewSetTest(APITestBase):
                     {"uuid": "%s", "content": "%s"}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": null, "note": {"uuid": "%s", "content": "%s"}},
-                    {"uuid": "%s", "content": null, "note": null},
-                    {"uuid": "%s", "content": null, "note": null}
+                    {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}},
+                    {"uuid": "%s", "content": "%s", "note": null},
+                    {"uuid": "%s", "content": "%s", "note": null}
                 ],
                 "urls": [
                     {"uuid": "%s", "content": "%s"},
@@ -156,7 +156,7 @@ class UserPlaceViewSetTest(APITestBase):
                name1.uuid, name1.content, posDesc1.uuid, posDesc1.content,
                addr11.uuid, addr11.content, addr12.uuid, addr12.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
-               img1.uuid, imgNote1.uuid, imgNote1.content, img2.uuid, img3.uuid,
+               img1.uuid, img1.content, imgNote1.uuid, imgNote1.content, img2.uuid, img2.content, img3.uuid, img3.content,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = models.Post(json_full)
@@ -172,6 +172,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertTrue(want.isSubsetOf(self.post.placePost))
         self.assertFalse(self.post.userPost.isSubsetOf(want))
         self.assertFalse(self.post.placePost.isSubsetOf(want))
+        self.printJson(self.post.userPost.json)
+        self.fail()
 
         result = json_loads(response.content)
         result_userPost = models.Post(result['userPost'])

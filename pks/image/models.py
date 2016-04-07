@@ -10,9 +10,8 @@ from json import loads as json_loads
 from imagehash import dhash
 from PIL import Image as PIL_Image
 from image import exif_lib
-import requests
 
-IMAGE_PATH = 'images'
+IMAGE_PATH = 'images/%Y/%m/%d/'
 
 
 class Image(models.Model):
@@ -50,11 +49,13 @@ class Image(models.Model):
             self.lonLat = point
 
     def save(self, *args, **kwargs):
-        if self.file and not self.id:
+        if not self.file.url.endswith('.jpg'):
+            raise NotImplementedError
+        if not self.id and self.file:
             self.set_id()
-        if self.file and not self.lonLat:
+        if not self.lonLat and self.file:
             self.process_exif()
-        self.file.name = unicode(self)
+        #self.file.name = self.accessed
         super(Image, self).save(*args, **kwargs)
 
     @property
@@ -78,5 +79,8 @@ class Image(models.Model):
 
     @property
     def content(self):
-        return None
+        return self.file.url
 
+    @property
+    def accessed(self):
+        return '%s.jpg' % self.uuid

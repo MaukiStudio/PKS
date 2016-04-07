@@ -5,6 +5,7 @@ from __future__ import print_function
 from uuid import uuid1
 from base64 import b16encode
 from django.contrib.gis.geos import GEOSGeometry
+from re import compile as re_compile
 
 from base.tests import APITestBase
 from image import models
@@ -19,13 +20,13 @@ class ImageTest(APITestBase):
         img = models.Image(id=img_id)
         self.assertEqual(unicode(img), '%s.img' % b16encode(img_id.bytes))
         self.assertEqual(img.uuid, unicode(img))
-        self.assertEqual(img.content, None)
 
     def test_save_and_retreive(self):
         img = models.Image()
-        img.id = uuid1()
+        img.file = self.uploadImage('test.jpg')
         img.save()
         saved = models.Image.objects.first()
+
         self.assertEqual(saved, img)
         saved2 = models.Image.get_from_json('{"uuid": "%s", "content": null}' % img.uuid)
         self.assertEqual(saved2, img)
@@ -39,8 +40,21 @@ class ImageTest(APITestBase):
         img.file = self.uploadImage('test.jpg')
         img.save()
         saved = models.Image.objects.first()
+
+        url = img.file.url
+        self.assertEqual(img.content, url)
+        regex = re_compile(r'^.*images/\d{4}/\d{1,2}/\d{1,2}/.+\.jpg')
+        self.assertNotEqual(regex.match(url), None)
+        self.assertEqual(url.endswith('.jpg'), True)
         self.assertEqual(saved, img)
-        self.assertNotEqual(saved.file.url.index(unicode(img).split('.')[0]), 0)
+        self.assertEqual(saved.uuid, img.uuid)
+        self.assertEqual(saved.file, img.file)
+        self.assertEqual(saved.content, img.content)
+
+        img2 = models.Image()
+        img2.file = self.uploadImage('test.png')
+        with self.assertRaises(NotImplementedError):
+            img2.save()
 
     def test_id(self):
         id_640 = models.Image.compute_id_from_file('image/samples/test.jpg')
