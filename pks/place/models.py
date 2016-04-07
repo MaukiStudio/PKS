@@ -17,6 +17,7 @@ STXT_TYPE_PLACE_NOTE = 1
 STXT_TYPE_PLACE_NAME = 2
 STXT_TYPE_POS_DESC = 3
 STXT_TYPE_IMAGE_NOTE = 4
+STXT_TYPE_ADDRESS = 5
 STXT_TYPE_REMOVE_CONTENT = 255
 
 # bit mask for id (timestamp, vd)
@@ -32,7 +33,8 @@ class Post(object):
         t = type(value)
         if t is int or t is long:
             self.place_id = value
-            self.json = dict(place_id=self.place_id, lonLat=None, images=list(), urls=list(), lps=list(), notes=list(), name=None, posDesc=None,)
+            self.json = dict(place_id=self.place_id, lonLat=None, images=list(), urls=list(), lps=list(),
+                             name=None, notes=list(), posDesc=None, addrs=list(),)
         elif t is unicode or t is str:
             self.json = json_loads(value)
         elif t is dict:
@@ -72,14 +74,25 @@ class Post(object):
 
         if pc.stxt:
             uuid = pc.stxt.uuid
-            if pc.stxt_type == STXT_TYPE_PLACE_NOTE:
+            if pc.stxt_type == STXT_TYPE_PLACE_NAME:
+                if not self.json['name']:
+                    self.json['name'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
+            elif pc.stxt_type == STXT_TYPE_PLACE_NOTE:
                 dl = self.json['notes']
                 if uuid not in [d['uuid'] for d in dl]:
                     dl.append(dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp))
-            if pc.stxt_type == STXT_TYPE_PLACE_NAME and not self.json['name']:
-                self.json['name'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
-            if pc.stxt_type == STXT_TYPE_POS_DESC and not self.json['posDesc']:
-                self.json['posDesc'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
+            elif pc.stxt_type == STXT_TYPE_POS_DESC:
+                if not self.json['posDesc']:
+                    self.json['posDesc'] = dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp)
+            elif pc.stxt_type == STXT_TYPE_ADDRESS:
+                dl = self.json['addrs']
+                if len(dl) <= 2 and uuid not in [d['uuid'] for d in dl]:
+                    dl.append(dict(uuid=uuid, content=pc.stxt.content, timestamp=pc.timestamp))
+            elif pc.stxt_type == STXT_TYPE_IMAGE_NOTE or pc.stxt_type is None:
+                pass
+            else:
+                print(pc.stxt_type)
+                raise NotImplementedError
 
 
     def isSubsetOf(self, other):

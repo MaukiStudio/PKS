@@ -16,6 +16,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
                 "posDesc": {"uuid": "%s", "content": "%s"},
+                "addrs": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
                 "notes": [
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"},
@@ -77,17 +81,28 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # EXIF 정보가 있다면 보존 (Orientation 정보는 상황에 따라 바뀔 수도...)
         resized = self.resize_image(photo)
 
-        # 주소값 조회
-        # 주소쪽은 아직 정확히 어찌할 지에 대해 결정을 못한 상태
-        # - 어차피 lonLat 에 의해 계산되는 값에 불과? 그래도 중요 데이터로 취급해야?
-        # 4/6 까지 관련 인터페이스 확정 예정
-
         # 사진찍은 직후에 서버에 등록 : 현재 위치 저장 완료 하기 전에 미리 진행
         with open(resized) as f:
             response = self.client.post('/imgs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(img_uuid)
+
+        # 주소값 조회 : 한국이 아니거나 신주소가 없는 경우에는 주소 하나만 등록하면 됨
+        addr_new = '경기도 성남시 분당구 산운로32번길 12'
+        addr = '경기도 성남시 분당구 운중동 883-3'
+
+        # 신 주소값 등록 : 없는 경우 pass
+        response = self.client.post('/stxts/', dict(content=addr_new))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        addr_new_uuid = json_loads(response.content)['uuid']
+        self.assertValidUuid(addr_new_uuid)
+
+        # 주소값 등록
+        response = self.client.post('/stxts/', dict(content=addr_new))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        addr_new_uuid = json_loads(response.content)['uuid']
+        self.assertValidUuid(addr_new_uuid)
 
         # 노트 입력 받기
         note = self.input_from_user('장소 노트')

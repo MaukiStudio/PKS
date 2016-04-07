@@ -1,5 +1,8 @@
 [Now]
 address stxt 다시 추가
+껍데기 추가 : VD.country/language/timezone, Post.phonenumber
+Image, content 에 URL 채워서 내려보내기
+
 VD 등록 시 locale, language, timezone 저장
 Content abstract model 도입하는 리팩토링
 phonenumber Content 추가

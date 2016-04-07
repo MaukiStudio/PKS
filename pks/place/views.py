@@ -77,15 +77,19 @@ class UserPlaceViewset(ModelViewSet):
         if len(urls) > 0: first_url = urls.pop()
 
         # stxts 조회
+        # stxts 에는 우선순위가 낮은 것부터 먼저 append 한다
         first_stxt = (None, None)
         stxts = list()
-        if 'name' in add and add['name']:
-            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
+        if 'addrs' in add and add['addrs']:
+            for addr in reversed(add['addrs']):
+                stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_json(addr)))
         if 'posDesc' in add and add['posDesc']:
             stxts.append((models.STXT_TYPE_POS_DESC, ShortText.get_from_json(add['posDesc'])))
         if 'notes' in add and add['notes']:
             for note in reversed(add['notes']):
                 stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_json(note)))
+        if 'name' in add and add['name']:
+            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
         if len(stxts) > 0: first_stxt = stxts.pop()
 
         # images 조회

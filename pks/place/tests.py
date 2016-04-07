@@ -104,7 +104,9 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_full(self):
         point1 = GEOSGeometry('POINT(127 37)')
         name1 = ShortText(content='능라'); name1.save()
-        addr1 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
+        posDesc1 = ShortText(content='운중동버스차고지 근처'); posDesc1.save()
+        addr11 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr11.save()
+        addr12 = ShortText(content='경기도 성남시 분당구 산운로32번길 12'); addr12.save()
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
         note12 = ShortText(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
         note13 = ShortText(content='평양냉면'); note13.save()
@@ -125,6 +127,10 @@ class UserPlaceViewSetTest(APITestBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
                 "posDesc": {"uuid": "%s", "content": "%s"},
+                "addrs": [
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
+                ],
                 "notes": [
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"},
@@ -147,7 +153,8 @@ class UserPlaceViewSetTest(APITestBase):
                 ]
             }
         ''' % (self.place.id, point1.x, point1.y,
-               name1.uuid, name1.content, addr1.uuid, addr1.content,
+               name1.uuid, name1.content, posDesc1.uuid, posDesc1.content,
+               addr11.uuid, addr11.content, addr12.uuid, addr12.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
                img1.uuid, imgNote1.uuid, imgNote1.content, img2.uuid, img3.uuid,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
@@ -188,13 +195,16 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_case1_current_pos_only_with_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        addr1_content = '경기도 성남시 분당구 산운로32번길 12'
+        addr2_content = '경기도 성남시 분당구 운중동 883-3'
 
         json_add = '''
             {
                 "lonLat": {"lon": %f, "lat": %f},
-                "images": [{"uuid": "%s", "content": null, "note": null}]
+                "images": [{"uuid": "%s", "content": null, "note": null}],
+                "addrs": [{"uuid": null, "content": "%s"}, {"uuid": null, "content": "%s"}]
             }
-        ''' % (point1.x, point1.y, img1.uuid,)
+        ''' % (point1.x, point1.y, img1.uuid, addr1_content, addr2_content,)
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
