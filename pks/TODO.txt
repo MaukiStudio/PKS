@@ -1,5 +1,4 @@
 [Now]
-address stxt 다시 추가
 껍데기 추가 : VD.country/language/timezone, Post.phonenumber
 Image, content 에 URL 채워서 내려보내기
 

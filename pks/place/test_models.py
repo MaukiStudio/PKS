@@ -137,6 +137,8 @@ class PlaceTest(APITestBase):
         timestamp = place.placePost.json['lonLat']['timestamp']
         self.assertAlmostEqual(get_timestamp(), timestamp, delta=1000)
 
+        self.assertIn('phone', place.placePost.json)
+
         self.printJson(want_userPost.json)
         self.printJson(place.userPost.json)
         self.assertTrue(want_userPost.isSubsetOf(place.userPost))

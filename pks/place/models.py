@@ -29,12 +29,10 @@ BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
 class Post(object):
 
     def __init__(self, value=None):
-        self.place_id = None
         t = type(value)
         if t is int or t is long:
-            self.place_id = value
-            self.json = dict(place_id=self.place_id, lonLat=None, images=list(), urls=list(), lps=list(),
-                             name=None, notes=list(), posDesc=None, addrs=list(),)
+            self.json = dict(place_id=value, lonLat=None, images=list(), urls=list(), lps=list(),
+                             name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
         elif t is unicode or t is str:
             self.json = json_loads(value)
         elif t is dict:

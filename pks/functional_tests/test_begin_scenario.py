@@ -24,7 +24,10 @@ class RegisterScenarioTest(FunctionalTestBase):
 
         # Register VD
         email = self.input_from_user()
-        response = self.client.post('/vds/register/', dict(email=email,))
+        country = 'KR'
+        language = 'ko'
+        timezone = 'KST'
+        response = self.client.post('/vds/register/', dict(email=email, country=country, language=language, timezone=timezone,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
 
