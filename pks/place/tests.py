@@ -124,32 +124,33 @@ class UserPlaceViewSetTest(APITestBase):
         json_full = '''
             {
                 "place_id": %d,
-                "lonLat": {"lon": %f, "lat": %f},
-                "name": {"uuid": "%s", "content": "%s"},
-                "posDesc": {"uuid": "%s", "content": "%s"},
+                "lonLat": {"lon": %f, "lat": %f, "timestamp": null},
+                "name": {"uuid": "%s", "content": "%s", "timestamp": null},
+                "posDesc": {"uuid": "%s", "content": "%s", "timestamp": null},
+                "phone": null,
                 "addrs": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "notes": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}},
-                    {"uuid": "%s", "content": "%s", "note": null},
-                    {"uuid": "%s", "content": "%s", "note": null}
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null}
                 ],
                 "urls": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "lps": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ]
             }
         ''' % (self.place.id, point1.x, point1.y,

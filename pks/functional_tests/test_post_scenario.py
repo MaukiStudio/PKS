@@ -13,32 +13,33 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         Post Json Schema
             {
                 "place_id": %d,
-                "lonLat": {"lon": %f, "lat": %f},
-                "name": {"uuid": "%s", "content": "%s"},
-                "posDesc": {"uuid": "%s", "content": "%s"},
+                "lonLat": {"lon": %f, "lat": %f, "timestamp": null},
+                "name": {"uuid": "%s", "content": "%s", "timestamp": null},
+                "posDesc": {"uuid": "%s", "content": "%s", "timestamp": null},
+                "phone": {"uuid": "%s", "content": "%s", "timestamp": null},
                 "addrs": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "notes": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}},
-                    {"uuid": "%s", "content": "%s", "note": null},
-                    {"uuid": "%s", "content": "%s", "note": null}
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null}
                 ],
                 "urls": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "lps": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null}
                 ]
             }
     '''
@@ -99,10 +100,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         self.assertValidUuid(addr_new_uuid)
 
         # 주소값 등록
-        response = self.client.post('/stxts/', dict(content=addr_new))
+        response = self.client.post('/stxts/', dict(content=addr))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        addr_new_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(addr_new_uuid)
+        addr_uuid = json_loads(response.content)['uuid']
+        self.assertValidUuid(addr_uuid)
 
         # 노트 입력 받기
         note = self.input_from_user('장소 노트')
@@ -121,9 +122,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             {
                 "lonLat": {"lon": %f, "lat": %f},
                 "notes": [{"uuid": "%s", "content": null}],
-                "images": [{"uuid": "%s", "content": null, "note": null}]
+                "images": [{"uuid": "%s", "content": null, "note": null}],
+                "addrs": [{"uuid": "%s", "content": null}, {"uuid": "%s", "content": null}]
             }
-        ''' % (lon, lat, note_uuid, img_uuid,)
+        ''' % (lon, lat, note_uuid, img_uuid, addr_new_uuid, addr_uuid,)
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
