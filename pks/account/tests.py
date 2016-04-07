@@ -101,7 +101,7 @@ class VDRegisterTest(APITestBase):
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
 
-    def test_register_no_email(self):
+    def test_register_with_no_info(self):
         response = self.client.post('/vds/register/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         vd = models.VD.objects.first()
@@ -122,11 +122,23 @@ class VDRegisterTest(APITestBase):
         deviceName = SG('[\w\-]{36}').render()
         deviceTypeName = 'LG-F460L'
         email = 'gulby@maukistudio.com'
+        country = 'KR'
+        language = 'ko'
+        timezone = 'KST'
+        data = '{"UDID": "blah-blah"}'
         response = self.client.post('/vds/register/',
-                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
+                                         country=country, language=language, timezone=timezone, data=data))
         vd = models.VD.objects.first()
         user = User.objects.first()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(vd.deviceTypeName, deviceTypeName)
+        self.assertEqual(vd.deviceName, deviceName)
+        self.assertEqual(vd.country, country)
+        self.assertEqual(vd.language, language)
+        self.assertEqual(vd.timezone, timezone)
+        self.assertEqual(vd.data, data)
         self.assertEqual(user, vd.authOwner)
         self.assertEqual(user.email, email)
 

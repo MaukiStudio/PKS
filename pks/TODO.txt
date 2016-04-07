@@ -1,6 +1,5 @@
 [Now]
-VD 등록 시 locale, language, timezone 저장
-Content abstract model 도입하는 리팩토링
+Content abstract model 도입하는 리팩토링. Content 최초 생성자 정보 추가, content 컬럼 길이 254 로
 phonenumber Content 추가
 
 NaverPlace 기능 추가하고 어드민 만들기

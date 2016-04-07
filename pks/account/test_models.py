@@ -44,7 +44,6 @@ class RealUserTest(APITestBase):
             realUser2.save()
 
 
-
 class VDTest(APITestBase):
 
     def setUp(self):
@@ -68,6 +67,26 @@ class VDTest(APITestBase):
         saved = models.VD.objects.first()
         self.assertEqual(saved, vd)
 
+    def test_simple_properties(self):
+        deviceName = SG('[\w\-]{36}').render()
+        deviceTypeName = 'LG-F460L'
+        country = 'KR'
+        language = 'ko'
+        timezone = 'KST'
+        vd = models.VD()
+        vd.deviceName = deviceName
+        vd.deviceTypeName = deviceTypeName
+        vd.country = country
+        vd.language = language
+        vd.timezone = timezone
+        vd.save()
+        saved = models.VD.objects.first()
+        self.assertEqual(saved.deviceName, deviceName)
+        self.assertEqual(saved.deviceTypeName, deviceTypeName)
+        self.assertEqual(saved.country, country)
+        self.assertEqual(saved.language, language)
+        self.assertEqual(saved.timezone, timezone)
+
     def test_authOwner_property(self):
         vd = models.VD(authOwner=self.user)
         vd.save()
@@ -88,17 +107,6 @@ class VDTest(APITestBase):
         vd2 = models.VD(authOwner=self.user)
         vd2.save()
         self.assertEqual(self.user.vds.all().count(), 2)
-
-    def test_simple_properties(self):
-        deviceName = SG('[\w\-]{36}').render()
-        deviceTypeName = 'LG-F460L'
-        vd = models.VD()
-        vd.deviceName = deviceName
-        vd.deviceTypeName = deviceTypeName
-        vd.save()
-        saved = models.VD.objects.first()
-        self.assertEqual(saved.deviceName, deviceName)
-        self.assertEqual(saved.deviceTypeName, deviceTypeName)
 
     def test_data_property(self):
         j = '{"deviceName": "%s", "deviceTypeName": "%s"}' % (SG('[\w\-]{36}').render(), 'LG-F460L')

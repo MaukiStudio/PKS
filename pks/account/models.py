@@ -43,6 +43,10 @@ class VD(models.Model):
     deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
 
+    country = models.CharField(max_length=2, blank=True, null=True, default=None)
+    language = models.CharField(max_length=2, blank=True, null=True, default=None)
+    timezone = models.CharField(max_length=5, blank=True, null=True, default=None)
+
     def __unicode__(self):
         email = (self.realOwner and self.realOwner.email) or (self.authOwner and self.authOwner.email) or 'unknown@email'
         deviceTypeName = self.deviceTypeName or 'unknown device'
