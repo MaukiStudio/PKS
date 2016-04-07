@@ -239,4 +239,3 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
     def test_post_by_FourSquare(self):
 
         self.fail()
-

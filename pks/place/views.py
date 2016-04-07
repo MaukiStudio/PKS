@@ -9,7 +9,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from place import models
 from place import serializers
 from url.models import Url
-from content.models import LegacyPlace, ShortText
+from content.models import LegacyPlace, ShortText, PhoneNumber
 from image.models import Image
 from base.utils import get_timestamp
 from base.views import BaseViewset
@@ -53,6 +53,11 @@ class UserPlaceViewset(BaseViewset):
         lonLat = None
         if 'lonLat' in add and add['lonLat']:
             lonLat = GEOSGeometry('POINT(%f %f)' % (add['lonLat']['lon'], add['lonLat']['lat']))
+
+        # phone 조회
+        phone = None
+        if 'phone' in add and add['phone']:
+            phone = PhoneNumber.get_from_json(add['phone'])
 
         # lps 조회
         first_lp = None
@@ -135,7 +140,7 @@ class UserPlaceViewset(BaseViewset):
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         for t in images:
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
-                                     image=t[0], stxt_type=t[1][0], stxt=t[1][1],)
+                                     image=t[0], stxt_type=t[1][0], stxt=t[1][1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
@@ -143,32 +148,32 @@ class UserPlaceViewset(BaseViewset):
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
-                                     image=first_image, stxt_type=stxt[0], stxt=stxt[1],)
+                                     image=first_image, stxt_type=stxt[0], stxt=stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # urls 저장
         for url in urls:
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
-                                     image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
+                                     image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # lps 저장
         for lp in lps:
             pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
-                                     image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
+                                     image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # base transaction(PlaceContent) 저장
         pc = models.PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
-                                 image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1])
+                                 image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
         pc.save(timestamp=timestamp)
         timestamp += 1
 
         # 결과 처리
-        upost, created = models.UserPlace.objects.get_or_create(vd=vd, place=place)
+        upost, created = models.UserPlace.objects.get_or_create(vd=vd, place=place,)
         if not created:
             upost.save(modified=timestamp)
         serializer = self.get_serializer(upost)

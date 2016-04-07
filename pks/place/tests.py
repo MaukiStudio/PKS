@@ -10,7 +10,7 @@ from time import sleep
 from base.tests import APITestBase
 from place import models
 from image.models import Image
-from content.models import ShortText, LegacyPlace
+from content.models import ShortText, LegacyPlace, PhoneNumber
 from url.models import Url
 from account.models import VD
 
@@ -124,6 +124,7 @@ class UserPlaceViewSetTest(APITestBase):
         lp11 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp11.save()
         lp12 = LegacyPlace(content='http://map.naver.com/local/siteview.nhn?code=21149144'); lp12.save()
         lp13 = LegacyPlace(content='ChIJrTLr-GyuEmsRBfy61i59si0.google'); lp13.save()
+        phone1 = PhoneNumber(content='010-5597-9245'); phone1.save()
 
         json_full = '''
             {
@@ -131,7 +132,7 @@ class UserPlaceViewSetTest(APITestBase):
                 "lonLat": {"lon": %f, "lat": %f, "timestamp": null},
                 "name": {"uuid": "%s", "content": "%s", "timestamp": null},
                 "posDesc": {"uuid": "%s", "content": "%s", "timestamp": null},
-                "phone": null,
+                "phone": {"uuid": "%s", "content": "%s", "timestamp": null},
                 "addrs": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
                     {"uuid": "%s", "content": "%s", "timestamp": null}
@@ -158,7 +159,7 @@ class UserPlaceViewSetTest(APITestBase):
                 ]
             }
         ''' % (self.place.id, point1.x, point1.y,
-               name1.uuid, name1.content, posDesc1.uuid, posDesc1.content,
+               name1.uuid, name1.content, posDesc1.uuid, posDesc1.content, phone1.uuid, phone1.content,
                addr11.uuid, addr11.content, addr12.uuid, addr12.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
                img1.uuid, img1.content, imgNote1.uuid, imgNote1.content, img2.uuid, img2.content, img3.uuid, img3.content,
@@ -173,6 +174,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)
 
+        self.printJson(want.json)
+        self.printJson(self.post.userPost.json)
         self.assertTrue(want.isSubsetOf(self.post.userPost))
         self.assertTrue(want.isSubsetOf(self.post.placePost))
         self.assertFalse(self.post.userPost.isSubsetOf(want))

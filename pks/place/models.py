@@ -9,7 +9,7 @@ from django.contrib.gis.db import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import LegacyPlace, ShortText
+from content.models import LegacyPlace, ShortText, PhoneNumber
 from base.utils import get_timestamp
 
 # stxt_type
@@ -69,6 +69,9 @@ class Post(object):
             dl = self.json['lps']
             if uuid not in [d['uuid'] for d in dl]:
                 dl.append(dict(uuid=uuid, content=pc.lp.content, timestamp=pc.timestamp))
+
+        if pc.phone and not self.json['phone']:
+            self.json['phone'] = dict(uuid=pc.phone.uuid, content=pc.phone.content, timestamp=pc.timestamp)
 
         if pc.stxt:
             uuid = pc.stxt.uuid
@@ -179,6 +182,7 @@ class PlaceContent(models.Model):
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     lp = models.ForeignKey(LegacyPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
     stxt = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
+    phone = models.ForeignKey(PhoneNumber, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     # value
     lonLat = models.PointField(blank=True, null=True, default=None)

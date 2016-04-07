@@ -11,7 +11,7 @@ from place import models
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import LegacyPlace, ShortText
+from content.models import LegacyPlace, ShortText, PhoneNumber
 from base.utils import get_timestamp
 
 
@@ -36,6 +36,7 @@ class PlaceTest(APITestBase):
         note12 = ShortText(content='만두도 괜찮음'); note12.save()
         imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
         img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        phone1 = PhoneNumber(content='010-5686-1613'); phone1.save()
 
         # 현재 위치 저장
         pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save(); sleep(0.001)
@@ -48,6 +49,8 @@ class PlaceTest(APITestBase):
         pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc14.save(); sleep(0.001)
         # 이미지노트 추가
         pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc15.save(); sleep(0.001)
+        # 전번 추가
+        pc16 = models.PlaceContent(vd=vd1, place=place, phone=phone1); pc16.save(); sleep(0.001)
 
         vd2 = VD(); vd2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -61,6 +64,7 @@ class PlaceTest(APITestBase):
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
         lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp.save();
+        phone2 = PhoneNumber(content='010-5597-9245'); phone2.save()
 
         # URL 저장
         pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
@@ -78,6 +82,8 @@ class PlaceTest(APITestBase):
         pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)
         # (노트없는) 이미지 추가
         pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save(); sleep(0.001)
+        # 전번 추가
+        pc28 = models.PlaceContent(vd=vd2, place=place, phone=phone2); pc28.save(); sleep(0.001)
 
         json_userPost = '''
             {
@@ -89,10 +95,12 @@ class PlaceTest(APITestBase):
                 "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "images": [{"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
-                "lps": []
+                "lps": [],
+                "phone": {"uuid": "%s", "content": "%s"}
             }
         ''' % (place.id, point1.x, point1.y, name1.uuid, name1.content, posDesc1.uuid, posDesc1.content, addr1.uuid, addr1.content,
-               note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,)
+               note12.uuid, note12.content, note11.uuid, note11.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,
+               phone1.uuid, phone1.content,)
         json_placePost = '''
             {
                 "place_id": %d,
@@ -115,13 +123,14 @@ class PlaceTest(APITestBase):
                     {"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}}
                 ],
                 "urls": [{"uuid": "%s", "content": "%s"}],
-                "lps": [{"uuid": "%s", "content": "%s"}]
+                "lps": [{"uuid": "%s", "content": "%s"}],
+                "phone": {"uuid": "%s", "content": "%s"}
             }
         ''' % (place.id, point2.x, point2.y, name2.uuid, name2.content, posDesc2.uuid, posDesc2.content,
                addr2.uuid, addr2.content, addr1.uuid, addr1.content,
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
                img22.uuid, img22.content, img21.uuid, img21.content, imgNote2.uuid, imgNote2.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,
-               url2.uuid, url2.content, lp.uuid, lp.content,)
+               url2.uuid, url2.content, lp.uuid, lp.content, phone2.uuid, phone2.content,)
         want_userPost = models.Post(json_userPost)
         want_placePost = models.Post(json_placePost)
         place.computePost([vd1.id])
@@ -170,6 +179,8 @@ class PlaceContentTest(APITestBase):
         self.lp.save()
         self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
         self.stxt.save()
+        self.phone = PhoneNumber(content='010-5597-9245')
+        self.phone.save()
 
     def test_save_and_retreive(self):
         pc = models.PlaceContent()
@@ -270,6 +281,16 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved, pc)
         self.assertEqual(saved.stxt, self.stxt)
         self.assertEqual(saved.stxt_type, models.STXT_TYPE_PLACE_NOTE)
+
+    def test_phone_property(self):
+        pc = models.PlaceContent()
+        pc.phone = self.phone
+        pc.save()
+        saved = self.phone.pcs.get(id=pc.id)
+        self.assertEqual(pc.phone, self.phone)
+        self.assertEqual(saved, pc)
+        self.assertEqual(saved.phone, self.phone)
+
 
 
 class UserPlaceTest(APITestBase):
