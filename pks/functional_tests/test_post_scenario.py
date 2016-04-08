@@ -83,8 +83,13 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         resized = self.resize_image(photo)
 
         # 사진찍은 직후에 서버에 등록 : 현재 위치 저장 완료 하기 전에 미리 진행
+        # 파일 등록
         with open(resized) as f:
-            response = self.client.post('/imgs/', dict(file=f))
+            response = self.client.post('/rfs/', dict(file=f))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        file_url = json_loads(response.content)['file']
+        # 이미지(URL) 등록
+        response = self.client.post('/imgs/', dict(content=file_url))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(img_uuid)
@@ -144,7 +149,9 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
 
         # 사진 추가 with 사진노트
         with open('image/samples/no_exif_test.jpg') as f:
-            response = self.client.post('/imgs/', dict(file=f))
+            response = self.client.post('/rfs/', dict(file=f))
+        file_url = json_loads(response.content)['file']
+        response = self.client.post('/imgs/', dict(content=file_url))
         img_uuid = json_loads(response.content)['uuid']
         note = self.input_from_user('사진 노트')
         response = self.client.post('/stxts/', dict(content=note))

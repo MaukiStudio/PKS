@@ -115,9 +115,12 @@ class UserPlaceViewSetTest(APITestBase):
         note12 = ShortText(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
         note13 = ShortText(content='평양냉면'); note13.save()
         imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
-        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
-        img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
-        img3 = Image(file=self.uploadImage('test_480.jpg')); img3.save()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
+        img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img1 = Image(content=img1_content); img1.save()
+        img2 = Image(content=img2_content); img2.save()
+        img3 = Image(content=img3_content); img3.save()
         url11 = Url(content='http://maukistudio.com/'); url11.save()
         url12 = Url(content='http://maukistudio.com/2/'); url12.save()
         url13 = Url(content='http://maukistudio.com/3/'); url13.save()
@@ -232,7 +235,8 @@ class UserPlaceViewSetTest(APITestBase):
 
     def test_create_case1_current_pos_only_with_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
-        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img1 = Image(content=img1_content); img1.save()
         addr1_content = '경기도 성남시 분당구 산운로32번길 12'
         addr2_content = '경기도 성남시 분당구 운중동 883-3'
 
@@ -261,7 +265,8 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_case2_current_pos_with_note_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
-        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img1 = Image(content=img1_content); img1.save()
 
         json_add = '''
             {
@@ -354,9 +359,12 @@ class UserPlaceViewSetTest(APITestBase):
         note12_content='을밀대가 좀 더 낫나? ㅋ'
         note13_content='평양냉면'
         imgNote1_content='냉면 사진'
-        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
-        img2 = Image(file=self.uploadImage('no_exif_test.jpg')); img2.save()
-        img3 = Image(file=self.uploadImage('test_480.jpg')); img3.save()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
+        img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img1 = Image(content=img1_content); img1.save()
+        img2 = Image(content=img2_content); img2.save()
+        img3 = Image(content=img3_content); img3.save()
         url11_content='http://maukistudio.com/'
         url12_content='http://maukistudio.com/2/'
         url13_content='http://maukistudio.com/3/'

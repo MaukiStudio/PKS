@@ -35,7 +35,8 @@ class PlaceTest(APITestBase):
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
         note12 = ShortText(content='만두도 괜찮음'); note12.save()
         imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
-        img1 = Image(file=self.uploadImage('test.jpg')); img1.save()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img1 = Image(content=img1_content); img1.save()
         phone1 = PhoneNumber(content='010-5686-1613'); phone1.save()
 
         # 현재 위치 저장
@@ -59,8 +60,10 @@ class PlaceTest(APITestBase):
         posDesc2 = ShortText(content='운중동버스차고지 근처'); posDesc2.save()
         note21 = ShortText(content='여기 가게 바로 옆으로 이전'); note21.save()
         note22 = ShortText(content='평양냉면 맛집'); note22.save()
-        img21 = Image(file=self.uploadImage('no_exif_test.jpg')); img21.save()
-        img22 = Image(file=self.uploadImage('test_480.jpg')); img22.save()
+        img21_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
+        img22_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img21 = Image(content=img21_content); img21.save()
+        img22 = Image(content=img22_content); img22.save()
         imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
         lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp.save();
@@ -170,7 +173,8 @@ class PlaceContentTest(APITestBase):
         self.vd.save()
 
         self.image = Image()
-        self.image.file = self.uploadImage('test.jpg')
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        self.image.content = img1_content
         self.image.save()
         self.url = Url(content='http://maukistudio.com/')
         self.url.save()

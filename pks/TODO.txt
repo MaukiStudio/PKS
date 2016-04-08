@@ -1,10 +1,10 @@
 [Now]
-Image model, Content model 상속 받도록 리팩토링
-Image 처리 기반 구조 변경
-
+lonLat 기반 목록 검색 기능 만들기
+CacheManager 인터페이스 및 기본 기능 만들기
 NaverPlace 기능 추가하고 어드민 만들기
 
-lonLat 기반 목록 검색 기능 만들기
+
+CacheManager FULL 구현 : 이후 mhash, dhash, exif 등 구현
 
 전화번호 파싱 시 국가 처리
 

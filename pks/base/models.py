@@ -17,7 +17,6 @@ class Content(models.Model):
     class Meta:
         abstract = True
 
-
     # MUST override
     @property
     def contentType(self):
@@ -26,7 +25,6 @@ class Content(models.Model):
     @property
     def accessedType(self):
         raise NotImplementedError
-
 
     # CAN override
     @classmethod
@@ -40,6 +38,8 @@ class Content(models.Model):
     def pre_save(self):
         pass
 
+    def post_save(self):
+        pass
 
     # MAYBE NOT override
     def __unicode__(self):
@@ -52,7 +52,6 @@ class Content(models.Model):
     @property
     def accessed(self):
         return '%s.%s' % (self.uuid, self.accessedType,)
-
 
     # DO NOT override
     @classmethod
@@ -88,3 +87,4 @@ class Content(models.Model):
         self.id = _id
         self.pre_save()
         super(Content, self).save(*args, **kwargs)
+        self.post_save()

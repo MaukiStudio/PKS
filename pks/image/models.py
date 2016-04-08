@@ -5,17 +5,75 @@ from base64 import b16encode
 from uuid import UUID
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
-from json import loads as json_loads
 from random import randrange
 
 from imagehash import dhash
 from PIL import Image as PIL_Image
-from image import exif_lib
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
+from base.models import Content
+from base.legacy import exif_lib
+from base.legacy.urlnorm import norms as url_norms
 
-IMAGE_PATH = 'images/%Y/%m/%d/'
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
+
+
+class Image(Content):
+    dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
+    lonLat = models.PointField(blank=True, null=True, default=None)
+
+    # MUST override
+    @property
+    def contentType(self):
+        return 'img'
+
+    @property
+    def accessedType(self):
+        return 'jpg'
+
+    # CAN override
+    @classmethod
+    def normalize_content(cls, raw_content):
+        return url_norms(raw_content.strip())
+
+    def pre_save(self):
+        ext = self.content.split('.')[-1]
+        if ext.lower() not in ('jpg', 'jpeg'):
+            raise NotImplementedError
+        if not self.lonLat:
+            # TODO : CacheManager 만들어서 file 값 할당하기
+            file = None
+            self.process_exif(file)
+
+    def post_save(self):
+        # file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
+        if not self.dhash:
+            pass
+
+    # Image's method
+    @classmethod
+    def compute_id_from_file(cls, file):
+        pil = PIL_Image.open(file)
+        d1 = dhash(pil)
+        d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
+        return UUID('%s%s' % (d1, d2))
+
+    @classmethod
+    def hamming_distance(cls, id1, id2):
+        count, z = 0, id1.int ^ id2.int
+        while z:
+            count += 1
+            z &= z - 1
+        return count
+
+    def process_exif(self, file):
+        if not file:
+            return
+        exif = exif_lib.get_exif_data(PIL_Image.open(file))
+        lonLat = exif_lib.get_lon_lat(exif)
+        if lonLat[0] and lonLat[1]:
+            point = GEOSGeometry('POINT(%f %f)' % lonLat)
+            self.lonLat = point
 
 
 class RawFile(models.Model):
@@ -49,81 +107,10 @@ class RawFile(models.Model):
         if self.id and self.id != _id:
             raise NotImplementedError
 
-        # TODO : mhash 구현. 장고 Celery 로 처리
+        # TODO : mhash 구현. 장고 Celery 에 작업 의뢰
 
         # 저장
         self.id = _id
         self.file.name = '%s_%s' % (self.uuid, self.file.name)
         super(RawFile, self).save(*args, **kwargs)
 
-
-class Image(models.Model):
-    id = models.UUIDField(primary_key=True, default=None)
-    file = models.ImageField(blank=True, null=True, default=None, upload_to=IMAGE_PATH)
-    lonLat = models.PointField(blank=True, null=True, default=None)
-
-    @classmethod
-    def compute_id_from_file(cls, file):
-        pil = PIL_Image.open(file)
-        d1 = dhash(pil)
-        d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
-        return UUID('%s%s' % (d1, d2))
-
-    @classmethod
-    def hamming_distance(cls, id1, id2):
-        count, z = 0, id1.int ^ id2.int
-        while z:
-            count += 1
-            z &= z - 1
-        return count
-
-    def set_id(self):
-        self.file.open()
-        self.id = Image.compute_id_from_file(self.file)
-        self.file.open()
-
-    def process_exif(self):
-        self.file.open()
-        exif = exif_lib.get_exif_data(PIL_Image.open(self.file))
-        self.file.open()
-        lonLat = exif_lib.get_lon_lat(exif)
-        if lonLat[0] and lonLat[1]:
-            point = GEOSGeometry('POINT(%f %f)' % lonLat)
-            self.lonLat = point
-
-    def save(self, *args, **kwargs):
-        if not self.file.url.endswith('.jpg'):
-            raise NotImplementedError
-        if not self.id and self.file:
-            self.set_id()
-        if not self.lonLat and self.file:
-            self.process_exif()
-        #self.file.name = self.accessed
-        super(Image, self).save(*args, **kwargs)
-
-    @property
-    def uuid(self):
-        return '%s.img' % b16encode(self.id.bytes)
-
-    @classmethod
-    def get_from_json(cls, json):
-        if type(json) is unicode or type(json) is str:
-            json =json_loads(json)
-        result = None
-        if 'uuid' in json and json['uuid']:
-            _id = UUID(json['uuid'].split('.')[0])
-            result = cls.objects.get(id=_id)
-        elif 'content' in json and json['content']:
-            raise NotImplementedError
-        return result
-
-    def __unicode__(self):
-        return self.uuid
-
-    @property
-    def content(self):
-        return self.file.url
-
-    @property
-    def accessed(self):
-        return '%s.jpg' % self.uuid

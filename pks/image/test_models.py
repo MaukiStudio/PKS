@@ -10,21 +10,24 @@ from re import compile as re_compile
 from base.tests import APITestBase
 from image import models
 from PIL import Image as PIL_Image
-from image import exif_lib
+from base.legacy import exif_lib
 from account.models import VD
 
 
-class ImageTest(APITestBase):
+class SimpleImageTest(APITestBase):
 
     def test_string_representation(self):
-        img_id = uuid1()
-        img = models.Image(id=img_id)
-        self.assertEqual(unicode(img), '%s.img' % b16encode(img_id.bytes))
-        self.assertEqual(img.uuid, unicode(img))
+        img = models.Image()
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
+        img.save()
+        self.assertEqual(unicode(img), img.content)
+        self.assertEqual(img.uuid, '%s.img' % b16encode(img.id.bytes))
 
     def test_save_and_retreive(self):
         img = models.Image()
-        img.file = self.uploadImage('test.jpg')
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
         img.save()
         saved = models.Image.objects.first()
 
@@ -33,27 +36,23 @@ class ImageTest(APITestBase):
         self.assertEqual(saved2, img)
         saved3 = models.Image.get_from_json('{"uuid": "%s", "content": null, "note": {"uuid": null, "content": null}}' % img.uuid)
         self.assertEqual(saved3, img)
-        with self.assertRaises(NotImplementedError):
-            models.Image.get_from_json('{"uuid": null, "content": "%s"}' % img.content)
+        saved4 = models.Image.get_from_json('{"uuid": null, "content": "%s"}' % img.content)
+        self.assertEqual(saved4, img)
 
-    def test_file_property(self):
+    def test_content_property(self):
         img = models.Image()
-        img.file = self.uploadImage('test.jpg')
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
         img.save()
         saved = models.Image.objects.first()
 
-        url = img.file.url
+        url = test_data
         self.assertEqual(img.content, url)
-        regex = re_compile(r'^.*images/\d{4}/\d{1,2}/\d{1,2}/.+\.jpg$')
-        self.assertNotEqual(regex.match(url), None)
-        self.assertEqual(url.endswith('.jpg'), True)
         self.assertEqual(saved, img)
-        self.assertEqual(saved.uuid, img.uuid)
-        self.assertEqual(saved.file, img.file)
         self.assertEqual(saved.content, img.content)
 
         img2 = models.Image()
-        img2.file = self.uploadImage('test.png')
+        img2.content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.png'
         with self.assertRaises(NotImplementedError):
             img2.save()
 
@@ -71,6 +70,7 @@ class ImageTest(APITestBase):
         #self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
         self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)  # distance = 59
 
+    '''
     def test_gps_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
@@ -100,6 +100,7 @@ class ImageTest(APITestBase):
         self.assertEqual(img, saved)
         self.assertIsNone(img.lonLat)
         self.assertIsNone(saved.lonLat)
+    '''
 
 
 class RawFileTest(APITestBase):

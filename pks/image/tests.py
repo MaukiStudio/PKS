@@ -19,8 +19,9 @@ class ImageViewsetTest(APITestBase):
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.img = models.Image()
-        self.img.file = self.uploadImage('test.jpg')
+        self.img.content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         self.img.save()
+        self.content2 = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
 
     def test_list(self):
         response = self.client.get('/imgs/')
@@ -35,22 +36,21 @@ class ImageViewsetTest(APITestBase):
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertNotIn('dhash', result)
         self.assertEqual(result['uuid'], self.img.uuid)
 
     def test_create(self):
-        with open('image/samples/test.jpg') as f:
-            response = self.client.post('/imgs/', dict(file=f))
+        response = self.client.post('/imgs/', dict(content=self.content2))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_twice(self):
         self.assertEqual(models.Image.objects.count(), 1)
-        with open('image/samples/test_480.jpg') as f:
-            response = self.client.post('/imgs/', dict(file=f))
+        response = self.client.post('/imgs/', dict(content=self.content2))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.Image.objects.count(), 2)
 
-        with open('image/samples/test_480.jpg') as f:
-            response = self.client.post('/imgs/', dict(file=f))
+        response = self.client.post('/imgs/', dict(content=self.content2))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.Image.objects.count(), 2)
 
@@ -84,6 +84,8 @@ class RawFileViewsetTest(APITestBase):
         self.assertIn('uuid', result)
         self.assertIn('vd', result)
         self.assertIn('file', result)
+        self.assertNotIn('id', result)
+        self.assertNotIn('dhash', result)
         self.assertEqual(result['uuid'], self.rf.uuid)
         self.assertEqual(result['vd'], self.vd.id)
 

@@ -5,10 +5,10 @@ from rest_framework.viewsets import ModelViewSet
 
 from image import models
 from image import serializers
-from base.views import BaseViewset
+from base.views import BaseViewset, ContentViewset
 
 
-class ImageViewset(ModelViewSet):
+class ImageViewset(ContentViewset):
     queryset = models.Image.objects.all()
     serializer_class = serializers.ImageSerializer
 
