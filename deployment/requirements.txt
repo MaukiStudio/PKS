@@ -14,3 +14,4 @@ pytest-xdist
 StringGenerator
 requests
 phonenumbers
+Pillow
