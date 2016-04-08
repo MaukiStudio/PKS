@@ -51,6 +51,12 @@ class APITestBase(APITestCase):
         result = InMemoryUploadedFile(ff, None, img_file_name, 'image/jpeg', ff.size, None, None)
         return result
 
+    def uploadFile(self, file_name):
+        f = open('image/samples/%s' % file_name, 'rb')
+        ff = File(f)
+        result = InMemoryUploadedFile(ff, None, file_name, None, ff.size, None, None)
+        return result
+
     def assertValidUuid(self, uuid_json):
         hex_str = uuid_json.split('.')[0]
         type_str = uuid_json.split('.')[1]
@@ -62,6 +68,13 @@ class APITestBase(APITestCase):
         if type(json) is dict:
             json = json_dumps(json)
         print(json)
+
+    @property
+    def vd_id(self):
+        vd_id = None
+        if VD_SESSION_KEY in self.client.session:
+            vd_id = self.client.session[VD_SESSION_KEY]
+        return vd_id
 
 
 class FunctionalTestBase(APITestBase):

@@ -5,8 +5,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 
-from base import models
-from base import serializers
 from base.utils import HashCollisionError
 from pks.settings import VD_SESSION_KEY
 from account.models import VD

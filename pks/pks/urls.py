@@ -20,6 +20,7 @@ router.register(r'vds', account_views.VDViewset)
 router.register(r'users', account_views.UserViewset)
 router.register(r'rus', account_views.RealUserViewset)
 
+router.register(r'rfs', image_views.RawFileViewset)
 router.register(r'imgs', image_views.ImageViewset)
 router.register(r'urls', url_views.UrlViewset)
 router.register(r'lps', content_views.LegacyPlaceViewset)

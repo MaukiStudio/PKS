@@ -12,7 +12,7 @@ from account.models import VD
 from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText, PhoneNumber
-from base.utils import get_timestamp
+from base.utils import get_timestamp, BIT_ON_8_BYTE, BIT_ON_6_BYTE
 
 
 class PlaceTest(APITestBase):
@@ -194,8 +194,8 @@ class PlaceContentTest(APITestBase):
         timestamp = get_timestamp()
         pc.save()
         self.assertNotEqual(pc.id, None)
-        self.assertAlmostEqual((int(pc.id) >> 8*8) & models.BIT_ON_8_BYTE, timestamp, delta=1000)
-        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, self.vd.id)
+        self.assertAlmostEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp, delta=1000)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.id, pc.id)
@@ -204,13 +204,12 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(saved.timestamp, pc.timestamp)
         self.assertAlmostEqual(pc.timestamp, timestamp, delta=1000)
 
-
     def test_id_property_with_timestamp(self):
         pc = models.PlaceContent(vd=self.vd)
         timestamp = get_timestamp()
         pc.save(timestamp=timestamp)
-        self.assertEqual((int(pc.id) >> 8*8) & models.BIT_ON_8_BYTE, timestamp)
-        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, self.vd.id)
+        self.assertEqual((int(pc.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
         saved = models.PlaceContent.objects.first()
         self.assertEqual(saved, pc)
         self.assertEqual(saved.id, pc.id)
@@ -218,7 +217,7 @@ class PlaceContentTest(APITestBase):
     def test_id_property_with_no_vd(self):
         pc = models.PlaceContent()
         pc.save()
-        self.assertEqual((int(pc.id) >> 2*8) & models.BIT_ON_6_BYTE, 0)
+        self.assertEqual((int(pc.id) >> 2*8) & BIT_ON_6_BYTE, 0)
 
     def test_place_property(self):
         pc = models.PlaceContent()
@@ -290,7 +289,6 @@ class PlaceContentTest(APITestBase):
         self.assertEqual(pc.phone, self.phone)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.phone, self.phone)
-
 
 
 class UserPlaceTest(APITestBase):

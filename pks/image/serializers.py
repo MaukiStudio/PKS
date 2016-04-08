@@ -25,3 +25,12 @@ class ImageSerializer(ModelSerializer):
             img.save()
             result = img
         return result
+
+
+class RawFileSerializer(ModelSerializer):
+    uuid = ReadOnlyField()
+
+    class Meta:
+        model = models.RawFile
+        read_only_fields = ('id',)
+        exclude = ('mhash',)

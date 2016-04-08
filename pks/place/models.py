@@ -10,7 +10,7 @@ from account.models import VD
 from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText, PhoneNumber
-from base.utils import get_timestamp
+from base.utils import get_timestamp, BIT_ON_8_BYTE
 
 # stxt_type
 STXT_TYPE_PLACE_NOTE = 1
@@ -19,10 +19,6 @@ STXT_TYPE_POS_DESC = 3
 STXT_TYPE_IMAGE_NOTE = 4
 STXT_TYPE_ADDRESS = 5
 STXT_TYPE_REMOVE_CONTENT = 254
-
-# bit mask for id (timestamp, vd)
-BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
-BIT_ON_6_BYTE = int('0x0000FFFFFFFFFFFF', 16)
 
 
 # TODO : 향후 삭제 처리 구현 필요. 특정 Content 를 삭제하고 싶은 경우 노트타입을 삭제로 붙임. 이 노트타입은 노트뿐만 아니라 다른 Content 에도 적용

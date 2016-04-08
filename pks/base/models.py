@@ -78,7 +78,7 @@ class Content(models.Model):
     def save(self, *args, **kwargs):
         # id/content 처리
         if not self.content:
-            raise NotImplementedError
+            raise AssertionError
         self.content = self.normalize_content(self.content)
         _id = self._id
         if self.id and self.id != _id:

@@ -6,8 +6,11 @@ NaverPlace 기능 추가하고 어드민 만들기
 
 lonLat 기반 목록 검색 기능 만들기
 
-
 전화번호 파싱 시 국가 처리
+
+RU 단위로 잘 처리되는지 테스트 추가
+
+mhash, dhash 처리하는 부분 장고 Celery 로 구현
 
 
 [Later]
@@ -43,3 +46,5 @@ Place.parent, Place.representative 속성 만들고 구현하기
 Point 타입에 왜 gist 인덱스가 걸려 있는지 확인
 content 조회를 파일 access 로 바꾸면서, uuid 조회는 join 을 하지 않도록 수정
 Post 관련 Tuning : Foreign Key 를 끊어서, Content 모델 조회 없이 바로 uuid 를 저장하도록. 혹은 content 값에서 double check 를 하거나 (CPU 만 쓰면 되므로)
+
+Serializer 로 데이터를 넘기는 방법이 파악되었으니, 필요한 곳에 이를 이용하여 리팩토링

@@ -11,6 +11,7 @@ from base.tests import APITestBase
 from image import models
 from PIL import Image as PIL_Image
 from image import exif_lib
+from account.models import VD
 
 
 class ImageTest(APITestBase):
@@ -99,3 +100,46 @@ class ImageTest(APITestBase):
         self.assertEqual(img, saved)
         self.assertIsNone(img.lonLat)
         self.assertIsNone(saved.lonLat)
+
+
+class RawFileTest(APITestBase):
+
+    def test_string_representation(self):
+        rf_id = uuid1()
+        rf = models.RawFile(id=rf_id)
+        self.assertEqual(unicode(rf), '%s.rf' % b16encode(rf_id.bytes))
+        self.assertEqual(rf.uuid, unicode(rf))
+
+    def test_save_and_retreive(self):
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.png')
+        rf.save()
+        saved = models.RawFile.objects.first()
+        self.assertEqual(saved, rf)
+        self.assertEqual(saved.file, rf.file)
+
+    def test_file_property(self):
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.png')
+        rf.save()
+        saved = models.RawFile.objects.first()
+
+        url = rf.file.url
+        print(url)
+        regex = re_compile(r'^.*rfs/\d{4}/\d{1,2}/\d{1,2}/.+$')
+        self.assertNotEqual(regex.match(url), None)
+        self.assertEqual(saved, rf)
+        self.assertEqual(saved.uuid, rf.uuid)
+        self.assertEqual(saved.file, rf.file)
+
+    def test_vd_property(self):
+        vd = VD(); vd.save()
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.png')
+        rf.vd = vd
+        rf.save()
+        saved = models.RawFile.objects.first()
+        self.assertNotEqual(rf.vd, None)
+        self.assertEqual(saved, rf)
+        self.assertEqual(saved.vd, rf.vd)
+
