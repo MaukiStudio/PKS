@@ -146,14 +146,14 @@ class Place(models.Model):
         self.post_cache = None
         super(Place, self).__init__(*args, **kwargs)
 
-    def computePost(self, myVds):
+    def computePost(self, my_vd_ids):
         if self.post_cache: return
 
         posts = [Post(self.id), Post(self.id)]
 
         for pc in self.pcs.all().order_by('-id'):
             for postType in (0, 1):
-                if postType == 0 and pc.vd_id not in myVds:
+                if postType == 0 and pc.vd_id not in my_vd_ids:
                     continue
                 posts[postType].add_pc(pc)
 
@@ -216,14 +216,14 @@ class UserPlace(models.Model):
 
     @property
     def userPost(self):
-        # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
-        self.place.computePost([self.vd.id])
+        vd_ids = (self.vd.realOwner_id and self.vd.realOwner.vd_ids) or [self.vd_id]
+        self.place.computePost(vd_ids)
         return self.place.userPost
 
     @property
     def placePost(self):
-        # TODO : [self.vd.id] 부분을 [ru.vds.id] 로 변경 구현. 성능을 위해 세션도 사용할 것
-        self.place.computePost([self.vd.id])
+        vd_ids = (self.vd.realOwner_id and self.vd.realOwner.vd_ids) or [self.vd_id]
+        self.place.computePost(vd_ids)
         return self.place.placePost
 
     def save(self, *args, **kwargs):
