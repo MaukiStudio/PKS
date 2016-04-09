@@ -8,9 +8,11 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework.test import APITestCase
 from uuid import UUID
 from json import loads as json_loads, dumps as json_dumps
+from os.path import join as os_path_join
+from os import system as os_system
 
-
-from pks.settings import VD_SESSION_KEY
+from pks.settings import VD_SESSION_KEY, MEDIA_ROOT
+from pathlib2 import Path
 
 
 class APITestBase(APITestCase):
@@ -75,6 +77,10 @@ class APITestBase(APITestCase):
         if VD_SESSION_KEY in self.client.session:
             vd_id = self.client.session[VD_SESSION_KEY]
         return vd_id
+
+    def clear_accessed_cache(self):
+        cache_root = os_path_join(MEDIA_ROOT, 'accessed')
+        os_system('rm -rf %s' % cache_root)
 
 
 class FunctionalTestBase(APITestBase):

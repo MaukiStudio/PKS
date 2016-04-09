@@ -7,6 +7,7 @@ from base64 import b16encode
 
 from base.tests import APITestBase
 from content import models
+from pathlib2 import Path
 
 
 class LegacyPlaceTest(APITestBase):
@@ -115,6 +116,34 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('fdc64a309ca7409a8a143be959307efe'))
 
+    def __skip__test_access_methods1(self):
+        lp = models.LegacyPlace()
+        test_data = '4ccffc63f6378cfaace1b1d6.4square'
+        lp.content = test_data
+        lp.save()
+
+        path = Path(lp.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        lp.access_force()
+        self.assertEqual(path.exists(), True)
+
+    def test_access_methods2(self):
+        lp = models.LegacyPlace()
+        test_data = '21149144.naver'
+        lp.content = test_data
+        lp.save()
+
+        path = Path(lp.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        lp.access_force()
+        self.assertEqual(path.exists(), True)
+
 
 class ShortTextTest(APITestBase):
 
@@ -148,6 +177,21 @@ class ShortTextTest(APITestBase):
         self.assertEqual(saved, stxt)
         self.assertEqual(saved.id, stxt.id)
         self.assertEqual(saved.content, stxt.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        stxt = models.ShortText()
+        test_data = '가끔 가면 맛있는 곳'
+        stxt.content = test_data
+        stxt.save()
+
+        path = Path(stxt.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        stxt.access_force()
+        self.assertEqual(path.exists(), True)
 
 
 class PhoneNumberTest(APITestBase):
@@ -183,3 +227,18 @@ class PhoneNumberTest(APITestBase):
         self.assertEqual(saved, phone)
         self.assertEqual(saved.id, phone.id)
         self.assertEqual(saved.content, phone.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        phone = models.PhoneNumber()
+        test_data = '031-724-2733'
+        phone.content = test_data
+        phone.save()
+
+        path = Path(phone.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        phone.access_force()
+        self.assertEqual(path.exists(), True)

@@ -5,7 +5,7 @@ from hashlib import sha256
 from base64 import urlsafe_b64encode
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
@@ -41,6 +41,12 @@ class RealUser(models.Model):
     @property
     def vd_ids(self):
         return [vd.id for vd in self.vds.all()]
+
+    def save(self, *args, **kwargs):
+        if not self.email:
+            raise ValueError('RealUser.email cannot be None')
+        self.email = BaseUserManager.normalize_email(self.email)
+        super(RealUser, self).save(*args, **kwargs)
 
 
 class VD(models.Model):

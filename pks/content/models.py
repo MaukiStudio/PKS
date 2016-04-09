@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from uuid import UUID
-from hashlib import md5
 from re import compile as re_compile
 
 from base.models import Content
@@ -61,13 +60,22 @@ class LegacyPlace(Content):
         elif splits[1] == 'naver':
             return UUID(b'00000002%s' % splits[0].rjust(24, b'0'))
         elif splits[1] == 'google':
-            # TODO : 나중에 튜닝하기 ㅠ_ㅜ
-            m = md5()
-            m.update(splits[0].encode(encoding='utf-8'))
-            h = m.hexdigest()
+            h = self.get_md5_hash(splits[0])
             h0 = hex(int(h[0], 16) | 8)[2:]
             return UUID('%s%s' % (h0, h[1:]))
         else:
+            raise NotImplementedError
+
+    @property
+    def access_url(self):
+        self.content = self.normalize_content(self.content)
+        splits = self.content.split('.')
+        if splits[1] == 'naver':
+            return 'http://map.naver.com/local/siteview.nhn?code=%s' % splits[0]
+        elif splits[1] == '4square':
+            return 'https://foursquare.com/v/%s' % splits[0]
+        else:
+            # TODO : 구글도 땡겨올 수 있게끔 수정
             raise NotImplementedError
 
 
@@ -79,7 +87,7 @@ class ShortText(Content):
 
     @property
     def accessedType(self):
-        return 'txt'
+        return 'html'
 
 
 class PhoneNumber(Content):
@@ -105,3 +113,12 @@ class PhoneNumber(Content):
     @property
     def _id(self):
         return UUID(self.content[1:].rjust(32, b'0'))
+
+    @property
+    def access_url(self):
+        self.content = self.normalize_content(self.content)
+        # TODO : 국가 처리
+        p = parse(self.content, 'KR')
+        r = format_number(p, PhoneNumberFormat.NATIONAL)
+        return 'http://www.google.com/#q="%s"' % r
+

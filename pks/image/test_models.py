@@ -12,9 +12,10 @@ from image import models
 from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
+from pathlib2 import Path
 
 
-class SimpleImageTest(APITestBase):
+class ImageTest(APITestBase):
 
     def test_string_representation(self):
         img = models.Image()
@@ -70,7 +71,6 @@ class SimpleImageTest(APITestBase):
         #self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
         self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)  # distance = 59
 
-    '''
     def test_gps_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
@@ -78,8 +78,12 @@ class SimpleImageTest(APITestBase):
         self.assertEqual(point.x, 127.103744)  # lon(경도)
         self.assertEqual(point.y, 37.399731)  # lat(위도)
 
+        rf = models.RawFile()
+        rf.file = self.uploadFile('gps_test.jpg')
+        rf.save()
+
         img = models.Image()
-        img.file = self.uploadImage('gps_test.jpg')
+        img.content = rf.file.url
         img.save()
         saved = models.Image.objects.first()
 
@@ -92,15 +96,37 @@ class SimpleImageTest(APITestBase):
         self.assertIsNone(lonLat[0])
         self.assertIsNone(lonLat[1])
 
+        rf = models.RawFile()
+        rf.file = self.uploadFile('no_exif_test.jpg')
+        rf.save()
+
         img = models.Image()
-        img.file = self.uploadImage('no_exif_test.jpg')
+        img.content = rf.file.url
         img.save()
         saved = models.Image.objects.first()
 
-        self.assertEqual(img, saved)
-        self.assertIsNone(img.lonLat)
-        self.assertIsNone(saved.lonLat)
-    '''
+        self.assertEqual(img.lonLat, None)
+        self.assertEqual(saved, img)
+        self.assertEqual(saved.lonLat, None)
+
+    def test_dhash(self):
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.jpg')
+        rf.save()
+        rf2 = models.RawFile()
+        rf2.file = self.uploadFile('test_256.jpg')
+        rf2.save()
+
+        img = models.Image()
+        img.content = rf.file.url
+        img.save()
+        img2 = models.Image()
+        img2.content = rf2.file.url
+        img2.save()
+
+        self.assertNotEqual(img.dhash, None)
+        self.assertNotEqual(img2.dhash, None)
+        self.assertEqual(img.dhash, img2.dhash)
 
 
 class RawFileTest(APITestBase):
@@ -144,3 +170,16 @@ class RawFileTest(APITestBase):
         self.assertEqual(saved, rf)
         self.assertEqual(saved.vd, rf.vd)
 
+    def test_image_cache(self):
+        self.clear_accessed_cache()
+
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.jpg')
+        rf.save()
+
+        img = models.Image()
+        img.content = rf.file.url
+        img.save()
+
+        path = Path(img.path_accessed)
+        self.assertEqual(path.exists(), True)

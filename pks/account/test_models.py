@@ -28,7 +28,7 @@ class RealUserTest(APITestBase):
 
     def test_email_not_null(self):
         realUser = models.RealUser()
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValueError):
             realUser.save()
 
     def test_email_property(self):

@@ -6,8 +6,13 @@ from hashlib import md5
 from base64 import b16encode
 from django.contrib.gis.db import models
 from json import loads as json_loads
+from os.path import join as os_path_join
+from rest_framework import status
 
 from base.utils import HashCollisionError
+from requests import get as requests_get
+from pks.settings import MEDIA_ROOT
+from pathlib2 import Path
 
 
 class Content(models.Model):
@@ -41,6 +46,16 @@ class Content(models.Model):
     def post_save(self):
         pass
 
+    @property
+    def access_url(self):
+        _url = self.content.strip()
+        if _url.startswith('http'):
+            return _url
+
+        # TODO : 구글도 땡겨올 수 있게끔 수정
+        raise NotImplementedError
+        #return 'https://www.google.com/#q="%s"' % _url
+
     # MAYBE NOT override
     def __unicode__(self):
         return self.content
@@ -48,10 +63,6 @@ class Content(models.Model):
     @property
     def uuid(self):
         return '%s.%s' % (b16encode(self.id.bytes), self.contentType,)
-
-    @property
-    def accessed(self):
-        return '%s.%s' % (self.uuid, self.accessedType,)
 
     # DO NOT override
     @classmethod
@@ -69,7 +80,7 @@ class Content(models.Model):
         return result
 
     @classmethod
-    def get_md5_hash(self, v):
+    def get_md5_hash(cls, v):
         m = md5()
         m.update(v.encode(encoding='utf-8'))
         return m.hexdigest()
@@ -88,3 +99,40 @@ class Content(models.Model):
         self.pre_save()
         super(Content, self).save(*args, **kwargs)
         self.post_save()
+
+    # Methods for access
+    def access_force(self):
+        headers = {'user-agent': 'Chrome'}
+        r = requests_get(self.access_url, headers=headers)
+        if r.status_code not in (status.HTTP_200_OK,):
+            raise ValueError('Not valid access_url')
+        file = Path(self.path_accessed)
+        if not file.parent.exists():
+            file.parent.mkdir(parents=True)
+        file.write_bytes(r.content)
+
+    def access_local(self, source):
+        file = Path(self.path_accessed)
+        if not file.parent.exists():
+            file.parent.mkdir(parents=True)
+        file.symlink_to(source)
+
+    def access(self):
+        if not self.is_accessed:
+            # TODO : 로컬 URL 인 경우 access_local() 을 호출하도록 수정
+            self.access_force()
+
+    @property
+    def is_accessed(self):
+        file = Path(self.path_accessed)
+        return file.parent.exists()
+
+    @property
+    def uuid_accessed(self):
+        return '%s.%s' % (self.uuid, self.accessedType,)
+
+    @property
+    def path_accessed(self):
+        splits = self.uuid.split('.')
+        return os_path_join(MEDIA_ROOT, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
+

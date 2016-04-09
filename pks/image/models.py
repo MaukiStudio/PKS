@@ -40,13 +40,15 @@ class Image(Content):
         ext = self.content.split('.')[-1]
         if ext.lower() not in ('jpg', 'jpeg'):
             raise NotImplementedError
-        if not self.lonLat:
-            # TODO : CacheManager 만들어서 file 값 할당하기
-            file = None
-            self.process_exif(file)
+        if self.is_accessed:
+            file = self.path_accessed
+            if not self.lonLat:
+                self.lonLat = self.process_exif(file)
+            if not self.dhash:
+                self.dhash = self.compute_id_from_file(file)
 
     def post_save(self):
-        # file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
+        # TODO : file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
         if not self.dhash:
             pass
 
@@ -66,14 +68,15 @@ class Image(Content):
             z &= z - 1
         return count
 
+    @classmethod
     def process_exif(self, file):
         if not file:
-            return
+            return None
         exif = exif_lib.get_exif_data(PIL_Image.open(file))
         lonLat = exif_lib.get_lon_lat(exif)
         if lonLat[0] and lonLat[1]:
-            point = GEOSGeometry('POINT(%f %f)' % lonLat)
-            self.lonLat = point
+            return GEOSGeometry('POINT(%f %f)' % lonLat)
+        return None
 
 
 class RawFile(models.Model):
@@ -114,3 +117,10 @@ class RawFile(models.Model):
         self.file.name = '%s_%s' % (self.uuid, self.file.name)
         super(RawFile, self).save(*args, **kwargs)
 
+        # 이미지인 경우 바로 캐시 처리
+        ext = self.file.name.split('.')[-1]
+        if ext.lower() in ('jpg', 'jpeg'):
+            img = Image(content=self.file.url)
+            img.content = img.normalize_content(img.content)
+            img.id = img._id
+            img.access_local(self.file.path)

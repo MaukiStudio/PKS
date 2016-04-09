@@ -10,6 +10,7 @@ from base64 import b16encode
 
 from base.tests import APITestBase
 from url import models
+from pathlib2 import Path
 
 
 class UrlTest(APITestBase):
@@ -48,3 +49,17 @@ class UrlTest(APITestBase):
 
         with self.assertRaises(IntegrityError):
             models.Url.objects.create(content=url.content)
+
+    def test_access_methods(self):
+        url = models.Url()
+        test_data = 'http://m.blog.naver.com/mardukas/220555109681'
+        url.content = test_data
+        url.save()
+
+        path = Path(url.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        url.access_force()
+        self.assertEqual(path.exists(), True)

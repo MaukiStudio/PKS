@@ -1,7 +1,7 @@
 [Now]
-CacheManager 인터페이스 및 기본 기능 만들기
 썸네일 기능 구현
 lonLat 기반 목록 검색 기능 만들기
+Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
 NaverPlace 기능 추가하고 어드민 만들기
 
 
@@ -13,6 +13,7 @@ RU 단위로 잘 처리되는지 테스트 추가
 
 mhash, dhash 처리하는 부분 장고 Celery 로 구현
 
+Content accessed 캐시쪽 미구현 사항 구현
 
 [Later]
 Admin 사이트 로그인 테스트 기능 추가
