@@ -11,7 +11,7 @@ from rest_framework import status
 
 from base.utils import HashCollisionError
 from requests import get as requests_get
-from pks.settings import MEDIA_ROOT
+from pks.settings import MEDIA_ROOT, MEDIA_URL
 from pathlib2 import Path
 
 
@@ -109,12 +109,18 @@ class Content(models.Model):
         file = Path(self.path_accessed)
         if not file.parent.exists():
             file.parent.mkdir(parents=True)
+        summary = Path(self.path_summarized)
+        if not Path(self.path_summarized).parent.exists():
+            summary.parent.mkdir(parents=True)
         file.write_bytes(r.content)
 
     def access_local(self, source):
         file = Path(self.path_accessed)
         if not file.parent.exists():
             file.parent.mkdir(parents=True)
+        summary = Path(self.path_summarized)
+        if not Path(self.path_summarized).parent.exists():
+            summary.parent.mkdir(parents=True)
         file.symlink_to(source)
 
     def access(self):
@@ -125,7 +131,7 @@ class Content(models.Model):
     @property
     def is_accessed(self):
         file = Path(self.path_accessed)
-        return file.parent.exists()
+        return file.exists()
 
     @property
     def uuid_accessed(self):
@@ -135,4 +141,31 @@ class Content(models.Model):
     def path_accessed(self):
         splits = self.uuid.split('.')
         return os_path_join(MEDIA_ROOT, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
+
+    # Methods for thumbnail
+    def summarize_force(self, accessed=None):
+        raise NotImplementedError
+
+    def summarize(self, accessed=None):
+        if not self.is_summarized:
+            self.summarize_force(accessed)
+
+    @property
+    def is_summarized(self):
+        file = Path(self.path_summarized)
+        return file.exists()
+
+    @property
+    def uuid_summarized(self):
+        return '%s.%s.%s' % (self.uuid, 'summary', self.accessedType,)
+
+    @property
+    def path_summarized(self):
+        splits = self.uuid.split('.')
+        return os_path_join(MEDIA_ROOT, 'summary', splits[1], splits[0][-3:], self.uuid_summarized)
+
+    @property
+    def url_summarized(self):
+        splits = self.uuid.split('.')
+        return os_path_join(MEDIA_URL.lstrip('/'), 'summary', splits[1], splits[0][-3:], self.uuid_summarized)
 

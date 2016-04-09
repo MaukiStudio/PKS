@@ -8,7 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from random import randrange
 
 from imagehash import dhash
-from PIL import Image as PIL_Image
+from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
 from base.models import Content
@@ -41,11 +41,13 @@ class Image(Content):
         if ext.lower() not in ('jpg', 'jpeg'):
             raise NotImplementedError
         if self.is_accessed:
-            file = self.path_accessed
+            pil = PIL_Image.open(self.path_accessed)
             if not self.lonLat:
-                self.lonLat = self.process_exif(file)
+                self.lonLat = self.process_exif(pil)
             if not self.dhash:
-                self.dhash = self.compute_id_from_file(file)
+                self.dhash = self.compute_id_from_file(pil)
+            self.summarize(pil)
+
 
     def post_save(self):
         # TODO : file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
@@ -54,11 +56,26 @@ class Image(Content):
 
     # Image's method
     @classmethod
-    def compute_id_from_file(cls, file):
-        pil = PIL_Image.open(file)
+    def compute_id_from_file(cls, pil):
         d1 = dhash(pil)
         d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
         return UUID('%s%s' % (d1, d2))
+
+    @classmethod
+    def process_exif(cls, pil):
+        if not file:
+            return None
+        exif = exif_lib.get_exif_data(pil)
+        lonLat = exif_lib.get_lon_lat(exif)
+        if lonLat[0] and lonLat[1]:
+            return GEOSGeometry('POINT(%f %f)' % lonLat)
+        return None
+
+    def summarize_force(self, accessed=None):
+        if not accessed:
+            accessed = PIL_Image.open(self.path_accessed)
+        thumb = PIL_ImageOps.fit(accessed, (300,200), PIL_Image.ANTIALIAS)
+        thumb.save(self.path_summarized)
 
     @classmethod
     def hamming_distance(cls, id1, id2):
@@ -67,16 +84,6 @@ class Image(Content):
             count += 1
             z &= z - 1
         return count
-
-    @classmethod
-    def process_exif(self, file):
-        if not file:
-            return None
-        exif = exif_lib.get_exif_data(PIL_Image.open(file))
-        lonLat = exif_lib.get_lon_lat(exif)
-        if lonLat[0] and lonLat[1]:
-            return GEOSGeometry('POINT(%f %f)' % lonLat)
-        return None
 
 
 class RawFile(models.Model):

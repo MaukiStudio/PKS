@@ -44,7 +44,7 @@ class Post(object):
             uuid = pc.image.uuid
             dl = self.json['images']
             if uuid not in [d['uuid'] for d in dl]:
-                dl.append(dict(uuid=uuid, content=pc.image.content, note=None, timestamp=pc.timestamp))
+                dl.append(dict(uuid=uuid, content=pc.image.content, note=None, timestamp=pc.timestamp, summary=pc.image.url_summarized))
             if pc.stxt_type == STXT_TYPE_IMAGE_NOTE and pc.stxt.content:
                 d = None
                 for dt in dl:

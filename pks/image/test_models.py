@@ -58,12 +58,12 @@ class ImageTest(APITestBase):
             img2.save()
 
     def test_id(self):
-        id_640 = models.Image.compute_id_from_file('image/samples/test.jpg')
-        id_256 = models.Image.compute_id_from_file('image/samples/test_256.jpg')
-        id_480 = models.Image.compute_id_from_file('image/samples/test_480.jpg')
-        #id_1200 = models.Image.compute_id_from_file('image/samples/test_1200.jpg')
-        #id_org = models.Image.compute_id_from_file('image/samples/test_org.jpg')
-        id2 = models.Image.compute_id_from_file('image/samples/no_exif_test.jpg')
+        id_640 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test.jpg'))
+        id_256 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test_256.jpg'))
+        id_480 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test_480.jpg'))
+        #id_1200 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test_1200.jpg'))
+        #id_org = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test_org.jpg'))
+        id2 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/no_exif_test.jpg'))
 
         self.assertLessEqual(models.Image.hamming_distance(id_640, id_256), 0)
         self.assertLessEqual(models.Image.hamming_distance(id_640, id_480), 1)
@@ -171,7 +171,7 @@ class RawFileTest(APITestBase):
         self.assertEqual(saved.vd, rf.vd)
 
     def test_image_cache(self):
-        self.clear_accessed_cache()
+        #self.clear_accessed_cache()
 
         rf = models.RawFile()
         rf.file = self.uploadFile('test.jpg')
@@ -183,3 +183,5 @@ class RawFileTest(APITestBase):
 
         path = Path(img.path_accessed)
         self.assertEqual(path.exists(), True)
+        path2 = Path(img.path_summarized)
+        self.assertEqual(path2.exists(), True)

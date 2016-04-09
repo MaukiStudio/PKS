@@ -148,7 +148,7 @@ class PlaceTest(APITestBase):
         self.assertIn('timestamp', place.placePost.json['lps'][0])
         timestamp = place.placePost.json['lonLat']['timestamp']
         self.assertAlmostEqual(get_timestamp(), timestamp, delta=1000)
-
+        self.assertIn('summary', place.placePost.json['images'][0])
         self.assertIn('phone', place.placePost.json)
         self.assertNotEqual(place.placePost.json['images'][0]['content'], None)
 
