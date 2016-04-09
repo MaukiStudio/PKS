@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import json
-from django.contrib.auth.models import User
+from json import loads as json_loads, dumps as json_dumps
+from account.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.db import IntegrityError
 
@@ -111,10 +111,10 @@ class VDTest(APITestBase):
     def test_data_property(self):
         j = '{"deviceName": "%s", "deviceTypeName": "%s"}' % (SG('[\w\-]{36}').render(), 'LG-F460L')
         vd = models.VD()
-        vd.data = json.loads(j)
+        vd.data = json_loads(j)
         vd.save()
         saved = models.VD.objects.first()
-        self.assertEqual(j, json.dumps(saved.data, encoding='utf-8'))
+        self.assertEqual(j, json_dumps(saved.data, encoding='utf-8'))
 
     def test_lastLonLat_property(self):
         point = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -153,16 +153,10 @@ class VDTest(APITestBase):
         user2.save()
         vd1.authOwner = user2
         vd1_aid2 = unicode(vd1.aid)
-        vd2 = models.VD()
-        vd2.save()
-        vd2_aid = unicode(vd2.aid)
-        vd2_aid2 = unicode(vd2.aid)
 
         self.assertGreater(len(vd1_aid), 32)
-        self.assertEqual(5, len({vd1_aid, vd1_aid2, vd2_aid, unicode(vd1.id), unicode(vd2.id)}))
+        self.assertNotEqual(vd1_aid, unicode(vd1.id))
+        self.assertNotEqual(vd1_aid2, unicode(vd1.id))
+        self.assertEqual(vd1.aid2id(vd1_aid2), vd1.id)
         with self.assertRaises(InvalidToken):
-            vd1.getIdFromAid(vd1_aid)
-        self.assertEqual(vd1.getIdFromAid(vd1_aid2), vd1.id)
-        self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.id)
-        self.assertNotEqual(vd2_aid, vd2_aid2)
-        self.assertEqual(vd2.getIdFromAid(vd2_aid), vd2.getIdFromAid(vd2_aid2))
+            vd1.aid2id(vd1_aid)

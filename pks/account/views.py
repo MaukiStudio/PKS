@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from uuid import uuid1
 from base64 import urlsafe_b64encode
-from django.contrib.auth.models import User
+from account.models import User
 from django.contrib.auth import login, authenticate
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import list_route, detail_route
@@ -62,7 +62,7 @@ class VDViewset(ModelViewSet):
 
     def getToken(self, vd):
         raw_token = '%s|%s' % (vd.id, vd.authOwner_id)
-        encrypter = Fernet(models.getVdEncKey(vd.authOwner))
+        encrypter = Fernet(vd.authOwner.crypto_key)
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
     @list_route(methods=['post'])
@@ -104,7 +104,7 @@ class VDViewset(ModelViewSet):
     def login(self, request):
         # auth_vd_token
         token = request.data['auth_vd_token']
-        decrypter = Fernet(models.getVdEncKey(request.user))
+        decrypter = Fernet(request.user.crypto_key)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
         vd_id = int(raw_token.split('|')[0])
         user_id = int(raw_token.split('|')[1])
@@ -134,7 +134,7 @@ class VDViewset(ModelViewSet):
         if unicode(aid) == 'myself':
             vd_id = self.request.session[VD_SESSION_KEY]
         else:
-            vd_id = models.getVidIdFromAid(self.request.user, aid)
+            vd_id = self.request.user.aid2id(aid)
         return models.VD.objects.get(id=vd_id)
 
 

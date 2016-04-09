@@ -5,25 +5,31 @@ from hashlib import sha256
 from base64 import urlsafe_b64encode
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
 
 
-def getVdEncKey(user):
-    if not user or not user.id:
-        return VD_ENC_KEY
-    raw_key = '%d|%s' % (user.id, VD_ENC_KEY)
-    h = sha256()
-    h.update(raw_key)
-    return urlsafe_b64encode(h.digest())
+class User(AbstractUser):
 
-def getVidIdFromAid(user, aid):
-    key = getVdEncKey(user)
-    decrypter = Fernet(key)
-    result = decrypter.decrypt(aid.encode(encoding='utf-8'))
-    return int(result)
+    def __init__(self, *args, **kwargs):
+        self._cache_crypto_key = None
+        super(User, self).__init__(*args, **kwargs)
+
+    @property
+    def crypto_key(self):
+        if not self._cache_crypto_key:
+            raw_key = '%d|%s' % (self.id, VD_ENC_KEY)
+            h = sha256()
+            h.update(raw_key)
+            self._cache_crypto_key = urlsafe_b64encode(h.digest())
+        return self._cache_crypto_key
+
+    def aid2id(self, aid):
+        decrypter = Fernet(self.crypto_key)
+        result = decrypter.decrypt(aid.encode(encoding='utf-8'))
+        return int(result)
 
 
 class RealUser(models.Model):
@@ -59,11 +65,9 @@ class VD(models.Model):
 
     @property
     def aid(self):
-        key = getVdEncKey(self.authOwner)
-        encrypter = Fernet(key)
+        encrypter = Fernet(self.authOwner.crypto_key)
         result = encrypter.encrypt(unicode(self.id).encode(encoding='utf-8'))
         return result
 
-    def getIdFromAid(self, aid):
-        return getVidIdFromAid(self.authOwner, aid)
-
+    def aid2id(self, aid):
+        return self.authOwner.aid2id(aid)

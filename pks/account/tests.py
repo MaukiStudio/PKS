@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from django.contrib.auth.models import User
+from account.models import User
 from rest_framework import status
 
 from strgen import StringGenerator as SG
@@ -110,7 +110,7 @@ class VDRegisterTest(APITestBase):
 
         result = json.loads(response.content)
         self.assertIn('auth_vd_token', result)
-        decrypter = Fernet(models.getVdEncKey(user))
+        decrypter = Fernet(user.crypto_key)
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
         vd_id = int(raw_token.split('|')[0])
         user_id = int(raw_token.split('|')[1])
@@ -144,7 +144,7 @@ class VDRegisterTest(APITestBase):
 
         result = json.loads(response.content)
         self.assertIn('auth_vd_token', result)
-        decrypter = Fernet(models.getVdEncKey(user))
+        decrypter = Fernet(user.crypto_key)
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
         vd_id = int(raw_token.split('|')[0])
         user_id = int(raw_token.split('|')[1])
