@@ -15,3 +15,4 @@ StringGenerator
 requests
 phonenumbers
 Pillow
+pathlib2
