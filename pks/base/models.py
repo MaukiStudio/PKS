@@ -74,8 +74,9 @@ class Content(models.Model):
             _id = UUID(json['uuid'].split('.')[0])
             result = cls.objects.get(id=_id)
         elif 'content' in json and json['content']:
-            result, created = cls.objects.get_or_create(content=json['content'])
-            if result.content != json['content']:
+            content = cls.normalize_content(json['content'])
+            result, created = cls.objects.get_or_create(content=content)
+            if result.content != content:
                 raise HashCollisionError
         return result
 

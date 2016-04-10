@@ -74,6 +74,7 @@ class APITestBase(APITestCase):
         if type(json) is dict:
             json = json_dumps(json)
         print(json)
+        print('')
 
     @property
     def vd_id(self):

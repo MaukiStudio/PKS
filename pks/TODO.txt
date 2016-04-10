@@ -1,6 +1,8 @@
 [Now]
 NaverPlace 기능 추가하고 어드민 만들기
 
+Post create 부분 리팩토링
+
 Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
 
 
