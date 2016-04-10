@@ -192,9 +192,10 @@ class UserPlaceViewSetTest(APITestBase):
                     {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null}
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s",
+                        "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null}
                 ],
                 "urls": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
@@ -211,7 +212,8 @@ class UserPlaceViewSetTest(APITestBase):
                name1.uuid, name1.content, posDesc1.uuid, posDesc1.content, phone1.uuid, phone1.content,
                addr11.uuid, addr11.content, addr12.uuid, addr12.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
-               img1.uuid, img1.content, imgNote1.uuid, imgNote1.content, img2.uuid, img2.content, img3.uuid, img3.content,
+               img1.uuid, img1.content, img1.url_summarized, imgNote1.uuid, imgNote1.content,
+               img2.uuid, img2.content, img2.url_summarized, img3.uuid, img3.content, img3.url_summarized,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = models.Post(json_full)

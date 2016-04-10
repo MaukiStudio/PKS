@@ -27,9 +27,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                     {"uuid": "%s", "content": "%s", "timestamp": null}
                 ],
                 "images": [
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "note": null}
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s",
+                        "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null}
                 ],
                 "urls": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
