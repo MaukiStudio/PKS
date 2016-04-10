@@ -1,4 +1,5 @@
 sudo -u postgres psql -a -f .script/nosuperuser.sql
+sudo rm -rf ../media
 rm account/migrations/0*
 rm base/migrations/0*
 rm content/migrations/0*
@@ -11,3 +12,4 @@ sudo -u postgres psql -a -f .script/superuser.sql
 python manage.py reset_db
 sudo -u postgres psql -a -f .script/nosuperuser.sql
 ./notify_model_changed.sh
+sudo rm -rf ../media
