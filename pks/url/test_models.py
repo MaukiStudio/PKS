@@ -2,9 +2,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from django.utils import timezone
-from datetime import timedelta
-from uuid import uuid1
 from django.db import IntegrityError
 from base64 import b16encode
 
@@ -57,9 +54,6 @@ class UrlTest(APITestBase):
         url.save()
 
         path = Path(url.path_accessed)
-        if path.exists():
-            path.unlink()
-
         self.assertEqual(path.exists(), False)
-        url.access_force()
+        url.access()
         self.assertEqual(path.exists(), True)

@@ -19,6 +19,7 @@ from account.models import VD
 class PlaceViewSetTest(APITestBase):
 
     def setUp(self):
+        super(PlaceViewSetTest, self).setUp()
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
@@ -65,6 +66,7 @@ class PlaceViewSetTest(APITestBase):
 class PlaceContentViewSetTest(APITestBase):
 
     def setUp(self):
+        super(PlaceContentViewSetTest, self).setUp()
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
@@ -83,6 +85,7 @@ class PlaceContentViewSetTest(APITestBase):
 class UserPlaceViewSetTest(APITestBase):
 
     def setUp(self):
+        super(UserPlaceViewSetTest, self).setUp()
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})

@@ -12,6 +12,7 @@ from base.tests import APITestBase
 class ApiRootTest(APITestBase):
 
     def setUp(self):
+        super(ApiRootTest, self).setUp()
         self.response = self.client.get('/')
 
     def test_can_connect(self):
@@ -25,6 +26,7 @@ class ApiRootTest(APITestBase):
 class AdminTest(TestCase):
 
     def setUp(self):
+        super(AdminTest, self).setUp()
         self.response = self.client.get('/admin/')
 
     def test_can_connect(self):

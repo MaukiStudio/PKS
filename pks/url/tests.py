@@ -12,6 +12,7 @@ from url import models
 class UrlViewsetTest(APITestBase):
 
     def setUp(self):
+        super(UrlViewsetTest, self).setUp()
         '''
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']

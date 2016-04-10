@@ -12,6 +12,7 @@ from content import models
 class LegacyPlaceViewsetTest(APITestBase):
 
     def setUp(self):
+        super(LegacyPlaceViewsetTest, self).setUp()
         '''
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
@@ -59,6 +60,7 @@ class LegacyPlaceViewsetTest(APITestBase):
 class ShortTextViewsetTest(APITestBase):
 
     def setUp(self):
+        super(ShortTextViewsetTest, self).setUp()
         self.stxt = models.ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
         self.stxt.save()
 
@@ -97,6 +99,7 @@ class ShortTextViewsetTest(APITestBase):
 class PhoneNumberViewsetTest(APITestBase):
 
     def setUp(self):
+        super(PhoneNumberViewsetTest, self).setUp()
         self.phone = models.PhoneNumber(content='010-5475-9245')
         self.phone.save()
 

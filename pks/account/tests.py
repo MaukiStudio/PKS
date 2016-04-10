@@ -97,6 +97,7 @@ class UserAutoRegisterLoginTest(APITestBase):
 
 class VDRegisterTest(APITestBase):
     def setUp(self):
+        super(VDRegisterTest, self).setUp()
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
@@ -174,6 +175,7 @@ class VDRegisterTest(APITestBase):
 
 class VDLoginTest(APITestBase):
     def setUp(self):
+        super(VDLoginTest, self).setUp()
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
@@ -227,6 +229,7 @@ class VDLoginTest(APITestBase):
 class VDViewSetTest(APITestBase):
 
     def setUp(self):
+        super(VDViewSetTest, self).setUp()
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
@@ -254,6 +257,7 @@ class VDViewSetTest(APITestBase):
 class RealUserViewSetBasicTest(APITestBase):
 
     def setUp(self):
+        super(RealUserViewSetBasicTest, self).setUp()
         self.ru = models.RealUser(email='gulby@maukistudio.com')
         self.ru.save()
         self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
@@ -290,6 +294,7 @@ class RealUserViewSetBasicTest(APITestBase):
 
 class RealUserViewsetTest(APITestBase):
     def setUp(self):
+        super(RealUserViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
         auth_user_token = json.loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})

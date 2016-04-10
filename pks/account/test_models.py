@@ -47,6 +47,7 @@ class RealUserTest(APITestBase):
 class VDTest(APITestBase):
 
     def setUp(self):
+        super(VDTest, self).setUp()
         self.user = User()
         self.user.username = SG('[\w]{30}').render()
         self.user.password = SG('[\l]{6:10}&[\d]{2}').render()

@@ -15,6 +15,9 @@ from pks.settings import VD_SESSION_KEY, MEDIA_ROOT, WORK_ENVIRONMENT
 
 class APITestBase(APITestCase):
 
+    def setUp(self):
+        self.clear_media_files()
+
     def check_login(self, user=None):
         session_key = self.client.session.get(SESSION_KEY)
         if session_key and (not user or session_key == unicode(user.id)):
@@ -104,6 +107,7 @@ class FunctionalTestBase(APITestBase):
 class FunctionalTestAfterLoginBase(FunctionalTestBase):
 
     def setUp(self):
+        super(FunctionalTestAfterLoginBase, self).setUp()
         response = self.client.post('/users/register/')
         self.secureStorage['auth_user_token'] = json_loads(response.content)['auth_user_token']
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))

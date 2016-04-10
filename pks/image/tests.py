@@ -12,6 +12,7 @@ from account.models import VD
 
 class ImageViewsetTest(APITestBase):
     def setUp(self):
+        super(ImageViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
@@ -57,6 +58,7 @@ class ImageViewsetTest(APITestBase):
 
 class RawFileViewsetTest(APITestBase):
     def setUp(self):
+        super(RawFileViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
         self.auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})

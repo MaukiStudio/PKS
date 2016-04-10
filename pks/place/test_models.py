@@ -183,6 +183,7 @@ class PlaceTest(APITestBase):
 class PlaceContentTest(APITestBase):
 
     def setUp(self):
+        super(PlaceContentTest, self).setUp()
         self.place = models.Place()
         self.place.save()
         self.vd = VD()
@@ -314,6 +315,7 @@ class PlaceContentTest(APITestBase):
 class UserPlaceTest(APITestBase):
 
     def setUp(self):
+        super(UserPlaceTest, self).setUp()
         self.place = models.Place()
         point = GEOSGeometry('POINT(127.1037430 37.3997320)')
         self.place.lonLat = point

@@ -36,6 +36,7 @@ class RegisterScenarioTest(FunctionalTestBase):
 class LoginScenarioTest(FunctionalTestBase):
 
     def setUp(self):
+        super(LoginScenarioTest, self).setUp()
         response = self.client.post('/users/register/')
         self.secureStorage['auth_user_token'] = json_loads(response.content)['auth_user_token']
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
