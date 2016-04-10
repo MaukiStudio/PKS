@@ -11,6 +11,9 @@ from json import loads as json_loads, dumps as json_dumps
 from os import system as os_system
 
 from pks.settings import VD_SESSION_KEY, MEDIA_ROOT, WORK_ENVIRONMENT
+from requests import get as requests_get
+from rest_framework import status
+from pathlib2 import Path
 
 
 class APITestBase(APITestCase):
@@ -82,6 +85,15 @@ class APITestBase(APITestCase):
     def clear_media_files(self):
         if WORK_ENVIRONMENT:
             os_system('rm -rf %s' % MEDIA_ROOT)
+
+    def assertValidInternetUrl(self, url):
+        self.assertEqual(url.startswith('http'), True)
+        r = requests_get(url)
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+
+    def assertValidLocalFile(self, path):
+        path = Path(path)
+        self.assertEqual(path.exists(), True)
 
 
 class FunctionalTestBase(APITestBase):

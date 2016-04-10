@@ -7,7 +7,6 @@ from base64 import b16encode
 
 from base.tests import APITestBase
 from url import models
-from pathlib2 import Path
 
 
 class UrlTest(APITestBase):
@@ -53,7 +52,6 @@ class UrlTest(APITestBase):
         url.content = test_data
         url.save()
 
-        path = Path(url.path_accessed)
-        self.assertEqual(path.exists(), False)
         url.access()
-        self.assertEqual(path.exists(), True)
+        self.assertValidLocalFile(url.path_accessed)
+        self.assertValidInternetUrl(url.url_accessed)

@@ -6,15 +6,12 @@ from uuid import uuid1
 from base64 import b16encode
 from django.contrib.gis.geos import GEOSGeometry
 from re import compile as re_compile
-from rest_framework import status
 
 from base.tests import APITestBase
 from image import models
 from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
-from pathlib2 import Path
-from requests import get as requests_get
 
 
 class ImageTest(APITestBase):
@@ -130,6 +127,26 @@ class ImageTest(APITestBase):
         self.assertNotEqual(img2.dhash, None)
         self.assertEqual(img.dhash, img2.dhash)
 
+    def test_access_methods(self):
+        img = models.Image()
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
+        img.save()
+
+        img.access()
+        self.assertValidLocalFile(img.path_accessed)
+        self.assertValidInternetUrl(img.url_accessed)
+
+    def test_summarize_methods(self):
+        img = models.Image()
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
+        img.save()
+
+        img.summarize()
+        self.assertValidLocalFile(img.path_summarized)
+        self.assertValidInternetUrl(img.url_summarized)
+
 
 class RawFileTest(APITestBase):
 
@@ -176,20 +193,12 @@ class RawFileTest(APITestBase):
         rf.file = self.uploadFile('test.jpg')
         rf.save()
 
-        img = models.Image()
-        img.content = rf.file.url
+        img = models.Image(content=rf.file.url)
+        img.content = img.normalize_content(img.content)
+        img.id = img._id
+        self.assertValidLocalFile(img.path_accessed)
+        self.assertValidInternetUrl(img.url_accessed)
+
         img.save()
-
-        path = Path(img.path_accessed)
-        self.assertEqual(path.exists(), True)
-        path2 = Path(img.path_summarized)
-        self.assertEqual(path2.exists(), True)
-
-        url_summarized = img.url_summarized
-        self.assertEqual(url_summarized.startswith('http'), True)
-        r = requests_get(url_summarized)
-        self.assertEqual(r.status_code, status.HTTP_200_OK)
-        url_accessed = img.url_accessed
-        self.assertEqual(url_accessed.startswith('http'), True)
-        r = requests_get(url_accessed)
-        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertValidInternetUrl(img.url_accessed)
+        self.assertValidInternetUrl(img.url_summarized)

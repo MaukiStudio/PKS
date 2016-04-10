@@ -152,6 +152,7 @@ class Content(models.Model):
         raise NotImplementedError
 
     def summarize(self, accessed=None):
+        self.access()
         if not self.is_summarized:
             self.summarize_force(accessed)
 
