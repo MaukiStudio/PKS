@@ -6,6 +6,7 @@ from uuid import uuid1
 from base64 import b16encode
 from django.contrib.gis.geos import GEOSGeometry
 from re import compile as re_compile
+from rest_framework import status
 
 from base.tests import APITestBase
 from image import models
@@ -13,6 +14,7 @@ from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
 from pathlib2 import Path
+from requests import get as requests_get
 
 
 class ImageTest(APITestBase):
@@ -152,7 +154,6 @@ class RawFileTest(APITestBase):
         saved = models.RawFile.objects.first()
 
         url = rf.file.url
-        print(url)
         regex = re_compile(r'^.*rfs/\d{4}/\d{1,2}/\d{1,2}/.+$')
         self.assertNotEqual(regex.match(url), None)
         self.assertEqual(saved, rf)
@@ -185,3 +186,12 @@ class RawFileTest(APITestBase):
         self.assertEqual(path.exists(), True)
         path2 = Path(img.path_summarized)
         self.assertEqual(path2.exists(), True)
+
+        url_summarized = img.url_summarized
+        self.assertEqual(url_summarized.startswith('http'), True)
+        r = requests_get(url_summarized)
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        url_accessed = img.url_accessed
+        self.assertEqual(url_accessed.startswith('http'), True)
+        r = requests_get(url_accessed)
+        self.assertEqual(r.status_code, status.HTTP_200_OK)

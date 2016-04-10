@@ -14,6 +14,7 @@ from base.utils import get_timestamp, BIT_ON_8_BYTE
 from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
+from pks.settings import SERVER_HOST
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
@@ -34,7 +35,10 @@ class Image(Content):
     # CAN override
     @classmethod
     def normalize_content(cls, raw_content):
-        return url_norms(raw_content.strip())
+        url = url_norms(raw_content.strip())
+        if not url.startswith('http'):
+            url = '%s%s' % (SERVER_HOST, url)
+        return url
 
     def pre_save(self):
         ext = self.content.split('.')[-1]
@@ -129,5 +133,7 @@ class RawFile(models.Model):
         if ext.lower() in ('jpg', 'jpeg'):
             img = Image(content=self.file.url)
             img.content = img.normalize_content(img.content)
+            if not img.content.startswith('http'):
+                raise ValueError('Invalid image URL')
             img.id = img._id
             img.access_local(self.file.path)

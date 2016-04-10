@@ -1,3 +1,6 @@
+cp ../pks/pks/settings_deploy_sample.py ../pks/pks/settings_deploy.py
+vi ../pks/pks/settings_deploy.py
+
 sudo cp pgdg.list /etc/apt/sources.list.d/pgdg.list
 sudo wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update -y

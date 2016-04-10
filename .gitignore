@@ -68,3 +68,4 @@ target/
 /static/
 /media/
 /temp/
+settings_deploy.py

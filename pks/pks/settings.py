@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from settings_deploy import SECRET_KEY, USER_ENC_KEY, VD_ENC_KEY, DEBUG, SERVER_HOST
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+'''
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -26,7 +27,7 @@ VD_ENC_KEY = 'TTlrdjLDsgcN63Pjd9dU8CvZ4bllcL8nkJejTAR2EAY='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+'''
 ALLOWED_HOSTS = []
 
 

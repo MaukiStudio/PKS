@@ -11,7 +11,7 @@ from rest_framework import status
 
 from base.utils import HashCollisionError
 from requests import get as requests_get
-from pks.settings import MEDIA_ROOT, MEDIA_URL
+from pks.settings import MEDIA_ROOT, MEDIA_URL, SERVER_HOST
 from pathlib2 import Path
 
 
@@ -142,6 +142,11 @@ class Content(models.Model):
         splits = self.uuid.split('.')
         return os_path_join(MEDIA_ROOT, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
 
+    @property
+    def url_accessed(self):
+        splits = self.uuid.split('.')
+        return '%s%s%s/%s/%s/%s' % (SERVER_HOST, MEDIA_URL, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
+
     # Methods for thumbnail
     def summarize_force(self, accessed=None):
         raise NotImplementedError
@@ -167,5 +172,4 @@ class Content(models.Model):
     @property
     def url_summarized(self):
         splits = self.uuid.split('.')
-        return os_path_join(MEDIA_URL.lstrip('/'), 'summary', splits[1], splits[0][-3:], self.uuid_summarized)
-
+        return '%s%s%s/%s/%s/%s' % (SERVER_HOST, MEDIA_URL, 'summary', splits[1], splits[0][-3:], self.uuid_summarized)
