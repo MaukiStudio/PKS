@@ -1,5 +1,5 @@
 [Now]
-NaverPlace 기능 추가하고 어드민 만들기
+NaverPlace 기능 추가하고 어드민 만들기 : 네이버맵 URL 추가시 한방에 장소화 처리
 
 Post create 부분 리팩토링
 

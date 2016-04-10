@@ -1,32 +1,32 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework.serializers import ModelSerializer, ReadOnlyField
+from rest_framework.serializers import ReadOnlyField
 
 from place import models
+from base.serializers import BaseSerializer
 
 
-class PlaceField(ReadOnlyField):
-    def get_attribute(self, instance):
-        instance.computePost([])
-        return super(PlaceField, self).get_attribute(instance)
-
-
-class PlaceSerializer(ModelSerializer):
-    placePost = PlaceField(source='placePost.json')
+class PlaceSerializer(BaseSerializer):
+    userPost = ReadOnlyField(source='userPost.json')
+    placePost = ReadOnlyField(source='placePost.json')
     place_id = ReadOnlyField(source='id')
 
     class Meta:
         model = models.Place
         exclude = ('id', 'vds',)
 
+    def to_representation(self, instance):
+        instance.computePost(self.vd.realOwner_vd_ids)
+        return super(PlaceSerializer, self).to_representation(instance)
 
-class PlaceContentSerializer(ModelSerializer):
+
+class PlaceContentSerializer(BaseSerializer):
     class Meta:
         model = models.PlaceContent
 
 
-class UserPlaceSerializer(ModelSerializer):
+class UserPlaceSerializer(BaseSerializer):
     userPost = ReadOnlyField(source='userPost.json')
     placePost = ReadOnlyField(source='placePost.json')
     place_id = ReadOnlyField(source='place.id')

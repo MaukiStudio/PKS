@@ -77,3 +77,9 @@ class VD(models.Model):
 
     def aid2id(self, aid):
         return self.authOwner.aid2id(aid)
+
+    @property
+    def realOwner_vd_ids(self):
+        if self.realOwner:
+            return self.realOwner.vd_ids
+        return [self.id]

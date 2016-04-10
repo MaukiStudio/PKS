@@ -44,7 +44,7 @@ class UserPlaceViewset(BaseViewset):
         params = self.request.query_params
         if 'ru' in params and params['ru'] != 'myself':
             raise NotImplementedError('Now, ru=myself only')
-        qs1 = self.queryset.filter(vd_id__in=self.vd.realOwner.vd_ids)
+        qs1 = self.queryset.filter(vd_id__in=self.vd.realOwner_vd_ids)
         if 'lon' in params and 'lat' in params:
             r = int(params.get('r', 1000))
             lon = float(params['lon'])

@@ -214,13 +214,13 @@ class UserPlace(models.Model):
 
     @property
     def userPost(self):
-        vd_ids = (self.vd.realOwner_id and self.vd.realOwner.vd_ids) or [self.vd_id]
+        vd_ids = self.vd.realOwner_vd_ids
         self.place.computePost(vd_ids)
         return self.place.userPost
 
     @property
     def placePost(self):
-        vd_ids = (self.vd.realOwner_id and self.vd.realOwner.vd_ids) or [self.vd_id]
+        vd_ids = self.vd.realOwner_vd_ids
         self.place.computePost(vd_ids)
         return self.place.placePost
 

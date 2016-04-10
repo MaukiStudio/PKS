@@ -25,9 +25,9 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_places_with_no_position(self):
+    def test_uplaces_only_my_places(self):
 
-        # 내 장소 목록 조회 : userPost 와 placePost 가 한꺼번에 넘어옴
+        # 특정 유저 장소 조회 : 현재는 내 장소 목록 조회만 구현됨
         # 이메일 인증이 되지 않은 시점에서도 ru=myself 는 동작함 (이땐 vd=myself 와 동일)
         # ru 파라메터가 생략되면 디폴트로 myself 이며, ru 에 다른 유저의 값을 할당하는 것은 미구현 상태 (영원히 구현 안할지도;;;)
 
@@ -41,24 +41,16 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
 
-    def test_places_with_position(self):
+    def test_places_all_places(self):
 
         # 장소 목록 조회
         # TODO : 위치기반 뿐만 아니라 각종 다양한 검색 조건을 지원 (개인화 추천 알고리즘 포함)
 
-        # 내장소 목록 조회 : userPost, placePost 둘다 넘어옴
-        # ru 를 생략했지만 디폴트로 ru=myself
-        response = self.client.get('/uplaces/?lon=127.1037430&lat=37.3997320&r=1000')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = json_loads(response.content)['results']
-        self.assertEqual(type(results), list)
-        self.assertIn('userPost', results[0])
-        self.assertIn('placePost', results[0])
-
-        # 전체장소 목록 조회 : publicPost 만 넘어옴
+        # 전체 장소 목록 조회
+        # 내 장소가 아닌 장소는 userPost.place_id 빼고 모두 null 임
         response = self.client.get('/places/?lon=127.1037430&lat=37.3997320&r=1000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
-        self.assertNotIn('userPost', results[0])
+        self.assertIn('userPost', results[0])
         self.assertIn('placePost', results[0])

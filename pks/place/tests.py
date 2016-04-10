@@ -35,6 +35,7 @@ class PlaceViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertIn('results', result)
         self.assertEqual(len(result['results']), 1)
+        self.assertIn('userPost', result['results'][0])
         self.assertIn('placePost', result['results'][0])
 
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
