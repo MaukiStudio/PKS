@@ -172,7 +172,7 @@ class RawFileTest(APITestBase):
         self.assertEqual(saved.vd, rf.vd)
 
     def test_image_cache(self):
-        #self.clear_accessed_cache()
+        self.clear_media_files()
 
         rf = models.RawFile()
         rf.file = self.uploadFile('test.jpg')
