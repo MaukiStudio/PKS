@@ -145,13 +145,14 @@ class Place(models.Model):
 
     def computePost(self, my_vd_ids):
         if self.post_cache: return
-
-        posts = [Post(self.id), Post(self.id)]
+        posts = [None, None]
 
         for pc in self.pcs.all().order_by('-id'):
             for postType in (0, 1):
                 if postType == 0 and pc.vd_id not in my_vd_ids:
                     continue
+                if not posts[postType]:
+                    posts[postType] = Post(self.id)
                 posts[postType].add_pc(pc)
 
         self.post_cache = posts
