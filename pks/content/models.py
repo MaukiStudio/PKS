@@ -7,7 +7,6 @@ from re import compile as re_compile
 from base.models import Content
 from phonenumbers import parse, format_number, PhoneNumberFormat
 
-
 LP_REGEXS = (
     # '4ccffc63f6378cfaace1b1d6.4square'
     (re_compile(r'^(?P<PlaceId>[a-z0-9]+)\.4square$'), '4square'),
@@ -17,7 +16,8 @@ LP_REGEXS = (
 
     # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
     (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
-
+)
+LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
     (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
 
@@ -47,7 +47,7 @@ class LegacyPlace(Content):
 
     @classmethod
     def normalize_content(self, raw_content):
-        for regex in LP_REGEXS:
+        for regex in LP_REGEXS+LP_REGEXS_URL:
             searcher = regex[0].search(raw_content)
             if searcher:
                 return '%s.%s' % (searcher.group('PlaceId'), regex[1])
@@ -67,7 +67,7 @@ class LegacyPlace(Content):
             raise NotImplementedError
 
     @property
-    def access_url(self):
+    def url_for_access(self):
         self.content = self.normalize_content(self.content)
         splits = self.content.split('.')
         if splits[1] == 'naver':
@@ -115,7 +115,9 @@ class PhoneNumber(Content):
         return UUID(self.content[1:].rjust(32, b'0'))
 
     @property
-    def access_url(self):
+    def url_for_access(self):
+        # 구글 검색 땡겨올 수 있도록 수정
+        raise NotImplementedError
         self.content = self.normalize_content(self.content)
         # TODO : 국가 처리
         p = parse(self.content, 'KR')

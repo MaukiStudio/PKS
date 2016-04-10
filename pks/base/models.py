@@ -47,7 +47,7 @@ class Content(models.Model):
         pass
 
     @property
-    def access_url(self):
+    def url_for_access(self):
         _url = self.content.strip()
         if _url.startswith('http'):
             return _url
@@ -103,9 +103,9 @@ class Content(models.Model):
     # Methods for access
     def access_force(self):
         headers = {'user-agent': 'Chrome'}
-        r = requests_get(self.access_url, headers=headers)
+        r = requests_get(self.url_for_access, headers=headers)
         if r.status_code not in (status.HTTP_200_OK,):
-            raise ValueError('Not valid access_url')
+            raise ValueError('Not valid url_for_access')
         file = Path(self.path_accessed)
         if not file.parent.exists():
             file.parent.mkdir(parents=True)

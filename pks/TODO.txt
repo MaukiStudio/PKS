@@ -1,9 +1,8 @@
 [Now]
-Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
 NaverPlace 기능 추가하고 어드민 만들기
 
+Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
 
-CacheManager FULL 구현 : 이후 mhash, dhash, exif 등 구현
 
 전화번호 파싱 시 국가 처리
 
