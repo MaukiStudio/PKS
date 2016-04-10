@@ -1,6 +1,4 @@
-echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > temp.list
-sudo cp temp.list /etc/apt/sources.list.d/pgdg.list
-rm temp.list
+sudo cp pgdg.list /etc/apt/sources.list.d/pgdg.list
 sudo wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update -y
 sudo apt-get upgrade -y

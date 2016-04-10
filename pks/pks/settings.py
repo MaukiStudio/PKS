@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'pks.settings.DisableCSRF',
+    'pks.settings.DisableCSRF',
 ]
 
 ROOT_URLCONF = 'pks.urls'
