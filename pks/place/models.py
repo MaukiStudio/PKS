@@ -137,6 +137,7 @@ class Post(object):
 class Place(models.Model):
 
     vds = models.ManyToManyField(VD, through='UserPlace', through_fields=('place', 'vd'), related_name='places')
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     def __init__(self, *args, **kwargs):
         self.post_cache = None
@@ -181,7 +182,7 @@ class PlaceContent(models.Model):
     phone = models.ForeignKey(PhoneNumber, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
 
     # value
-    lonLat = models.PointField(blank=True, null=True, default=None)
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True, db_index=False)
     stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def set_id(self, timestamp):
@@ -206,6 +207,7 @@ class UserPlace(models.Model):
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
     created = models.BigIntegerField(blank=True, null=True, default=None)
     modified = models.BigIntegerField(blank=True, null=True, default=None)
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     class Meta:
         unique_together = ('vd', 'place')
@@ -226,4 +228,6 @@ class UserPlace(models.Model):
         self.modified = kwargs.pop('modified', get_timestamp())
         if not self.created:
             self.created = self.modified
+        if not self.lonLat:
+            self.lonLat = self.place.lonLat
         super(UserPlace, self).save(*args, **kwargs)

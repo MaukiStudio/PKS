@@ -20,7 +20,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
 class Image(Content):
     dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
-    lonLat = models.PointField(blank=True, null=True, default=None)
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     # MUST override
     @property

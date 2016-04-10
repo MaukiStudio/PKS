@@ -1,6 +1,4 @@
 [Now]
-썸네일 기능 구현
-lonLat 기반 목록 검색 기능 만들기
 Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
 NaverPlace 기능 추가하고 어드민 만들기
 
@@ -49,3 +47,6 @@ content 조회를 파일 access 로 바꾸면서, uuid 조회는 join 을 하지
 Post 관련 Tuning : Foreign Key 를 끊어서, Content 모델 조회 없이 바로 uuid 를 저장하도록. 혹은 content 값에서 double check 를 하거나 (CPU 만 쓰면 되므로)
 
 Serializer 로 데이터를 넘기는 방법이 파악되었으니, 필요한 곳에 이를 이용하여 리팩토링
+    --> perform_create()
+    
+get_queryset() 에 의존한 검색 구현, filter_queryset() 활용 여지가 있는지 파악하기

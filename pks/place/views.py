@@ -5,6 +5,7 @@ from json import loads as json_loads
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import D
 
 from place import models
 from place import serializers
@@ -19,6 +20,18 @@ class PlaceViewset(BaseViewset):
     queryset = models.Place.objects.all()
     serializer_class = serializers.PlaceSerializer
 
+    def get_queryset(self):
+        params = self.request.query_params
+        if 'lon' in params and 'lat' in params:
+            r = int(params.get('r', 1000))
+            lon = float(params['lon'])
+            lat = float(params['lat'])
+            p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
+            if lon != p.x or lat != p.y:
+                raise ValueError('Invalid longitude/latitude')
+            return self.queryset.filter(lonLat__distance_lte=(p, D(m=r)))
+        return super(PlaceViewset, self).get_queryset()
+
 
 class PlaceContentViewset(BaseViewset):
     queryset = models.PlaceContent.objects.all()
@@ -30,9 +43,19 @@ class UserPlaceViewset(BaseViewset):
     serializer_class = serializers.UserPlaceSerializer
 
     def get_queryset(self):
-        if 'ru' in self.request.query_params and self.request.query_params['ru'] == 'myself':
-            return self.queryset.filter(vd_id__in=self.vd.realOwner.vd_ids).order_by('-modified')
-        return super(UserPlaceViewset, self).get_queryset()
+        params = self.request.query_params
+        if 'ru' in params and params['ru'] != 'myself':
+            raise NotImplementedError('Now, ru=myself only')
+        qs1 = self.queryset.filter(vd_id__in=self.vd.realOwner.vd_ids)
+        if 'lon' in params and 'lat' in params:
+            r = int(params.get('r', 1000))
+            lon = float(params['lon'])
+            lat = float(params['lat'])
+            p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
+            if lon != p.x or lat != p.y:
+                raise ValueError('Invalid longitude/latitude')
+            return qs1.filter(lonLat__distance_lte=(p, D(m=r)))
+        return qs1.order_by('-modified')
 
     def create(self, request, *args, **kwargs):
         #########################################
@@ -129,7 +152,7 @@ class UserPlaceViewset(BaseViewset):
         # place_id 가 넘어오지 않은 경우
         if not place:
             # TODO : place_id 가 없는 경우에 대한 구현 제대로
-            place = models.Place.objects.create()
+            place = models.Place.objects.create(lonLat=lonLat)
 
         #########################################
         # SAVE PART
@@ -173,8 +196,13 @@ class UserPlaceViewset(BaseViewset):
         timestamp += 1
 
         # 결과 처리
-        upost, created = models.UserPlace.objects.get_or_create(vd=vd, place=place,)
+        if not place.lonLat and lonLat:
+            place.lonLat = lonLat
+            place.save()
+        uplace, created = models.UserPlace.objects.get_or_create(vd=vd, place=place,)
         if not created:
-            upost.save(modified=timestamp)
-        serializer = self.get_serializer(upost)
+            uplace.modified = timestamp
+            uplace.lonLat = lonLat
+            uplace.save()
+        serializer = self.get_serializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

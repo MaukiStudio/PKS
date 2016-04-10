@@ -5,6 +5,7 @@ from __future__ import print_function
 from django.contrib.gis.geos import GEOSGeometry
 from time import sleep
 from django.db import IntegrityError
+from django.contrib.gis.measure import D
 
 from base.tests import APITestBase
 from place import models
@@ -22,6 +23,21 @@ class PlaceTest(APITestBase):
         place.save()
         saved = models.Place.objects.first()
         self.assertEqual(saved, place)
+
+    def test_lonLat_column(self):
+        place = models.Place()
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        place.lonLat = point1
+        place.save()
+        saved = models.Place.objects.first()
+        self.assertEqual(place.lonLat, point1)
+        self.assertEqual(saved.lonLat, point1)
+
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        qs1 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        self.assertEqual(len(qs1), 0)
+        qs2 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(len(qs2), 1)
 
     def test_post(self):
         place = models.Place()
@@ -299,6 +315,8 @@ class UserPlaceTest(APITestBase):
 
     def setUp(self):
         self.place = models.Place()
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        self.place.lonLat = point
         self.place.save()
         self.vd = VD()
         self.vd.save()
@@ -344,3 +362,18 @@ class UserPlaceTest(APITestBase):
         upost.save(modified=t2)
         self.assertEqual(upost.modified, t2)
         self.assertEqual(upost.created, t1)
+
+    def test_lonLat_column(self):
+        upost = models.UserPlace(vd=self.vd, place=self.place)
+        upost.save()
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        qs1 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
+        self.assertEqual(len(qs1), 0)
+        qs2 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(len(qs2), 1)
+        qs3 = models.UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        self.assertEqual(len(qs3), 0)
+        qs4 = models.UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(len(qs4), 1)
+        qs5 = models.UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(len(qs5), 0)
