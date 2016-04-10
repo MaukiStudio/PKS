@@ -27,8 +27,6 @@ class PlaceViewset(BaseViewset):
             lon = float(params['lon'])
             lat = float(params['lat'])
             p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
-            if lon != p.x or lat != p.y:
-                raise ValueError('Invalid longitude/latitude')
             return self.queryset.filter(lonLat__distance_lte=(p, D(m=r)))
         return super(PlaceViewset, self).get_queryset()
 
@@ -52,8 +50,6 @@ class UserPlaceViewset(BaseViewset):
             lon = float(params['lon'])
             lat = float(params['lat'])
             p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
-            if lon != p.x or lat != p.y:
-                raise ValueError('Invalid longitude/latitude')
             return qs1.filter(lonLat__distance_lte=(p, D(m=r)))
         return qs1.order_by('-modified')
 
