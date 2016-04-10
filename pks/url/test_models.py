@@ -55,3 +55,14 @@ class UrlTest(APITestBase):
         url.access()
         self.assertValidLocalFile(url.path_accessed)
         self.assertValidInternetUrl(url.url_accessed)
+
+    def test_summarize_methods(self):
+        url = models.Url()
+        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        url.content = test_data
+        url.save()
+
+        url.summarize()
+        self.assertValidLocalFile(url.path_summarized)
+        self.assertValidInternetUrl(url.url_summarized)
+

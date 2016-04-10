@@ -16,3 +16,6 @@ requests
 phonenumbers
 Pillow
 pathlib2
+lxml
+cssselect
+pyquery

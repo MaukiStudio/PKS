@@ -124,6 +124,8 @@ class Content(models.Model):
         file.symlink_to(source)
 
     def access(self):
+        if not self.id:
+            raise NotImplementedError
         if not self.is_accessed:
             # TODO : 로컬 URL 인 경우 access_local() 을 호출하도록 수정
             self.access_force()
@@ -152,6 +154,8 @@ class Content(models.Model):
         raise NotImplementedError
 
     def summarize(self, accessed=None):
+        if not self.id:
+            raise NotImplementedError
         self.access()
         if not self.is_summarized:
             self.summarize_force(accessed)

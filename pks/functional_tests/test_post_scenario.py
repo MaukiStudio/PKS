@@ -57,7 +57,8 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
 
             # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
             (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
-
+        )
+        LP_REGEXS_URL = (
             # 'http://map.naver.com/local/siteview.nhn?code=21149144'
             (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
 

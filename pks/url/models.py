@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
-
+from content.models import LP_REGEXS_URL
+from pyquery import PyQuery
+from json import loads as json_loads
+from pathlib2 import Path
 
 class Url(Content):
     # MUST override
@@ -23,3 +26,57 @@ class Url(Content):
         if not url.startswith('http'):
             url = '%s%s' % (SERVER_HOST, url)
         return url
+
+    def summarize_force(self, accessed=None):
+        if not accessed:
+            accessed = self.path_accessed
+
+        # TODO : 각종 URL 패턴들에 대해 정보 수집하여 요약
+
+        # 장소화 어드민을 위한 Naver 장소 URL 처리 : 일단 하기 패턴만 처리
+        # 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        regex = LP_REGEXS_URL[0][0]
+        searcher = regex.search(self.content)
+        if searcher:
+            lp_content = '%s.naver' % searcher.group('PlaceId')
+
+            # 파싱
+            # TODO : 안전하게 파싱하여 처리. 라이브러리 알아볼 것
+            pq = PyQuery(filename=accessed)
+            str1 = pq('script')[4].text
+            pos1 = str1.index('siteview')
+            pos1 = str1.index('{', pos1)
+            pos2 = str1.index('\r\n', pos1)
+            str2 = str1[pos1:pos2-1]
+            d = json_loads(str2)
+
+            # 주요 정보
+            lon = float(d['summary']['coordinate']['x'])
+            lat = float(d['summary']['coordinate']['y'])
+            name = d['summary']['name']
+            phone = d['summary']['phone']
+            addr_new = d['summary']['roadAddr']['text']
+            addr = d['summary']['address']
+
+            # TODO : Post class 를 이용하여 리팩토링
+            json = '''
+                {
+                    "lonLat": {"lon": %f, "lat": %f},
+                    "name": {"content": "%s"},
+                    "phone": {"content": "%s"},
+                    "addrs": [
+                        {"content": "%s"},
+                        {"content": "%s"}
+                    ],
+                    "lps": [
+                        {"content": "%s"}
+                    ]
+                }
+            ''' % (lon, lat, name, phone, addr_new, addr, lp_content,)
+
+            f = Path(self.path_summarized)
+            f.write_text(json)
+
+    def pre_save(self):
+        if self.is_accessed:
+            self.summarize(self.path_accessed)

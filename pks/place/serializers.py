@@ -14,10 +14,11 @@ class PlaceField(ReadOnlyField):
 
 class PlaceSerializer(ModelSerializer):
     placePost = PlaceField(source='placePost.json')
+    place_id = ReadOnlyField(source='id')
 
     class Meta:
         model = models.Place
-        exclude = ('vds',)
+        exclude = ('id', 'vds',)
 
 
 class PlaceContentSerializer(ModelSerializer):
