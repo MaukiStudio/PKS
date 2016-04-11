@@ -179,3 +179,7 @@ class Content(models.Model):
     def url_summarized(self):
         splits = self.uuid.split('.')
         return '%s%s%s/%s/%s/%s' % (SERVER_HOST, MEDIA_URL, 'summary', splits[1], splits[0][-3:], self.uuid_summarized)
+
+    @property
+    def content_summarized(self):
+        raise NotImplementedError('Must be overrided')

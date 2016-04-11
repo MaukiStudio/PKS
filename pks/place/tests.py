@@ -503,16 +503,11 @@ class UserPlaceViewSetTest(APITestBase):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
         url.save()
-        url.summarize()
-        self.assertValidLocalFile(url.path_summarized)
-        self.assertValidInternetUrl(url.url_summarized)
-        file = Path(url.path_summarized)
-        json_add = file.read_text()
-        want = models.Post(json_add)
+        want = url.content_summarized
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add, place_id=self.place.id))
+        response = self.client.post('/uplaces/', dict(add=want.json_str, place_id=self.place.id))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.UserPlace.objects.count(), 1)
         self.assertEqual(models.Place.objects.count(), 1)

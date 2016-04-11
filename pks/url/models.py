@@ -9,6 +9,7 @@ from pyquery import PyQuery
 from json import loads as json_loads
 from pathlib2 import Path
 
+
 class Url(Content):
     # MUST override
     @property
@@ -35,6 +36,7 @@ class Url(Content):
 
         # 장소화 어드민을 위한 Naver 장소 URL 처리 : 일단 하기 패턴만 처리
         # 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        # TODO : Logic 이 엄청 많아지게 됨. 별도의 Class 로 빼는 리팩토링 필요
         regex = LP_REGEXS_URL[0][0]
         searcher = regex.search(self.content)
         if searcher:
@@ -80,3 +82,11 @@ class Url(Content):
     def pre_save(self):
         if self.is_accessed:
             self.summarize(self.path_accessed)
+
+    @property
+    def content_summarized(self):
+        from place.models import Post
+        self.summarize()
+        file = Path(self.path_summarized)
+        json_str = file.read_text()
+        return Post(json_str)

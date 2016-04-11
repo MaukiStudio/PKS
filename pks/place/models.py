@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from json import loads as json_loads
+from json import loads as json_loads, dumps as json_dumps
 from uuid import UUID
 from random import randrange
 from django.contrib.gis.db import models
@@ -29,12 +29,21 @@ class Post(object):
         if t is int or t is long:
             self.json = dict(place_id=value, lonLat=None, images=list(), urls=list(), lps=list(),
                              name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
+            self._json_str = None
         elif t is unicode or t is str:
+            self._json_str = value
             self.json = json_loads(value)
         elif t is dict:
             self.json = value
+            self._json_str = None
         else:
             raise NotImplementedError
+
+    @property
+    def json_str(self):
+        if not self._json_str:
+            self._json_str = json_dumps(self.json)
+        return self._json_str
 
     def add_pc(self, pc):
         if pc.lonLat and not self.json['lonLat']:
@@ -132,6 +141,11 @@ class Post(object):
                         return False
             return True
         return isSubsetOf_dict(self.json, other.json)
+
+    # TODO : 미구현 상태. 구현해야 함
+    @property
+    def is_valid(self):
+        return True
 
 
 class Place(models.Model):
