@@ -503,6 +503,7 @@ class UserPlaceViewSetTest(APITestBase):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
         url.save()
+        url.summarize()
         want = url.content_summarized
 
         self.assertEqual(models.UserPlace.objects.count(), 0)

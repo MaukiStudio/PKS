@@ -158,7 +158,7 @@ class Content(models.Model):
         if not self.id:
             raise NotImplementedError
         if not self.is_summarized:
-            if self.is_accessed:
+            if not self.is_accessed:
                 self.access_force()
             self.summarize_force(accessed)
 

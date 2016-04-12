@@ -71,6 +71,7 @@ class UrlTest(APITestBase):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
         url.save()
+        url.summarize()
         post = url.content_summarized
         self.assertEqual(post.is_valid, True)
 
