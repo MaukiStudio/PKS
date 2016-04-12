@@ -85,7 +85,7 @@ class Url(Content):
 
     @property
     def content_summarized(self):
-        from place.models import Post
+        from place.post import Post
         self.summarize()
         file = Path(self.path_summarized)
         json_str = file.read_text()

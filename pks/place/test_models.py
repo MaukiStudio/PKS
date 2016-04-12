@@ -151,8 +151,8 @@ class PlaceTest(APITestBase):
                note22.uuid, note22.content, note21.uuid, note21.content, note12.uuid, note12.content, note11.uuid, note11.content,
                img22.uuid, img22.content, img21.uuid, img21.content, imgNote2.uuid, imgNote2.content, img1.uuid, img1.content, imgNote1.uuid, imgNote1.content,
                url2.uuid, url2.content, lp.uuid, lp.content, phone2.uuid, phone2.content,)
-        want_userPost = models.Post(json_userPost)
-        want_placePost = models.Post(json_placePost)
+        want_userPost = post.Post(json_userPost)
+        want_placePost = post.Post(json_placePost)
         place.computePost([vd1.id])
 
         self.assertIn('timestamp', place.placePost.json['lonLat'])

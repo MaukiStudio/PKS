@@ -10,7 +10,6 @@ from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText, PhoneNumber
 from base.utils import get_timestamp, BIT_ON_8_BYTE
-from place.post import Post
 
 
 class Place(models.Model):
@@ -19,11 +18,11 @@ class Place(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     def __init__(self, *args, **kwargs):
-        self.post_cache = None
+        self._posts_cache = None
         super(Place, self).__init__(*args, **kwargs)
 
     def computePost(self, my_vd_ids):
-        if self.post_cache: return
+        if self._posts_cache: return
         posts = [None, None]
 
         for pc in self.pcs.all().order_by('-id'):
@@ -31,21 +30,22 @@ class Place(models.Model):
                 if postType == 0 and pc.vd_id not in my_vd_ids:
                     continue
                 if not posts[postType]:
+                    from place.post import Post
                     posts[postType] = Post(self.id)
                 posts[postType].add_pc(pc)
 
-        self.post_cache = posts
+        self._posts_cache = posts
 
     def clearCache(self):
-        self.post_cache = None
+        self._posts_cache = None
 
     @property
     def userPost(self):
-        return self.post_cache[0]
+        return self._posts_cache[0]
 
     @property
     def placePost(self):
-        return self.post_cache[1]
+        return self._posts_cache[1]
 
 
 class PlaceContent(models.Model):
