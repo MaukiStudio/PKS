@@ -14,7 +14,7 @@ from image.models import Image
 from content.models import ShortText, LegacyPlace, PhoneNumber
 from url.models import Url
 from account.models import VD
-from pathlib2 import Path
+from place.post import Post
 
 
 class PlaceViewSetTest(APITestBase):
@@ -222,7 +222,7 @@ class UserPlaceViewSetTest(APITestBase):
                img2.uuid, img2.content, img2.url_summarized, img3.uuid, img3.content, img3.url_summarized,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
-        want = models.Post(json_full)
+        want = Post(json_full)
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
@@ -244,8 +244,8 @@ class UserPlaceViewSetTest(APITestBase):
         t1 = result['modified']
         self.assertIn('place_id', result)
         place_id = result['place_id']
-        result_userPost = models.Post(result['userPost'])
-        result_placePost = models.Post(result['placePost'])
+        result_userPost = Post(result['userPost'])
+        result_placePost = Post(result['placePost'])
         self.assertDictEqual(result_userPost.json, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost.json, self.uplace.placePost.json)
 
@@ -265,8 +265,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('created', result)
         self.assertIn('modified', result)
         t2 = result['modified']
-        result_userPost = models.Post(result['userPost'])
-        result_placePost = models.Post(result['placePost'])
+        result_userPost = Post(result['userPost'])
+        result_placePost = Post(result['placePost'])
         self.assertDictEqual(result_userPost.json, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost.json, self.uplace.placePost.json)
 
@@ -279,8 +279,8 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.get('/uplaces/?ru=myself')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
-        result_userPost = models.Post(results[0]['userPost'])
-        result_placePost = models.Post(results[0]['placePost'])
+        result_userPost = Post(results[0]['userPost'])
+        result_placePost = Post(results[0]['placePost'])
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
         self.assertDictEqual(result_userPost.json, self.uplace.userPost.json)
@@ -326,7 +326,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(models.Place.objects.count(), 2)
 
         self.uplace = models.UserPlace.objects.first()
-        want = models.Post(json_add)
+        want = Post(json_add)
         self.assertTrue(want.isSubsetOf(self.uplace.userPost))
         self.assertTrue(want.isSubsetOf(self.uplace.placePost))
         self.assertFalse(self.uplace.userPost.isSubsetOf(want))
@@ -371,7 +371,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(models.Place.objects.count(), 2)
 
         self.uplace = models.UserPlace.objects.first()
-        want = models.Post(json_add)
+        want = Post(json_add)
         self.assertTrue(want.isSubsetOf(self.uplace.userPost))
         self.assertTrue(want.isSubsetOf(self.uplace.placePost))
         self.assertFalse(self.uplace.userPost.isSubsetOf(want))
@@ -394,7 +394,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(models.Place.objects.count(), 2)
 
         self.uplace = models.UserPlace.objects.first()
-        want = models.Post(json_add)
+        want = Post(json_add)
         self.assertTrue(want.isSubsetOf(self.uplace.userPost))
         self.assertTrue(want.isSubsetOf(self.uplace.placePost))
         self.assertFalse(self.uplace.userPost.isSubsetOf(want))
@@ -419,7 +419,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(models.Place.objects.count(), 2)
 
         self.uplace = models.UserPlace.objects.first()
-        want = models.Post(json_add)
+        want = Post(json_add)
         self.assertTrue(want.isSubsetOf(self.uplace.userPost))
         self.assertTrue(want.isSubsetOf(self.uplace.placePost))
         self.assertFalse(self.uplace.userPost.isSubsetOf(want))
@@ -485,7 +485,7 @@ class UserPlaceViewSetTest(APITestBase):
                img1.uuid, imgNote1_content, img2.uuid, img3.uuid,
                url11_content, url12_content, url13_content,
                lp1.content,)
-        want = models.Post(json_add)
+        want = Post(json_add)
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)

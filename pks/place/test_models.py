@@ -14,6 +14,7 @@ from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText, PhoneNumber
 from base.utils import get_timestamp, BIT_ON_8_BYTE, BIT_ON_6_BYTE
+from place import post
 
 
 class PlaceTest(APITestBase):
@@ -56,16 +57,16 @@ class PlaceTest(APITestBase):
         phone1 = PhoneNumber(content='010-5686-1613'); phone1.save()
 
         # 현재 위치 저장
-        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=models.STXT_TYPE_ADDRESS); pc11.save(); sleep(0.001)
-        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc12.save(); sleep(0.001)
+        pc11 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=addr1, stxt_type=post.STXT_TYPE_ADDRESS); pc11.save(); sleep(0.001)
+        pc12 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=note11, stxt_type=post.STXT_TYPE_PLACE_NOTE); pc12.save(); sleep(0.001)
         # 위치 설명
-        pc111 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=posDesc1, stxt_type=models.STXT_TYPE_POS_DESC); pc111.save(); sleep(0.001)
+        pc111 = models.PlaceContent(vd=vd1, place=place, lonLat=point1, image=img1, stxt=posDesc1, stxt_type=post.STXT_TYPE_POS_DESC); pc111.save(); sleep(0.001)
         # 이름 지정
-        pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=models.STXT_TYPE_PLACE_NAME); pc13.save(); sleep(0.001)
+        pc13 = models.PlaceContent(vd=vd1, place=place, stxt=name1, stxt_type=post.STXT_TYPE_PLACE_NAME); pc13.save(); sleep(0.001)
         # 노트 추가
-        pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc14.save(); sleep(0.001)
+        pc14 = models.PlaceContent(vd=vd1, place=place, stxt=note12, stxt_type=post.STXT_TYPE_PLACE_NOTE); pc14.save(); sleep(0.001)
         # 이미지노트 추가
-        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc15.save(); sleep(0.001)
+        pc15 = models.PlaceContent(vd=vd1, place=place, image=img1, stxt=imgNote1, stxt_type=post.STXT_TYPE_IMAGE_NOTE); pc15.save(); sleep(0.001)
         # 전번 추가
         pc16 = models.PlaceContent(vd=vd1, place=place, phone=phone1); pc16.save(); sleep(0.001)
 
@@ -86,19 +87,19 @@ class PlaceTest(APITestBase):
         phone2 = PhoneNumber(content='010-5597-9245'); phone2.save()
 
         # URL 저장
-        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
+        pc21 = models.PlaceContent(vd=vd2, place=place, url=url2, stxt=note21, stxt_type=post.STXT_TYPE_PLACE_NOTE); pc21.save(); sleep(0.001)
         # 이름 지정
-        pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=models.STXT_TYPE_PLACE_NAME); pc22.save(); sleep(0.001)
+        pc22 = models.PlaceContent(vd=vd2, place=place, stxt=name2, stxt_type=post.STXT_TYPE_PLACE_NAME); pc22.save(); sleep(0.001)
         # 주소 지정
-        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=models.STXT_TYPE_ADDRESS); pc23.save(); sleep(0.001)
+        pc23 = models.PlaceContent(vd=vd2, place=place, stxt=addr2, stxt_type=post.STXT_TYPE_ADDRESS); pc23.save(); sleep(0.001)
         # 위치 설명
-        pc233 = models.PlaceContent(vd=vd2, place=place, stxt=posDesc2, stxt_type=models.STXT_TYPE_POS_DESC); pc233.save(); sleep(0.001)
+        pc233 = models.PlaceContent(vd=vd2, place=place, stxt=posDesc2, stxt_type=post.STXT_TYPE_POS_DESC); pc233.save(); sleep(0.001)
         # 이미지, 노트 추가
-        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=models.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
+        pc24 = models.PlaceContent(vd=vd2, place=place, lonLat=point2, image=img21, stxt=note22, stxt_type=post.STXT_TYPE_PLACE_NOTE); pc24.save(); sleep(0.001)
         # 장소화
         pc25 = models.PlaceContent(vd=vd2, place=place, lp=lp); pc25.save(); sleep(0.001)
         # 이미지노트 추가
-        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=models.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)
+        pc26 = models.PlaceContent(vd=vd2, place=place, image=img21, stxt=imgNote2, stxt_type=post.STXT_TYPE_IMAGE_NOTE); pc26.save(); sleep(0.001)
         # (노트없는) 이미지 추가
         pc27 = models.PlaceContent(vd=vd2, place=place, image=img22); pc27.save(); sleep(0.001)
         # 전번 추가
@@ -174,10 +175,10 @@ class PlaceTest(APITestBase):
         self.assertTrue(want_placePost.isSubsetOf(place.placePost))
 
         # UserPlaceTest 에서 구현되어야 할 사항이나, 편의상 여기에 구현
-        post, created = models.UserPlace.objects.get_or_create(vd=vd1, place=place)
+        uplace, created = models.UserPlace.objects.get_or_create(vd=vd1, place=place)
         self.assertEqual(created, True)
-        self.assertEqual(post.userPost, place.userPost)
-        self.assertEqual(post.placePost, place.placePost)
+        self.assertEqual(uplace.userPost, place.userPost)
+        self.assertEqual(uplace.placePost, place.placePost)
 
 
 class PlaceContentTest(APITestBase):
@@ -294,13 +295,13 @@ class PlaceContentTest(APITestBase):
     def test_stxt_property(self):
         pc = models.PlaceContent()
         pc.stxt = self.stxt
-        pc.stxt_type = models.STXT_TYPE_PLACE_NOTE
+        pc.stxt_type = post.STXT_TYPE_PLACE_NOTE
         pc.save()
         saved = self.stxt.pcs.get(id=pc.id)
         self.assertEqual(pc.stxt, self.stxt)
         self.assertEqual(saved, pc)
         self.assertEqual(saved.stxt, self.stxt)
-        self.assertEqual(saved.stxt_type, models.STXT_TYPE_PLACE_NOTE)
+        self.assertEqual(saved.stxt_type, post.STXT_TYPE_PLACE_NOTE)
 
     def test_phone_property(self):
         pc = models.PlaceContent()

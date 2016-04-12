@@ -14,6 +14,8 @@ from content.models import LegacyPlace, ShortText, PhoneNumber
 from image.models import Image
 from base.utils import get_timestamp
 from base.views import BaseViewset
+from content.models import LP_REGEXS_URL
+from place import post
 
 
 class PlaceViewset(BaseViewset):
@@ -68,51 +70,58 @@ class UserPlaceViewset(BaseViewset):
         if type(add) is str or type(add) is unicode:
             add = json_loads(add)
 
-        # Simple Property 조회 : 현재는 lonLat 뿐임
+        # Variables
+        first_url = None; urls = list()
         lonLat = None
+        phone = None
+        first_lp = None; lps = list()
+        first_stxt = (None, None); stxts = list()
+        first_image = None; images = list()
+        place = None
+
+        # urls 조회
+        if 'urls' in add and add['urls']:
+            for url in reversed(add['urls']):
+                urls.append(Url.get_from_json(url))
+        for url in urls:
+            regex = LP_REGEXS_URL[0][0]
+            searcher = regex.search(url.content)
+            if searcher:
+                # 어드민 구현을 위해 임시적으로 바로 정보를 땡겨온다
+                # TODO : 향후 제대로 구현할 것 (Post 리팩토링, Django Celery 구조 등 도입 후)
+                post_naver = url.content_summarized
+                # 리팩토링 하고 구현하자 ㅠ_ㅜ
+
+        if len(urls) > 0: first_url = urls.pop()
+
+        # lonLat 조회
         if 'lonLat' in add and add['lonLat']:
             lonLat = GEOSGeometry('POINT(%f %f)' % (add['lonLat']['lon'], add['lonLat']['lat']))
 
         # phone 조회
-        phone = None
         if 'phone' in add and add['phone']:
             phone = PhoneNumber.get_from_json(add['phone'])
 
         # lps 조회
-        first_lp = None
-        lps = list()
         if 'lps' in add and add['lps']:
             for lp in reversed(add['lps']):
                 lps.append(LegacyPlace.get_from_json(lp))
         if len(lps) > 0: first_lp = lps.pop()
 
-        # urls 조회
-        first_url = None
-        urls = list()
-        if 'urls' in add and add['urls']:
-            for url in reversed(add['urls']):
-                urls.append(Url.get_from_json(url))
-        if len(urls) > 0: first_url = urls.pop()
-
         # stxts 조회
-        # stxts 에는 우선순위가 낮은 것부터 먼저 append 한다
-        first_stxt = (None, None)
-        stxts = list()
         if 'addrs' in add and add['addrs']:
             for addr in reversed(add['addrs']):
-                stxts.append((models.STXT_TYPE_ADDRESS, ShortText.get_from_json(addr)))
-        if 'posDesc' in add and add['posDesc']:
-            stxts.append((models.STXT_TYPE_POS_DESC, ShortText.get_from_json(add['posDesc'])))
+                stxts.append((post.STXT_TYPE_ADDRESS, ShortText.get_from_json(addr)))
         if 'notes' in add and add['notes']:
             for note in reversed(add['notes']):
-                stxts.append((models.STXT_TYPE_PLACE_NOTE, ShortText.get_from_json(note)))
+                stxts.append((post.STXT_TYPE_PLACE_NOTE, ShortText.get_from_json(note)))
+        if 'posDesc' in add and add['posDesc']:
+            stxts.append((post.STXT_TYPE_POS_DESC, ShortText.get_from_json(add['posDesc'])))
         if 'name' in add and add['name']:
-            stxts.append((models.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
+            stxts.append((post.STXT_TYPE_PLACE_NAME, ShortText.get_from_json(add['name'])))
         if len(stxts) > 0: first_stxt = stxts.pop()
 
         # images 조회
-        first_image = None
-        images = list()
         if 'images' in add and add['images'] and add['images'][0]:
             first_image = Image.get_from_json(add['images'][0])
             # json 에 넘어온 순서대로 조회되도록 reverse 한다
@@ -122,7 +131,7 @@ class UserPlaceViewset(BaseViewset):
                 if 'note' in d and d['note']:
                     imgNote = ShortText.get_from_json(d['note'])
                     stxt_type = None
-                    if imgNote: stxt_type = models.STXT_TYPE_IMAGE_NOTE
+                    if imgNote: stxt_type = post.STXT_TYPE_IMAGE_NOTE
                     stxt = (stxt_type, imgNote)
                 else:
                     # 첫번째 이미지인데 이미지노트가 없다면 images 에서는 뺀다 (first_image 로 저장되므로)
@@ -135,7 +144,6 @@ class UserPlaceViewset(BaseViewset):
             lonLat = first_image.lonLat
 
         # place 조회
-        place = None
         if 'place_id' in add and add['place_id']:
             place = models.Place.objects.get(id=add['place_id'])
         elif 'place_id' in request.data and request.data['place_id']:

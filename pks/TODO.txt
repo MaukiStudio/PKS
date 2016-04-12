@@ -1,9 +1,17 @@
 [Now]
-NaverPlace 기능 추가하고 어드민 만들기 : 네이버맵 URL 추가시 한방에 장소화 처리
-
 Post create 부분 리팩토링
+NaverPlace 기능 추가 : 네이버맵 URL 추가시 한방에 장소화 처리
 
-Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
+UserPlace, Place 개념 완전히 새로 정립/리팩토링
+    1. UserPlace, Place 구분. UserPlace 를, VD 같이 하나의 추가 레이어로~
+    2. 추가된 Layer 에 따른 Performance 하락 방어 구현
+    3. Place Merge 기능 구현 및 관련 이력 추적이 가능하도록
+
+Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
+
+더 이상 DB 리셋이 필요 없을지 체크 
+
+장소화 어드민 만들기
 
 
 전화번호 파싱 시 국가 처리
