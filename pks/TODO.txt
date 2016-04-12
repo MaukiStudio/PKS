@@ -13,6 +13,9 @@ Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
 
 장소화 어드민 만들기
 
+python module import 부분 정리
+
+
 
 전화번호 파싱 시 국가 처리
 

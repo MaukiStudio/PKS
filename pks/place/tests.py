@@ -433,8 +433,8 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        with self.assertRaises(ValueError):
+            response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(models.UserPlace.objects.count(), 0)
         self.assertEqual(models.Place.objects.count(), 1)
 
