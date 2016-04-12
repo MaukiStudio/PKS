@@ -517,3 +517,26 @@ class UserPlaceViewSetTest(APITestBase):
         #self.assertTrue(want.isSubsetOf(self.uplace.placePost))
         self.assertFalse(self.uplace.userPost.isSubsetOf(want))
         self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+
+    def test_create_by_MAMMA(self):
+        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        json_add = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % (test_data,)
+
+        self.assertEqual(models.UserPlace.objects.count(), 0)
+        self.assertEqual(models.Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(models.UserPlace.objects.count(), 1)
+        self.assertEqual(models.Place.objects.count(), 2)
+
+        result = json_loads(response.content)['userPost']
+        self.assertNotEqual(result['urls'][0], None)
+        self.assertNotEqual(result['lonLat'], None)
+        self.assertNotEqual(result['name'], None)
+        self.assertNotEqual(result['phone'], None)
+        self.assertNotEqual(result['addrs'][0], None)
+        self.assertNotEqual(result['lps'][0], None)

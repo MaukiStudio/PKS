@@ -67,6 +67,10 @@ class UserPlaceViewset(BaseViewset):
             place = models.Place.objects.get(id=request.data['place_id'])
         uplace = post.create_by_add(vd, place)
 
+        # MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
+        if post.post_MAMMA:
+            uplace = post.post_MAMMA.create_by_add(vd, post.place)
+
         # 결과 리턴
         serializer = self.get_serializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

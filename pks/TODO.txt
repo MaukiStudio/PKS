@@ -13,6 +13,8 @@ Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
 
 장소화 어드민 만들기
 
+MAMMA 에 의한 장소화, FULL 구현
+
 python module import 부분 정리
 
 

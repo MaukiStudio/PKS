@@ -63,6 +63,7 @@ class Url(Content):
             # TODO : Post class 를 이용하여 리팩토링
             json = '''
                 {
+                    "urls": [{"content": "%s"}],
                     "lonLat": {"lon": %f, "lat": %f},
                     "name": {"content": "%s"},
                     "phone": {"content": "%s"},
@@ -70,11 +71,9 @@ class Url(Content):
                         {"content": "%s"},
                         {"content": "%s"}
                     ],
-                    "lps": [
-                        {"content": "%s"}
-                    ]
+                    "lps": [{"content": "%s"}]
                 }
-            ''' % (lon, lat, name, phone, addr_new, addr, lp_content,)
+            ''' % (self.content, lon, lat, name, phone, addr_new, addr, lp_content,)
 
             f = Path(self.path_summarized)
             f.write_text(json)
@@ -86,7 +85,6 @@ class Url(Content):
     @property
     def content_summarized(self):
         from place.post import Post
-        self.summarize()
         file = Path(self.path_summarized)
         json_str = file.read_text()
         return Post(json_str)

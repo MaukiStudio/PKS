@@ -27,6 +27,7 @@ class Post(object):
         self.json = None
         self._json_str = None
         self.place = None
+        self.post_MAMMA = None
 
         t = type(value)
         if t is Place:
@@ -185,10 +186,15 @@ class Post(object):
             regex = LP_REGEXS_URL[0][0]
             searcher = regex.search(url.content)
             if searcher:
-                # 어드민 구현을 위해 임시적으로 바로 정보를 땡겨온다
-                # TODO : 향후 제대로 구현할 것 (Post 리팩토링, Django Celery 구조 등 도입 후)
-                post_naver = url.content_summarized
-                # 리팩토링 하고 구현하자 ㅠ_ㅜ
+                # TODO : 향후 제대로 구현할 것 (Django Celery 구조 등 도입 후)
+                # 어드민 구현을 위해, 네이버 MAP URL인 경우 임시적으로 바로 정보를 땡겨온다
+                url.summarize()
+
+                # 이미 요약되어 있으면 곧바로 처리되도록 함
+                if url.is_summarized:
+                    post_naver = url.content_summarized
+                    self.post_MAMMA = post_naver
+                    break
 
         if len(urls) > 0: first_url = urls.pop()
 
@@ -256,6 +262,11 @@ class Post(object):
         # 결국 place 를 찾지 못한 경우는 생성
         if not self.place:
             self.place = Place.objects.create(lonLat=lonLat)
+
+        # MAMMA 포스트에 place 세팅
+        if self.post_MAMMA:
+            self.post_MAMMA.place = self.place
+
 
         #########################################
         # SAVE PART

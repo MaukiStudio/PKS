@@ -157,8 +157,9 @@ class Content(models.Model):
     def summarize(self, accessed=None):
         if not self.id:
             raise NotImplementedError
-        self.access()
         if not self.is_summarized:
+            if self.is_accessed:
+                self.access_force()
             self.summarize_force(accessed)
 
     @property
