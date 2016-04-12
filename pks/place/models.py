@@ -31,7 +31,7 @@ class Place(models.Model):
                     continue
                 if not posts[postType]:
                     from place.post import Post
-                    posts[postType] = Post(self.id)
+                    posts[postType] = Post(self)
                 posts[postType].add_pc(pc)
 
         self._posts_cache = posts

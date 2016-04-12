@@ -9,6 +9,7 @@ from content.models import LegacyPlace, ShortText, PhoneNumber
 from image.models import Image
 from base.utils import get_timestamp
 from content.models import LP_REGEXS_URL
+from place.models import Place, PlaceContent, UserPlace
 
 # stxt_type
 STXT_TYPE_PLACE_NOTE = 1
@@ -23,17 +24,20 @@ STXT_TYPE_REMOVE_CONTENT = 254
 class Post(object):
 
     def __init__(self, value=None):
+        self.json = None
+        self._json_str = None
+        self.place = None
+
         t = type(value)
-        if t is int or t is long:
-            self.json = dict(place_id=value, lonLat=None, images=list(), urls=list(), lps=list(),
+        if t is Place:
+            self.place = value
+            self.json = dict(place_id=self.place.id, lonLat=None, images=list(), urls=list(), lps=list(),
                              name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
-            self._json_str = None
         elif t is unicode or t is str:
             self._json_str = value
             self.json = json_loads(value)
         elif t is dict:
             self.json = value
-            self._json_str = None
         else:
             raise NotImplementedError
 
@@ -46,6 +50,12 @@ class Post(object):
     def add_pc(self, pc):
         # Clear cache
         self._json_str = None
+
+        # self.place
+        if not self.place:
+            self.place = pc.place
+        elif self.place != pc.place:
+            raise ValueError('Place mismatch')
 
         if pc.lonLat and not self.json['lonLat']:
             self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y, timestamp=pc.timestamp)
@@ -150,10 +160,13 @@ class Post(object):
 
 
     def create_by_add(self, vd, place=None):
-        from place.models import Place, PlaceContent, UserPlace
         #########################################
         # PREPARE PART
         #########################################
+        if not self.place:
+            self.place = place
+        elif place and self.place != place:
+            raise ValueError('Place mismatch')
 
         # Variables
         add = self.json
@@ -229,20 +242,20 @@ class Post(object):
             lonLat = first_image.lonLat
 
         # place 조회
-        if not place:
+        if not self.place:
             if 'place_id' in add and add['place_id']:
-                place = Place.objects.get(id=add['place_id'])
+                self.place = Place.objects.get(id=add['place_id'])
             else:
                 # TODO : 다른 정보들을 최대한 활용하여, 가능한한 최대한 place 찾는 로직 구현
                 pass
 
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
-        if not (lonLat or first_url or first_lp or (place and (first_stxt or first_image))):
+        if not (lonLat or first_url or first_lp or (self.place and (first_stxt or first_image))):
             raise ValueError('포스팅을 위한 최소한의 정보도 없음')
 
         # 결국 place 를 찾지 못한 경우는 생성
-        if not place:
-            place = Place.objects.create(lonLat=lonLat)
+        if not self.place:
+            self.place = Place.objects.create(lonLat=lonLat)
 
         #########################################
         # SAVE PART
@@ -252,7 +265,7 @@ class Post(object):
 
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         for t in images:
-            pc = PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                               image=t[0], stxt_type=t[1][0], stxt=t[1][1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
@@ -260,36 +273,36 @@ class Post(object):
         # stxts 저장
         for stxt in stxts:
             # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
-            pc = PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                               image=first_image, stxt_type=stxt[0], stxt=stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # urls 저장
         for url in urls:
-            pc = PlaceContent(place=place, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
+            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
                               image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # lps 저장
         for lp in lps:
-            pc = PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
+            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                               image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # base transaction(PlaceContent) 저장
-        pc = PlaceContent(place=place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+        pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                           image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
         pc.save(timestamp=timestamp)
         timestamp += 1
 
         # 결과 처리
-        if not place.lonLat and lonLat:
-            place.lonLat = lonLat
-            place.save()
-        uplace, created = UserPlace.objects.get_or_create(vd=vd, place=place,)
+        if not self.place.lonLat and lonLat:
+            self.place.lonLat = lonLat
+            self.place.save()
+        uplace, created = UserPlace.objects.get_or_create(vd=vd, place=self.place,)
         if not created:
             uplace.modified = timestamp
             uplace.lonLat = lonLat
@@ -298,5 +311,5 @@ class Post(object):
 
 
     # TODO : add 외에 remove 도 구현, 기타 다른 create mode 는 지원하지 않음
-    def create_by_remove(self, vd, place=None):
+    def create_by_remove(self, vd, _place=None):
         raise NotImplementedError

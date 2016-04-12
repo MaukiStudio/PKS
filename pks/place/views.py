@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from json import loads as json_loads
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
@@ -9,12 +8,7 @@ from django.contrib.gis.measure import D
 
 from place import models
 from place import serializers
-from url.models import Url
-from content.models import LegacyPlace, ShortText, PhoneNumber
-from image.models import Image
-from base.utils import get_timestamp
 from base.views import BaseViewset
-from content.models import LP_REGEXS_URL
 from place.post import Post
 
 
