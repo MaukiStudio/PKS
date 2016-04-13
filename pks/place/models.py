@@ -65,15 +65,15 @@ class PlaceContent(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True, db_index=False)
     stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
-    def set_id(self, timestamp):
+    def _id(self, timestamp):
         vd_id = self.vd_id or 0
         hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
-        self.id = UUID(hstr.rjust(32, b'0'))
+        return UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
         if not self.id:
             timestamp = kwargs.pop('timestamp', get_timestamp())
-            self.set_id(timestamp)
+            self.id = self._id(timestamp)
         super(PlaceContent, self).save(*args, **kwargs)
 
     @property
@@ -82,15 +82,11 @@ class PlaceContent(models.Model):
 
 
 class UserPlace(models.Model):
-
+    id = models.UUIDField(primary_key=True, default=None)
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
-    created = models.BigIntegerField(blank=True, null=True, default=None)
     modified = models.BigIntegerField(blank=True, null=True, default=None)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
-
-    class Meta:
-        unique_together = ('vd', 'place')
 
     @property
     def userPost(self):
@@ -104,10 +100,19 @@ class UserPlace(models.Model):
         self.place.computePost(vd_ids)
         return self.place.placePost
 
+    def _id(self, timestamp):
+        vd_id = self.vd_id or 0
+        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
+        return UUID(hstr.rjust(32, b'0'))
+
     def save(self, *args, **kwargs):
         self.modified = kwargs.pop('modified', get_timestamp())
-        if not self.created:
-            self.created = self.modified
+        if not self.id:
+            self.id = self._id(self.modified)
         if not self.lonLat:
-            self.lonLat = self.place.lonLat
+            self.lonLat = (self.place and self.place.lonLat) or None
         super(UserPlace, self).save(*args, **kwargs)
+
+    @property
+    def created(self):
+        return self.id and (int(self.id) >> 8*8) & BIT_ON_8_BYTE

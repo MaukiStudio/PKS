@@ -325,50 +325,84 @@ class UserPlaceTest(APITestBase):
         self.vd.save()
 
     def test_save_and_retreive(self):
-        post = models.UserPlace(vd=self.vd, place=self.place)
-        post.save()
+        uplace = models.UserPlace(vd=self.vd)
+        uplace.save()
         saved = models.UserPlace.objects.first()
-        self.assertEqual(saved, post)
+        self.assertEqual(saved, uplace)
 
-    def test_unique_vd_place(self):
-        post = models.UserPlace(vd=self.vd, place=self.place)
-        post.save()
-        post2 = models.UserPlace(vd=self.vd, place=self.place)
-        with self.assertRaises(IntegrityError):
-            post2.save()
+    def test_id_property(self):
+        uplace = models.UserPlace(vd=self.vd)
+        self.assertEqual(uplace.id, None)
+        timestamp = get_timestamp()
+        uplace.save()
+        self.assertNotEqual(uplace.id, None)
+        self.assertAlmostEqual((int(uplace.id) >> 8*8) & BIT_ON_8_BYTE, timestamp, delta=1000)
+        self.assertEqual((int(uplace.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        saved = models.UserPlace.objects.first()
+        self.assertEqual(saved, uplace)
+        self.assertEqual(saved.id, uplace.id)
+
+        # for timestamp property
+        self.assertEqual(uplace.created, uplace.modified)
+        self.assertEqual(saved.created, uplace.created)
+        self.assertEqual(saved.modified, uplace.modified)
+        self.assertAlmostEqual(uplace.created, timestamp, delta=1000)
+
+    def test_id_property_with_timestamp(self):
+        uplace = models.UserPlace(vd=self.vd)
+        timestamp = get_timestamp()
+        uplace.save(modified=timestamp)
+        self.assertEqual((int(uplace.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
+        self.assertEqual((int(uplace.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        saved = models.UserPlace.objects.first()
+        self.assertEqual(saved, uplace)
+        self.assertEqual(saved.id, uplace.id)
+
+    def test_id_property_with_no_vd(self):
+        uplace = models.UserPlace()
+        uplace.save()
+        self.assertEqual((int(uplace.id) >> 2*8) & BIT_ON_6_BYTE, 0)
+
+    def test_non_unique_vd_place(self):
+        uplace = models.UserPlace(vd=self.vd, place=self.place)
+        uplace.save()
+        uplace2 = models.UserPlace(vd=self.vd, place=self.place)
+        uplace2.save()
+        self.assertNotEqual(uplace, uplace2)
+        self.assertEqual(uplace.place, uplace2.place)
 
     def test_get_or_create(self):
-        post, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
+        uplace, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
         self.assertEqual(created, True)
-        post2, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
+        uplace2, created = models.UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
         self.assertEqual(created, False)
-        self.assertEqual(post, post2)
+        self.assertEqual(uplace, uplace2)
 
     def test_userPost(self):
         # 편의상 PlaceTest.test_post() 에 구현
         pass
 
     def test_created_modified(self):
-        upost = models.UserPlace(vd=self.vd, place=self.place)
-        self.assertEqual(upost.created, None)
-        self.assertEqual(upost.modified, None)
-        upost.save(); sleep(0.001)
-        t1 = upost.modified
+        uplace = models.UserPlace(vd=self.vd, place=self.place)
+        self.assertEqual(uplace.created, None)
+        self.assertEqual(uplace.modified, None)
+        uplace.save(); sleep(0.001)
+        t1 = uplace.modified
         self.assertNotEqual(t1, None)
-        self.assertEqual(upost.created, t1)
+        self.assertEqual(uplace.created, t1)
         self.assertAlmostEqual(t1, get_timestamp(), delta=1000)
-        upost.save(); sleep(0.001)
-        self.assertGreater(upost.modified, t1)
-        self.assertAlmostEqual(upost.modified, t1, delta=1000)
-        self.assertEqual(upost.created, t1)
+        uplace.save(); sleep(0.001)
+        self.assertGreater(uplace.modified, t1)
+        self.assertAlmostEqual(uplace.modified, t1, delta=1000)
+        self.assertEqual(uplace.created, t1)
         t2 = get_timestamp()
-        upost.save(modified=t2)
-        self.assertEqual(upost.modified, t2)
-        self.assertEqual(upost.created, t1)
+        uplace.save(modified=t2)
+        self.assertEqual(uplace.modified, t2)
+        self.assertEqual(uplace.created, t1)
 
     def test_lonLat_column(self):
-        upost = models.UserPlace(vd=self.vd, place=self.place)
-        upost.save()
+        uplace = models.UserPlace(vd=self.vd, place=self.place)
+        uplace.save()
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
         qs1 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs1), 0)

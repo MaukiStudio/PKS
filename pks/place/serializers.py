@@ -30,6 +30,7 @@ class UserPlaceSerializer(BaseSerializer):
     userPost = ReadOnlyField(source='userPost.json')
     placePost = ReadOnlyField(source='placePost.json')
     place_id = ReadOnlyField(source='place.id')
+    created = ReadOnlyField()
 
     class Meta:
         model = models.UserPlace
