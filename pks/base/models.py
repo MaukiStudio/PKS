@@ -46,6 +46,10 @@ class Content(models.Model):
     def post_save(self):
         pass
 
+    @classmethod
+    def on_create(cls, instance):
+        pass
+
     @property
     def url_for_access(self):
         _url = self.content.strip()
@@ -78,6 +82,8 @@ class Content(models.Model):
             result, created = cls.objects.get_or_create(content=content)
             if result.content != content:
                 raise HashCollisionError
+            if created:
+                cls.on_create(result)
         return result
 
     @classmethod

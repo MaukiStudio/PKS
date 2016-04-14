@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from uuid import UUID
 from re import compile as re_compile
+from django.contrib.gis.db import models
 
 from base.models import Content
 from phonenumbers import parse, format_number, PhoneNumberFormat
@@ -28,8 +29,18 @@ LP_REGEXS_URL = (
     (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
 )
 
+LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3}
+
 
 class LegacyPlace(Content):
+    place = models.ForeignKey('place.Place', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='lps')
+    lp_type = models.SmallIntegerField(blank=True, null=True, default=None)
+
+    def pre_save(self):
+        self.lp_type = LP_TYPE[self.contentType]
+
+    class Meta:
+        unique_together = ('place', 'lp_type',)
 
     # MUST override
     @property
