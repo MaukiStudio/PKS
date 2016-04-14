@@ -210,7 +210,7 @@ class SimpleUserPlaceTest(APITestBase):
     def test_id_property_with_timestamp(self):
         uplace = UserPlace(vd=self.vd)
         timestamp = get_timestamp()
-        uplace.save(modified=timestamp)
+        uplace.save(timestamp=timestamp)
         self.assertEqual((int(uplace.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
         self.assertEqual((int(uplace.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
         saved = UserPlace.objects.first()
@@ -251,7 +251,7 @@ class SimpleUserPlaceTest(APITestBase):
         self.assertAlmostEqual(uplace.modified, t1, delta=1000)
         self.assertEqual(uplace.created, t1)
         t2 = get_timestamp()
-        uplace.save(modified=t2)
+        uplace.save(timestamp=t2)
         self.assertEqual(uplace.modified, t2)
         self.assertEqual(uplace.created, t1)
 

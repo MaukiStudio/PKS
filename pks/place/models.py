@@ -45,6 +45,13 @@ class Place(models.Model):
             self.computePost()
         return self._post_cache
 
+    @classmethod
+    def get_from_post(cls, post):
+        if 'place_id' in post.json and post.json['place_id']:
+            return cls.objects.get(id=post.json['place_id'])
+        # TODO : 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
+        return None
+
 
 class UserPlace(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
@@ -68,6 +75,30 @@ class UserPlace(models.Model):
             raise ValueError
         _id = UUID(splits[0])
         return cls.objects.get(id=_id)
+
+    @classmethod
+    def get_from_post(cls, post, vd, timestamp):
+        # TODO : uplace 좀 더 찾기...
+        if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
+            uplace = cls.get_from_uuid(post.json['uplace_uuid'])
+
+        # Place 처리
+        if not uplace:
+            place = Place.get_from_post(post)
+            uplace = cls(vd=vd, place=place)
+            uplace.save(timestamp=timestamp)
+        elif not uplace.place:
+            place = Place.get_from_post(post)
+            uplace.place = place
+            uplace.save(timestamp=timestamp)
+        else:
+            # TODO : 튜닝
+            _place = Place.get_from_post(post)
+            if _place and uplace.place != Place.get_from_post(post):
+                raise ValueError('Place / UserPlace mismatch')
+
+        # 결과 처리
+        return uplace
 
     def computePost(self):
         post = None
@@ -98,7 +129,7 @@ class UserPlace(models.Model):
         return UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
-        self.modified = kwargs.pop('modified', get_timestamp())
+        self.modified = kwargs.pop('timestamp', get_timestamp())
         if not self.id:
             self.id = self._id(self.modified)
         if not self.lonLat:

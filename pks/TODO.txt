@@ -1,5 +1,6 @@
 [Now]
 UserPlace, Place 개념 정리 중...
+        Post 를 보고 매핑되는 UserPlace, Place 찾는 인터페이스 만들고 구현
         기본 장소화 처리 : Naver Map URL...
         PlaceContent --> PostPiece 로 전환
         Post 내부에 딜딜 꼬여 있는 import 관계 정리
