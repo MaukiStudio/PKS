@@ -32,7 +32,8 @@ class Place(models.Model):
             pcs = (pcs and pcs | uplace.pcs.all()) or uplace.pcs.all()
         for pc in pcs.order_by('-id'):
             if not post:
-                post = Post(self)
+                post = Post()
+                post.set_place_id(self.id)
             post.add_pc(pc)
         self._post_cache = post
 
@@ -104,7 +105,9 @@ class UserPlace(models.Model):
         post = None
         for pc in self.pcs.all().order_by('-id'):
             if not post:
-                post = Post(self)
+                post = Post()
+                post.set_uplace_uuid(self.uuid)
+                post.set_place_id(self.place_id)
             post.add_pc(pc)
         self._post_cache = post
 

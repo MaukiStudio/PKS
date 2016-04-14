@@ -274,9 +274,10 @@ class SimpleUserPlaceTest(APITestBase):
 class PostTest(APITestBase):
 
     def test_post(self):
-        uplace1 = UserPlace()
-        uplace1.save()
+        place = Place(); place.save()
         vd1 = VD(); vd1.save()
+        uplace1 = UserPlace(vd=vd1, place=place)
+        uplace1.save()
         point1 = GEOSGeometry('POINT(127 37)')
         name1 = ShortText(content='능라'); name1.save()
         addr1 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
@@ -302,9 +303,9 @@ class PostTest(APITestBase):
         # 전번 추가
         pc16 = PlaceContent(vd=vd1, uplace=uplace1, phone=phone1); pc16.save(); sleep(0.001)
 
-        uplace2 = UserPlace()
-        uplace2.save()
         vd2 = VD(); vd2.save()
+        uplace2 = UserPlace(vd=vd2, place=place)
+        uplace2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
         name2 = ShortText(content='능라도'); name2.save()
         addr2 = ShortText(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
@@ -402,9 +403,18 @@ class PostTest(APITestBase):
         self.assertIn('phone', uplace1.userPost.json)
         self.assertNotEqual(uplace1.userPost.json['images'][0]['content'], None)
 
-        self.printJson(want_userPost.json)
-        self.printJson(uplace1.userPost.json)
-        self.assertTrue(want_userPost.isSubsetOf(uplace1.userPost))
+        self.assertEqual(want_userPost.isSubsetOf(uplace1.userPost), True)
+        self.assertEqual(uplace1.userPost.isSubsetOf(want_userPost), False)
 
         # TODO : Place 모델 정리하고, placePost 테스트 추가
-        #self.fail()
+        self.assertEqual(want_placePost.isSubsetOf(uplace1.place.placePost), True)
+        self.assertEqual(uplace1.place.placePost.isSubsetOf(want_placePost), False)
+        uplace1.clearCache()
+        p1 = uplace1.place.placePost
+        uplace2.clearCache()
+        p2 = uplace2.place.placePost
+        place.clearCache()
+        p3 = place.placePost
+        self.assertDictEqual(p1.json, p3.json)
+        self.assertDictEqual(p2.json, p3.json)
+

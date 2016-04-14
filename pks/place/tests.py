@@ -237,6 +237,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
 
         self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        want.json['uplace_uuid'] = None
         self.assertEqual(want.isSubsetOf(self.uplace.placePost), True)
         self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
         self.assertEqual(self.uplace.placePost.isSubsetOf(want), False)

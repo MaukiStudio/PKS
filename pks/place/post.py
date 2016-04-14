@@ -23,24 +23,13 @@ STXT_TYPE_REMOVE_CONTENT = 254
 class Post(object):
 
     def __init__(self, value=None):
-        from place.models import UserPlace, Place
         self.json = None
         self._json_str = None
-        self.uplace = None
-        self.place = None
         self.post_MAMMA = None
 
         t = type(value)
-        if t is UserPlace:
-            self.uplace = value
-            self.place = self.uplace.place
-            place_id = self.place and self.place.id
-            self.json = dict(uplace_uuid=self.uplace.uuid, place_id=place_id, lonLat=None, images=list(), urls=list(), lps=list(),
-                             name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
-
-        elif t is Place:
-            self.place = value
-            self.json = dict(uplace_uuid=None, place_id=self.place.id, lonLat=None, images=list(), urls=list(), lps=list(),
+        if value is None:
+            self.json = dict(uplace_uuid=None, place_id=None, lonLat=None, images=list(), urls=list(), lps=list(),
                              name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
 
         elif t is unicode or t is str:
@@ -57,13 +46,13 @@ class Post(object):
 
     def set_uplace_uuid(self, uplace_uuid):
         if uplace_uuid:
-            if 'uplace_uuid' in self.json and self.json['uplace_uuid'] != uplace_uuid:
+            if 'uplace_uuid' in self.json and self.json['uplace_uuid'] and self.json['uplace_uuid'] != uplace_uuid:
                 raise ValueError('UserPlace mismatch')
             self.json['uplace_uuid'] = uplace_uuid
 
     def set_place_id(self, place_id):
         if place_id:
-            if 'place_id' in self.json and self.json['place_id'] != place_id:
+            if 'place_id' in self.json and self.json['place_id'] and self.json['place_id'] != place_id:
                 raise ValueError('Place mismatch')
             self.json['place_id'] = place_id
 
@@ -77,17 +66,9 @@ class Post(object):
         # Clear cache
         self._json_str = None
 
-        # self.uplace, place
-        if not self.uplace:
-            self.uplace = pc.uplace
-            self.json['uplace_uuid'] = self.uplace.uuid
-            if not self.place and self.uplace.place:
-                self.place = self.uplace.place
-                self.json['place_id'] = self.place.id
-            if self.place and self.uplace.place and self.place != self.uplace.place:
-                raise ValueError('Place mismatch : self.place != self.uplace.place')
-        elif self.uplace != pc.uplace:
-            raise ValueError('UserPlace mismatch : self.uplace != pc.uplace')
+        # uplace_uuid 체크
+        if 'uplace_uuid' in self.json and self.json['uplace_uuid'] and self.json['uplace_uuid'] != pc.uplace.uuid:
+            raise ValueError('UserPlace mismatch')
 
         if pc.lonLat and not self.json['lonLat']:
             self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y, timestamp=pc.timestamp)
