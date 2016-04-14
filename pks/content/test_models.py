@@ -177,6 +177,8 @@ class LegacyPlaceTest(APITestBase):
 
         lp.place = place
         lp.save()
+        self.assertEqual(place.lps.first(), lp)
+
         lp3.place = place
         with self.assertRaises(IntegrityError):
             lp3.save()
