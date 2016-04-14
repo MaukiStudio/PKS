@@ -7,11 +7,11 @@ from django.contrib.gis.db import models
 from base64 import b16encode
 
 from account.models import VD
+from base.utils import get_timestamp, BIT_ON_8_BYTE
+from place.post import Post
 from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, ShortText, PhoneNumber
-from base.utils import get_timestamp, BIT_ON_8_BYTE
-from place.post import Post
 
 
 class Place(models.Model):
@@ -48,9 +48,29 @@ class Place(models.Model):
 
     @classmethod
     def get_from_post(cls, post):
+        # post 에 place_id 가 있는 경우
         if 'place_id' in post.json and post.json['place_id']:
             return cls.objects.get(id=post.json['place_id'])
-        # TODO : 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
+        # post 에 uplace_uuid 가 있는 경우
+        if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
+            uplace = UserPlace.get_from_uuid(post.json['uplace_uuid'])
+            if uplace.place:
+                return uplace.place
+        # post 에 lps 가 있는 경우 : 현재는 1개 넘어오는 것만 구현
+        if 'lps' in post.json and post.json['lps'] and post.json['lps'][0]:
+            if len(post.json['lps']) > 1:
+                raise NotImplementedError
+            lp = LegacyPlace.get_from_json(post.json['lps'][0])
+            if lp.place:
+                return lp.place
+
+            _place = Place()
+            _place.save()
+            lp.place = _place
+            lp.save()
+            return lp.place
+        # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
+
         return None
 
 

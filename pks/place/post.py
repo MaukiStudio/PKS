@@ -202,6 +202,8 @@ class Post(object):
                 # 이미 요약되어 있으면 곧바로 처리되도록 함
                 if url.is_summarized:
                     self.post_MAMMA = url.content_summarized
+                    self.post_MAMMA.set_uplace_uuid(uplace.uuid)
+                    self.post_MAMMA.set_place_id(uplace.place_id)
                     break
 
         if len(urls) > 0: first_url = urls.pop()
@@ -258,11 +260,6 @@ class Post(object):
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
         if not (lonLat or first_url or first_lp or (uplace and ((first_stxt[0] and first_stxt[1]) or first_image))):
             raise ValueError('포스팅을 위한 최소한의 정보도 없음')
-
-        # MAMMA 포스트에 UserPlace 세팅
-        if self.post_MAMMA:
-            self.post_MAMMA.set_uplace_uuid(uplace.uuid)
-
 
         #########################################
         # SAVE PART

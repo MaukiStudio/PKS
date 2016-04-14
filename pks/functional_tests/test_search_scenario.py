@@ -51,7 +51,7 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
 
         # 전체 장소 목록 조회
         # 내 장소가 아닌 장소는 userPost.place_id 빼고 모두 null 임
-        response = self.client.get('/places/?lon=127.1037430&lat=37.3997320&r=1000')
+        response = self.client.get('/places/?lon=127.1037430&lat=37.3997320&r=10000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)

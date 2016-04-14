@@ -489,18 +489,23 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(self.uplace.place, None)
         response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
-        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
 
         self.uplace = UserPlace.objects.first()
-        want = Post(json_add)
         self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
-        self.assertEqual(self.uplace.placePost, None)
         self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
+        self.assertNotEqual(self.uplace.place, None)
+        self.assertNotEqual(self.uplace.place, self.place)
+        self.assertEqual(want.isSubsetOf(self.uplace.placePost), True)
+        self.assertEqual(self.uplace.placePost.isSubsetOf(want), False)
 
     def test_create_by_naver_map_url(self):
+        self.uplace.place = self.place
+        self.uplace.save()
         url = Url()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
@@ -516,8 +521,9 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
 
         self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
-        self.assertEqual(self.uplace.placePost, None)
         self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
+        self.assertEqual(want.isSubsetOf(self.uplace.placePost), True)
+        self.assertEqual(self.uplace.placePost.isSubsetOf(want), False)
 
     def test_create_by_MAMMA(self):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
@@ -532,7 +538,7 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
-        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
 
         result = json_loads(response.content)['userPost']
         self.assertNotEqual(result['urls'][0], None)

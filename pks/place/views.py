@@ -71,12 +71,15 @@ class UserPlaceViewset(BaseViewset):
 
         # UserPlace/Place 찾기
         uplace = UserPlace.get_from_post(post, vd, timestamp)
+        timestamp += 1
 
         # Post.create_by_add()
         uplace = post.create_by_add(vd, uplace)
 
         # MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
         if post.post_MAMMA:
+            uplace = UserPlace.get_from_post(post.post_MAMMA, vd, timestamp)
+            timestamp += 1
             uplace = post.post_MAMMA.create_by_add(vd, uplace)
 
         # 결과 리턴

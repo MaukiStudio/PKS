@@ -1,11 +1,17 @@
 [Now]
 UserPlace, Place 개념 정리 중...
-        Post 를 보고 매핑되는 UserPlace, Place 찾는 인터페이스 만들고 구현
-        기본 장소화 처리 : Naver Map URL...
         PlaceContent --> PostPiece 로 전환
         Post 내부에 딜딜 꼬여 있는 import 관계 정리
         맘마에 의한 자동 장소화 최대한 구현 : 장소화할 때 Place 가 생성되고 Place 관련 기본 속성들이 조정됨
         timestamp 값들, 같은 트랜잭션들은 같은 값이 들어가도록 정리
+
+같은 장소로 판정된 UserPlace, Place Merge
+URL 리다이렉션 처리
+
+UserPlace, Place 컬럼값들 채워지는 로직 전반적으로 체크
+
+Name 에 의한 실시간 장소화
+
 
 UserPlace, Place 개념 완전히 새로 정립/리팩토링
     1. UserPlace, Place 구분. UserPlace 를, VD 같이 하나의 추가 레이어로~
