@@ -80,6 +80,7 @@ class UserPlace(models.Model):
     @classmethod
     def get_from_post(cls, post, vd, timestamp):
         # TODO : uplace 좀 더 찾기...
+        uplace = None
         if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
             uplace = cls.get_from_uuid(post.json['uplace_uuid'])
 
