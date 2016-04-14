@@ -1,6 +1,10 @@
 [Now]
-Post create 부분 리팩토링
-NaverPlace 기능 추가 : 네이버맵 URL 추가시 한방에 장소화 처리
+UserPlace, Place 개념 정리 중...
+        기본 장소화 처리 : Naver Map URL...
+        PlaceContent --> PostPiece 로 전환
+        Post 내부에 딜딜 꼬여 있는 import 관계 정리
+        맘마에 의한 자동 장소화 최대한 구현 : 장소화할 때 Place 가 생성되고 Place 관련 기본 속성들이 조정됨
+        timestamp 값들, 같은 트랜잭션들은 같은 값이 들어가도록 정리
 
 UserPlace, Place 개념 완전히 새로 정립/리팩토링
     1. UserPlace, Place 구분. UserPlace 를, VD 같이 하나의 추가 레이어로~

@@ -19,7 +19,8 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
-                "addrs": [{"content": "경기도 성남시 분당구 판교로 256번길 25"}, {"content": "경기도 성남시 분당구 삼평동 631"}]
+                "addrs": [{"content": "경기도 성남시 분당구 판교로 256번길 25"}, {"content": "경기도 성남시 분당구 삼평동 631"}],
+                "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
             }
         '''
         response = self.client.post('/uplaces/', dict(add=json_add))
@@ -40,6 +41,8 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
+        self.assertIn('userPost', results[0])
+        self.assertIn('placePost', results[0])
 
     def test_places_all_places(self):
 
@@ -52,5 +55,5 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
-        self.assertIn('userPost', results[0])
+        self.assertNotIn('userPost', results[0])
         self.assertIn('placePost', results[0])

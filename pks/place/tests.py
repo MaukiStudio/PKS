@@ -9,7 +9,7 @@ from time import sleep
 from django.contrib.gis.measure import D
 
 from base.tests import APITestBase
-from place import models
+from place.models import UserPlace, Place
 from image.models import Image
 from content.models import ShortText, LegacyPlace, PhoneNumber
 from url.models import Url
@@ -27,7 +27,10 @@ class PlaceViewSetTest(APITestBase):
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        self.place = models.Place(); self.place.save()
+        self.place = Place(); self.place.save()
+        self.vd = VD.objects.first()
+        self.uplace = UserPlace(vd=self.vd, place=self.place)
+        self.uplace.save()
 
     def test_list(self):
         response = self.client.get('/places/')
@@ -35,7 +38,7 @@ class PlaceViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertIn('results', result)
         self.assertEqual(len(result['results']), 1)
-        self.assertIn('userPost', result['results'][0])
+        self.assertNotIn('userPost', result['results'][0])
         self.assertIn('placePost', result['results'][0])
 
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
@@ -95,9 +98,10 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        self.place = models.Place(); self.place.save()
+        self.place = Place(); self.place.save()
         self.vd = VD.objects.first()
-        self.uplace = models.UserPlace(vd=self.vd, place=self.place)
+        self.uplace = UserPlace(vd=self.vd)
+        self.uplace.save()
 
     def test_list(self):
         self.uplace.save()
@@ -142,21 +146,22 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_full(self):
+        self.uplace.place = self.place
+        self.uplace.save()
+
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
-        qs11 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
-        qs12 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs12), 0)
-        qs1 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
-        self.assertEqual(len(qs1), 0)
-        qs2 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=1000)))
+        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs2), 0)
-        qs3 = models.UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs3), 0)
-        qs4 = models.UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs4), 0)
-        qs5 = models.UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
         name1 = ShortText(content='능라'); name1.save()
@@ -183,7 +188,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         json_full = '''
             {
-                "place_id": %d,
+                "uplace_uuid": "%s",
                 "lonLat": {"lon": %f, "lat": %f, "timestamp": null},
                 "name": {"uuid": "%s", "content": "%s", "timestamp": null},
                 "posDesc": {"uuid": "%s", "content": "%s", "timestamp": null},
@@ -214,7 +219,7 @@ class UserPlaceViewSetTest(APITestBase):
                     {"uuid": "%s", "content": "%s", "timestamp": null}
                 ]
             }
-        ''' % (self.place.id, point1.x, point1.y,
+        ''' % (self.uplace.uuid, point1.x, point1.y,
                name1.uuid, name1.content, posDesc1.uuid, posDesc1.content, phone1.uuid, phone1.content,
                addr11.uuid, addr11.content, addr12.uuid, addr12.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
@@ -224,19 +229,17 @@ class UserPlaceViewSetTest(APITestBase):
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = Post(json_full)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
         response = self.client.post('/uplaces/', dict(add=json_full)); sleep(0.001)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        #self.printJson(want.json)
-        #self.printJson(self.uplace.userPost.json)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(want.isSubsetOf(self.uplace.placePost), True)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
+        self.assertEqual(self.uplace.placePost.isSubsetOf(want), False)
 
         result = json_loads(response.content)
         self.assertIn('created', result)
@@ -250,16 +253,17 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertDictEqual(result_placePost.json, self.uplace.placePost.json)
 
         # 한번 더...
-        self.uplace.place.clearCache()
-        response = self.client.post('/uplaces/', dict(add=json_full, place_id=place_id,))
+        self.uplace.clearCache()
+        response = self.client.post('/uplaces/', dict(add=json_full))
+        self.uplace.clearCache()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(want.isSubsetOf(self.uplace.placePost), True)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
+        self.assertEqual(self.uplace.placePost.isSubsetOf(want), False)
 
         result = json_loads(response.content)
         self.assertIn('created', result)
@@ -267,6 +271,7 @@ class UserPlaceViewSetTest(APITestBase):
         t2 = result['modified']
         result_userPost = Post(result['userPost'])
         result_placePost = Post(result['placePost'])
+
         self.assertDictEqual(result_userPost.json, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost.json, self.uplace.placePost.json)
 
@@ -274,9 +279,10 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertAlmostEqual(t2, t1, delta=1000)
 
         # 내장소 목록
-        self.uplace.place.clearCache()
-        dummy_place = models.Place(); dummy_place.save()
+        dummy_place = Place(); dummy_place.save()
+        self.uplace.clearCache()
         response = self.client.get('/uplaces/?ru=myself')
+        self.uplace.clearCache()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         result_userPost = Post(results[0]['userPost'])
@@ -286,20 +292,19 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertDictEqual(result_userPost.json, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost.json, self.uplace.placePost.json)
 
-        qs11 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
 
-        qs12 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs12), 1)
-        qs1 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
-        self.assertEqual(len(qs1), 0)
-        qs2 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs2), 1)
-        qs3 = models.UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs3), 0)
-        qs4 = models.UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs4), 1)
-        qs5 = models.UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
 
@@ -318,35 +323,32 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (point1.x, point1.y, img1.uuid, addr1_content, addr2_content,)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 2)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = models.UserPlace.objects.first()
+        self.uplace = UserPlace.objects.first()
         want = Post(json_add)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
-        self.assertEqual(models.Place.objects.count(), 2)
-        qs11 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        self.assertEqual(Place.objects.count(), 1)
+        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
-        qs12 = models.Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
-        self.assertEqual(len(qs12), 1)
-        qs1 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
-        self.assertEqual(len(qs1), 0)
-        qs2 = models.UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=1000)))
+        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        self.assertEqual(len(qs12), 0)
+        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs2), 1)
-        qs3 = models.UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs3), 0)
-        qs4 = models.UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs4), 1)
-        qs5 = models.UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
     def test_create_case2_current_pos_with_note_photo(self):
@@ -363,19 +365,18 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (point1.x, point1.y, note11.uuid, img1.uuid,)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 2)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = models.UserPlace.objects.first()
+        self.uplace = UserPlace.objects.first()
         want = Post(json_add)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
     def test_create_case3_only_url(self):
         url1 = Url(content='http://maukistudio.com/'); url1.save()
@@ -386,19 +387,18 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (url1.uuid,)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 2)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = models.UserPlace.objects.first()
+        self.uplace = UserPlace.objects.first()
         want = Post(json_add)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
     def test_create_case4_only_url_and_note(self):
         note11 = ShortText(content='분당 냉면 최고'); note11.save()
@@ -411,19 +411,18 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (note11.uuid, url1.uuid,)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 2)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = models.UserPlace.objects.first()
+        self.uplace = UserPlace.objects.first()
         want = Post(json_add)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
     def test_create_case5_no_info(self):
         json_add = '''
@@ -431,12 +430,12 @@ class UserPlaceViewSetTest(APITestBase):
             }
         '''
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
         with self.assertRaises(ValueError):
-            response = self.client.post('/uplaces/', dict(add=json_add))
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
+            response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
     def test_create_full_with_no_uuid_except_image(self):
         point1 = GEOSGeometry('POINT(127 37)')
@@ -487,37 +486,37 @@ class UserPlaceViewSetTest(APITestBase):
                lp1.content,)
         want = Post(json_add)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add, place_id=self.place.id))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 1)
-        self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+
+        self.uplace = UserPlace.objects.first()
+        want = Post(json_add)
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
     def test_create_by_naver_map_url(self):
-        url = models.Url()
+        url = Url()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
         url.save()
         url.summarize()
         want = url.content_summarized
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=want.json_str, place_id=self.place.id))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=want.json_str, uplace_uuid=self.uplace.uuid))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
-        # TODO : Post create 리팩토링 이후 다시 제대로 살리기
-        #self.assertTrue(want.isSubsetOf(self.uplace.userPost))
-        #self.assertTrue(want.isSubsetOf(self.uplace.placePost))
-        self.assertFalse(self.uplace.userPost.isSubsetOf(want))
-        self.assertFalse(self.uplace.placePost.isSubsetOf(want))
+        self.assertEqual(want.isSubsetOf(self.uplace.userPost), True)
+        self.assertEqual(self.uplace.placePost, None)
+        self.assertEqual(self.uplace.userPost.isSubsetOf(want), False)
 
     def test_create_by_MAMMA(self):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
@@ -527,12 +526,12 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (test_data,)
 
-        self.assertEqual(models.UserPlace.objects.count(), 0)
-        self.assertEqual(models.Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add))
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(models.UserPlace.objects.count(), 1)
-        self.assertEqual(models.Place.objects.count(), 2)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
 
         result = json_loads(response.content)['userPost']
         self.assertNotEqual(result['urls'][0], None)

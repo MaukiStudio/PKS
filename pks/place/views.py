@@ -6,15 +6,15 @@ from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 
-from place import models
-from place import serializers
+from place.models import Place, UserPlace, PlaceContent
+from place.serializers import PlaceSerializer, UserPlaceSerializer, PlaceContentSerializer
 from base.views import BaseViewset
 from place.post import Post
 
 
 class PlaceViewset(BaseViewset):
-    queryset = models.Place.objects.all()
-    serializer_class = serializers.PlaceSerializer
+    queryset = Place.objects.all()
+    serializer_class = PlaceSerializer
 
     def get_queryset(self):
         params = self.request.query_params
@@ -28,13 +28,13 @@ class PlaceViewset(BaseViewset):
 
 
 class PlaceContentViewset(BaseViewset):
-    queryset = models.PlaceContent.objects.all()
-    serializer_class = serializers.PlaceContentSerializer
+    queryset = PlaceContent.objects.all()
+    serializer_class = PlaceContentSerializer
 
 
 class UserPlaceViewset(BaseViewset):
-    queryset = models.UserPlace.objects.all()
-    serializer_class = serializers.UserPlaceSerializer
+    queryset = UserPlace.objects.all()
+    serializer_class = UserPlaceSerializer
 
     def get_queryset(self):
         params = self.request.query_params
@@ -62,15 +62,16 @@ class UserPlaceViewset(BaseViewset):
         post = Post(request.data['add'])
 
         # Post.create_by_add()
-        place = None
-        if 'place_id' in request.data and request.data['place_id']:
-            place = models.Place.objects.get(id=request.data['place_id'])
-        uplace = post.create_by_add(vd, place)
+        uplace = None
+        if 'uplace_uuid' in request.data and request.data['uplace_uuid']:
+            uplace = UserPlace.get_from_uuid(request.data['uplace_uuid'])
+        uplace = post.create_by_add(vd, uplace)
 
         # MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
         if post.post_MAMMA:
-            uplace = post.post_MAMMA.create_by_add(vd, post.place)
+            uplace = post.post_MAMMA.create_by_add(vd, uplace)
 
         # 결과 리턴
+        #uplace.clearCache()
         serializer = self.get_serializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

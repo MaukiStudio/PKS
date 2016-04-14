@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
-from content.models import LP_REGEXS_URL
+from content.models import LP_REGEXS_URL, PhoneNumber
 from pyquery import PyQuery
 from json import loads as json_loads
 from pathlib2 import Path
@@ -57,6 +57,8 @@ class Url(Content):
             lat = float(d['summary']['coordinate']['y'])
             name = d['summary']['name']
             phone = d['summary']['phone']
+            if phone:
+                phone = PhoneNumber.normalize_content(phone)
             addr_new = d['summary']['roadAddr']['text']
             addr = d['summary']['address']
 

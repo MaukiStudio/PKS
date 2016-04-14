@@ -9,7 +9,6 @@ from content.models import LegacyPlace, ShortText, PhoneNumber
 from image.models import Image
 from base.utils import get_timestamp
 from content.models import LP_REGEXS_URL
-from place.models import Place, PlaceContent, UserPlace
 
 # stxt_type
 STXT_TYPE_PLACE_NOTE = 1
@@ -24,22 +23,47 @@ STXT_TYPE_REMOVE_CONTENT = 254
 class Post(object):
 
     def __init__(self, value=None):
+        from place.models import UserPlace, Place
         self.json = None
         self._json_str = None
+        self.uplace = None
         self.place = None
         self.post_MAMMA = None
 
         t = type(value)
-        if t is Place:
-            self.place = value
-            self.json = dict(place_id=self.place.id, lonLat=None, images=list(), urls=list(), lps=list(),
+        if t is UserPlace:
+            self.uplace = value
+            self.place = self.uplace.place
+            place_id = self.place and self.place.id
+            self.json = dict(uplace_uuid=self.uplace.uuid, place_id=place_id, lonLat=None, images=list(), urls=list(), lps=list(),
                              name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
-        elif t is unicode or t is str:
-            self._json_str = value
-            self.json = json_loads(value)
-        elif t is dict:
-            self.json = value
+
+        elif t is Place:
+            self.place = value
+            self.json = dict(uplace_uuid=None, place_id=self.place.id, lonLat=None, images=list(), urls=list(), lps=list(),
+                             name=None, notes=list(), posDesc=None, addrs=list(), phone=None,)
+
+        elif (t is unicode or t is str) or (t is dict):
+            if t is unicode or t is str:
+                self._json_str = value
+                self.json = json_loads(value)
+            elif t is dict:
+                self.json = value
+
+            if 'uplace_uuid' in self.json and self.json['uplace_uuid']:
+                self.uplace = UserPlace.get_from_uuid(self.json['uplace_uuid'])
+            _place1 = self.uplace and self.uplace.place
+            _place2 = 'place_id' in self.json and self.json['place_id'] and Place.objects.get(id=self.json['place_id'])
+            if _place1 and _place2 and _place1 != _place2:
+                raise ValueError("self.uplace.place.id != self.json['place_id']")
+            self.place = _place1 or _place2
+
+            if self.place:
+                self.json['place_id'] = self.place.id
+
         else:
+            print(t)
+            print(value)
             raise NotImplementedError
 
     @property
@@ -52,11 +76,17 @@ class Post(object):
         # Clear cache
         self._json_str = None
 
-        # self.place
-        if not self.place:
-            self.place = pc.place
-        elif self.place != pc.place:
-            raise ValueError('Place mismatch')
+        # self.uplace, place
+        if not self.uplace:
+            self.uplace = pc.uplace
+            self.json['uplace_uuid'] = self.uplace.uuid
+            if not self.place and self.uplace.place:
+                self.place = self.uplace.place
+                self.json['place_id'] = self.place.id
+            if self.place and self.uplace.place and self.place != self.uplace.place:
+                raise ValueError('Place mismatch : self.place != self.uplace.place')
+        elif self.uplace != pc.uplace:
+            raise ValueError('UserPlace mismatch : self.uplace != pc.uplace')
 
         if pc.lonLat and not self.json['lonLat']:
             self.json['lonLat'] = dict(lon=pc.lonLat.x, lat=pc.lonLat.y, timestamp=pc.timestamp)
@@ -160,14 +190,15 @@ class Post(object):
         return True
 
 
-    def create_by_add(self, vd, place=None):
+    def create_by_add(self, vd, uplace=None):
+        from place.models import PlaceContent, UserPlace
         #########################################
         # PREPARE PART
         #########################################
-        if not self.place:
-            self.place = place
-        elif place and self.place != place:
-            raise ValueError('Place mismatch')
+        if not self.uplace:
+            self.uplace = uplace
+        elif uplace and self.uplace != uplace:
+            raise ValueError('UserPlace mismatch')
 
         # Variables
         add = self.json
@@ -192,8 +223,7 @@ class Post(object):
 
                 # 이미 요약되어 있으면 곧바로 처리되도록 함
                 if url.is_summarized:
-                    post_naver = url.content_summarized
-                    self.post_MAMMA = post_naver
+                    self.post_MAMMA = url.content_summarized
                     break
 
         if len(urls) > 0: first_url = urls.pop()
@@ -247,25 +277,22 @@ class Post(object):
         if not lonLat and first_image and first_image.lonLat:
             lonLat = first_image.lonLat
 
-        # place 조회
-        if not self.place:
-            if 'place_id' in add and add['place_id']:
-                self.place = Place.objects.get(id=add['place_id'])
-            else:
-                # TODO : 다른 정보들을 최대한 활용하여, 가능한한 최대한 place 찾는 로직 구현
-                pass
+        # uplace 조회
+        if not self.uplace:
+            # TODO : 다른 정보들을 최대한 활용하여, 가능한한 최대한 UserPlace 찾는 로직 구현
+            pass
 
         # 포스팅을 위한 최소한의 정보가 넘어왔는지 확인
-        if not (lonLat or first_url or first_lp or (self.place and (first_stxt or first_image))):
+        if not (lonLat or first_url or first_lp or (self.uplace and ((first_stxt[0] and first_stxt[1]) or first_image))):
             raise ValueError('포스팅을 위한 최소한의 정보도 없음')
 
-        # 결국 place 를 찾지 못한 경우는 생성
-        if not self.place:
-            self.place = Place.objects.create(lonLat=lonLat)
+        # 결국 UserPlace 를 찾지 못한 경우는 생성
+        if not self.uplace:
+            self.uplace = UserPlace.objects.create(lonLat=lonLat, vd=vd,)
 
-        # MAMMA 포스트에 place 세팅
+        # MAMMA 포스트에 UserPlace 세팅
         if self.post_MAMMA:
-            self.post_MAMMA.place = self.place
+            self.post_MAMMA.uplace = self.uplace
 
 
         #########################################
@@ -276,51 +303,51 @@ class Post(object):
 
         # images 저장 : post 시 올라온 list 상의 순서를 보존해야 함 (post 조회시에는 생성된 순서 역순으로 보여짐)
         for t in images:
-            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+            pc = PlaceContent(uplace=self.uplace, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                               image=t[0], stxt_type=t[1][0], stxt=t[1][1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # stxts 저장
         for stxt in stxts:
-            # image 가 여러개인 경우는 첫번째 이미지만 place stxt 와 같은 transaction 에 배치된다.
-            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+            # image 가 여러개인 경우는 첫번째 이미지만 uplace stxt 와 같은 transaction 에 배치된다.
+            pc = PlaceContent(uplace=self.uplace, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                               image=first_image, stxt_type=stxt[0], stxt=stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # urls 저장
         for url in urls:
-            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
+            pc = PlaceContent(uplace=self.uplace, vd=vd, lonLat=lonLat, url=url, lp=first_lp,
                               image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # lps 저장
         for lp in lps:
-            pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
+            pc = PlaceContent(uplace=self.uplace, vd=vd, lonLat=lonLat, url=first_url, lp=lp,
                               image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
             pc.save(timestamp=timestamp)
             timestamp += 1
 
         # base transaction(PlaceContent) 저장
-        pc = PlaceContent(place=self.place, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
+        pc = PlaceContent(uplace=self.uplace, vd=vd, lonLat=lonLat, url=first_url, lp=first_lp,
                           image=first_image, stxt_type=first_stxt[0], stxt=first_stxt[1], phone=phone,)
         pc.save(timestamp=timestamp)
         timestamp += 1
 
         # 결과 처리
-        if not self.place.lonLat and lonLat:
-            self.place.lonLat = lonLat
-            self.place.save()
-        uplace, created = UserPlace.objects.get_or_create(vd=vd, place=self.place,)
-        if not created:
-            uplace.modified = timestamp
-            uplace.lonLat = lonLat
-            uplace.save()
-        return uplace
+        # TODO : PostPiece 로 uplace 갱신 시, place 는 어떻게 갱신할지 고민필요
+        if self.uplace.place and not self.uplace.place.lonLat:
+            self.uplace.place.lonLat = lonLat
+            self.uplace.place.save()
+
+        self.uplace.lonLat = self.uplace.lonLat or lonLat
+        self.uplace.modified = timestamp
+        self.uplace.save()
+        return self.uplace
 
 
     # TODO : add 외에 remove 도 구현, 기타 다른 create mode 는 지원하지 않음
-    def create_by_remove(self, vd, _place=None):
+    def create_by_remove(self, vd, uplace=None):
         raise NotImplementedError

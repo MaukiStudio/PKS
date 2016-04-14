@@ -13,15 +13,6 @@ class UrlViewsetTest(APITestBase):
 
     def setUp(self):
         super(UrlViewsetTest, self).setUp()
-        '''
-        response = self.client.post('/users/register/')
-        self.auth_user_token = json_loads(response.content)['auth_user_token']
-        self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
-        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        '''
-
         self.url = models.Url(content='http://www.maukistudio.com/')
         self.url.save()
 
