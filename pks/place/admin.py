@@ -1,12 +1,17 @@
 from django.contrib import admin
-from place import models
+from place.models import Place, UserPlace, PostPiece
 
 # Register your models here.
 class PlaceAdmin(admin.ModelAdmin):
     pass
 
-class PlaceContentAdmin(admin.ModelAdmin):
+class UserPlaceAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(models.Place, PlaceAdmin)
-admin.site.register(models.PlaceContent, PlaceContentAdmin)
+class PostPieceAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(Place, PlaceAdmin)
+admin.site.register(UserPlace, UserPlaceAdmin)
+admin.site.register(PostPiece, PostPieceAdmin)

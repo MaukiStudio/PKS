@@ -8,11 +8,32 @@ from django.contrib.gis.db import models
 from json import loads as json_loads
 from os.path import join as os_path_join
 from rest_framework import status
+from django.contrib.gis.geos import GEOSGeometry
 
 from base.utils import HashCollisionError
 from requests import get as requests_get
 from pks.settings import MEDIA_ROOT, MEDIA_URL, SERVER_HOST
 from pathlib2 import Path
+
+
+class Point(object):
+    def __init__(self, lon, lat):
+        self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat))
+        self.timestamp = None
+
+    @classmethod
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        result = cls(json['lon'], json['lat'])
+        result.timestamp = 'timestamp' in json and json['timestamp']
+        return result
+
+    @property
+    def json(self):
+        if self.timestamp:
+            return dict(lon=self.lonLat.x, lat=self.lonLat.y, timestamp=self.timestamp)
+        return dict(lon=self.lonLat.x, lat=self.lonLat.y)
 
 
 class Content(models.Model):
@@ -51,6 +72,12 @@ class Content(models.Model):
         pass
 
     @property
+    def json(self):
+        if self.timestamp:
+            return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp)
+        return dict(uuid=self.uuid, content=self.content)
+
+    @property
     def url_for_access(self):
         _url = self.content.strip()
         if _url.startswith('http'):
@@ -69,6 +96,10 @@ class Content(models.Model):
         return '%s.%s' % (b16encode(self.id.bytes), self.contentType,)
 
     # DO NOT override
+    def __init__(self, *args, **kwargs):
+        self.timestamp = None
+        super(Content, self).__init__(*args, **kwargs)
+
     @classmethod
     def get_from_json(cls, json):
         if type(json) is unicode or type(json) is str:
@@ -84,6 +115,8 @@ class Content(models.Model):
                 raise HashCollisionError
             if created:
                 cls.on_create(result)
+        if result and 'timestamp' in json:
+            result.timestamp = json['timestamp']
         return result
 
     @classmethod

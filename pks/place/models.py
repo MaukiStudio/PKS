@@ -9,10 +9,7 @@ from django.contrib.postgres.fields import JSONField
 
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
-from place.post import Post
-from image.models import Image
-from url.models import Url
-from content.models import LegacyPlace, ShortText, PhoneNumber
+from place.post import PostBase
 
 
 class Place(models.Model):
@@ -25,18 +22,13 @@ class Place(models.Model):
         super(Place, self).__init__(*args, **kwargs)
 
     def computePost(self):
-        post = None
-        pcs = None
-
-        # TODO : 튜닝 필요;;;
-        for uplace in self.uplaces.all():
-            pcs = (pcs and pcs | uplace.pcs.all()) or uplace.pcs.all()
-        for pc in pcs.order_by('-id'):
-            if not post:
-                post = Post()
-                post.set_place_id(self.id)
-            post.add_pc(pc)
-        self._post_cache = post
+        pb = None
+        for pp in self.pps.all().order_by('id'):
+            if not pb:
+                pb = PostBase(pp.data, pp.timestamp)
+            else:
+                pb.update(PostBase(pp.data, pp.timestamp))
+        self._post_cache = pb
 
     def clearCache(self):
         self._post_cache = None
@@ -48,24 +40,27 @@ class Place(models.Model):
         return self._post_cache
 
     @classmethod
-    def get_from_post(cls, post):
-        # post 에 place_id 가 있는 경우
-        if 'place_id' in post.json and post.json['place_id']:
-            return cls.objects.get(id=post.json['place_id'])
-        # post 에 uplace_uuid 가 있는 경우
-        if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
-            uplace = UserPlace.get_from_uuid(post.json['uplace_uuid'])
+    def get_from_post(cls, pb):
+
+        # pb 에 place_id 가 있는 경우
+        if pb.place_id:
+            return cls.objects.get(id=pb.place_id)
+
+        # pb 에 uplace_uuid 가 있는 경우
+        if pb.uplace_uuid:
+            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
             if uplace.place:
                 return uplace.place
-        # post 에 lps 가 있는 경우 : 현재는 1개 넘어오는 것만 구현
-        if 'lps' in post.json and post.json['lps'] and post.json['lps'][0]:
-            if len(post.json['lps']) > 1:
+
+        # pb 에 lps 가 있는 경우 : 현재는 1개 넘어오는 것만 구현
+        if pb.lps:
+            if len(pb.lps) > 1:
                 raise NotImplementedError
-            lp = LegacyPlace.get_from_json(post.json['lps'][0])
+            lp = pb.lps[0]
             if lp.place:
                 return lp.place
 
-            _place = Place(lonLat=post.lonLat)
+            _place = Place(lonLat=pb.lonLat)
             _place.save()
             lp.place = _place
             lp.save()
@@ -99,19 +94,21 @@ class UserPlace(models.Model):
         return cls.objects.get(id=_id)
 
     @classmethod
-    def get_from_post(cls, post, vd):
-        # TODO : uplace 좀 더 찾기...
-        place = Place.get_from_post(post)
+    # TODO : save() 너무 많이 함. 튜닝 필요
+    def get_from_post(cls, pb, vd):
+        place = Place.get_from_post(pb)
         uplace = None
-        if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
-            uplace = cls.get_from_uuid(post.json['uplace_uuid'])
+
+        # TODO : uplace 좀 더 찾기...
+        if pb.uplace_uuid:
+            uplace = cls.get_from_uuid(pb.uplace_uuid)
         if not uplace and place:
             # TODO : 이 부분이 테스트되는 테스트 코드 추가하기
             uplace = UserPlace.objects.filter(vd=vd, place=place).order_by('id').first()
 
         # Place 처리
         if not uplace:
-            uplace = cls(vd=vd, place=place, lonLat=post.lonLat)
+            uplace = cls(vd=vd, place=place, lonLat=pb.lonLat)
             uplace.save()
         elif not uplace.place:
             uplace.place = place
@@ -125,14 +122,13 @@ class UserPlace(models.Model):
         return uplace
 
     def computePost(self):
-        post = None
-        for pc in self.pcs.all().order_by('-id'):
-            if not post:
-                post = Post()
-                post.set_uplace_uuid(self.uuid)
-                post.set_place_id(self.place_id)
-            post.add_pc(pc)
-        self._post_cache = post
+        pb = None
+        for pp in self.pps.all().order_by('id'):
+            if not pb:
+                pb = PostBase(pp.data, pp.timestamp)
+            else:
+                pb.update(PostBase(pp.data, pp.timestamp))
+        self._post_cache = pb
 
     def clearCache(self):
         self._post_cache = None
@@ -167,39 +163,6 @@ class UserPlace(models.Model):
         return self.id and (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
 
-class PlaceContent(models.Model):
-    # id
-    id = models.UUIDField(primary_key=True, default=None)
-
-    # node
-    uplace = models.ForeignKey(UserPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    image = models.ForeignKey(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    lp = models.ForeignKey(LegacyPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    stxt = models.ForeignKey(ShortText, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-    phone = models.ForeignKey(PhoneNumber, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pcs')
-
-    # value
-    lonLat = models.PointField(blank=True, null=True, default=None, geography=True, db_index=False)
-    stxt_type = models.SmallIntegerField(blank=True, null=True, default=None)
-
-    def _id(self, timestamp):
-        vd_id = self.vd_id or 0
-        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
-        return UUID(hstr.rjust(32, b'0'))
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            timestamp = kwargs.pop('timestamp', get_timestamp())
-            self.id = self._id(timestamp)
-        super(PlaceContent, self).save(*args, **kwargs)
-
-    @property
-    def timestamp(self):
-        return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
-
-
 class PostPiece(models.Model):
     # id
     id = models.UUIDField(primary_key=True, default=None)
@@ -213,6 +176,7 @@ class PostPiece(models.Model):
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
 
     # MAMMA 등 Machine 이 포스팅한 것은 None 으로 세팅됨
+    # 허나 ID 발급을 위해 vd 자체는 세팅해서 넘겨야 한다
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
 
     # json
@@ -229,6 +193,8 @@ class PostPiece(models.Model):
             self.id = self._id(timestamp)
         if not self.type_mask:
             self.type_mask = 0
+        if self.type_mask >= 2:
+            self.vd = None
         super(PostPiece, self).save(*args, **kwargs)
 
     @property

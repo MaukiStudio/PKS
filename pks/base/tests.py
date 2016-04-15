@@ -14,7 +14,7 @@ from pks.settings import VD_SESSION_KEY, MEDIA_ROOT, WORK_ENVIRONMENT
 from requests import get as requests_get
 from rest_framework import status
 from pathlib2 import Path
-
+from place.post import PostBase
 
 class APITestBase(APITestCase):
 
@@ -71,11 +71,10 @@ class APITestBase(APITestCase):
         return self.assertIn(type_str, ('img', 'stxt', 'url', '4square', 'naver', 'google', 'uplace',))
 
     def printJson(self, json):
-        from place.post import Post
         if type(json) is dict:
             json = json_dumps(json)
-        elif type(json) is Post:
-            json = json.json
+        elif type(json) is PostBase:
+            json = json_dumps(json.json)
         print(json)
         print('')
 
@@ -98,6 +97,20 @@ class APITestBase(APITestCase):
     def assertValidLocalFile(self, path):
         path = Path(path)
         self.assertEqual(path.exists(), True)
+
+    def assertIsSubsetOf(self, A, B):
+        result = isSubsetOf(A, B)
+        if not result:
+            self.printJson(A)
+            self.printJson(B)
+            self.fail('assertIsSubsetOf() fail')
+
+    def assertIsNotSubsetOf(self, A, B):
+        result = isSubsetOf(A, B)
+        if result:
+            self.printJson(A)
+            self.printJson(B)
+            self.fail('assertIsNotSubsetOf() fail')
 
 
 class FunctionalTestBase(APITestBase):
@@ -135,3 +148,55 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
         self.assertLogin()
         self.assertVdLogin()
+
+def isSubsetOf(self, other):
+    def isSubsetOf_dict(d1, d2):
+        if not d1: return True
+        elif not d2: return False
+        elif type(d2) is not dict: return False
+
+        for key, value in d1.iteritems():
+            if not value:
+                continue
+            elif type(value) is dict:
+                if key not in d2 or not isSubsetOf_dict(value, d2[key]):
+                    return False
+            elif type(value) is list:
+                if key not in d2 or not isSubsetOf_list(value, d2[key]):
+                    return False
+            else:
+                if key not in d2 or value != d2[key]:
+                    return False
+        return True
+    def isSubsetOf_list(l1, l2):
+        if not l1: return True
+        elif not l2: return False
+        elif type(l2) is not list: return False
+        elif len(l1) != len(l2): return False
+
+        for key, value in enumerate(l1):
+            if not value:
+                if l2[key]:
+                    return False
+            elif type(value) is dict:
+                if not isSubsetOf_dict(value, l2[key]):
+                    return False
+            elif type(value) is list:
+                if not isSubsetOf_list(value, l2[key]):
+                    return False
+            else:
+                if value != l2[key]:
+                    return False
+        return True
+
+    if type(self) is PostBase:
+        self = self.json
+    elif type(self) is unicode or type(self) is str:
+        self = json_loads(self)
+
+    if type(other) is PostBase:
+        other = other.json
+    elif type(other) is unicode or type(other) is str:
+        other = json_loads(other)
+
+    return isSubsetOf_dict(self, other)

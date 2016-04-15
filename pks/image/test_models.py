@@ -12,6 +12,8 @@ from image import models
 from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
+from base.utils import get_timestamp
+from content.models import ShortText
 
 
 class ImageTest(APITestBase):
@@ -146,6 +148,43 @@ class ImageTest(APITestBase):
         img.summarize()
         self.assertValidLocalFile(img.path_summarized)
         self.assertValidInternetUrl(img.url_summarized)
+
+    def test_json(self):
+        img = models.Image()
+        test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        img.content = test_data
+        img.save()
+        img.summarize()
+
+        self.assertIn('uuid', img.json)
+        self.assertIn('content', img.json)
+        self.assertNotIn('note', img.json)
+        self.assertNotIn('timestamp', img.json)
+        self.assertIn('summary', img.json)
+
+        img.timestamp = get_timestamp()
+        stxt = ShortText(content='img note')
+        stxt.save()
+        img.note = stxt
+
+        self.assertIn('uuid', img.json)
+        self.assertIn('content', img.json)
+        self.assertIn('note', img.json)
+        self.assertIn('timestamp', img.json)
+        self.assertIn('summary', img.json)
+
+        self.assertIn('uuid', img.json['note'])
+        self.assertIn('content', img.json['note'])
+        self.assertNotIn('timestamp', img.json['note'])
+
+        stxt.timestamp = get_timestamp()
+        self.assertIn('uuid', img.json['note'])
+        self.assertIn('content', img.json['note'])
+        self.assertIn('timestamp', img.json['note'])
+
+        saved = models.Image.get_from_json(img.json)
+        self.assertEqual(saved, img)
+        self.assertEqual(saved.note, img.note)
 
 
 class RawFileTest(APITestBase):

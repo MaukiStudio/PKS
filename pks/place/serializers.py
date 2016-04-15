@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework.serializers import ReadOnlyField
 
-from place.models import Place, UserPlace, PlaceContent, PostPiece
+from place.models import Place, UserPlace, PostPiece
 from base.serializers import BaseSerializer
 
 
@@ -14,11 +14,6 @@ class PlaceSerializer(BaseSerializer):
     class Meta:
         model = Place
         exclude = ('id', 'vds',)
-
-
-class PlaceContentSerializer(BaseSerializer):
-    class Meta:
-        model = PlaceContent
 
 
 class PostPieceSerializer(BaseSerializer):

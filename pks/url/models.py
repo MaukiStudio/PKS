@@ -86,7 +86,7 @@ class Url(Content):
 
     @property
     def content_summarized(self):
-        from place.post import Post
+        from place.post import PostBase
         file = Path(self.path_summarized)
         json_str = file.read_text()
-        return Post(json_str)
+        return PostBase(json_str)

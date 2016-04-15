@@ -72,6 +72,6 @@ class UrlTest(APITestBase):
         url.content = test_data
         url.save()
         url.summarize()
-        post = url.content_summarized
-        self.assertEqual(post.is_valid, True)
+        pb = url.content_summarized
+        self.assertEqual(pb.is_valid(), True)
 

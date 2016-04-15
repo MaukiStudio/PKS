@@ -12,14 +12,13 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
     '''
         Post Json Schema
             {
-                "place_id": %d,
-                "lonLat": {"lon": %f, "lat": %f, "timestamp": null},
-                "name": {"uuid": "%s", "content": "%s", "timestamp": null},
-                "posDesc": {"uuid": "%s", "content": "%s", "timestamp": null},
-                "phone": {"uuid": "%s", "content": "%s", "timestamp": null},
+                "uplace_uuid": "%s",
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"uuid": "%s", "content": "%s"},
+                "phone": {"uuid": "%s", "content": "%s"},
                 "addrs": [
-                    {"uuid": "%s", "content": "%s", "timestamp": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null}
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
                 ],
                 "notes": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
@@ -29,18 +28,18 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "images": [
                     {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s",
                         "note": {"uuid": "%s", "content": "%s", "timestamp": null}},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s", "note": null}
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s"},
+                    {"uuid": "%s", "content": "%s", "timestamp": null, "summary": "%s"}
                 ],
                 "urls": [
-                    {"uuid": "%s", "content": "%s", "timestamp": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null}
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
                 ],
                 "lps": [
-                    {"uuid": "%s", "content": "%s", "timestamp": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null},
-                    {"uuid": "%s", "content": "%s", "timestamp": null}
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"},
+                    {"uuid": "%s", "content": "%s"}
                 ]
             }
     '''
@@ -142,7 +141,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         placePost = result['placePost']
 
         # uplace_uuid 조회
-        uplace_uuid = userPost['uplace_uuid']
+        uplace_uuid = result['uplace_uuid']
         self.assertValidUuid(uplace_uuid)
 
         # placePost == null 이면 장소 정보 수집중... 이라 표시하면 됨
@@ -229,7 +228,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         placePost = result['placePost']
 
         # uplace_uuid 조회
-        uplace_uuid = userPost['uplace_uuid']
+        uplace_uuid = result['uplace_uuid']
         self.assertValidUuid(uplace_uuid)
 
         # placePost == null 이면 장소 정보 수집중... 이라 표시하면 됨

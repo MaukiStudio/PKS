@@ -6,6 +6,7 @@ from uuid import UUID
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 from random import randrange
+from json import loads as json_loads
 
 from imagehash import dhash
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
@@ -15,6 +16,7 @@ from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
+from content.models import ShortText
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
@@ -57,6 +59,32 @@ class Image(Content):
         # TODO : file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
         if not self.dhash:
             pass
+
+    @property
+    def json(self):
+        if self.timestamp:
+            if self.note:
+                return dict(uuid=self.uuid, content=self.content, note=self.note.json, timestamp=self.timestamp, summary=self.url_summarized)
+            else:
+                return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp, summary=self.url_summarized)
+        else:
+            if self.note:
+                return dict(uuid=self.uuid, content=self.content, note=self.note.json, summary=self.url_summarized)
+            else:
+                return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
+
+    def __init__(self, *args, **kwargs):
+        super(Image, self).__init__(*args, **kwargs)
+        self.note = None
+
+    @classmethod
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        result = super(Image, cls).get_from_json(json)
+        if result and 'note' in json and json['note']:
+            result.note = ShortText.get_from_json(json['note'])
+        return result
 
     # Image's method
     @classmethod
