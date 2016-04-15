@@ -5,6 +5,7 @@ from uuid import UUID
 from random import randrange
 from django.contrib.gis.db import models
 from base64 import b16encode
+from django.contrib.postgres.fields import JSONField
 
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
@@ -100,24 +101,25 @@ class UserPlace(models.Model):
     @classmethod
     def get_from_post(cls, post, vd, timestamp):
         # TODO : uplace 좀 더 찾기...
+        place = Place.get_from_post(post)
         uplace = None
         if 'uplace_uuid' in post.json and post.json['uplace_uuid']:
             uplace = cls.get_from_uuid(post.json['uplace_uuid'])
+        if not uplace and place:
+            # TODO : 이 부분이 테스트되는 테스트 코드 추가하기
+            uplace = UserPlace.objects.filter(vd=vd, place=place).order_by('id').first()
 
         # Place 처리
         if not uplace:
-            place = Place.get_from_post(post)
             uplace = cls(vd=vd, place=place)
             uplace.save(timestamp=timestamp)
         elif not uplace.place:
-            place = Place.get_from_post(post)
             uplace.place = place
             uplace.save(timestamp=timestamp)
         else:
-            # TODO : 튜닝
-            _place = Place.get_from_post(post)
-            if _place and uplace.place != Place.get_from_post(post):
-                raise ValueError('Place / UserPlace mismatch')
+            # TODO : raise 대신 복구 루틴 구현
+            if place and uplace.place != place:
+                raise NotImplementedError('Place / UserPlace mismatch')
 
         # 결과 처리
         return uplace
@@ -197,3 +199,36 @@ class PlaceContent(models.Model):
     def timestamp(self):
         return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
+
+class PostPiece(models.Model):
+    # id
+    id = models.UUIDField(primary_key=True, default=None)
+
+    # mode : 0bit:0/add,1/remove, 1bit:is_MAMMA
+    # so... : 0/add, 1/remove, 2/add_by_MAMMA, ...
+    type_mask = models.SmallIntegerField(blank=True, null=True, default=None)
+
+    # ref
+    uplace = models.ForeignKey(UserPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
+    place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
+
+    # MAMMA 등 Machine 이 포스팅한 것은 None 으로 세팅됨
+    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
+
+    # json
+    data = JSONField(blank=True, null=True, default=None, db_index=True)
+
+    def _id(self, timestamp):
+        vd_id = self.vd_id or 0
+        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
+        return UUID(hstr.rjust(32, b'0'))
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            timestamp = kwargs.pop('timestamp', get_timestamp())
+            self.id = self._id(timestamp)
+        super(PostPiece, self).save(*args, **kwargs)
+
+    @property
+    def timestamp(self):
+        return (int(self.id) >> 8*8) & BIT_ON_8_BYTE

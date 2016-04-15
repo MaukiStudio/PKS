@@ -54,7 +54,7 @@ class VD(models.Model):
     realOwner = models.ForeignKey(RealUser, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='vds')
 
     lastLonLat = models.PointField(blank=True, null=True, default=None, geography=True)
-    data = JSONField(blank=True, null=True, default=None)
+    data = JSONField(blank=True, null=True, default=None, db_index=False)
 
     deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)

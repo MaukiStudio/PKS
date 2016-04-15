@@ -5,9 +5,10 @@ from __future__ import print_function
 from django.contrib.gis.geos import GEOSGeometry
 from time import sleep
 from django.contrib.gis.measure import D
+from json import loads as json_loads
 
 from base.tests import APITestBase
-from place.models import Place, UserPlace, PlaceContent
+from place.models import Place, UserPlace, PlaceContent, PostPiece
 from account.models import VD
 from image.models import Image
 from url.models import Url
@@ -418,3 +419,107 @@ class PostTest(APITestBase):
         self.assertDictEqual(p1.json, p3.json)
         self.assertDictEqual(p2.json, p3.json)
 
+
+class PostPieceTest(APITestBase):
+
+    def setUp(self):
+        super(PostPieceTest, self).setUp()
+        self.place = Place()
+        self.place.save()
+        self.uplace = UserPlace()
+        self.uplace.save()
+        self.vd = VD()
+        self.vd.save()
+
+        self.image = Image()
+        img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
+        self.image.content = img1_content
+        self.image.save()
+        self.url = Url(content='http://maukistudio.com/')
+        self.url.save()
+
+        self.lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square')
+        self.lp.save()
+        self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.stxt.save()
+        self.phone = PhoneNumber(content='010-5597-9245')
+        self.phone.save()
+
+    def test_save_and_retreive(self):
+        pp = PostPiece()
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved, pp)
+
+    def test_id_property(self):
+        pp = PostPiece(vd=self.vd)
+        self.assertEqual(pp.id, None)
+        timestamp = get_timestamp()
+        pp.save()
+        self.assertNotEqual(pp.id, None)
+        self.assertAlmostEqual((int(pp.id) >> 8*8) & BIT_ON_8_BYTE, timestamp, delta=1000)
+        self.assertEqual((int(pp.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved, pp)
+        self.assertEqual(saved.id, pp.id)
+
+        # for timestamp property
+        self.assertEqual(saved.timestamp, pp.timestamp)
+        self.assertAlmostEqual(pp.timestamp, timestamp, delta=1000)
+
+    def test_id_property_with_timestamp(self):
+        pp = PostPiece(vd=self.vd)
+        timestamp = get_timestamp()
+        pp.save(timestamp=timestamp)
+        self.assertEqual((int(pp.id) >> 8*8) & BIT_ON_8_BYTE, timestamp)
+        self.assertEqual((int(pp.id) >> 2*8) & BIT_ON_6_BYTE, self.vd.id)
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved, pp)
+        self.assertEqual(saved.id, pp.id)
+
+    def test_id_property_with_no_vd(self):
+        pp = PostPiece()
+        pp.save()
+        self.assertEqual((int(pp.id) >> 2*8) & BIT_ON_6_BYTE, 0)
+
+    def test_uplace_property(self):
+        pp = PostPiece()
+        pp.uplace = self.uplace
+        pp.save()
+        saved = self.uplace.pps.first()
+        self.assertEqual(saved, pp)
+        self.assertEqual(saved.uplace, pp.uplace)
+
+    def test_place_property(self):
+        pp = PostPiece()
+        pp.place = self.place
+        pp.save()
+        saved = self.place.pps.first()
+        self.assertEqual(saved, pp)
+        self.assertEqual(saved.place, pp.place)
+
+    def test_vd_property(self):
+        pp = PostPiece()
+        pp.vd = self.vd
+        pp.save()
+        saved = self.vd.pps.first()
+        self.assertEqual(saved, pp)
+        self.assertEqual(saved.vd, pp.vd)
+
+    def test_data_property(self):
+        pp = PostPiece()
+        json_add = '''
+            {
+                "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
+                "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
+                "addrs": [{"content": "경기도 성남시 분당구 판교로 256번길 25"}, {"content": "경기도 성남시 분당구 삼평동 631"}],
+                "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
+            }
+        '''
+        pp.data = json_add
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(json_add, pp.data)
+        self.assertEqual(json_add, saved.data)
+
+        # TODO : json 에 대한 query 테스트 추가
