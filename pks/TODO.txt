@@ -4,6 +4,7 @@ UserPlace, Place 개념 정리...
             PostPiece 생성 처리 : 맘마에 의한 자동 포스팅 부분 예외 처리
             PostPiece 에서 Post 만들어 내는 부분 처리
             PlaceContent 제거
+            timestamp 강제 지정 부분 제거
         Post 내부에 딜딜 꼬여 있는 import 관계 정리
         맘마에 의한 자동 장소화 최대한 구현 : 장소화할 때 Place 가 생성되고 Place 관련 기본 속성들이 조정됨
         timestamp 값들, 같은 트랜잭션들은 같은 값이 들어가도록 정리

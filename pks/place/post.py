@@ -62,6 +62,13 @@ class Post(object):
             self._json_str = json_dumps(self.json)
         return self._json_str
 
+    @property
+    def lonLat(self):
+        if 'lonLat' in self.json and 'lon' in self.json['lonLat'] and 'lat' in self.json['lonLat']:
+            lonLat = GEOSGeometry('POINT(%f %f)' % (self.json['lonLat']['lon'], self.json['lonLat']['lat']))
+            return lonLat
+        return None
+
     def add_pc(self, pc):
         # Clear cache
         self._json_str = None
@@ -304,7 +311,7 @@ class Post(object):
 
         # 결과 처리
         # TODO : PostPiece 로 uplace 갱신 시, place 는 어떻게 갱신할지 고민필요
-        if uplace.place and not uplace.place.lonLat:
+        if lonLat and uplace.place and not uplace.place.lonLat:
             uplace.place.lonLat = lonLat
             uplace.place.save()
 

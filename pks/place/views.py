@@ -10,7 +10,6 @@ from place.models import Place, UserPlace, PlaceContent, PostPiece
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PlaceContentSerializer, PostPieceSerializer
 from base.views import BaseViewset
 from place.post import Post
-from base.utils import get_timestamp
 
 
 class PlaceViewset(BaseViewset):
@@ -56,9 +55,7 @@ class UserPlaceViewset(BaseViewset):
         return qs1.order_by('-modified')
 
     def create(self, request, *args, **kwargs):
-        #########################################
-        # PREPARE PART
-        #########################################
+        # TODO : 향후 remove mode 구현하기
 
         # vd 조회
         vd = self.vd
@@ -71,21 +68,22 @@ class UserPlaceViewset(BaseViewset):
         if 'uplace_uuid' in request.data:
             post.set_uplace_uuid(request.data['uplace_uuid'])
 
-        # timestamp
-        timestamp = get_timestamp()
-
         # UserPlace/Place 찾기
-        uplace = UserPlace.get_from_post(post, vd, timestamp)
-        timestamp += 1
+        uplace = UserPlace.get_from_post(post, vd)
 
         # Post.create_by_add()
         uplace = post.create_by_add(vd, uplace)
+        pp1 = PostPiece.objects.create(type_mask=0, place=None, uplace=uplace, vd=vd, data=post.json)
 
-        # MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
+        # 임시적인 어드민 구현을 위해, MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
+        # TODO : 향후 Django-Celery 구조 도입하여 정리한 후 제거
         if post.post_MAMMA:
-            uplace = UserPlace.get_from_post(post.post_MAMMA, vd, timestamp)
-            timestamp += 1
+            post_MAMMA = post.post_MAMMA
+            uplace = UserPlace.get_from_post(post_MAMMA, vd)
             uplace = post.post_MAMMA.create_by_add(vd, uplace)
+            pp2 = uplace.place.pps.first()
+            if not pp2:
+                pp2 = PostPiece.objects.create(type_mask=2, place=uplace.place, uplace=None, vd=None, data=post_MAMMA.json)
 
         # 결과 리턴
         serializer = self.get_serializer(uplace)

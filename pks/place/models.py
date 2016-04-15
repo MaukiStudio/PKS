@@ -65,7 +65,7 @@ class Place(models.Model):
             if lp.place:
                 return lp.place
 
-            _place = Place()
+            _place = Place(lonLat=post.lonLat)
             _place.save()
             lp.place = _place
             lp.save()
@@ -99,7 +99,7 @@ class UserPlace(models.Model):
         return cls.objects.get(id=_id)
 
     @classmethod
-    def get_from_post(cls, post, vd, timestamp):
+    def get_from_post(cls, post, vd):
         # TODO : uplace 좀 더 찾기...
         place = Place.get_from_post(post)
         uplace = None
@@ -111,11 +111,11 @@ class UserPlace(models.Model):
 
         # Place 처리
         if not uplace:
-            uplace = cls(vd=vd, place=place)
-            uplace.save(timestamp=timestamp)
+            uplace = cls(vd=vd, place=place, lonLat=post.lonLat)
+            uplace.save()
         elif not uplace.place:
             uplace.place = place
-            uplace.save(timestamp=timestamp)
+            uplace.save()
         else:
             # TODO : raise 대신 복구 루틴 구현
             if place and uplace.place != place:
@@ -227,8 +227,18 @@ class PostPiece(models.Model):
         if not self.id:
             timestamp = kwargs.pop('timestamp', get_timestamp())
             self.id = self._id(timestamp)
+        if not self.type_mask:
+            self.type_mask = 0
         super(PostPiece, self).save(*args, **kwargs)
 
     @property
     def timestamp(self):
         return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
+
+    @property
+    def is_add(self):
+        return (self.type_mask & 1) == 0
+
+    @property
+    def is_remove(self):
+        return (self.type_mask & 1) == 1

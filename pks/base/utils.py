@@ -13,6 +13,11 @@ class HashCollisionError(NotImplementedError):
     pass
 
 
+_prev_timestamp = int(round(Delorean().epoch*1000))
 def get_timestamp():
-    return int(round(Delorean().epoch*1000))
-
+    global _prev_timestamp
+    _timestamp = int(round(Delorean().epoch*1000))
+    if _prev_timestamp >= _timestamp:
+        _timestamp = _prev_timestamp + 1
+    _prev_timestamp = _timestamp
+    return _timestamp
