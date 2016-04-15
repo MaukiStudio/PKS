@@ -29,6 +29,7 @@ router.register(r'phones', content_views.PhoneNumberViewset)
 
 router.register(r'places', place_views.PlaceViewset)
 router.register(r'pcs', place_views.PlaceContentViewset)
+router.register(r'pps', place_views.PostPieceViewset)
 router.register(r'uplaces', place_views.UserPlaceViewset)
 
 

@@ -9,7 +9,7 @@ from time import sleep
 from django.contrib.gis.measure import D
 
 from base.tests import APITestBase
-from place.models import UserPlace, Place
+from place.models import UserPlace, Place, PostPiece
 from image.models import Image
 from content.models import ShortText, LegacyPlace, PhoneNumber
 from url.models import Url
@@ -547,3 +547,38 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(result['phone'], None)
         self.assertNotEqual(result['addrs'][0], None)
         self.assertNotEqual(result['lps'][0], None)
+
+
+class PostPieceViewSetTest(APITestBase):
+
+    def setUp(self):
+        super(PostPieceViewSetTest, self).setUp()
+        response = self.client.post('/users/register/')
+        self.auth_user_token = json_loads(response.content)['auth_user_token']
+        self.client.post('/users/login/', {'auth_user_token': self.auth_user_token})
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
+        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+        self.place = Place()
+        self.place.save()
+        self.vd = VD.objects.first()
+        self.uplace = UserPlace(vd=self.vd)
+        self.uplace.save()
+        self.pp = PostPiece(vd=self.vd, uplace=self.uplace)
+        self.pp.save()
+
+    def test_list(self):
+        response = self.client.get('/pps/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+        self.assertIn('data', results[0])
+
+    def test_detail(self):
+        response = self.client.get('/pps/%s/' % self.pp.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = json_loads(response.content)
+        self.assertEqual(type(result), dict)
+        self.assertIn('data', result)
+        response = self.client.get('/pps/null/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

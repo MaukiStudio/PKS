@@ -6,8 +6,8 @@ from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 
-from place.models import Place, UserPlace, PlaceContent
-from place.serializers import PlaceSerializer, UserPlaceSerializer, PlaceContentSerializer
+from place.models import Place, UserPlace, PlaceContent, PostPiece
+from place.serializers import PlaceSerializer, UserPlaceSerializer, PlaceContentSerializer, PostPieceSerializer
 from base.views import BaseViewset
 from place.post import Post
 from base.utils import get_timestamp
@@ -31,6 +31,11 @@ class PlaceViewset(BaseViewset):
 class PlaceContentViewset(BaseViewset):
     queryset = PlaceContent.objects.all()
     serializer_class = PlaceContentSerializer
+
+
+class PostPieceViewset(BaseViewset):
+    queryset = PostPiece.objects.all()
+    serializer_class = PostPieceSerializer
 
 
 class UserPlaceViewset(BaseViewset):

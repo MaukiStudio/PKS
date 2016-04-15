@@ -127,6 +127,7 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
         response = self.client.post('/users/register/')
         self.secureStorage['auth_user_token'] = json_loads(response.content)['auth_user_token']
         response = self.client.post('/users/login/', dict(auth_user_token=self.secureStorage['auth_user_token']))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         email = self.input_from_user()
         response = self.client.post('/vds/register/', dict(email=email,))
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
