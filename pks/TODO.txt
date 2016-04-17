@@ -1,5 +1,7 @@
 [Now]
 
+장소화 로직 좀 더 정교하게...
+
 장소화 Admin 만들기
 
 Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...

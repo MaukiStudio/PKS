@@ -5,4 +5,8 @@ from image import models
 class ImageAdmin(admin.ModelAdmin):
     pass
 
+class RawFileAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(models.Image, ImageAdmin)
+admin.site.register(models.RawFile, RawFileAdmin)
