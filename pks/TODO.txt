@@ -1,6 +1,7 @@
 [Now]
 
 ShortText 분리하기
+PostBase 에서의 Address 구조 변경하기
 
 Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
 

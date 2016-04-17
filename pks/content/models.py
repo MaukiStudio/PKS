@@ -135,3 +135,47 @@ class PhoneNumber(Content):
         r = format_number(p, PhoneNumberFormat.NATIONAL)
         return 'http://www.google.com/#q="%s"' % r
 
+
+class PlaceName(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'pname'
+
+    @property
+    def accessedType(self):
+        return 'html'
+
+
+class Address(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'addr'
+
+    @property
+    def accessedType(self):
+        return 'html'
+
+
+class PlaceNote(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'pnote'
+
+    @property
+    def accessedType(self):
+        return 'html'
+
+
+class ImageNote(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'inote'
+
+    @property
+    def accessedType(self):
+        return 'html'
+

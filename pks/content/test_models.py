@@ -7,7 +7,7 @@ from base64 import b16encode
 from django.db import IntegrityError
 
 from base.tests import APITestBase
-from content.models import LegacyPlace, ShortText, PhoneNumber, LP_TYPE
+from content.models import LegacyPlace, ShortText, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
 from pathlib2 import Path
 from place.models import Place
 
@@ -281,3 +281,200 @@ class PhoneNumberTest(APITestBase):
         self.assertEqual(path.exists(), False)
         phone.access_force()
         self.assertEqual(path.exists(), True)
+
+
+class PlaceNameTest(APITestBase):
+
+    def test_string_representation(self):
+        pname = PlaceName()
+        test_data = '방아깐'
+        pname.content = test_data
+        self.assertEqual(unicode(pname), test_data)
+
+    def test_save_and_retreive(self):
+        pname = PlaceName()
+        test_data = '방아깐'
+        pname.content = test_data
+        pname.save()
+        saved = PlaceName.objects.first()
+        self.assertEqual(pname.uuid, '%s.pname' % b16encode(pname.id.bytes))
+        self.assertEqual(saved, pname)
+        self.assertEqual(saved.id, pname.id)
+        saved2 = PlaceName.get_from_json('{"uuid": "%s", "content": null}' % pname.uuid)
+        self.assertEqual(saved2, pname)
+        saved3 = PlaceName.get_from_json('{"uuid": null, "content": "%s"}' % pname.content)
+        self.assertEqual(saved3, pname)
+
+    def test_content_property(self):
+        pname = PlaceName()
+        test_data = '방아깐'
+        pname.content = test_data
+        pname.save()
+        saved = PlaceName.objects.first()
+        self.assertEqual(pname.content, test_data)
+        self.assertEqual(saved, pname)
+        self.assertEqual(saved.id, pname.id)
+        self.assertEqual(saved.content, pname.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        pname = PlaceName()
+        test_data = '방아깐'
+        pname.content = test_data
+        pname.save()
+
+        path = Path(pname.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        pname.access_force()
+        self.assertEqual(path.exists(), True)
+
+
+class AddressTest(APITestBase):
+
+    def test_string_representation(self):
+        addr = Address()
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
+        addr.content = test_data
+        self.assertEqual(unicode(addr), test_data)
+
+    def test_save_and_retreive(self):
+        addr = Address()
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
+        addr.content = test_data
+        addr.save()
+        saved = Address.objects.first()
+        self.assertEqual(addr.uuid, '%s.addr' % b16encode(addr.id.bytes))
+        self.assertEqual(saved, addr)
+        self.assertEqual(saved.id, addr.id)
+        saved2 = Address.get_from_json('{"uuid": "%s", "content": null}' % addr.uuid)
+        self.assertEqual(saved2, addr)
+        saved3 = Address.get_from_json('{"uuid": null, "content": "%s"}' % addr.content)
+        self.assertEqual(saved3, addr)
+
+    def test_content_property(self):
+        addr = Address()
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
+        addr.content = test_data
+        addr.save()
+        saved = Address.objects.first()
+        self.assertEqual(addr.content, test_data)
+        self.assertEqual(saved, addr)
+        self.assertEqual(saved.id, addr.id)
+        self.assertEqual(saved.content, addr.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        addr = Address()
+        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
+        addr.content = test_data
+        addr.save()
+
+        path = Path(addr.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        addr.access_force()
+        self.assertEqual(path.exists(), True)
+
+
+class PlaceNoteTest(APITestBase):
+
+    def test_string_representation(self):
+        pnote = PlaceNote()
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote.content = test_data
+        self.assertEqual(unicode(pnote), test_data)
+
+    def test_save_and_retreive(self):
+        pnote = PlaceNote()
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote.content = test_data
+        pnote.save()
+        saved = PlaceNote.objects.first()
+        self.assertEqual(pnote.uuid, '%s.pnote' % b16encode(pnote.id.bytes))
+        self.assertEqual(saved, pnote)
+        self.assertEqual(saved.id, pnote.id)
+        saved2 = PlaceNote.get_from_json('{"uuid": "%s", "content": null}' % pnote.uuid)
+        self.assertEqual(saved2, pnote)
+        saved3 = PlaceNote.get_from_json('{"uuid": null, "content": "%s"}' % pnote.content)
+        self.assertEqual(saved3, pnote)
+
+    def test_content_property(self):
+        pnote = PlaceNote()
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote.content = test_data
+        pnote.save()
+        saved = PlaceNote.objects.first()
+        self.assertEqual(pnote.content, test_data)
+        self.assertEqual(saved, pnote)
+        self.assertEqual(saved.id, pnote.id)
+        self.assertEqual(saved.content, pnote.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        pnote = PlaceNote()
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote.content = test_data
+        pnote.save()
+
+        path = Path(pnote.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        pnote.access_force()
+        self.assertEqual(path.exists(), True)
+
+
+class ImageNoteTest(APITestBase):
+
+    def test_string_representation(self):
+        inote = ImageNote()
+        test_data = '자기랑 진우랑 찰칵~ ^^'
+        inote.content = test_data
+        self.assertEqual(unicode(inote), test_data)
+
+    def test_save_and_retreive(self):
+        inote = ImageNote()
+        test_data = '자기랑 진우랑 찰칵~ ^^'
+        inote.content = test_data
+        inote.save()
+        saved = ImageNote.objects.first()
+        self.assertEqual(inote.uuid, '%s.inote' % b16encode(inote.id.bytes))
+        self.assertEqual(saved, inote)
+        self.assertEqual(saved.id, inote.id)
+        saved2 = ImageNote.get_from_json('{"uuid": "%s", "content": null}' % inote.uuid)
+        self.assertEqual(saved2, inote)
+        saved3 = ImageNote.get_from_json('{"uuid": null, "content": "%s"}' % inote.content)
+        self.assertEqual(saved3, inote)
+
+    def test_content_property(self):
+        inote = ImageNote()
+        test_data = '자기랑 진우랑 찰칵~ ^^'
+        inote.content = test_data
+        inote.save()
+        saved = ImageNote.objects.first()
+        self.assertEqual(inote.content, test_data)
+        self.assertEqual(saved, inote)
+        self.assertEqual(saved.id, inote.id)
+        self.assertEqual(saved.content, inote.content)
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        inote = ImageNote()
+        test_data = '자기랑 진우랑 찰칵~ ^^'
+        inote.content = test_data
+        inote.save()
+
+        path = Path(inote.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        inote.access_force()
+        self.assertEqual(path.exists(), True)
+
