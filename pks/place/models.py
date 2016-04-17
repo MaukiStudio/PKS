@@ -18,26 +18,27 @@ class Place(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     def __init__(self, *args, **kwargs):
-        self._post_cache = None
+        self._pb_cache = None
         super(Place, self).__init__(*args, **kwargs)
 
     def computePost(self):
         pb = None
         for pp in self.pps.all().order_by('id'):
+            pb_new = PostBase(pp.data, pp.timestamp)
             if not pb:
-                pb = PostBase(pp.data, pp.timestamp)
+                pb = pb_new
             else:
-                pb.update(PostBase(pp.data, pp.timestamp))
-        self._post_cache = pb
+                pb.update(pb_new)
+        self._pb_cache = pb
 
     def clearCache(self):
-        self._post_cache = None
+        self._pb_cache = None
 
     @property
     def placePost(self):
-        if not self._post_cache:
+        if not self._pb_cache:
             self.computePost()
-        return self._post_cache
+        return self._pb_cache
 
     @classmethod
     def get_from_post(cls, pb):
@@ -78,7 +79,7 @@ class UserPlace(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
 
     def __init__(self, *args, **kwargs):
-        self._post_cache = None
+        self._pb_cache = None
         super(UserPlace, self).__init__(*args, **kwargs)
 
     @property
@@ -124,22 +125,23 @@ class UserPlace(models.Model):
     def computePost(self):
         pb = None
         for pp in self.pps.all().order_by('id'):
+            pb_new = PostBase(pp.data, pp.timestamp)
             if not pb:
-                pb = PostBase(pp.data, pp.timestamp)
+                pb = pb_new
             else:
-                pb.update(PostBase(pp.data, pp.timestamp))
-        self._post_cache = pb
+                pb.update(pb_new)
+        self._pb_cache = pb
 
     def clearCache(self):
-        self._post_cache = None
+        self._pb_cache = None
         if self.place:
             self.place.clearCache()
 
     @property
     def userPost(self):
-        if not self._post_cache:
+        if not self._pb_cache:
             self.computePost()
-        return self._post_cache
+        return self._pb_cache
 
     @property
     def placePost(self):

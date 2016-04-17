@@ -10,6 +10,8 @@ Django Celery 체계 만들기
 
 
 같은 장소로 판정된 UserPlace, Place Merge
+    --> 특히 다른 VD  인데 같은 Place 인 UserPlace 가 있는 경우
+
 URL 리다이렉션 처리
 
 UserPlace, Place 컬럼값들 채워지는 로직 전반적으로 체크
