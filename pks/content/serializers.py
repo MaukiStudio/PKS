@@ -11,12 +11,6 @@ class LegacyPlaceSerializer(ContentSerializer):
         exclude = ('id',)
 
 
-class ShortTextSerializer(ContentSerializer):
-    class Meta:
-        model = models.ShortText
-        exclude = ('id',)
-
-
 class PhoneNumberSerializer(ContentSerializer):
     class Meta:
         model = models.PhoneNumber

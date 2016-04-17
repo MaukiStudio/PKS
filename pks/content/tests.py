@@ -48,45 +48,6 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.assertNotEqual(result['uuid'], self.lp.uuid)
 
 
-class ShortTextViewsetTest(APITestBase):
-
-    def setUp(self):
-        super(ShortTextViewsetTest, self).setUp()
-        self.stxt = models.ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.stxt.save()
-
-    def test_list(self):
-        response = self.client.get('/stxts/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = json_loads(response.content)['results']
-        self.assertEqual(type(results), list)
-        self.assertEqual(len(results), 1)
-
-        stxt2 = models.ShortText(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
-        stxt2.save()
-        response = self.client.get('/stxts/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = json_loads(response.content)['results']
-        self.assertEqual(type(results), list)
-        self.assertEqual(len(results), 2)
-
-    def test_create(self):
-        self.assertEqual(1, models.ShortText.objects.count())
-        response = self.client.post('/stxts/', dict(content=self.stxt.content))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(models.ShortText.objects.count(), 1)
-        result = json_loads(response.content)
-        self.assertIn('uuid', result)
-        self.assertNotIn('id', result)
-        self.assertEqual(result['uuid'], self.stxt.uuid)
-
-        response = self.client.post('/stxts/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        self.assertEqual(models.ShortText.objects.count(), 2)
-        result = json_loads(response.content)
-        self.assertNotEqual(result['uuid'], self.stxt.uuid)
-
-
 class PhoneNumberViewsetTest(APITestBase):
 
     def setUp(self):

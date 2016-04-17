@@ -7,7 +7,7 @@ from base64 import b16encode
 from django.db import IntegrityError
 
 from base.tests import APITestBase
-from content.models import LegacyPlace, ShortText, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
+from content.models import LegacyPlace, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
 from pathlib2 import Path
 from place.models import Place
 
@@ -182,55 +182,6 @@ class LegacyPlaceTest(APITestBase):
         lp3.place = place
         with self.assertRaises(IntegrityError):
             lp3.save()
-
-
-class ShortTextTest(APITestBase):
-
-    def test_string_representation(self):
-        stxt = ShortText()
-        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
-        stxt.content = test_data
-        self.assertEqual(unicode(stxt), test_data)
-
-    def test_save_and_retreive(self):
-        stxt = ShortText()
-        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
-        stxt.content = test_data
-        stxt.save()
-        saved = ShortText.objects.first()
-        self.assertEqual(stxt.uuid, '%s.stxt' % b16encode(stxt.id.bytes))
-        self.assertEqual(saved, stxt)
-        self.assertEqual(saved.id, stxt.id)
-        saved2 = ShortText.get_from_json('{"uuid": "%s", "content": null}' % stxt.uuid)
-        self.assertEqual(saved2, stxt)
-        saved3 = ShortText.get_from_json('{"uuid": null, "content": "%s"}' % stxt.content)
-        self.assertEqual(saved3, stxt)
-
-    def test_content_property(self):
-        stxt = ShortText()
-        test_data = '경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)'
-        stxt.content = test_data
-        stxt.save()
-        saved = ShortText.objects.first()
-        self.assertEqual(stxt.content, test_data)
-        self.assertEqual(saved, stxt)
-        self.assertEqual(saved.id, stxt.id)
-        self.assertEqual(saved.content, stxt.content)
-
-    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
-    def __skip__test_access_methods(self):
-        stxt = ShortText()
-        test_data = '가끔 가면 맛있는 곳'
-        stxt.content = test_data
-        stxt.save()
-
-        path = Path(stxt.path_accessed)
-        if path.exists():
-            path.unlink()
-
-        self.assertEqual(path.exists(), False)
-        stxt.access_force()
-        self.assertEqual(path.exists(), True)
 
 
 class PhoneNumberTest(APITestBase):

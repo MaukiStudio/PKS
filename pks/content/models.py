@@ -90,17 +90,6 @@ class LegacyPlace(Content):
             raise NotImplementedError
 
 
-class ShortText(Content):
-    # MUST override
-    @property
-    def contentType(self):
-        return 'stxt'
-
-    @property
-    def accessedType(self):
-        return 'html'
-
-
 class PhoneNumber(Content):
 
     # MUST override

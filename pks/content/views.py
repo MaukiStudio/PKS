@@ -11,11 +11,6 @@ class LegacyPlaceViewset(ContentViewset):
     serializer_class = serializers.LegacyPlaceSerializer
 
 
-class ShortTextViewset(ContentViewset):
-    queryset = models.ShortText.objects.all()
-    serializer_class = serializers.ShortTextSerializer
-
-
 class PhoneNumberViewset(ContentViewset):
     queryset = models.PhoneNumber.objects.all()
     serializer_class = serializers.PhoneNumberSerializer
