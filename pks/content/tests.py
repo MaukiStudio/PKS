@@ -124,3 +124,160 @@ class PhoneNumberViewsetTest(APITestBase):
         self.assertEqual(models.PhoneNumber.objects.count(), 2)
         result = json_loads(response.content)
         self.assertNotEqual(result['uuid'], self.phone.uuid)
+
+
+class PlaceNameViewsetTest(APITestBase):
+
+    def setUp(self):
+        super(PlaceNameViewsetTest, self).setUp()
+        self.pname = models.PlaceName(content='능이향기')
+        self.pname.save()
+
+    def test_list(self):
+        response = self.client.get('/pnames/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+
+        pname2 = models.PlaceName(content='방아깐')
+        pname2.save()
+        response = self.client.get('/pnames/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
+
+    def test_create(self):
+        self.assertEqual(1, models.PlaceName.objects.count())
+        response = self.client.post('/pnames/', dict(content=self.pname.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PlaceName.objects.count(), 1)
+        result = json_loads(response.content)
+        self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertEqual(result['uuid'], self.pname.uuid)
+
+        response = self.client.post('/pnames/', dict(content='방아깐'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PlaceName.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertNotEqual(result['uuid'], self.pname.uuid)
+
+
+class AddressViewsetTest(APITestBase):
+
+    def setUp(self):
+        super(AddressViewsetTest, self).setUp()
+        self.addr = models.Address(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.addr.save()
+
+    def test_list(self):
+        response = self.client.get('/addrs/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+
+        addr2 = models.Address(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호')
+        addr2.save()
+        response = self.client.get('/addrs/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
+
+    def test_create(self):
+        self.assertEqual(1, models.Address.objects.count())
+        response = self.client.post('/addrs/', dict(content=self.addr.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.Address.objects.count(), 1)
+        result = json_loads(response.content)
+        self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertEqual(result['uuid'], self.addr.uuid)
+
+        response = self.client.post('/addrs/', dict(content='경기도 하남시 풍산로 270 미사강변도시2단지 206동 402호'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.Address.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertNotEqual(result['uuid'], self.addr.uuid)
+
+
+class PlaceNoteViewsetTest(APITestBase):
+
+    def setUp(self):
+        super(PlaceNoteViewsetTest, self).setUp()
+        self.pnote = models.PlaceNote(content='능이백숙 국물 죽임~ ㅋ')
+        self.pnote.save()
+
+    def test_list(self):
+        response = self.client.get('/pnotes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+
+        pnote2 = models.PlaceNote(content='여긴 국물이 끝내줌')
+        pnote2.save()
+        response = self.client.get('/pnotes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
+
+    def test_create(self):
+        self.assertEqual(1, models.PlaceNote.objects.count())
+        response = self.client.post('/pnotes/', dict(content=self.pnote.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PlaceNote.objects.count(), 1)
+        result = json_loads(response.content)
+        self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertEqual(result['uuid'], self.pnote.uuid)
+
+        response = self.client.post('/pnotes/', dict(content='여긴 국물이 끝내줌'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.PlaceNote.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertNotEqual(result['uuid'], self.pnote.uuid)
+
+
+class ImageNoteViewsetTest(APITestBase):
+
+    def setUp(self):
+        super(ImageNoteViewsetTest, self).setUp()
+        self.inote = models.ImageNote(content='자기랑 진우랑 찰칵 ^^')
+        self.inote.save()
+
+    def test_list(self):
+        response = self.client.get('/inotes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+
+        inote2 = models.ImageNote(content='진우^^')
+        inote2.save()
+        response = self.client.get('/inotes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 2)
+
+    def test_create(self):
+        self.assertEqual(1, models.ImageNote.objects.count())
+        response = self.client.post('/inotes/', dict(content=self.inote.content))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.ImageNote.objects.count(), 1)
+        result = json_loads(response.content)
+        self.assertIn('uuid', result)
+        self.assertNotIn('id', result)
+        self.assertEqual(result['uuid'], self.inote.uuid)
+
+        response = self.client.post('/inotes/', dict(content='진우^^'))
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(models.ImageNote.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertNotEqual(result['uuid'], self.inote.uuid)
+
