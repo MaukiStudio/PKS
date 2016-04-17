@@ -68,7 +68,9 @@ class APITestBase(APITestCase):
         type_str = uuid_json.split('.')[1]
         _uuid = UUID(hex_str)
         self.assertEqual(type(_uuid), UUID)
-        return self.assertIn(type_str, ('img', 'stxt', 'url', '4square', 'naver', 'google', 'uplace',))
+        return self.assertIn(type_str,
+                             ('img', 'stxt', 'url', '4square', 'naver', 'google', 'uplace',
+                              'pname', 'addr', 'pnote', 'inote',))
 
     def printJson(self, json):
         if type(json) is dict:

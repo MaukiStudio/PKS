@@ -100,13 +100,13 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         addr = '경기도 성남시 분당구 운중동 883-3'
 
         # 신 주소값 등록 : 없는 경우 pass
-        response = self.client.post('/stxts/', dict(content=addr_new))
+        response = self.client.post('/addrs/', dict(content=addr_new))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         addr_new_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(addr_new_uuid)
 
         # 주소값 등록
-        response = self.client.post('/stxts/', dict(content=addr))
+        response = self.client.post('/addrs/', dict(content=addr))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         addr_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(addr_uuid)
@@ -115,7 +115,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         note = self.input_from_user('장소 노트')
 
         # 노트 등록 : 가능한한 빨리 미리 등록
-        response = self.client.post('/stxts/', dict(content=note))
+        response = self.client.post('/pnotes/', dict(content=note))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         note_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(note_uuid)
@@ -155,7 +155,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         response = self.client.post('/imgs/', dict(content=file_url))
         img_uuid = json_loads(response.content)['uuid']
         note = self.input_from_user('사진 노트')
-        response = self.client.post('/stxts/', dict(content=note))
+        response = self.client.post('/inotes/', dict(content=note))
         note_uuid = json_loads(response.content)['uuid']
         json_add = '''
             {
@@ -206,7 +206,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         note = self.input_from_user('URL 노트')
 
         # 노트 등록
-        response = self.client.post('/stxts/', dict(content=note))
+        response = self.client.post('/pnotes/', dict(content=note))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         note_uuid = json_loads(response.content)['uuid']
         self.assertValidUuid(note_uuid)

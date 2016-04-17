@@ -12,7 +12,7 @@ from place.models import Place, UserPlace, PostPiece
 from account.models import VD
 from image.models import Image
 from url.models import Url
-from content.models import LegacyPlace, ShortText, PhoneNumber
+from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from base.utils import get_timestamp, BIT_ON_8_BYTE, BIT_ON_6_BYTE
 from place.post import PostBase
 
@@ -148,12 +148,11 @@ class PostTest(APITestBase):
         uplace1 = UserPlace(vd=vd1, place=place)
         uplace1.save()
         point1 = GEOSGeometry('POINT(127 37)')
-        name1 = ShortText(content='능라'); name1.save()
-        addr1 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
-        posDesc1 = ShortText(content='연구원사거리 근처'); posDesc1.save()
-        note11 = ShortText(content='분당 냉면 최고'); note11.save()
-        note12 = ShortText(content='만두도 괜찮음'); note12.save()
-        imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
+        name1 = PlaceName(content='능라'); name1.save()
+        addr1 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
+        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
+        note12 = PlaceNote(content='만두도 괜찮음'); note12.save()
+        imgNote1 = ImageNote(content='냉면 사진'); imgNote1.save()
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img1 = Image(content=img1_content); img1.save()
         phone1 = PhoneNumber(content='010-5686-1613'); phone1.save()
@@ -162,16 +161,15 @@ class PostTest(APITestBase):
         uplace2 = UserPlace(vd=vd2, place=place)
         uplace2.save()
         point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
-        name2 = ShortText(content='능라도'); name2.save()
-        addr2 = ShortText(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
-        posDesc2 = ShortText(content='운중동버스차고지 근처'); posDesc2.save()
-        note21 = ShortText(content='여기 가게 바로 옆으로 이전'); note21.save()
-        note22 = ShortText(content='평양냉면 맛집'); note22.save()
+        name2 = PlaceName(content='능라도'); name2.save()
+        addr2 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
+        note21 = PlaceNote(content='여기 가게 바로 옆으로 이전'); note21.save()
+        note22 = PlaceNote(content='평양냉면 맛집'); note22.save()
         img21_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
         img22_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
         img21 = Image(content=img21_content); img21.save()
         img22 = Image(content=img22_content); img22.save()
-        imgNote2 = ShortText(content='만두 사진'); imgNote2.save()
+        imgNote2 = ImageNote(content='만두 사진'); imgNote2.save()
         url2 = Url(content='http://maukistudio.com/'); url2.save()
         lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp.save();
         phone2 = PhoneNumber(content='010-5597-9245'); phone2.save()
@@ -280,8 +278,8 @@ class PostPieceTest(APITestBase):
 
         self.lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square')
         self.lp.save()
-        self.stxt = ShortText(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
-        self.stxt.save()
+        self.addr = Address(content='경기도 하남시 풍산로 270, 206동 402호 (선동, 미사강변도시2단지)')
+        self.addr.save()
         self.phone = PhoneNumber(content='010-5597-9245')
         self.phone.save()
 

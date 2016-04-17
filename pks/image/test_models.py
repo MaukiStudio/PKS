@@ -13,7 +13,7 @@ from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
 from base.utils import get_timestamp
-from content.models import ShortText
+from content.models import ImageNote
 
 
 class ImageTest(APITestBase):
@@ -163,9 +163,9 @@ class ImageTest(APITestBase):
         self.assertIn('summary', img.json)
 
         img.timestamp = get_timestamp()
-        stxt = ShortText(content='img note')
-        stxt.save()
-        img.note = stxt
+        inote = ImageNote(content='img note')
+        inote.save()
+        img.note = inote
 
         self.assertIn('uuid', img.json)
         self.assertIn('content', img.json)
@@ -177,7 +177,7 @@ class ImageTest(APITestBase):
         self.assertIn('content', img.json['note'])
         self.assertNotIn('timestamp', img.json['note'])
 
-        stxt.timestamp = get_timestamp()
+        inote.timestamp = get_timestamp()
         self.assertIn('uuid', img.json['note'])
         self.assertIn('content', img.json['note'])
         self.assertIn('timestamp', img.json['note'])

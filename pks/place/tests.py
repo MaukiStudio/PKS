@@ -11,7 +11,7 @@ from django.contrib.gis.measure import D
 from base.tests import APITestBase
 from place.models import UserPlace, Place, PostPiece
 from image.models import Image
-from content.models import ShortText, LegacyPlace, PhoneNumber
+from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from url.models import Url
 from account.models import VD
 
@@ -144,13 +144,13 @@ class UserPlaceViewSetTest(APITestBase):
         qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
-        name1 = ShortText(content='능라'); name1.save()
-        addr11 = ShortText(content='경기도 성남시 분당구 운중동 883-3'); addr11.save()
-        addr12 = ShortText(content='경기도 성남시 분당구 산운로32번길 12'); addr12.save()
-        note11 = ShortText(content='분당 냉면 최고'); note11.save()
-        note12 = ShortText(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
-        note13 = ShortText(content='평양냉면'); note13.save()
-        imgNote1 = ShortText(content='냉면 사진'); imgNote1.save()
+        name1 = PlaceName(content='능라'); name1.save()
+        addr11 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr11.save()
+        addr12 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr12.save()
+        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
+        note12 = PlaceNote(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
+        note13 = PlaceNote(content='평양냉면'); note13.save()
+        imgNote1 = ImageNote(content='냉면 사진'); imgNote1.save()
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
         img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
@@ -331,7 +331,7 @@ class UserPlaceViewSetTest(APITestBase):
 
     def test_create_case2_current_pos_with_note_photo(self):
         point1 = GEOSGeometry('POINT(127 37)')
-        note11 = ShortText(content='분당 냉면 최고'); note11.save()
+        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img1 = Image(content=img1_content); img1.save()
 
@@ -379,7 +379,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
 
     def test_create_case4_only_url_and_note(self):
-        note11 = ShortText(content='분당 냉면 최고'); note11.save()
+        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
         url1 = Url(content='http://maukistudio.com/'); url1.save()
 
         json_add = '''

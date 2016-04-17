@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from json import loads as json_loads
 
-from content.models import LegacyPlace, ShortText, PhoneNumber, LP_REGEXS_URL
+from content.models import LegacyPlace, PhoneNumber, LP_REGEXS_URL, PlaceName, Address, PlaceNote, ImageNote
 from image.models import Image
 from base.models import Point
 
@@ -84,7 +84,7 @@ class PostBase(object):
 
         # name 조회
         if 'name' in json and json['name']:
-            name = ShortText.get_from_json(json['name'])
+            name = PlaceName.get_from_json(json['name'])
             #name.timestamp = timestamp
             self.name = name
 
@@ -103,7 +103,7 @@ class PostBase(object):
         # addrs 조회
         if 'addrs' in json and json['addrs']:
             for addr_json in json['addrs']:
-                addr = ShortText.get_from_json(addr_json)
+                addr = Address.get_from_json(addr_json)
                 #addr.timestamp = timestamp
                 self.addrs.append(addr)
 
@@ -125,7 +125,7 @@ class PostBase(object):
         # notes 조회
         if 'notes' in json and json['notes']:
             for note_json in json['notes']:
-                note = ShortText.get_from_json(note_json)
+                note = PlaceNote.get_from_json(note_json)
                 note.timestamp = timestamp
                 self.notes.append(note)
 
@@ -135,7 +135,7 @@ class PostBase(object):
                 img = Image.get_from_json(img_json)
                 img.timestamp = timestamp
                 if 'note' in img_json and img_json['note']:
-                    note = ShortText.get_from_json(img_json['note'])
+                    note = ImageNote.get_from_json(img_json['note'])
                     if note:
                         note.timestamp = timestamp
                         img.note = note

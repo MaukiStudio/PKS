@@ -16,7 +16,6 @@ from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
-from content.models import ShortText
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
@@ -80,10 +79,11 @@ class Image(Content):
     @classmethod
     def get_from_json(cls, json):
         if type(json) is unicode or type(json) is str:
-            json =json_loads(json)
+            json = json_loads(json)
         result = super(Image, cls).get_from_json(json)
         if result and 'note' in json and json['note']:
-            result.note = ShortText.get_from_json(json['note'])
+            from content.models import ImageNote
+            result.note = ImageNote.get_from_json(json['note'])
         return result
 
     # Image's method
