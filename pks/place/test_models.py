@@ -178,7 +178,7 @@ class PostTest(APITestBase):
             {
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
-                "addrs": [{"uuid": "%s", "content": "%s"}],
+                "addr2": {"uuid": "%s", "content": "%s"},
                 "notes": [{"uuid": "%s", "content": "%s"}, {"uuid": "%s", "content": "%s"}],
                 "images": [{"uuid": "%s", "content": "%s", "note": {"uuid": "%s", "content": "%s"}}],
                 "urls": [],
@@ -192,10 +192,8 @@ class PostTest(APITestBase):
             {
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
-                "addrs": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
-                ],
+                "addr1": {"uuid": "%s", "content": "%s"},
+                "addr2": {"uuid": "%s", "content": "%s"},
                 "notes": [
                     {"uuid": "%s", "content": "%s"},
                     {"uuid": "%s", "content": "%s"},
@@ -350,7 +348,9 @@ class PostPieceTest(APITestBase):
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
-                "addrs": [{"content": "경기도 성남시 분당구 판교로 256번길 25"}, {"content": "경기도 성남시 분당구 삼평동 631"}],
+                "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
+                "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
+                "addr3": {"content": "경기도 성남시 분당구 삼평동"},
                 "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
             }
         '''
@@ -376,7 +376,8 @@ class PostBaseTest(APITestBase):
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
-                "addrs": [{"content": "경기도 성남시 분당구 판교로 256번길 25"}, {"content": "경기도 성남시 분당구 삼평동 631"}],
+                "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
+                "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
                 "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
             }
         '''

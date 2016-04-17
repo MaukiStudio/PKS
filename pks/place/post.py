@@ -14,7 +14,9 @@ class PostBase(object):
         self.name = None
         self.point = None
         self.phone = None
-        self.addrs = list()
+        self.addr1 = None
+        self.addr2 = None
+        self.addr3 = None
         self.lps = list()
         self.urls = list()
         self.notes = list()
@@ -45,7 +47,9 @@ class PostBase(object):
         if other.name: self.name = other.name
         if other.point: self.point = other.point
         if other.phone: self.phone = other.phone
-        if other.addrs: self.addrs = other.addrs
+        if other.addr1: self.addr1 = other.addr1
+        if other.addr2: self.addr2 = other.addr2
+        if other.addr3: self.addr3 = other.addr3
 
         for lp in reversed(other.lps):
             try:
@@ -100,12 +104,23 @@ class PostBase(object):
             #phone.timestamp = timestamp
             self.phone = phone
 
-        # addrs 조회
-        if 'addrs' in json and json['addrs']:
-            for addr_json in json['addrs']:
-                addr = Address.get_from_json(addr_json)
-                #addr.timestamp = timestamp
-                self.addrs.append(addr)
+        # addr1 조회
+        if 'addr1' in json and json['addr1']:
+            addr1 = Address.get_from_json(json['addr1'])
+            #addr1.timestamp = timestamp
+            self.addr1 = addr1
+
+        # addr2 조회
+        if 'addr2' in json and json['addr2']:
+            addr2 = Address.get_from_json(json['addr2'])
+            #addr2.timestamp = timestamp
+            self.addr2 = addr2
+
+        # addr3 조회
+        if 'addr3' in json and json['addr3']:
+            addr3 = Address.get_from_json(json['addr3'])
+            #addr3.timestamp = timestamp
+            self.addr3 = addr3
 
         # lps 조회
         if 'lps' in json and json['lps']:
@@ -153,7 +168,9 @@ class PostBase(object):
         if self.name: json['name'] = self.name.json
         if self.point: json['lonLat'] = self.point.json
         if self.phone: json['phone'] = self.phone.json
-        if self.addrs: json['addrs'] = [addr.json for addr in self.addrs]
+        if self.addr1: json['addr1'] = self.addr1.json
+        if self.addr2: json['addr2'] = self.addr2.json
+        if self.addr3: json['addr3'] = self.addr3.json
         if self.lps: json['lps'] = [lp.json for lp in self.lps]
         if self.urls: json['urls'] = [url.json for url in self.urls]
         if self.notes: json['notes'] = [note.json for note in self.notes]
@@ -183,6 +200,7 @@ class PostBase(object):
             if (self.point and self.images) or self.urls or self.lps:
                 return True
         else:
-            if self.urls or self.point or self.phone or self.lps or self.name or self.addrs or self.notes or self.images:
+            if self.urls or self.point or self.phone or self.lps or self.name or self.notes or self.images or \
+                self.addr1 or self.addr2 or self.addr3:
                 return True
         return False

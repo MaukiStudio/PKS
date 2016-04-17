@@ -16,10 +16,9 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
                 "phone": {"uuid": "%s", "content": "%s"},
-                "addrs": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
-                ],
+                "addr1": {"uuid": "%s", "content": "%s"},
+                "addr2": {"uuid": "%s", "content": "%s"},
+                "addr3": {"uuid": "%s", "content": "%s"},
                 "notes": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
                     {"uuid": "%s", "content": "%s", "timestamp": null},
@@ -89,49 +88,27 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             response = self.client.post('/rfs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         file_url = json_loads(response.content)['file']
-        # 이미지(URL) 등록
-        response = self.client.post('/imgs/', dict(content=file_url))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        img_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(img_uuid)
 
-        # 주소값 조회 : 한국이 아니거나 신주소가 없는 경우에는 주소 하나만 등록하면 됨
-        addr_new = '경기도 성남시 분당구 산운로32번길 12'
-        addr = '경기도 성남시 분당구 운중동 883-3'
-
-        # 신 주소값 등록 : 없는 경우 pass
-        response = self.client.post('/addrs/', dict(content=addr_new))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        addr_new_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(addr_new_uuid)
-
-        # 주소값 등록
-        response = self.client.post('/addrs/', dict(content=addr))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        addr_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(addr_uuid)
+        # 주소값 조회
+        addr1_new = '경기도 성남시 분당구 산운로32번길 12'
+        addr2_jibun = '경기도 성남시 분당구 운중동 883-3'   # 한국만 존재
+        addr3_region = '경기도 성남시 분당구 운중동'
 
         # 노트 입력 받기
         note = self.input_from_user('장소 노트')
 
-        # 노트 등록 : 가능한한 빨리 미리 등록
-        response = self.client.post('/pnotes/', dict(content=note))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        note_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(note_uuid)
-
-        # 드디어! 현재 위치 저장
+        # 현재 위치 저장
         # notes 가 list type 이지만 post create 시엔 1개만 가능 : 여러개 필요시 말해주어~
-        # image 는 여러개가 가능하지만, 일단 place 를 만든 다음에 추가하는 식으로 UI를 짜는게 좋지 않을까...
-        # image 가 여러개인 경우, list 상의 첫번째 사진이 중요. 유저가 방금 찍은 사진이 되도록...
         json_add = '''
             {
                 "lonLat": {"lon": %f, "lat": %f},
-                "notes": [{"uuid": "%s", "content": null}],
-                "images": [{"uuid": "%s", "content": null, "note": null}],
-                "addrs": [{"uuid": "%s", "content": null}, {"uuid": "%s", "content": null}]
+                "notes": [{"content": "%s"}],
+                "images": [{"content": "%s"}],
+                "addr1": {"content": "%s"},
+                "addr2" : {"content": "%s"},
+                "addr3" : {"content": "%s"}
             }
-        ''' % (lon, lat, note_uuid, img_uuid, addr_new_uuid, addr_uuid,)
+        ''' % (lon, lat, note, file_url, addr1_new, addr2_jibun, addr3_region,)
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -152,36 +129,28 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         with open('image/samples/no_exif_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
         file_url = json_loads(response.content)['file']
-        response = self.client.post('/imgs/', dict(content=file_url))
-        img_uuid = json_loads(response.content)['uuid']
         note = self.input_from_user('사진 노트')
-        response = self.client.post('/inotes/', dict(content=note))
-        note_uuid = json_loads(response.content)['uuid']
         json_add = '''
             {
                 "uplace_uuid": "%s",
-                "images": [
-                    {
-                        "uuid": "%s",
-                        "content": null,
-                        "note": {"uuid": "%s", "content": null}
-                    }
-                ]
+                "images": [{"content": "%s", "note": {"content": "%s"}}]
             }
-        ''' % (uplace_uuid, img_uuid, note_uuid,)
+        ''' % (uplace_uuid, file_url, note,)
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)
         userPost = result['userPost']
         placePost = result['placePost']
 
+
         # Only for server test... (Not interface guide)
-        response = self.client.get('/uplaces/?ru=myself')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = json_loads(response.content)['results']
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]['userPost'], userPost)
-        self.assertEqual(results[0]['placePost'], placePost)
+        if True:
+            response = self.client.get('/uplaces/?ru=myself')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            results = json_loads(response.content)['results']
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]['userPost'], userPost)
+            self.assertEqual(results[0]['placePost'], placePost)
 
 
     def test_post_by_url(self):
@@ -189,36 +158,16 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         # URL 입력 받음
         url = self.input_from_user('http://maukistudio.com/')
 
-        # 프리뷰...
-        # URL 에서 뽑은 대표 이미지를 등록?
-        # 만약 등록한다면 post:/images/createByUrl 추가 구현 필요
-        # 필요하다면 4/6 까지 완성 및 제공
-
-        # URL 등록
-        # URL-result 관련 처리를 어떻게 할지 결정하지 못함
-        # 협의 필요. 협의 후 4/6 까지 완성 및 제공
-        response = self.client.post('/urls/', dict(content=url))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(url_uuid)
-
         # 노트 입력 받기
         note = self.input_from_user('URL 노트')
 
-        # 노트 등록
-        response = self.client.post('/pnotes/', dict(content=note))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        note_uuid = json_loads(response.content)['uuid']
-        self.assertValidUuid(note_uuid)
-
-        # 드디어! URL 위치 저장
-        # urls 가 list type 이지만 post create 시엔 1개만 가능 : 여러개 동시 필요시 말해주어
+        # URL 위치 저장
         json_add = '''
             {
-                "notes": [{"uuid": "%s", "content": null}],
-                "urls": [{"uuid": "%s", "content": null}]
+                "notes": [{"content": "%s"}],
+                "urls": [{"content": "%s"}]
             }
-        ''' % (note_uuid, url_uuid,)
+        ''' % (note, url,)
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -235,13 +184,15 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         is_progress = placePost is None
         self.assertEqual(is_progress, True)
 
+
         # Only for server test... (Not interface guide)
-        response = self.client.get('/uplaces/?ru=myself')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = json_loads(response.content)['results']
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]['userPost'], userPost)
-        self.assertEqual(results[0]['placePost'], placePost)
+        if True:
+            response = self.client.get('/uplaces/?ru=myself')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            results = json_loads(response.content)['results']
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]['userPost'], userPost)
+            self.assertEqual(results[0]['placePost'], placePost)
 
 
     def __skip__test_post_by_FourSquare(self):

@@ -69,10 +69,8 @@ class Url(Content):
                     "lonLat": {"lon": %f, "lat": %f},
                     "name": {"content": "%s"},
                     "phone": {"content": "%s"},
-                    "addrs": [
-                        {"content": "%s"},
-                        {"content": "%s"}
-                    ],
+                    "addr1": {"content": "%s"},
+                    "addr2": {"content": "%s"},
                     "lps": [{"content": "%s"}]
                 }
             ''' % (self.content, lon, lat, name, phone, addr_new, addr, lp_content,)

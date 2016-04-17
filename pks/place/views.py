@@ -58,7 +58,7 @@ class UserPlaceViewset(BaseViewset):
         vd = self.vd
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        # Post instance 생성
+        # PostBase instance 생성
         pb = PostBase(request.data['add'])
         if 'place_id' in request.data and request.data['place_id']:
             pb.place_id = request.data['place_id']

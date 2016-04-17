@@ -145,8 +145,9 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(len(qs5), 0)
 
         name1 = PlaceName(content='능라'); name1.save()
-        addr11 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr11.save()
-        addr12 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr12.save()
+        addr11 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr11.save()
+        addr12 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr12.save()
+        addr13 = Address(content='경기도 성남시 분당구 운중동'); addr13.save()
         note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
         note12 = PlaceNote(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
         note13 = PlaceNote(content='평양냉면'); note13.save()
@@ -171,10 +172,9 @@ class UserPlaceViewSetTest(APITestBase):
                 "lonLat": {"lon": %f, "lat": %f},
                 "name": {"uuid": "%s", "content": "%s"},
                 "phone": {"uuid": "%s", "content": "%s"},
-                "addrs": [
-                    {"uuid": "%s", "content": "%s"},
-                    {"uuid": "%s", "content": "%s"}
-                ],
+                "addr1": {"uuid": "%s", "content": "%s"},
+                "addr2": {"uuid": "%s", "content": "%s"},
+                "addr3": {"uuid": "%s", "content": "%s"},
                 "notes": [
                     {"uuid": "%s", "content": "%s", "timestamp": null},
                     {"uuid": "%s", "content": "%s", "timestamp": null},
@@ -199,7 +199,7 @@ class UserPlaceViewSetTest(APITestBase):
             }
         ''' % (self.uplace.uuid, point1.x, point1.y,
                name1.uuid, name1.content, phone1.uuid, phone1.content,
-               addr11.uuid, addr11.content, addr12.uuid, addr12.content,
+               addr11.uuid, addr11.content, addr12.uuid, addr12.content, addr13.uuid, addr13.content,
                note11.uuid, note11.content, note12.uuid, note12.content, note13.uuid, note13.content,
                img1.uuid, img1.content, img1.url_summarized, imgNote1.uuid, imgNote1.content,
                img2.uuid, img2.content, img2.url_summarized, img3.uuid, img3.content, img3.url_summarized,
@@ -297,7 +297,8 @@ class UserPlaceViewSetTest(APITestBase):
             {
                 "lonLat": {"lon": %f, "lat": %f},
                 "images": [{"uuid": "%s", "content": null, "note": null}],
-                "addrs": [{"uuid": null, "content": "%s"}, {"uuid": null, "content": "%s"}]
+                "addr1": {"uuid": null, "content": "%s"},
+                "addr2": {"uuid": null, "content": "%s"}
             }
         ''' % (point1.x, point1.y, img1.uuid, addr1_content, addr2_content,)
 
@@ -524,7 +525,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(result_placePost['lonLat'], None)
         self.assertNotEqual(result_placePost['name'], None)
         self.assertNotEqual(result_placePost['phone'], None)
-        self.assertNotEqual(result_placePost['addrs'][0], None)
+        self.assertNotEqual(result_placePost['addr1'], None)
+        self.assertNotEqual(result_placePost['addr2'], None)
         self.assertNotEqual(result_placePost['lps'][0], None)
 
 

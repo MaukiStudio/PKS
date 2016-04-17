@@ -195,6 +195,8 @@ class PostPiece(models.Model):
             self.id = self._id(timestamp)
         if not self.type_mask:
             self.type_mask = 0
+
+        # Machine 이 포스팅한 경우 vd를 None 으로. 단, vd값이 넘어온 경우 id값 계산시엔 활용
         if self.type_mask >= 2:
             self.vd = None
         super(PostPiece, self).save(*args, **kwargs)
