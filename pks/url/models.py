@@ -30,7 +30,15 @@ class Url(Content):
     # CAN override
     @classmethod
     def normalize_content(cls, raw_content):
-        url = url_norms(raw_content.strip())
+        url = raw_content.strip()
+        # 네이버 단축 URL 처리 편의를 위한 기능
+        try:
+            pos = url.index('http')
+            url = url[pos:].split('\r')[0]
+        except ValueError:
+            pass
+
+        url = url_norms(url)
         if not url.startswith('http'):
             url = '%s%s' % (SERVER_HOST, url)
 
