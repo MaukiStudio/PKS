@@ -42,8 +42,11 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
         self.assertIn('userPost', results[0])
         self.assertIn('placePost', results[0])
+        self.assertIn('uplace_uuid', results[0])
+        self.assertIn('place_id', results[0])
 
     def test_places_all_places(self):
 
@@ -54,5 +57,28 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
         self.assertNotIn('userPost', results[0])
         self.assertIn('placePost', results[0])
+        self.assertIn('place_id', results[0])
+
+    def test_uplaces_delete(self):
+
+        response = self.client.get('/uplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 1)
+        self.assertIn('uplace_uuid', results[0])
+        uplace_uuid = results[0]['uplace_uuid']
+
+        # 삭제
+        id = uplace_uuid.split('.')[0]  # dot(.) 부터 뒤로 짤라 없앤 32글자로 접근 (DRF Framework 어딘가에서 . 을 잡아 먹음 ㅠ_ㅜ)
+        response = self.client.delete('/uplaces/%s/' % id)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get('/uplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(type(results), list)
+        self.assertEqual(len(results), 0)

@@ -1,8 +1,8 @@
 [Now]
 
+장소화 Admin 만들기
 
 장소화 로직 정리해서 모으기
-장소화 Admin 만들기
 
 URL redirect 처리
     Content.same 처리 구조 잡기

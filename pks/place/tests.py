@@ -120,6 +120,9 @@ class UserPlaceViewSetTest(APITestBase):
 
     def test_detail(self):
         self.uplace.save()
+        response = self.client.get('/uplaces/null/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
         response = self.client.get('/uplaces/%s/' % self.uplace.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
@@ -127,8 +130,17 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('userPost', result)
         self.assertIn('placePost', result)
         self.assertNotIn('id', result)
-        response = self.client.get('/uplaces/null/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        response2 = self.client.get('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.content, response.content)
+
+    def test_delete(self):
+        self.uplace.save()
+        self.assertEqual(UserPlace.objects.count(), 1)
+        response2 = self.client.delete('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
+        self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(UserPlace.objects.count(), 0)
 
     def test_create_full(self):
         self.uplace.place = self.place
