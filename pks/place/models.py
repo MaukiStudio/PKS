@@ -66,6 +66,7 @@ class Place(models.Model):
             lp.place = _place
             lp.save()
             return lp.place
+        # TODO : 값들이 서로 모순되는 경우에 대한 처리
         # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
 
         return None
@@ -107,7 +108,7 @@ class UserPlace(models.Model):
             # TODO : 이 부분이 테스트되는 테스트 코드 추가하기
             uplace = UserPlace.objects.filter(vd=vd, place=place).order_by('id').first()
 
-        # Place 처리
+        # 실시간 장소화
         if not uplace:
             uplace = cls(vd=vd, place=place, lonLat=pb.lonLat)
             uplace.save()
