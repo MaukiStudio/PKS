@@ -67,6 +67,7 @@ class UserPlaceViewset(BaseViewset):
 
         # UserPlace/Place 찾기
         uplace = UserPlace.get_from_post(pb, vd)
+        pb.uplace_uuid = uplace.uuid
 
         # valid check
         if not pb.is_valid(uplace):
