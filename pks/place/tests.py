@@ -5,7 +5,6 @@ from __future__ import print_function
 from json import loads as json_loads, dumps as json_dumps
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
-from time import sleep
 from django.contrib.gis.measure import D
 
 from base.tests import APITestBase
@@ -227,7 +226,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_full)); sleep(0.001)
+        response = self.client.post('/uplaces/', dict(add=json_full))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)

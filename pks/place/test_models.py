@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from django.contrib.gis.geos import GEOSGeometry
-from time import sleep
 from django.contrib.gis.measure import D
 from json import loads as json_loads
 
@@ -110,12 +109,12 @@ class SimpleUserPlaceTest(APITestBase):
         uplace = UserPlace(vd=self.vd, place=self.place)
         self.assertEqual(uplace.created, None)
         self.assertEqual(uplace.modified, None)
-        uplace.save(); sleep(0.001)
+        uplace.save()
         t1 = uplace.modified
         self.assertNotEqual(t1, None)
         self.assertEqual(uplace.created, t1)
         self.assertAlmostEqual(t1, get_timestamp(), delta=1000)
-        uplace.save(); sleep(0.001)
+        uplace.save()
         self.assertGreater(uplace.modified, t1)
         self.assertAlmostEqual(uplace.modified, t1, delta=1000)
         self.assertEqual(uplace.created, t1)
