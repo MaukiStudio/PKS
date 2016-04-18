@@ -147,6 +147,7 @@ class Content(models.Model):
         r = requests_get(self.url_for_access, headers=headers)
         if r.status_code not in (status.HTTP_200_OK,):
             raise ValueError('Not valid url_for_access')
+
         file = Path(self.path_accessed)
         if not file.parent.exists():
             file.parent.mkdir(parents=True)
@@ -190,7 +191,11 @@ class Content(models.Model):
         splits = self.uuid.split('.')
         return '%s%s%s/%s/%s/%s' % (SERVER_HOST, MEDIA_URL, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
 
-    # Methods for thumbnail
+    @property
+    def content_accessed(self):
+        raise NotImplementedError('Must be overrided')
+
+    # Methods for summary(thumbnail)
     def summarize_force(self, accessed=None):
         raise NotImplementedError
 

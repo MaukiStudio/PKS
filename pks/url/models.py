@@ -1,6 +1,9 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from re import compile as re_compile
+from rest_framework import status
+
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
@@ -8,6 +11,10 @@ from content.models import LP_REGEXS_URL, PhoneNumber
 from pyquery import PyQuery
 from json import loads as json_loads
 from pathlib2 import Path
+from requests import get as requests_get
+
+URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^http://me2\.do/[A-za-z0-9_\-]+$')
+URL_REGEX_NAVER_MAP_URL = re_compile(r'^http://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+).*$')
 
 
 class Url(Content):
@@ -26,6 +33,27 @@ class Url(Content):
         url = url_norms(raw_content.strip())
         if not url.startswith('http'):
             url = '%s%s' % (SERVER_HOST, url)
+
+        # 네이버 단축 URL 처리
+        # TODO : 구조의 대대적 개선 필요
+        print(url)
+        if URL_REGEX_NAVER_SHORTENER_URL.match(url):
+            headers = {'user-agent': 'Chrome'}
+            r = requests_get(url, headers=headers)
+            content_type = r.headers.get('content-type')
+            if r.status_code in (status.HTTP_200_OK,) and content_type and content_type.startswith('text/html'):
+                str = r.content
+                if str.startswith(b'<script>window.location.replace("'):
+                    pos1 = str.index('"') + 1
+                    pos2 = str.index('"', pos1)
+                    if pos1 < pos2:
+                        url_redirected = str[pos1:pos2]
+                        print(url_redirected)
+                        searcher = URL_REGEX_NAVER_MAP_URL.search(url_redirected)
+                        if searcher:
+                            url = 'http://map.naver.com/local/siteview.nhn?code=%s' % searcher.group('PlaceId')
+                            print(url)
+
         return url
 
     def summarize_force(self, accessed=None):
@@ -88,3 +116,8 @@ class Url(Content):
         file = Path(self.path_summarized)
         json_str = file.read_text()
         return PostBase(json_str)
+
+    @property
+    def content_accessed(self):
+        file = Path(self.path_accessed)
+        return file.read_text()
