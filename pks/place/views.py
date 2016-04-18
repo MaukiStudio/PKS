@@ -82,6 +82,7 @@ class UserPlaceViewset(BaseViewset):
         if pb_MAMMA:
             # TODO : Place 생성을 확인하기 위해 get_from_post() 를 호출하는 것은 적절한 구조가 아니다...
             uplace = UserPlace.get_from_post(pb_MAMMA, vd)
+            pb_MAMMA.uplace_uuid = uplace.uuid
             pp2 = uplace.place.pps.first()
             if not pp2:
                 pp2 = PostPiece.objects.create(type_mask=2, place=uplace.place, uplace=None, vd=vd, data=pb_MAMMA.json)
