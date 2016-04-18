@@ -44,7 +44,6 @@ class Url(Content):
 
         # 네이버 단축 URL 처리
         # TODO : 구조의 대대적 개선 필요
-        print(url)
         if URL_REGEX_NAVER_SHORTENER_URL.match(url):
             headers = {'user-agent': 'Chrome'}
             r = requests_get(url, headers=headers)
@@ -56,11 +55,9 @@ class Url(Content):
                     pos2 = str.index('"', pos1)
                     if pos1 < pos2:
                         url_redirected = str[pos1:pos2]
-                        print(url_redirected)
                         searcher = URL_REGEX_NAVER_MAP_URL.search(url_redirected)
                         if searcher:
                             url = 'http://map.naver.com/local/siteview.nhn?code=%s' % searcher.group('PlaceId')
-                            print(url)
 
         return url
 
