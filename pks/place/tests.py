@@ -51,6 +51,11 @@ class PlaceViewSetTest(APITestBase):
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=1000))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 1)
+        self.assertIn('lonLat', results[0])
+        self.assertIn('lon', results[0]['lonLat'])
+        self.assertIn('lat', results[0]['lonLat'])
+
+
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=100))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 0)
@@ -224,6 +229,9 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('modified', result)
         t1 = result['modified']
         self.assertIn('place_id', result)
+        self.assertIn('lonLat', result)
+        self.assertIn('lon', result['lonLat'])
+        self.assertIn('lat', result['lonLat'])
         result_userPost = result['userPost']
         result_placePost = result['placePost']
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
@@ -544,8 +552,12 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(UserPlace.objects.count(), 2)
         self.assertEqual(Place.objects.count(), 2)
 
-        result_userPost = json_loads(response.content)['userPost']
-        result_placePost = json_loads(response.content)['placePost']
+        result = json_loads(response.content)
+        result_userPost = result['userPost']
+        result_placePost = result['placePost']
+        self.assertIn('lonLat', result)
+        self.assertIn('lon', result['lonLat'])
+        self.assertIn('lat', result['lonLat'])
         self.assertNotEqual(result_userPost['urls'][0], None)
         self.assertNotEqual(result_placePost['urls'][0], None)
         self.assertNotEqual(result_placePost['lonLat'], None)
