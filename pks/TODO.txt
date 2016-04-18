@@ -1,8 +1,13 @@
 [Now]
 
-장소화 로직 좀 더 정교하게...
 
+장소화 로직 정리해서 모으기
 장소화 Admin 만들기
+
+URL redirect 처리
+    Content.same 처리 구조 잡기
+    네이버맵 모바일용 단축 URL 처리
+
 
 Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
 
@@ -10,9 +15,10 @@ Tag 기능 뼈대 잡기
 
 Django Celery 체계 만들기
 
-
 같은 장소로 판정된 UserPlace, Place Merge
     --> 특히 다른 VD  인데 같은 Place 인 UserPlace 가 있는 경우
+
+
 
 URL 리다이렉션 처리
 

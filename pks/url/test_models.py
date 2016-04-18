@@ -75,3 +75,21 @@ class UrlTest(APITestBase):
         pb = url.content_summarized
         self.assertEqual(pb.is_valid(), True)
 
+    def __skip__test_redirected_content(self):
+        url = models.Url()
+        test_value = 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
+        url.content = test_value
+        self.assertEqual(models.Url.objects.count(), 0)
+        url.save()
+        self.assertEqual(models.Url.objects.count(), 1)
+        saved = models.Url.objects.first()
+        self.assertEqual(saved.content, test_value)
+
+        url.access()
+        self.assertEqual(models.Url.objects.count(), 2)
+        url2 = models.Url.objects.exclude(id=url.id)[0]
+        self.assertNotEqual(url, url2)
+        self.assertNotEqual(url.content, url2.content)
+        self.assertEqual(url.same, url2)
+
+        # TODO : redirect (same) 구조 잡고 테스트 추가 구현
