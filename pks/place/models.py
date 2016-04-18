@@ -126,6 +126,8 @@ class UserPlace(models.Model):
                 raise NotImplementedError('Place / UserPlace mismatch')
 
         # 결과 처리
+        pb.place_id = place and place.id
+        pb.uplace_uuid = uplace.uuid
         return uplace
 
     def computePost(self):
