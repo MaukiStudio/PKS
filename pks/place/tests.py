@@ -567,6 +567,21 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(result_placePost['addr2'], None)
         self.assertNotEqual(result_placePost['lps'][0], None)
 
+    def test_create_with_empty_note(self):
+        json_add = '''
+            {
+                "urls": [{"content": "http://www.maukistudio.com/"}],
+                "notes": [{"content": ""}]
+            }
+        '''
+
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 2)
+        self.assertEqual(Place.objects.count(), 1)
+
 
 class PostPieceViewSetTest(APITestBase):
 

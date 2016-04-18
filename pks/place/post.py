@@ -126,35 +126,39 @@ class PostBase(object):
         if 'lps' in json and json['lps']:
             for lp_json in json['lps']:
                 lp = LegacyPlace.get_from_json(lp_json)
-                #lp.timestamp = timestamp
-                self.lps.append(lp)
+                if lp:
+                    #lp.timestamp = timestamp
+                    self.lps.append(lp)
 
         # urls 조회
         if 'urls' in json and json['urls']:
             from url.models import Url
             for url_json in json['urls']:
                 url = Url.get_from_json(url_json)
-                #url.timestamp = timestamp
-                self.urls.append(url)
+                if url:
+                    #url.timestamp = timestamp
+                    self.urls.append(url)
 
         # notes 조회
         if 'notes' in json and json['notes']:
             for note_json in json['notes']:
                 note = PlaceNote.get_from_json(note_json)
-                note.timestamp = timestamp
-                self.notes.append(note)
+                if note:
+                    note.timestamp = timestamp
+                    self.notes.append(note)
 
         # images 조회
         if 'images' in json and json['images']:
             for img_json in json['images']:
                 img = Image.get_from_json(img_json)
-                img.timestamp = timestamp
-                if 'note' in img_json and img_json['note']:
-                    note = ImageNote.get_from_json(img_json['note'])
-                    if note:
-                        note.timestamp = timestamp
-                        img.note = note
-                self.images.append(img)
+                if img:
+                    img.timestamp = timestamp
+                    if 'note' in img_json and img_json['note']:
+                        note = ImageNote.get_from_json(img_json['note'])
+                        if note:
+                            note.timestamp = timestamp
+                            img.note = note
+                    self.images.append(img)
 
         # place_id, uplace_uuid 조회
         if 'place_id' in json and json['place_id']:
