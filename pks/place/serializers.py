@@ -10,6 +10,7 @@ from base.serializers import BaseSerializer
 class PlaceSerializer(BaseSerializer):
     placePost = ReadOnlyField(source='placePost.json')
     place_id = ReadOnlyField(source='id')
+    lonLat = ReadOnlyField(source='lonLat_json')
 
     class Meta:
         model = Place
@@ -25,6 +26,7 @@ class UserPlaceSerializer(BaseSerializer):
     userPost = ReadOnlyField(source='userPost.json')
     placePost = ReadOnlyField(source='placePost.json')
     uplace_uuid = ReadOnlyField(source='uuid')
+    lonLat = ReadOnlyField(source='lonLat_json')
     place_id = ReadOnlyField()
     created = ReadOnlyField()
 

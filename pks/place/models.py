@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import JSONField
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
 from place.post import PostBase
+from base.models import Point
 
 
 class Place(models.Model):
@@ -70,6 +71,10 @@ class Place(models.Model):
         # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
 
         return None
+
+    @property
+    def lonLat_json(self):
+        return Point(self.lonLat.x, self.lonLat.y).json
 
 
 class UserPlace(models.Model):
@@ -164,6 +169,10 @@ class UserPlace(models.Model):
     @property
     def created(self):
         return self.id and (int(self.id) >> 8*8) & BIT_ON_8_BYTE
+
+    @property
+    def lonLat_json(self):
+        return Point(self.lonLat.x, self.lonLat.y).json
 
 
 class PostPiece(models.Model):
