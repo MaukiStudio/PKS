@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>PlaceKoob 장소화 Admin</h1>
+{% extends 'admin2/base.html' %}
+
+{% block header_text %}PlaceKoob Custom Admin Home{% endblock %}
+
+{% block main %}
     {% if uplaces %}
         <ul>
             {% for uplace in uplaces %}
@@ -15,5 +12,4 @@
             {% endfor %}
         </ul>
     {% endif %}
-</body>
-</html>
+{% endblock %}

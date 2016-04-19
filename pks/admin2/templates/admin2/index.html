@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>PlaceKoob Custom Admin</h1>
+{% extends 'admin2/base.html' %}
+
+{% block header_text %}PlaceKoob Custom Admin Home{% endblock %}
+
+{% block main %}
     <ul>
         <li>
             {% if user.is_authenticated %}
@@ -23,11 +20,10 @@
 
         </li>
         <li>----------------------------------------------------------------------</li>
-            {% if vd and vd.id %}
+        {% if vd and vd.id %}
             <li>
-                    <a href="/admin2/mapping/">장소화</a>
+                <a href="/admin2/mapping/">장소화</a>
             </li>
-            {% endif %}
+        {% endif %}
     </ul>
-</body>
-</html>
+{% endblock %}
