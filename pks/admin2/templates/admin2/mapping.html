@@ -2,14 +2,46 @@
 
 {% block header_text %}PlaceKoob Custom Admin - Mapping{% endblock %}
 
-{% block main %}
-    {% if uplaces %}
-        <ul>
-            {% for uplace in uplaces %}
-                <li>
-                    {{ uplace.uuid }}
-                </li>
+{% block table %}
+    {% if pbs %}
+        <table class="table">
+            {% for pb in pbs %}
+                <tr>
+                    <td>
+                        <input type=checkbox onClick="window.open('{{ pb.uplace_uuid }}/');"/>
+                    </td>
+                    <td>
+                        <a href="http://map.naver.com/?dlevel=13&x={{ pb.lonLat.x }}&y={{ pb.lonLat.y }}" target="_blank">
+                            위도: {{ pb.lonLat.y }}<br />
+                            경도: {{ pb.lonLat.x }}
+                        </a>
+                    </td>
+                    <td>
+                        도로명주소: {{ pb.addr1 }}<br />
+                        지번 주소 : {{ pb.addr2 }}<br />
+                        범위 주소 : {{ pb.addr3 }}<br />
+                    </td>
+                    <td>
+                        {% for image in pb.images %}
+                            <a href="{{ image.content }}" target="_blank">
+                                <img src="{{ image.url_summarized }}" />
+                            </a>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for url in pb.urls %}
+                            <a href="{{ url.content }}" target="_blank">{{ url.content }}</a>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for note in pb.notes %}
+                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content }}"' target="_blank">{{ note.content }}</a>
+                        {% endfor %}
+                    </td>
+                </tr>
             {% endfor %}
-        </ul>
+        </table>
+    {% else %}
+        장소화 안된 장소가 없습니다
     {% endif %}
 {% endblock %}
