@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'url',
     'content',
     'place',
+    'admin2',
 ]
 
 AUTH_USER_MODEL = 'account.User'

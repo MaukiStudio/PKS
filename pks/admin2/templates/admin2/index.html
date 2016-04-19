@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>PlaceKoob Custom Admin</h1>
+    <ul>
+        <li>
+            {% if user.is_authenticated %}
+                User Login Complete : {{ user.username }} ({{ user.email }})
+            {% else %}
+                <a href="/admin/login/?next=/admin2/">User Login Required</a>
+            {% endif %}
+        </li>
+    </ul>
+</body>
+</html>
