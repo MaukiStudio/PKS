@@ -30,6 +30,8 @@ class Place(models.Model):
                 pb = pb_new
             else:
                 pb.update(pb_new)
+        if pb:
+            pb.place_id = self.id
         self._pb_cache = pb
 
     def clearCache(self):
@@ -138,6 +140,9 @@ class UserPlace(models.Model):
                 pb = pb_new
             else:
                 pb.update(pb_new)
+        if pb:
+            pb.uplace_uuid = self.uuid
+            pb.place_id = self.place_id
         self._pb_cache = pb
 
     def clearCache(self):
