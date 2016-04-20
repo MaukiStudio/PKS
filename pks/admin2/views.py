@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 
 from place.models import UserPlace
 from account.models import VD
@@ -11,14 +11,13 @@ from place.models import PostPiece
 
 
 def index(request):
-    # TODO : 완전 리팩토링 필요;;; 일단 임시 땜빵임
-    vd = None
-    if VD_SESSION_KEY in request.session:
-        vd_id = request.session[VD_SESSION_KEY]
-        if vd_id:
-            vd = VD.objects.get(id=vd_id)
-    context = dict(vd=vd)
-    return render(request, 'admin2/index.html', context)
+    user = request.user
+    if user.is_authenticated and user.is_active and user.is_staff:
+        vd = user.vds.filter(deviceTypeName='ADMIN').order_by('-id')[0]
+        request.session[VD_SESSION_KEY] = vd.id
+    else:
+        redirect('/admin/login/?next=/admin2/')
+    return render(request, 'admin2/index.html')
 
 
 def mapping(request):
@@ -33,6 +32,10 @@ def mapping(request):
 def mapping_detail(request, uplace_id):
     if request.method == 'POST':
         url = request.POST['url']
+        if url in ('삭제', '제거', 'delete','remove'):
+            uplace = UserPlace.objects.get(id=uplace_id)
+            uplace.delete()
+            return redirect('/admin2/mapping/%s.uplace/' % uplace_id)
 
         # TODO : 완전 리팩토링 필요;;; 일단 임시 땜빵임
         vd = VD.objects.get(id=request.session[VD_SESSION_KEY])
@@ -67,7 +70,10 @@ def mapping_detail(request, uplace_id):
         # redirect
         return redirect('/admin2/mapping/%s.uplace/' % uplace_id)
 
-    uplace = UserPlace.objects.get(id=uplace_id)
+    try:
+        uplace = UserPlace.objects.get(id=uplace_id)
+    except UserPlace.DoesNotExist:
+        return HttpResponse('삭제되었습니다')
     userPost = uplace.userPost and uplace.userPost
     placePost = uplace.placePost and uplace.placePost
     context = dict(userPost=userPost, placePost=placePost)

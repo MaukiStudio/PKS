@@ -5,25 +5,7 @@
 {% block table %}
     <ul>
         <li>
-            {% if user.is_authenticated %}
-                User Login Complete : {{ user.username }} ({{ user.email }})
-            {% else %}
-                <a href="/admin/login/?next=/admin2/">User Login Required</a>
-            {% endif %}
+            <a href="/admin2/mapping/">장소화</a>
         </li>
-        <li>
-            {% if vd and vd.id %}
-                VirtualDevice Login Complete : {{ vd.deviceName }} ({{ vd.deviceTypeName }})
-            {% else %}
-                <a href="/vds/login/">VirtualDevice Login Required</a>
-            {% endif %}
-
-        </li>
-        <li>----------------------------------------------------------------------</li>
-        {% if vd and vd.id %}
-            <li>
-                <a href="/admin2/mapping/">장소화</a>
-            </li>
-        {% endif %}
     </ul>
 {% endblock %}
