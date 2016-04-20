@@ -62,54 +62,61 @@ class Url(Content):
         return url
 
     def summarize_force(self, accessed=None):
+        # TODO : 각종 URL 패턴들에 대해 정보 수집하여 요약
         if not accessed:
             accessed = self.path_accessed
 
-        # TODO : 각종 URL 패턴들에 대해 정보 수집하여 요약
+        # TODO : 포스퀘어쪽 처리되고 나면 하기의 [:-2] 는 뺀다
+        regexs = LP_REGEXS_URL[:-2]
+        for regex in regexs:
+            searcher = regex[0].search(self.content)
+            if searcher:
+                lp_PlaceId = searcher.group('PlaceId')
+                if regex[1] == 'naver':
+                    self.summarize_force_naver(accessed, lp_PlaceId)
+                elif regex[1] == 'kakao':
+                    self.summarize_force_kakao(accessed, lp_PlaceId)
+                else:
+                    raise NotImplementedError
 
-        # 장소화 어드민을 위한 Naver 장소 URL 처리 : 일단 하기 패턴만 처리
-        # 'http://map.naver.com/local/siteview.nhn?code=21149144'
-        # TODO : Logic 이 엄청 많아지게 됨. 별도의 Class 로 빼는 리팩토링 필요
-        regex = LP_REGEXS_URL[0][0]
-        searcher = regex.search(self.content)
-        if searcher:
-            lp_content = '%s.naver' % searcher.group('PlaceId')
+    def summarize_force_naver(self, accessed, lp_PlaceId):
+        lp_content = '%s.naver' % lp_PlaceId
 
-            # 파싱
-            # TODO : 안전하게 파싱하여 처리. 라이브러리 알아볼 것
-            pq = PyQuery(filename=accessed)
-            str1 = pq('script')[4].text
-            pos1 = str1.index('siteview')
-            pos1 = str1.index('{', pos1)
-            pos2 = str1.index('\r\n', pos1)
-            str2 = str1[pos1:pos2-1]
-            d = json_loads(str2)
+        # 파싱
+        # TODO : 안전하게 파싱하여 처리. 라이브러리 알아볼 것
+        pq = PyQuery(filename=accessed)
+        str1 = pq('script')[4].text
+        pos1 = str1.index('siteview')
+        pos1 = str1.index('{', pos1)
+        pos2 = str1.index('\r\n', pos1)
+        str2 = str1[pos1:pos2-1]
+        d = json_loads(str2)
 
-            # 주요 정보
-            lon = float(d['summary']['coordinate']['x'])
-            lat = float(d['summary']['coordinate']['y'])
-            name = d['summary']['name']
-            phone = d['summary']['phone']
-            if phone:
-                phone = PhoneNumber.normalize_content(phone)
-            addr_new = d['summary']['roadAddr']['text']
-            addr = d['summary']['address']
+        # 주요 정보
+        lon = float(d['summary']['coordinate']['x'])
+        lat = float(d['summary']['coordinate']['y'])
+        name = d['summary']['name']
+        phone = d['summary']['phone']
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr_new = d['summary']['roadAddr']['text']
+        addr = d['summary']['address']
 
-            # TODO : Post class 를 이용하여 리팩토링
-            json = '''
-                {
-                    "urls": [{"content": "%s"}],
-                    "lonLat": {"lon": %f, "lat": %f},
-                    "name": {"content": "%s"},
-                    "phone": {"content": "%s"},
-                    "addr1": {"content": "%s"},
-                    "addr2": {"content": "%s"},
-                    "lps": [{"content": "%s"}]
-                }
-            ''' % (self.content, lon, lat, name, phone, addr_new, addr, lp_content,)
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "urls": [{"content": "%s"}],
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "addr2": {"content": "%s"},
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (self.content, lon, lat, name, phone, addr_new, addr, lp_content,)
 
-            f = Path(self.path_summarized)
-            f.write_text(json)
+        f = Path(self.path_summarized)
+        f.write_text(json)
 
     def pre_save(self):
         if self.is_accessed:
