@@ -1,8 +1,12 @@
 [Now]
 
-장소화 Admin 만들기
+카카오플레이스 URL 로도 장소화가 되도록 하기
+
 
 장소화 로직 정리해서 모으기
+
+실시간 장소화 관련 리팩토링 : Url --> LegacyPlace
+
 
 URL redirect 처리
     Content.same 처리 구조 잡기

@@ -15,12 +15,18 @@ LP_REGEXS = (
     # '21149144.naver'
     (re_compile(r'^(?P<PlaceId>[0-9]+)\.naver$'), 'naver'),
 
+    # '14720610.kakao'
+    (re_compile(r'^(?P<PlaceId>[0-9]+)\.kakao$'), 'kakao'),
+
     # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
     (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
 )
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
     (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
+
+    # 'https://place.kakao.com/places/14720610/홍콩'
+    (re_compile(r'^https?://place\.kakao\.com/places/(?P<PlaceId>[0-9]+).*$'), 'kakao'),
 
     # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
     (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
@@ -29,7 +35,7 @@ LP_REGEXS_URL = (
     (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
 )
 
-LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3}
+LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4,}
 
 
 class LegacyPlace(Content):
@@ -66,16 +72,12 @@ class LegacyPlace(Content):
     @property
     def _id(self):
         splits = self.content.split('.')
-        if splits[1] == '4square':
-            return UUID(b'00000001%s' % splits[0].rjust(24, b'0'))
-        elif splits[1] == 'naver':
-            return UUID(b'00000002%s' % splits[0].rjust(24, b'0'))
-        elif splits[1] == 'google':
+        if splits[1] == 'google':
             h = self.get_md5_hash(splits[0])
             h0 = hex(int(h[0], 16) | 8)[2:]
             return UUID('%s%s' % (h0, h[1:]))
         else:
-            raise NotImplementedError
+            return UUID(b'0000000%d%s' % (LP_TYPE[self.contentType], splits[0].rjust(24, b'0')),)
 
     @property
     def url_for_access(self):
@@ -83,6 +85,8 @@ class LegacyPlace(Content):
         splits = self.content.split('.')
         if splits[1] == 'naver':
             return 'http://map.naver.com/local/siteview.nhn?code=%s' % splits[0]
+        elif splits[1] == 'kakao':
+            return 'http://place.kakao.com/places/%s/' % splits[0]
         elif splits[1] == '4square':
             return 'https://foursquare.com/v/%s' % splits[0]
         else:

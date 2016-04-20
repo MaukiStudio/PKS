@@ -44,10 +44,12 @@ class LegacyPlaceTest(APITestBase):
         saved = LegacyPlace.objects.first()
         self.assertNotEqual(lp.content, test_data)
         self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(lp.lp_type, 1)
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000001-4ccf-fc63-f637-8cfaace1b1d6'))
+        self.assertEqual(saved.lp_type, 1)
 
     def test_content_property_4square_case2(self):
         lp = LegacyPlace()
@@ -72,10 +74,12 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(lp.uuid.split('.')[1], 'naver')
         saved = LegacyPlace.objects.first()
         self.assertEqual(lp.content, test_data)
+        self.assertEqual(lp.lp_type, 2)
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
+        self.assertEqual(saved.lp_type, 2)
 
     def test_content_property_naver_case2(self):
         lp = LegacyPlace()
@@ -100,10 +104,12 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(lp.uuid.split('.')[1], 'google')
         saved = LegacyPlace.objects.first()
         self.assertEqual(lp.content, test_data)
+        self.assertEqual(lp.lp_type, 3)
         self.assertEqual(saved, lp)
         self.assertEqual(saved.id, lp.id)
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('DB8EC763BF050034C79174B5DA189FC8'))
+        self.assertEqual(saved.lp_type, 3)
 
     def test_content_property_google_case2(self):
         lp = LegacyPlace()
@@ -118,32 +124,85 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('fdc64a309ca7409a8a143be959307efe'))
 
-    def __skip__test_access_methods1(self):
+    def test_content_property_kakao_case1(self):
+        lp = LegacyPlace()
+        test_data = '14720610.kakao'
+        lp.content = test_data
+        lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'kakao')
+        saved = LegacyPlace.objects.first()
+        self.assertEqual(lp.content, test_data)
+        self.assertEqual(lp.lp_type, 4)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000014720610'))
+        self.assertEqual(saved.lp_type, 4)
+
+    def test_content_property_kakao_case2(self):
+        lp = LegacyPlace()
+        test_data = 'https://place.kakao.com/places/14720610/홍콩'
+        normalized_test_data = '14720610.kakao'
+        lp.content = test_data
+        lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'kakao')
+        saved = LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000014720610'))
+
+    def test_content_property_kakao_case3(self):
+        lp = LegacyPlace()
+        test_data = 'http://place.kakao.com/places/14720610'
+        normalized_test_data = '14720610.kakao'
+        lp.content = test_data
+        lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'kakao')
+        saved = LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000014720610'))
+
+    def __skip__test_access_by_4square(self):
         lp = LegacyPlace()
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
-
         path = Path(lp.path_accessed)
         if path.exists():
             path.unlink()
-
         self.assertEqual(path.exists(), False)
         lp.access_force()
         self.assertEqual(path.exists(), True)
 
-    def test_access_methods2(self):
+    def test_access_by_naver(self):
         lp = LegacyPlace()
         test_data = '21149144.naver'
         lp.content = test_data
         lp.save()
-
         path = Path(lp.path_accessed)
         if path.exists():
             path.unlink()
-
         self.assertEqual(path.exists(), False)
-        lp.access_force()
+        lp.access()
+        self.assertEqual(path.exists(), True)
+
+    def test_access_by_kakao(self):
+        lp = LegacyPlace()
+        test_data = '14720610.kakao'
+        lp.content = test_data
+        lp.save()
+        path = Path(lp.path_accessed)
+        if path.exists():
+            path.unlink()
+        self.assertEqual(path.exists(), False)
+        lp.access()
         self.assertEqual(path.exists(), True)
 
     def test_place_property(self):
