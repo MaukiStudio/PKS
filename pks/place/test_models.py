@@ -24,6 +24,16 @@ class SimplePlaceTest(APITestBase):
         saved = Place.objects.first()
         self.assertEqual(saved, place)
 
+    def test_string_representation(self):
+        place = Place()
+        place.save()
+        self.assertEqual(unicode(place), 'No named place object')
+        placeName = PlaceName(content='능이향기')
+        placeName.save()
+        place.placeName = placeName
+        place.save()
+        self.assertEqual(unicode(place), '능이향기')
+
     def test_lonLat_column(self):
         place = Place()
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')

@@ -25,6 +25,11 @@ class Place(models.Model):
         self._pb_cache = None
         super(Place, self).__init__(*args, **kwargs)
 
+    def __unicode__(self):
+        if self.placeName:
+            return self.placeName.content
+        return 'No named place object'
+
     def computePost(self):
         pb = None
         for pp in self.pps.all().order_by('id'):
