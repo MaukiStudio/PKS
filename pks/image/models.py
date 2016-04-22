@@ -46,7 +46,7 @@ class Image(Content):
         if ext.lower() not in ('jpg', 'jpeg'):
             raise NotImplementedError
         if self.is_accessed:
-            pil = PIL_Image.open(self.path_accessed)
+            pil = self.content_accessed
             if not self.lonLat:
                 self.lonLat = self.process_exif(pil)
             if not self.dhash:
@@ -105,7 +105,7 @@ class Image(Content):
 
     def summarize_force(self, accessed=None):
         if not accessed:
-            accessed = PIL_Image.open(self.path_accessed)
+            accessed = self.content_accessed
         thumb = PIL_ImageOps.fit(accessed, (300, 300), PIL_Image.ANTIALIAS)
         thumb.save(self.path_summarized)
 
@@ -116,6 +116,10 @@ class Image(Content):
             count += 1
             z &= z - 1
         return count
+
+    @property
+    def content_accessed(self):
+        return PIL_Image.open(self.path_accessed)
 
 
 class RawFile(models.Model):

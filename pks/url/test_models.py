@@ -66,7 +66,7 @@ class UrlTest(APITestBase):
         self.assertValidLocalFile(url.path_summarized)
         self.assertValidInternetUrl(url.url_summarized)
 
-    def test_content_summarized(self):
+    def test_content_summarized_by_naver(self):
         url = models.Url()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         url.content = test_data
@@ -74,6 +74,18 @@ class UrlTest(APITestBase):
         url.summarize()
         pb = url.content_summarized
         self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '방아깐')
+
+    def test_content_summarized_by_kakao(self):
+        url = models.Url()
+        test_data = 'http://place.kakao.com/places/14720610'
+        url.content = test_data
+        url.save()
+        url.summarize()
+        pb = url.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '홍콩')
 
     def test_naver_shortener_url(self):
         url = models.Url()
