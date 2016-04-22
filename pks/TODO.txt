@@ -1,6 +1,8 @@
 [Now]
 
-카카오플레이스 URL 로도 장소화가 되도록 하기
+Import 기능을 위한 뼈대 잡기 : Django Celery, ImportPlace, DropPlace, ...
+
+Tag 기능 뼈대 잡기
 
 
 장소화 로직 정리해서 모으기
@@ -13,11 +15,8 @@ URL redirect 처리
     네이버맵 모바일용 단축 URL 처리
 
 
-Import 기능을 위한 뼈대 잡기 : ImportPlace, DropPlace, ...
 
-Tag 기능 뼈대 잡기
 
-Django Celery 체계 만들기
 
 같은 장소로 판정된 UserPlace, Place Merge
     --> 특히 다른 VD  인데 같은 Place 인 UserPlace 가 있는 경우

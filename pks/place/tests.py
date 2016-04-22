@@ -585,6 +585,40 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(result_placePost['addr2'], None)
         self.assertNotEqual(result_placePost['lps'][0], None)
 
+    def test_create_by_MAMMA3(self):
+        test_data = 'http://place.kakao.com/places/14720610'
+        json_add = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % (test_data,)
+
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 2)
+        self.assertEqual(Place.objects.count(), 2)
+
+        result = json_loads(response.content)
+        result_userPost = result['userPost']
+        result_placePost = result['placePost']
+        self.assertIn('lonLat', result)
+        self.assertIn('lon', result['lonLat'])
+        self.assertIn('lat', result['lonLat'])
+        self.assertNotIn('uplace_uuid', result_userPost)
+        self.assertNotIn('place_id', result_userPost)
+        self.assertNotIn('uplace_uuid', result_placePost)
+        self.assertNotIn('place_id', result_placePost)
+        self.assertNotEqual(result_userPost['urls'][0], None)
+        self.assertNotEqual(result_placePost['urls'][0], None)
+        self.assertNotEqual(result_placePost['lonLat'], None)
+        self.assertNotEqual(result_placePost['name'], None)
+        self.assertNotEqual(result_placePost['phone'], None)
+        self.assertNotEqual(result_placePost['addr1'], None)
+        self.assertNotEqual(result_placePost['addr2'], None)
+        self.assertNotEqual(result_placePost['lps'][0], None)
+
     def test_create_with_empty_note(self):
         json_add = '''
             {

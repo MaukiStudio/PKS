@@ -184,19 +184,21 @@ class PostBase(object):
     @property
     def pb_MAMMA(self):
         for url in self.urls:
-            regex = LP_REGEXS_URL[0][0]
-            searcher = regex.search(url.content)
-            if searcher:
-                # TODO : 향후 제대로 구현할 것 (Django Celery 구조 등 도입 후)
-                # 당장 어드민 구현을 위해, 네이버 MAP URL인 경우 임시적으로 바로 정보를 땡겨온다
-                url.summarize()
+            # TODO : 포스퀘어쪽 처리되고 나면 하기의 [:-2] 는 뺀다
+            regexs = LP_REGEXS_URL[:-2]
+            for regex in regexs:
+                searcher = regex[0].search(url.content)
+                if searcher:
+                    # TODO : 향후 제대로 구현할 것 (Django Celery 구조 등 도입 후)
+                    # 당장 어드민 구현을 위해, 네이버 MAP URL인 경우 임시적으로 바로 정보를 땡겨온다
+                    url.summarize()
 
-                # 이미 요약되어 있으면 곧바로 처리되도록 함
-                if url.is_summarized:
-                    result = url.content_summarized
-                    result.uplace_uuid = self.uplace_uuid
-                    result.place_id = self.place_id
-                    return result
+                    # 이미 요약되어 있으면 곧바로 처리되도록 함
+                    if url.is_summarized:
+                        result = url.content_summarized
+                        result.uplace_uuid = self.uplace_uuid
+                        result.place_id = self.place_id
+                        return result
         return None
 
     def is_valid(self, uplace=None):
