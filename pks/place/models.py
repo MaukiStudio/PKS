@@ -50,16 +50,9 @@ class Place(models.Model):
         if pb.place_id:
             return cls.objects.get(id=pb.place_id)
 
-        # pb 에 uplace_uuid 가 있는 경우
-        if pb.uplace_uuid:
-            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
-            if uplace.place:
-                return uplace.place
-
         # pb 에 lps 가 있는 경우 : 현재는 1개 넘어오는 것만 구현
         if pb.lps:
-            if len(pb.lps) > 1:
-                raise NotImplementedError
+            pb.sort()
             lp = pb.lps[0]
             if lp.place:
                 return lp.place
@@ -69,6 +62,13 @@ class Place(models.Model):
             lp.place = _place
             lp.save()
             return lp.place
+
+        # pb 에 uplace_uuid 가 있는 경우
+        if pb.uplace_uuid:
+            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
+            if uplace.place:
+                return uplace.place
+
         # TODO : 값들이 서로 모순되는 경우에 대한 처리
         # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
 
@@ -123,12 +123,13 @@ class UserPlace(models.Model):
             uplace.place = place
             uplace.save()
         else:
-            # TODO : raise 대신 복구 루틴 구현
             if place and uplace.place != place:
-                raise NotImplementedError('Place / UserPlace mismatch')
+                uplace.place = place
+                uplace.save()
+                # TODO : 로그 남겨서 Place Merge 시 우선순위 높여 참고하기
 
         # 결과 처리
-        pb.place_id = place and place.id
+        pb.place_id = uplace.place_id
         pb.uplace_uuid = uplace.uuid
         return uplace
 

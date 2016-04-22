@@ -40,10 +40,10 @@ class SimplePlaceTest(APITestBase):
         self.assertEqual(len(qs2), 1)
 
 
-class SimpleUserPlaceTest(APITestBase):
+class UserPlaceTest(APITestBase):
 
     def setUp(self):
-        super(SimpleUserPlaceTest, self).setUp()
+        super(UserPlaceTest, self).setUp()
         self.place = Place()
         point = GEOSGeometry('POINT(127.1037430 37.3997320)')
         self.place.lonLat = point
@@ -242,7 +242,6 @@ class PostTest(APITestBase):
         self.assertEqual(isSubsetOf(want_userPost, uplace1.userPost.json), True)
         self.assertEqual(isSubsetOf(uplace1.userPost.json, want_userPost), False)
 
-        # TODO : Place 모델 정리하고, placePost 테스트 추가
         self.assertEqual(isSubsetOf(want_placePost, uplace1.place.placePost.json), True)
         self.assertEqual(isSubsetOf(uplace1.place.placePost.json, want_placePost), False)
         uplace1.clearCache()
@@ -253,6 +252,26 @@ class PostTest(APITestBase):
         p3 = place.placePost
         self.assertDictEqual(p1.json, p3.json)
         self.assertDictEqual(p2.json, p3.json)
+
+    def test_change_place(self):
+        vd = VD(); vd.save()
+        pb_add = PostBase('{"urls": [{"content": "http://www.maukistudio.com/"}]}')
+        pb_place1 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+
+        uplace = UserPlace.get_from_post(pb_add, vd)
+        self.assertEqual(uplace.place, None)
+
+        pb_place1.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_place1.pb_MAMMA, vd)
+        self.assertNotEqual(uplace.place, None)
+        place1 = uplace.place
+
+        pb_place2.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        self.assertNotEqual(uplace.place, None)
+        place2 = uplace.place
+        self.assertNotEqual(place1, place2)
 
 
 class PostPieceTest(APITestBase):

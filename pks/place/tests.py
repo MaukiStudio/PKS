@@ -13,6 +13,7 @@ from image.models import Image
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from url.models import Url
 from account.models import VD
+from place.post import PostBase
 
 
 class PlaceViewSetTest(APITestBase):
@@ -221,17 +222,18 @@ class UserPlaceViewSetTest(APITestBase):
                img2.uuid, img2.content, img2.url_summarized, img3.uuid, img3.content, img3.url_summarized,
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
-        want = json_loads(json_full)
-        want['uplace_uuid'] = None
+        want = PostBase(json_full)
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
         response = self.client.post('/uplaces/', dict(add=json_full))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
-        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
 
-        self.assertIsSubsetOf(want, self.uplace.userPost.json)
+        want.sort()
+        self.uplace.userPost.sort()
+        self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertEqual(self.uplace.placePost, None)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
 
@@ -255,7 +257,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.uplace.clearCache()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
-        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
 
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertEqual(None, self.uplace.placePost)
@@ -513,8 +515,9 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.post('/uplaces/', dict(add=json_dumps(want), uplace_uuid=self.uplace.uuid))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
-        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
 
+        self.uplace = UserPlace.objects.first()
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertIsSubsetOf(self.uplace.userPost, want)
         self.assertIsSubsetOf(want, self.uplace.placePost)

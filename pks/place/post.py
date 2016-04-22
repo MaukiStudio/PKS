@@ -208,3 +208,17 @@ class PostBase(object):
                 self.addr1 or self.addr2 or self.addr3:
                 return True
         return False
+
+    def sort(self):
+        if self.lps:
+            def lp_cmp(lp1, lp2):
+                if lp1.place and not lp2.place:
+                    return -1
+                elif not lp1.place and lp2.place:
+                    return 1
+                lp_type1 = lp1.lp_type
+                if lp_type1 in (2, 4): lp_type1 -= 5
+                lp_type2 = lp2.lp_type
+                if lp_type2 in (2, 4): lp_type2 -= 5
+                return lp_type1 - lp_type2
+            self.lps.sort(cmp=lp_cmp)
