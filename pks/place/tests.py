@@ -63,7 +63,7 @@ class PlaceViewSetTest(APITestBase):
         place2.lonLat = GEOSGeometry('POINT(127 37)')
         place2.save()
         place3 = Place()
-        place3.lonLat = GEOSGeometry('POINT(127.107316 37.400998)')
+        place3.lonLat = point2
         place3.save()
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=1000000))
         results = json_loads(response.content)['results']
@@ -134,7 +134,7 @@ class UserPlaceViewSetTest(APITestBase):
         uplace2.lonLat = GEOSGeometry('POINT(127 37)')
         uplace2.save()
         uplace3 = UserPlace(vd=self.vd)
-        uplace3.lonLat = GEOSGeometry('POINT(127.107316 37.400998)')
+        uplace3.lonLat = point2
         uplace3.save()
         response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0))
         results = json_loads(response.content)['results']
