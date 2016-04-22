@@ -6,17 +6,20 @@ from random import randrange
 from django.contrib.gis.db import models
 from base64 import b16encode
 from django.contrib.postgres.fields import JSONField
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
 
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE
 from place.post import PostBase
 from base.models import Point
+from content.models import PlaceName
 
 
 class Place(models.Model):
 
-    vds = models.ManyToManyField(VD, through='UserPlace', through_fields=('place', 'vd'), related_name='places')
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
+    placeName = models.ForeignKey(PlaceName, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='places')
 
     def __init__(self, *args, **kwargs):
         self._pb_cache = None
@@ -43,36 +46,79 @@ class Place(models.Model):
             self.computePost()
         return self._pb_cache
 
-    @classmethod
-    def get_from_post(cls, pb):
 
-        # pb 에 place_id 가 있는 경우
+    # TODO : 값들이 서로 모순되는 경우에 대한 처리
+    # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
+    # TODO : 장소이름만 단독으로 먼저 붙이고, 그 이후에 좌표를 추가하는 경우 현재 장소화가 안됨.
+    @classmethod
+    def get_from_post(cls, pb, vd):
+
+        #######################################
+        # Direct Placed Part
+        #######################################
+
+        # place_id 가 명확히 지정된 경우
         if pb.place_id:
             return cls.objects.get(id=pb.place_id)
 
-        # pb 에 lps 가 있는 경우 : 현재는 1개 넘어오는 것만 구현
+        # Placed by LegacyPlace
+        lp = None
         if pb.lps:
             pb.sort()
             lp = pb.lps[0]
             if lp.place:
                 return lp.place
 
-            _place = Place(lonLat=pb.lonLat)
+        # uplace, lonLat 조회
+        uplace = None
+        if pb.uplace_uuid:
+            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
+        lonLat = pb.lonLat or (uplace and uplace.lonLat)
+
+        # Placed by placeName/lonLat
+        placeName = pb.name
+        if placeName and lonLat:
+            qs = Place.objects.filter(placeName=placeName)\
+                .filter(lonLat__distance_lte=(lonLat, D(m=100*2)))\
+                .annotate(distance=Distance('lonLat', lonLat)).order_by('distance')
+            if qs:
+                _place = qs[0]
+                # TODO : 리팩토링 필요
+                if lp:
+                    lp.place = _place
+                    lp.save()
+                    PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+                return _place
+
+
+        #######################################
+        # Indirect Placed Part
+        #######################################
+
+        # Placed by LegacyPlace
+        if lp:
+            _place = Place(lonLat=lonLat, placeName=placeName)
             _place.save()
             lp.place = _place
             lp.save()
-            return lp.place
+            PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+            return _place
 
-        # pb 에 uplace_uuid 가 있는 경우
-        if pb.uplace_uuid:
-            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
-            if uplace.place:
-                return uplace.place
+        # Placed by placeName/lonLat
+        if placeName and lonLat:
+            if not pb.lonLat:
+                pb.point = Point(lonLat.x, lonLat.y)
+            _place = Place(lonLat=lonLat, placeName=placeName)
+            _place.save()
+            PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+            return _place
 
-        # TODO : 값들이 서로 모순되는 경우에 대한 처리
-        # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
+        # last : old_place
+        if uplace:
+            return uplace.place
 
         return None
+
 
     @property
     def lonLat_json(self):
@@ -105,7 +151,7 @@ class UserPlace(models.Model):
     @classmethod
     # TODO : save() 너무 많이 함. 튜닝 필요
     def get_from_post(cls, pb, vd):
-        place = Place.get_from_post(pb)
+        place = Place.get_from_post(pb, vd)
         uplace = None
 
         # TODO : uplace 좀 더 찾기...

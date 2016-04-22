@@ -257,11 +257,13 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 2)
 
+        self.uplace = UserPlace.objects.first()
         want.sort()
         self.uplace.userPost.sort()
         self.assertIsSubsetOf(want, self.uplace.userPost)
-        self.assertEqual(self.uplace.placePost, None)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
+        self.assertIsSubsetOf(want, self.uplace.placePost)
+        self.assertIsNotSubsetOf(self.uplace.placePost, want)
 
         result = json_loads(response.content)
         self.assertIn('created', result)
@@ -274,30 +276,34 @@ class UserPlaceViewSetTest(APITestBase):
         result_userPost = result['userPost']
         result_placePost = result['placePost']
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertEqual(result_placePost, None)
-        self.assertEqual(self.uplace.placePost, None)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
 
         # 한번 더...
-        self.uplace.clearCache()
         response = self.client.post('/uplaces/', dict(add=json_full))
-        self.uplace.clearCache()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 2)
 
+        self.uplace = UserPlace.objects.first()
+        want.sort()
+        self.uplace.userPost.sort()
         self.assertIsSubsetOf(want, self.uplace.userPost)
-        self.assertEqual(None, self.uplace.placePost)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
+        self.assertIsSubsetOf(want, self.uplace.placePost)
+        self.assertIsNotSubsetOf(self.uplace.placePost, want)
 
         result = json_loads(response.content)
         self.assertIn('created', result)
         self.assertIn('modified', result)
         t2 = result['modified']
+        self.assertIn('place_id', result)
+        self.assertIn('lonLat', result)
+        self.assertIn('lon', result['lonLat'])
+        self.assertIn('lat', result['lonLat'])
         result_userPost = result['userPost']
         result_placePost = result['placePost']
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertEqual(result_placePost, None)
-        self.assertEqual(self.uplace.placePost, None)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
 
         self.assertGreater(t2, t1)
         self.assertAlmostEqual(t2, t1, delta=1000)
@@ -314,8 +320,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertEqual(result_placePost, None)
-        self.assertEqual(None, self.uplace.placePost)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
 
         qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
@@ -524,7 +529,9 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
         self.assertNotEqual(self.uplace.place, None)
         self.assertNotEqual(self.uplace.place, self.place)
-        self.assertEqual(self.uplace.placePost, None)
+        self.assertNotEqual(self.uplace.placePost, None)
+        self.assertNotEqual(self.uplace.placePost.name, None)
+        self.assertNotEqual(self.uplace.placePost.lonLat, None)
 
     def test_create_by_naver_map_url(self):
         self.uplace.place = self.place

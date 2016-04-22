@@ -82,15 +82,11 @@ class UserPlaceViewset(BaseViewset):
         pp = PostPiece.objects.create(type_mask=0, place=None, uplace=uplace, vd=vd, data=pb.json)
 
         # 임시적인 어드민 구현을 위해, MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
-        # TODO : 향후 Django-Celery 구조 도입하여 정리한 후 제거
         pb_MAMMA = pb.pb_MAMMA
         if pb_MAMMA:
-            # TODO : Place 생성을 확인하기 위해 get_from_post() 를 호출하는 것은 적절한 구조가 아니다...
+            # 아래 호출에서 Place 가 생성되고, 필요시 Place PostPiece 도 생성됨
+            # TODO : 좀 더 Readability 가 높은 형태로 리팩토링
             uplace = UserPlace.get_from_post(pb_MAMMA, vd)
-            pb_MAMMA.uplace_uuid = uplace.uuid
-            pp2 = uplace.place.pps.first()
-            if not pp2:
-                pp2 = PostPiece.objects.create(type_mask=2, place=uplace.place, uplace=None, vd=vd, data=pb_MAMMA.json)
 
         # TODO : 튜닝 필요
         lonLat = (pb_MAMMA and pb_MAMMA.lonLat) or pb.lonLat

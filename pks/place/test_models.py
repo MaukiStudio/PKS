@@ -39,11 +39,27 @@ class SimplePlaceTest(APITestBase):
         qs2 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs2), 1)
 
+    def test_placeName_column(self):
+        place = Place()
+        test_data = '능이향기'
+        placeName = PlaceName(content=test_data)
+        placeName.save()
+        place.placeName = placeName
+        place.save()
+        saved = Place.objects.first()
+        self.assertEqual(place.placeName, placeName)
+        self.assertEqual(place.placeName.content, test_data)
+        self.assertEqual(saved, place)
+        self.assertEqual(saved.placeName, placeName)
+        self.assertEqual(saved.placeName.content, test_data)
+        self.assertEqual(placeName.places.first(), saved)
+        self.assertEqual(Place.objects.filter(placeName=placeName).first(), saved)
 
-class UserPlaceTest(APITestBase):
+
+class SimpleUserPlaceTest(APITestBase):
 
     def setUp(self):
-        super(UserPlaceTest, self).setUp()
+        super(SimpleUserPlaceTest, self).setUp()
         self.place = Place()
         point = GEOSGeometry('POINT(127.1037430 37.3997320)')
         self.place.lonLat = point
@@ -272,6 +288,72 @@ class PostTest(APITestBase):
         self.assertNotEqual(uplace.place, None)
         place2 = uplace.place
         self.assertNotEqual(place1, place2)
+
+    def test_placed_by_name1(self):
+        vd = VD(); vd.save()
+        pb_add = PostBase('''{
+            "lonLat": {"lon": 127.0584149999999966, "lat": 37.3916389999999978},
+            "urls": [{"content": "http://www.maukistudio.com/"}]
+        }''')
+        pb_name = PostBase('{"name": {"content": "능이향기"}}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(PostPiece.objects.count(), 0)
+        uplace = UserPlace.get_from_post(pb_add, vd)
+        self.assertEqual(uplace.place, None)
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(PostPiece.objects.count(), 0)
+
+        pb_name.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_name, vd)
+        self.assertNotEqual(uplace.place, None)
+        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(PostPiece.objects.count(), 1)
+        place1 = uplace.place
+        self.assertEqual(place1.placePost.phone, None)
+
+        pb_place2.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        self.assertNotEqual(uplace.place, None)
+        place2 = uplace.place
+        self.assertEqual(place1, place2)
+        self.assertEqual(Place.objects.count(), 1)
+        self.assertNotEqual(place2.placePost.phone, None)
+        self.assertEqual(PostPiece.objects.count(), 2)
+
+    def __skip__test_placed_by_name2(self):
+        vd = VD(); vd.save()
+        pb_add = PostBase('''{
+            "lonLat": {"lon": 127.0584149999999966, "lat": 37.3916389999999978},
+            "urls": [{"content": "http://www.maukistudio.com/"}]
+        }''')
+        pb_name = PostBase('{"name": {"content": "능이향기"}}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(PostPiece.objects.count(), 0)
+        uplace = UserPlace.get_from_post(pb_add, vd)
+        self.assertEqual(uplace.place, None)
+        self.assertEqual(Place.objects.count(), 0)
+        self.assertEqual(PostPiece.objects.count(), 0)
+
+        pb_place2.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        self.assertNotEqual(uplace.place, None)
+        place2 = uplace.place
+        self.assertEqual(Place.objects.count(), 1)
+        self.assertNotEqual(place2.placePost.phone, None)
+        self.assertEqual(PostPiece.objects.count(), 1)
+
+        pb_name.uplace_uuid = uplace.uuid
+        uplace = UserPlace.get_from_post(pb_name, vd)
+        self.assertNotEqual(uplace.place, None)
+        self.assertEqual(Place.objects.count(), 1)
+        self.assertEqual(PostPiece.objects.count(), 1)
+        place1 = uplace.place
+        self.assertEqual(place1, place2)
+        self.assertNotEqual(place1.placePost.phone, None)
 
 
 class PostPieceTest(APITestBase):
