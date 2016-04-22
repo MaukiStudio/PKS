@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
 
 from place.models import Place, UserPlace, PostPiece
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
@@ -23,8 +24,8 @@ class PlaceViewset(BaseViewset):
             r = int(params.get('r', 1000))
             lon = float(params['lon'])
             lat = float(params['lat'])
-            p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
-            return self.queryset.filter(lonLat__distance_lte=(p, D(m=r)))
+            p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+            return self.queryset.filter(lonLat__distance_lte=(p, D(m=r))).annotate(distance=Distance('lonLat', p)).order_by('distance')
         return super(PlaceViewset, self).get_queryset()
 
 
@@ -47,8 +48,12 @@ class UserPlaceViewset(BaseViewset):
             r = int(params.get('r', 1000))
             lon = float(params['lon'])
             lat = float(params['lat'])
-            p = GEOSGeometry('POINT(%f %f)' % (lon, lat))
-            return qs1.filter(lonLat__distance_lte=(p, D(m=r)))
+            p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+            if r == 0:
+                qs2 = qs1.exclude(lonLat=None)
+            else:
+                qs2 = qs1.filter(lonLat__distance_lte=(p, D(m=r)))
+            return qs2.annotate(distance=Distance('lonLat', p)).order_by('distance')
         return qs1.order_by('-modified')
 
     def create(self, request, *args, **kwargs):

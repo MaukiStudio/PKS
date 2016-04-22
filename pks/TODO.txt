@@ -1,5 +1,11 @@
 [Now]
 
+좌표 기준 조회시 해당 좌표와의 거리 기준으로 정렬하기 
+
+Name 에 의한 실시간 장소화
+삭제 포스트 기능 구현
+
+
 Import 기능을 위한 뼈대 잡기 : Django Celery, ImportPlace, DropPlace, ...
 
 Tag 기능 뼈대 잡기
@@ -27,7 +33,6 @@ URL 리다이렉션 처리
 
 UserPlace, Place 컬럼값들 채워지는 로직 전반적으로 체크
 
-Name 에 의한 실시간 장소화
 
 자동 장소화 추가 구현
 

@@ -55,10 +55,22 @@ class PlaceViewSetTest(APITestBase):
         self.assertIn('lon', results[0]['lonLat'])
         self.assertIn('lat', results[0]['lonLat'])
 
-
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=100))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 0)
+
+        place2 = Place()
+        place2.lonLat = GEOSGeometry('POINT(127 37)')
+        place2.save()
+        place3 = Place()
+        place3.lonLat = GEOSGeometry('POINT(127.107316 37.400998)')
+        place3.save()
+        response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=1000000))
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0]['place_id'], place3.id)
+        self.assertEqual(results[1]['place_id'], self.place.id)
+        self.assertEqual(results[2]['place_id'], place2.id)
 
     def test_detail(self):
         response = self.client.get('/places/%s/' % self.place.id)
@@ -117,6 +129,20 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=100))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 0)
+
+        uplace2 = UserPlace(vd=self.vd)
+        uplace2.lonLat = GEOSGeometry('POINT(127 37)')
+        uplace2.save()
+        uplace3 = UserPlace(vd=self.vd)
+        uplace3.lonLat = GEOSGeometry('POINT(127.107316 37.400998)')
+        uplace3.save()
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0]['uplace_uuid'], uplace3.uuid)
+        self.assertEqual(results[1]['uplace_uuid'], self.uplace.uuid)
+        self.assertEqual(results[2]['uplace_uuid'], uplace2.uuid)
+
 
     def test_detail(self):
         self.uplace.save()
