@@ -30,9 +30,10 @@ class Place(models.Model):
         for pp in self.pps.all().order_by('id'):
             pb_new = PostBase(pp.data, pp.timestamp)
             if not pb:
-                pb = pb_new
+                if pp.is_add:
+                    pb = pb_new
             else:
-                pb.update(pb_new)
+                pb.update(pb_new, pp.is_add)
         if pb:
             pb.place_id = self.id
         self._pb_cache = pb
@@ -79,7 +80,7 @@ class Place(models.Model):
         placeName = pb.name
         if placeName and lonLat:
             qs = Place.objects.filter(placeName=placeName)\
-                .filter(lonLat__distance_lte=(lonLat, D(m=100*2)))\
+                .filter(lonLat__distance_lte=(lonLat, D(m=100)))\
                 .annotate(distance=Distance('lonLat', lonLat)).order_by('distance')
             if qs:
                 _place = qs[0]
@@ -184,9 +185,10 @@ class UserPlace(models.Model):
         for pp in self.pps.all().order_by('id'):
             pb_new = PostBase(pp.data, pp.timestamp)
             if not pb:
-                pb = pb_new
+                if pp.is_add:
+                    pb = pb_new
             else:
-                pb.update(pb_new)
+                pb.update(pb_new, pp.is_add)
         if pb:
             pb.uplace_uuid = self.uuid
             pb.place_id = self.place_id

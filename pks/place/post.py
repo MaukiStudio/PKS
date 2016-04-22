@@ -43,34 +43,46 @@ class PostBase(object):
             return self.point.lonLat
         return None
 
-    def update(self, other):
-        if other.name: self.name = other.name
-        if other.point: self.point = other.point
-        if other.phone: self.phone = other.phone
-        if other.addr1: self.addr1 = other.addr1
-        if other.addr2: self.addr2 = other.addr2
-        if other.addr3: self.addr3 = other.addr3
+
+    def update(self, other, add=True):
+        if add:
+            if other.name: self.name = other.name
+            if other.point: self.point = other.point
+            if other.phone: self.phone = other.phone
+            if other.addr1: self.addr1 = other.addr1
+            if other.addr2: self.addr2 = other.addr2
+            if other.addr3: self.addr3 = other.addr3
+        else:
+            if other.name == self.name: self.name = None
+            if other.point == self.point: self.point = None
+            if other.phone == self.phone: self.phone = None
+            if other.addr1 == self.addr1: self.addr1 = None
+            if other.addr2 == self.addr2: self.addr2 = None
+            if other.addr3 == self.addr3: self.addr3 = None
 
         for lp in reversed(other.lps):
             try:
                 self.lps.remove(lp)
             except ValueError:
                 pass
-            self.lps.insert(0, lp)
+            if add:
+                self.lps.insert(0, lp)
 
         for url in reversed(other.urls):
             try:
                 self.urls.remove(url)
             except ValueError:
                 pass
-            self.urls.insert(0, url)
+            if add:
+                self.urls.insert(0, url)
 
         for note in reversed(other.notes):
             try:
                 self.notes.remove(note)
             except ValueError:
                 pass
-            self.notes.insert(0, note)
+            if add:
+                self.notes.insert(0, note)
 
         for image in reversed(other.images):
             old_same_image = None
@@ -80,9 +92,11 @@ class PostBase(object):
                 del self.images[pos]
             except ValueError:
                 pass
-            if old_same_image and not image.note:
-                image.note = old_same_image.note
-            self.images.insert(0, image)
+            if add:
+                if old_same_image and not image.note:
+                    image.note = old_same_image.note
+                self.images.insert(0, image)
+
 
     def is_valid_json_item(self, item_name, json):
         if item_name in json and json[item_name]:

@@ -41,9 +41,8 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                     {"uuid": "%s", "content": "%s"}
                 ]
             }
-    '''
 
-    '''
+
         LegacyPlace content spec
 
         LP_REGEXS = (
@@ -53,12 +52,18 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             # '21149144.naver'
             (re_compile(r'^(?P<PlaceId>[0-9]+)\.naver$'), 'naver'),
 
+            # '14720610.kakao'
+            (re_compile(r'^(?P<PlaceId>[0-9]+)\.kakao$'), 'kakao'),
+
             # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
             (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
         )
         LP_REGEXS_URL = (
             # 'http://map.naver.com/local/siteview.nhn?code=21149144'
             (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
+
+            # 'https://place.kakao.com/places/14720610/홍콩'
+            (re_compile(r'^https?://place\.kakao\.com/places/(?P<PlaceId>[0-9]+).*$'), 'kakao'),
 
             # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
             (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
@@ -69,6 +74,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
     '''
 
     def test_post_by_current_pos(self):
+        #######################################
+        # 현재 위치 저장
+        #######################################
+
         # 사전에 (앱 실행 직후) 높은 정확도의 GPS 정보 조회 : GPS 정확도를 높이기 위함
         lon, lat = self.get_gps_info()
 
@@ -88,6 +97,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             response = self.client.post('/rfs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         file_url = json_loads(response.content)['file']
+        first_file_url = file_url
 
         # 주소값 조회
         addr1_new = '경기도 성남시 분당구 산운로32번길 12'
@@ -98,7 +108,6 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         note = self.input_from_user('장소 노트')
 
         # 현재 위치 저장
-        # notes 가 list type 이지만 post create 시엔 1개만 가능 : 여러개 필요시 말해주어~
         json_add = '''
             {
                 "lonLat": {"lon": %f, "lat": %f},
@@ -125,7 +134,10 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         is_progress = placePost is None
         self.assertEqual(is_progress, True)
 
+
+        #######################################
         # 사진 추가 with 사진노트
+        #######################################
         with open('image/samples/no_exif_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
         file_url = json_loads(response.content)['file']
@@ -141,6 +153,24 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         result = json_loads(response.content)
         userPost = result['userPost']
         placePost = result['placePost']
+        self.assertEqual(len(userPost['images']), 2)
+
+
+        #######################################
+        # 사진 삭제
+        #######################################
+        json_remove = '''
+            {
+                "uplace_uuid": "%s",
+                "images": [{"content": "%s"}]
+            }
+        ''' % (uplace_uuid, first_file_url,)
+        response = self.client.post('/uplaces/', dict(remove=json_add))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        result = json_loads(response.content)
+        userPost = result['userPost']
+        placePost = result['placePost']
+        self.assertEqual(len(userPost['images']), 1)
 
 
         # Only for server test... (Not interface guide)

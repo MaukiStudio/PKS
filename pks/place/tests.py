@@ -302,11 +302,35 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('lat', result['lonLat'])
         result_userPost = result['userPost']
         result_placePost = result['placePost']
+
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost, self.uplace.placePost.json)
 
         self.assertGreater(t2, t1)
         self.assertAlmostEqual(t2, t1, delta=1000)
+
+        # 삭제 포스트
+        self.assertEqual(len(result_userPost['urls']), 3)
+        json_remove = '{"urls": [{"content": "%s"}], "phone": {"content": "%s"}}' % (url12.content, phone1.content,)
+        response = self.client.post('/uplaces/', dict(remove=json_remove, uplace_uuid=self.uplace.uuid))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 2)
+        result = json_loads(response.content)
+        prev_result_userPost = result_userPost
+        result_userPost = result['userPost']
+        prev_result_placePost = result_placePost
+        result_placePost = result['placePost']
+        self.assertEqual(result_placePost, prev_result_placePost)
+        # TODO : assertIsSubsetOf() 완전한 구현 후 주석 풀기. 현재는 list 의 element 가 dict 이고 이빨이 빠진 경우 제대로 체크 못함
+        #self.assertIsSubsetOf(result_userPost, prev_result_userPost)
+        self.assertIsNotSubsetOf(prev_result_userPost, result_userPost)
+        self.assertEqual(len(result_userPost['urls']), 2)
+        result_userPost_str = json_dumps(result_userPost)
+        self.assertIn(url11.content, result_userPost_str)
+        self.assertNotIn(url12.content, result_userPost_str)
+        self.assertIn(url13.content, result_userPost_str)
+        self.assertNotIn(phone1.content, result_userPost_str)
 
         # 내장소 목록
         dummy_place = Place(); dummy_place.save()
