@@ -84,46 +84,61 @@ class PostBase(object):
                 image.note = old_same_image.note
             self.images.insert(0, image)
 
+    def is_valid_json_item(self, item_name, json):
+        if item_name in json and json[item_name]:
+            item_json = json[item_name]
+            if 'content' in item_json:
+                return item_json['content'] != 'None'
+            else:
+                return True
+        return False
+
     def setUp(self, json, timestamp=None):
 
         # name 조회
-        if 'name' in json and json['name']:
+        if self.is_valid_json_item('name', json):
             name = PlaceName.get_from_json(json['name'])
-            #name.timestamp = timestamp
-            self.name = name
+            if name:
+                #name.timestamp = timestamp
+                self.name = name
 
         # lonLat 조회
-        if 'lonLat' in json and json['lonLat']:
+        if self.is_valid_json_item('lonLat', json):
             point = Point.get_from_json(json['lonLat'])
-            #point.timestamp = timestamp
-            self.point = point
+            if point:
+                #point.timestamp = timestamp
+                self.point = point
 
         # phone 조회
-        if 'phone' in json and json['phone']:
+        if self.is_valid_json_item('phone', json):
             phone = PhoneNumber.get_from_json(json['phone'])
-            #phone.timestamp = timestamp
-            self.phone = phone
+            if phone:
+                #phone.timestamp = timestamp
+                self.phone = phone
 
         # addr1 조회
-        if 'addr1' in json and json['addr1']:
+        if self.is_valid_json_item('addr1', json):
             addr1 = Address.get_from_json(json['addr1'])
-            #addr1.timestamp = timestamp
-            self.addr1 = addr1
+            if addr1:
+                #addr1.timestamp = timestamp
+                self.addr1 = addr1
 
         # addr2 조회
-        if 'addr2' in json and json['addr2']:
+        if self.is_valid_json_item('addr2', json):
             addr2 = Address.get_from_json(json['addr2'])
-            #addr2.timestamp = timestamp
-            self.addr2 = addr2
+            if addr2:
+                #addr2.timestamp = timestamp
+                self.addr2 = addr2
 
         # addr3 조회
-        if 'addr3' in json and json['addr3']:
+        if self.is_valid_json_item('addr3', json):
             addr3 = Address.get_from_json(json['addr3'])
-            #addr3.timestamp = timestamp
-            self.addr3 = addr3
+            if addr3:
+                #addr3.timestamp = timestamp
+                self.addr3 = addr3
 
         # lps 조회
-        if 'lps' in json and json['lps']:
+        if self.is_valid_json_item('lps', json):
             for lp_json in json['lps']:
                 lp = LegacyPlace.get_from_json(lp_json)
                 if lp:
@@ -131,7 +146,7 @@ class PostBase(object):
                     self.lps.append(lp)
 
         # urls 조회
-        if 'urls' in json and json['urls']:
+        if self.is_valid_json_item('urls', json):
             from url.models import Url
             for url_json in json['urls']:
                 url = Url.get_from_json(url_json)
@@ -140,7 +155,7 @@ class PostBase(object):
                     self.urls.append(url)
 
         # notes 조회
-        if 'notes' in json and json['notes']:
+        if self.is_valid_json_item('notes', json):
             for note_json in json['notes']:
                 note = PlaceNote.get_from_json(note_json)
                 if note:
@@ -148,7 +163,7 @@ class PostBase(object):
                     self.notes.append(note)
 
         # images 조회
-        if 'images' in json and json['images']:
+        if self.is_valid_json_item('images', json):
             for img_json in json['images']:
                 img = Image.get_from_json(img_json)
                 if img:
@@ -161,9 +176,9 @@ class PostBase(object):
                     self.images.append(img)
 
         # place_id, uplace_uuid 조회
-        if 'place_id' in json and json['place_id']:
+        if self.is_valid_json_item('place_id', json):
             self.place_id = json['place_id']
-        if 'uplace_uuid' in json and json['uplace_uuid']:
+        if self.is_valid_json_item('uplace_uuid', json):
             self.uplace_uuid = json['uplace_uuid']
 
     @property
