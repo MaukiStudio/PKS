@@ -15,6 +15,8 @@ from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
 
+RADIUS_LOCAL_RANGE = 100
+
 
 class Place(models.Model):
 
@@ -85,7 +87,7 @@ class Place(models.Model):
         placeName = pb.name
         if placeName and lonLat:
             qs = Place.objects.filter(placeName=placeName)\
-                .filter(lonLat__distance_lte=(lonLat, D(m=100)))\
+                .filter(lonLat__distance_lte=(lonLat, D(m=RADIUS_LOCAL_RANGE)))\
                 .annotate(distance=Distance('lonLat', lonLat)).order_by('distance')
             if qs:
                 _place = qs[0]

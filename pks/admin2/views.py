@@ -108,7 +108,8 @@ def placed_detail(request, uplace_id):
     except UserPlace.DoesNotExist:
         return HttpResponse('삭제되었습니다')
 
-    userPost = uplace.userPost and uplace.userPost
-    placePost = uplace.placePost and uplace.placePost
-    context = dict(userPost=userPost, placePost=placePost)
+    default_lonLat = 'LonLat Required'
+    if uplace.lonLat:
+        default_lonLat = 'lon=%f&lat=%f' % (uplace.lonLat.x, uplace.lonLat.y)
+    context = dict(userPost=uplace.userPost, placePost=uplace.placePost, default_lonLat=default_lonLat)
     return render(request, 'admin2/placed_detail.html', context)

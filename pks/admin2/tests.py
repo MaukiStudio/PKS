@@ -31,13 +31,18 @@ class PlacedDetailTest1(AdminTestCase):
         super(PlacedDetailTest1, self).setUp()
         json_add = '''
             {
-                "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
+                "lonLat": {"lon": 127.103743, "lat": 37.399732},
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}]
             }
         '''
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.uplace = UserPlace.objects.first()
+
+    def test_connect(self):
+        response = self.client.get('/admin2/placed/%s/' % self.uplace.uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('lon=127.103743&amp;lat=37.399732', response.content.decode('utf-8'))
 
     def test_placed_by_lp_url(self):
         self.assertEqual(self.uplace.place, None)
@@ -79,6 +84,11 @@ class PlacedDetailTest2(AdminTestCase):
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.uplace = UserPlace.objects.first()
+
+    def test_connect(self):
+        response = self.client.get('/admin2/placed/%s/' % self.uplace.uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('LonLat Required', response.content.decode('utf-8'))
 
     def test_placed_by_lp_url(self):
         self.assertEqual(self.uplace.place, None)
