@@ -8,6 +8,6 @@ from admin2 import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^mapping/$', views.mapping, name='mapping'),
-    url(r'^mapping/(?P<uplace_id>[0-9A-Za-z]+)\.uplace/$', views.mapping_detail, name='mapping_detail'),
+    url(r'^placed/$', views.placed, name='placed'),
+    url(r'^placed/(?P<uplace_id>[0-9A-Za-z]+)\.uplace/$', views.placed_detail, name='placed_detail'),
 ]

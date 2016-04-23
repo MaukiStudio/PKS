@@ -20,18 +20,18 @@ def index(request):
     return render(request, 'admin2/index.html')
 
 
-def mapping(request):
+def placed(request):
     pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None)[:100]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
                 image.summarize()
     context = dict(pbs=pbs)
-    return render(request, 'admin2/mapping.html', context)
+    return render(request, 'admin2/placed.html', context)
 
 
 # TODO : 완전 리팩토링 필요;;; 일단 임시 땜빵임
-def mapping_detail(request, uplace_id):
+def placed_detail(request, uplace_id):
     if request.method == 'POST':
         vd = VD.objects.get(id=request.session[VD_SESSION_KEY])
 
@@ -41,7 +41,7 @@ def mapping_detail(request, uplace_id):
             if url in ('삭제', '제거', 'delete','remove'):
                 uplace = UserPlace.objects.get(id=uplace_id)
                 uplace.delete()
-                return redirect('/admin2/mapping/%s.uplace/' % uplace_id)
+                return redirect('/admin2/placed/%s.uplace/' % uplace_id)
 
             # PostBase instance 생성
             json_add = '{"urls": [{"content": "%s"}]}' % url
@@ -61,7 +61,7 @@ def mapping_detail(request, uplace_id):
                 uplace = UserPlace.get_from_post(pb_MAMMA, vd)
 
             # redirect
-            return redirect('/admin2/mapping/%s.uplace/' % uplace_id)
+            return redirect('/admin2/placed/%s.uplace/' % uplace_id)
 
         # placeName/lonLat 로 장소화
         elif 'placeName' in request.POST and request.POST['placeName']:
@@ -101,7 +101,7 @@ def mapping_detail(request, uplace_id):
             uplace = UserPlace.get_from_post(pb, vd)
 
             # redirect
-            return redirect('/admin2/mapping/%s.uplace/' % uplace_id)
+            return redirect('/admin2/placed/%s.uplace/' % uplace_id)
 
     try:
         uplace = UserPlace.objects.get(id=uplace_id)
@@ -111,4 +111,4 @@ def mapping_detail(request, uplace_id):
     userPost = uplace.userPost and uplace.userPost
     placePost = uplace.placePost and uplace.placePost
     context = dict(userPost=userPost, placePost=placePost)
-    return render(request, 'admin2/mapping_detail.html', context)
+    return render(request, 'admin2/placed_detail.html', context)
