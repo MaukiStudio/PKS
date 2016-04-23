@@ -6,14 +6,20 @@
     <table class="table">
         <tr>
             <td>
-                도로명주소: {{ userPost.addr1 }}<br />
-                지번 주소 : {{ userPost.addr2 }}<br />
-                범위 주소 : {{ userPost.addr3 }}<br />
+                <a href="http://map.naver.com/?dlevel=13&x={{ userPost.lonLat.x }}&y={{ userPost.lonLat.y }}" target="_blank">
+                    위도: {{ userPost.lonLat.y }}<br/>
+                    경도: {{ userPost.lonLat.x }}
+                </a>
+            </td>
+            <td>
+                도로명주소: {{ userPost.addr1 }}<br/>
+                지번 주소 : {{ userPost.addr2 }}<br/>
+                범위 주소 : {{ userPost.addr3 }}<br/>
             </td>
             <td>
                 {% for image in userPost.images %}
                     <a href="{{ image.content }}" target="_blank">
-                        <img src="{{ image.url_summarized }}" />
+                        <img src="{{ image.url_summarized }}"/>
                     </a>
                 {% endfor %}
             </td>
@@ -30,15 +36,21 @@
         </tr>
         <tr>
             <td>
-                도로명주소: {{ placePost.addr1 }}<br />
-                지번 주소 : {{ placePost.addr2 }}<br />
-                범위 주소 : {{ placePost.addr3 }}<br />
+                <a href="http://map.naver.com/?dlevel=13&x={{ placePost.lonLat.x }}&y={{ placePost.lonLat.y }}" target="_blank">
+                    위도: {{ placePost.lonLat.y }}<br/>
+                    경도: {{ placePost.lonLat.x }}
+                </a>
+            </td>
+            <td>
+                도로명주소: {{ placePost.addr1 }}<br/>
+                지번 주소 : {{ placePost.addr2 }}<br/>
+                범위 주소 : {{ placePost.addr3 }}<br/>
             </td>
             <td>
                 이름 : {{ placePost.name }}
             </td>
             <td>
-                {% for url in userPost.urls %}
+                {% for url in placePost.urls %}
                     <a href="{{ url.content }}" target="_blank">{{ url.content }}</a>
                 {% endfor %}
             </td>
@@ -50,9 +62,28 @@
     <table class="table">
         <tr>
         <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    LegacyPlace URL : <input type="text" id="id_url" name="url" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
             <td>
                 <div class="jumbotron">
-                    <input type="text" id="id_url" name="url" class="form-control input-lg"/>
+                    PlaceName : <input type="text" id="id_placeName" name="placeName" class="form-control input-lg"/>
+                </div>
+            </td>
+            <td>
+                <div class="jumbotron">
+                    LonLat : <input type="text" id="id_lonLat" name="lonLat" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    <input type="submit" class="form-control input-lg"/>
                 </div>
             </td>
         </tr>

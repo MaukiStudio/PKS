@@ -16,6 +16,7 @@ from rest_framework import status
 from pathlib2 import Path
 from place.post import PostBase
 
+
 class APITestBase(APITestCase):
 
     def setUp(self):
@@ -151,6 +152,7 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
         self.assertLogin()
         self.assertVdLogin()
 
+
 def isSubsetOf(self, other):
     def isSubsetOf_dict(d1, d2):
         if not d1: return True
@@ -202,3 +204,23 @@ def isSubsetOf(self, other):
         other = json_loads(other)
 
     return isSubsetOf_dict(self, other)
+
+
+class AdminTestCase(FunctionalTestAfterLoginBase):
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        self.session = None
+        self.vd = None
+        super(AdminTestCase, self).__init__(*args, **kwargs)
+
+    def setUp(self):
+        from account.models import User, VD
+        super(AdminTestCase, self).setUp()
+        self.user = User.objects.first()
+        self.user.is_superuser = True
+        self.user.is_staff = True
+        self.user.save()
+        self.vd = VD.objects.first()
+        self.vd.deviceTypeName = 'ADMIN'
+        self.vd.save()

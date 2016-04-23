@@ -1,6 +1,4 @@
 [Now]
-삭제 포스트 기능 구현
-
 
 Import 기능을 위한 뼈대 잡기 : Django Celery, ImportPlace, DropPlace, ...
 
