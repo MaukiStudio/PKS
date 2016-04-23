@@ -9,18 +9,22 @@ from rest_framework.test import APITestCase
 from uuid import UUID
 from json import loads as json_loads, dumps as json_dumps
 from os import system as os_system
+from django.conf import settings
 
 from pks.settings import VD_SESSION_KEY, MEDIA_ROOT, WORK_ENVIRONMENT
 from requests import get as requests_get
 from rest_framework import status
 from pathlib2 import Path
 from place.post import PostBase
+from pks.celery import app
 
 
 class APITestBase(APITestCase):
 
     def setUp(self):
         self.clear_media_files()
+        settings.CELERY_ALWAYS_EAGER = True
+        app.conf.CELERY_ALWAYS_EAGER = True
 
     def check_login(self, user=None):
         session_key = self.client.session.get(SESSION_KEY)
@@ -210,13 +214,13 @@ class AdminTestCase(FunctionalTestAfterLoginBase):
 
     def __init__(self, *args, **kwargs):
         self.user = None
-        self.session = None
         self.vd = None
         super(AdminTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        from account.models import User, VD
         super(AdminTestCase, self).setUp()
+
+        from account.models import User, VD
         self.user = User.objects.first()
         self.user.is_superuser = True
         self.user.is_staff = True

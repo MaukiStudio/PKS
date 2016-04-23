@@ -19,3 +19,5 @@ pathlib2
 lxml
 cssselect
 pyquery
+celery
+librabbitmq
