@@ -96,12 +96,15 @@ class Image(Content):
 
     @classmethod
     def process_exif(cls, pil):
-        if not file:
+        if not pil:
             return None
-        exif = exif_lib.get_exif_data(pil)
-        lonLat = exif_lib.get_lon_lat(exif)
-        if lonLat[0] and lonLat[1]:
-            return GEOSGeometry('POINT(%f %f)' % lonLat)
+        try:
+            exif = exif_lib.get_exif_data(pil)
+            lonLat = exif_lib.get_lon_lat(exif)
+            if lonLat and lonLat[0] and lonLat[1]:
+                return GEOSGeometry('POINT(%f %f)' % lonLat)
+        except AttributeError:
+            pass
         return None
 
     def summarize_force(self, accessed=None):

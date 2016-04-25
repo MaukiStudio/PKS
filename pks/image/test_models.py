@@ -54,9 +54,16 @@ class ImageTest(APITestBase):
         self.assertEqual(saved.content, img.content)
 
         img2 = models.Image()
-        img2.content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.png'
+        img2.content = 'http://static.naver.net/www/mobile/edit/2016/0407/mobile_17004159045.png'
         img2.save()
+        img2.summarize()
         self.assertNotEqual(img2, img)
+
+        img3 = models.Image()
+        img3.content = 'http://static.naver.net/www/mobile/edit/2016/0407/mobile_17004159045.png'
+        img3.save()
+        img3.summarize()
+        self.assertEqual(img3, img2)
 
     def test_id(self):
         id_640 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test.jpg'))
