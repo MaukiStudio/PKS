@@ -76,11 +76,7 @@ class PlacedDetailTest2(AdminTestCase):
 
     def setUp(self):
         super(PlacedDetailTest2, self).setUp()
-        json_add = '''
-            {
-                "urls": [{"content": "http://blog.naver.com/cmykhc/220689607363"}]
-            }
-        '''
+        json_add = '{"urls": [{"content": "http://blog.naver.com/cmykhc/220689607363"}]}'
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.uplace = UserPlace.objects.first()

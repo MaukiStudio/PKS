@@ -153,6 +153,7 @@ class LegacyPlace(Content):
             phone = PhoneNumber.normalize_content(phone)
         addr_new = d['roadAddr']['text']
         addr = d['address']
+        img_url = pq('meta[property="og:image"]').attr('content')
 
         # TODO : Post class 를 이용하여 리팩토링
         json = '''
@@ -162,9 +163,10 @@ class LegacyPlace(Content):
                 "phone": {"content": "%s"},
                 "addr1": {"content": "%s"},
                 "addr2": {"content": "%s"},
+                "images": [{"content": "%s"}],
                 "lps": [{"content": "%s"}]
             }
-        ''' % (lon, lat, name, phone, addr_new, addr, self.content,)
+        ''' % (lon, lat, name, phone, addr_new, addr, img_url, self.content,)
 
         f = Path(self.path_summarized)
         f.write_text(json)
@@ -186,6 +188,7 @@ class LegacyPlace(Content):
             phone = PhoneNumber.normalize_content(phone)
         addr_new = d['address']
         addr = d['address_old']
+        img_url = pq('meta[property="og:image"]').attr('content')
 
         # TODO : Post class 를 이용하여 리팩토링
         json = '''
@@ -195,9 +198,10 @@ class LegacyPlace(Content):
                 "phone": {"content": "%s"},
                 "addr1": {"content": "%s"},
                 "addr2": {"content": "%s"},
+                "images": [{"content": "%s"}],
                 "lps": [{"content": "%s"}]
             }
-        ''' % (lon, lat, name, phone, addr_new, addr, self.content,)
+        ''' % (lon, lat, name, phone, addr_new, addr, img_url, self.content,)
 
         f = Path(self.path_summarized)
         f.write_text(json)

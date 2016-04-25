@@ -13,12 +13,12 @@ class UrlTest(APITestBase):
 
     def test_string_representation(self):
         url = models.Url()
-        url.content = 'http://www.maukistudio.com/'
+        url.content = 'http://www.naver.com/'
         self.assertEqual(unicode(url), url.content)
 
     def test_save_and_retreive(self):
         url = models.Url()
-        url.content = 'http://www.maukistudio.com/'
+        url.content = 'http://www.naver.com/'
         url.save()
         saved = models.Url.objects.first()
         self.assertEqual(url.uuid, '%s.url' % b16encode(url.id.bytes))
@@ -31,7 +31,7 @@ class UrlTest(APITestBase):
 
     def test_content_property(self):
         url = models.Url()
-        test_value = 'http://www.maukistudio.com/'
+        test_value = 'http://www.naver.com/'
         url.content = test_value
         url.save()
         saved = models.Url.objects.first()

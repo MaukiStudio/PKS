@@ -142,9 +142,9 @@ class Content(models.Model):
         self.post_save()
 
     # Methods for access
-    def access_force(self):
+    def access_force(self, timeout=1):
         headers = {'user-agent': 'Chrome'}
-        r = requests_get(self.url_for_access, headers=headers)
+        r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
             raise ValueError('Not valid url_for_access')
 
@@ -154,7 +154,7 @@ class Content(models.Model):
         summary = Path(self.path_summarized)
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
-        file.write_bytes(r.content)
+        file.write_text(r.text)
 
     def access_local(self, source):
         file = Path(self.path_accessed)
@@ -165,12 +165,12 @@ class Content(models.Model):
             summary.parent.mkdir(parents=True)
         file.symlink_to(source)
 
-    def access(self):
+    def access(self, timeout=1):
         if not self.id:
             raise NotImplementedError
         if not self.is_accessed:
             # TODO : 로컬 URL 인 경우 access_local() 을 호출하도록 수정
-            self.access_force()
+            self.access_force(timeout=timeout)
 
     @property
     def is_accessed(self):
@@ -229,7 +229,7 @@ class Content(models.Model):
     @property
     def content_accessed(self):
         file = Path(self.path_accessed)
-        return file.read_text(encoding='utf-8')
+        return file.read_text()
 
     @property
     def content_summarized(self):

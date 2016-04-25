@@ -7,6 +7,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 from random import randrange
 from json import loads as json_loads
+from rest_framework import status
 
 from imagehash import dhash
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
@@ -16,6 +17,9 @@ from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
+from requests import get as requests_get
+from pathlib2 import Path
+
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
@@ -42,9 +46,6 @@ class Image(Content):
         return url
 
     def pre_save(self):
-        ext = self.content.split('.')[-1]
-        if ext.lower() not in ('jpg', 'jpeg'):
-            raise NotImplementedError
         if self.is_accessed:
             pil = self.content_accessed
             if not self.lonLat:
@@ -120,6 +121,20 @@ class Image(Content):
     @property
     def content_accessed(self):
         return PIL_Image.open(self.path_accessed)
+
+    def access_force(self, timeout=1):
+        headers = {'user-agent': 'Chrome'}
+        r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
+        if r.status_code not in (status.HTTP_200_OK,):
+            raise ValueError('Not valid url_for_access')
+
+        file = Path(self.path_accessed)
+        if not file.parent.exists():
+            file.parent.mkdir(parents=True)
+        summary = Path(self.path_summarized)
+        if not Path(self.path_summarized).parent.exists():
+            summary.parent.mkdir(parents=True)
+        file.write_bytes(r.content)
 
 
 class RawFile(models.Model):

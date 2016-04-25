@@ -13,7 +13,7 @@ class UrlViewsetTest(APITestBase):
 
     def setUp(self):
         super(UrlViewsetTest, self).setUp()
-        self.url = models.Url(content='http://www.maukistudio.com/')
+        self.url = models.Url(content='http://www.naver.com/')
         self.url.save()
 
     def test_list(self):
@@ -23,7 +23,7 @@ class UrlViewsetTest(APITestBase):
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
 
-        url2 = models.Url(content='http://www.maukistudio.com/2')
+        url2 = models.Url(content='http://www.naver.com?2')
         url2.save()
         response = self.client.get('/urls/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -41,7 +41,7 @@ class UrlViewsetTest(APITestBase):
         self.assertNotIn('id', result)
         self.assertEqual(result['uuid'], self.url.uuid)
 
-        response = self.client.post('/urls/', dict(content='http://www.maukistudio.com/2'))
+        response = self.client.post('/urls/', dict(content='http://www.naver.com?2'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(2, models.Url.objects.count())
         result = json_loads(response.content)

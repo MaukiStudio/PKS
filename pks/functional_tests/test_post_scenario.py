@@ -156,7 +156,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
     def test_post_by_url(self):
 
         # URL 입력 받음
-        url = self.input_from_user('http://maukistudio.com/')
+        url = self.input_from_user('http://www.naver.com/')
 
         # 노트 입력 받기
         note = self.input_from_user('URL 노트')

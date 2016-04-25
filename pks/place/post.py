@@ -6,6 +6,8 @@ from json import loads as json_loads
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from image.models import Image
 from base.models import Point
+from pyquery import PyQuery
+from requests import Timeout
 
 
 class PostBase(object):
@@ -260,3 +262,22 @@ class PostBase(object):
                 if lp_type2 in (2, 4): lp_type2 -= 5
                 return lp_type1 - lp_type2
             self.lps.sort(cmp=lp_cmp)
+
+
+    # 추가 정보 가져오기 : 유저가 직접 입력했다고 봐도 무방한 사항만
+    # TODO : 좀 더 깔끔하고 성능 좋게 리팩토링
+    def load_additional_info(self):
+        # 이미지가 없는 경우, URL 에서 이미지 가져오기
+        if not self.images and self.urls and self.urls[0]:
+            url = self.urls[0]
+            try:
+                url.access()
+                pq = PyQuery(url.content_accessed)
+                img_url = pq('meta[property="og:image"]').attr('content')
+                if img_url:
+                    img = Image.get_from_json('{"content": "%s"}' % img_url)
+                    if img:
+                        img.summarize()
+                        self.images.append(img)
+            except Timeout:
+                pass

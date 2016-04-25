@@ -295,6 +295,7 @@ class LegacyPlaceTest(APITestBase):
         pb = lp.content_summarized
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '방아깐')
+        self.assertEqual(pb.images[0].content, 'http://ldb.phinf.naver.net/20150901_174/1441078320814Nj4Fe_JPEG/146466556151173_0.jpeg')
 
     def test_content_summarized_by_kakao(self):
         lp = LegacyPlace()
@@ -306,6 +307,7 @@ class LegacyPlaceTest(APITestBase):
         self.printJson(pb)
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '홍콩')
+        self.assertEqual(pb.images[0].content, 'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg')
 
 
 class PhoneNumberTest(APITestBase):

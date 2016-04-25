@@ -1,5 +1,7 @@
 [Now]
 
+URL 에서 대표 이미지 뽑아서 활용
+
 Import 기능을 위한 뼈대 잡기 : Importer, ImportPlace, DropPlace, ...
 
 

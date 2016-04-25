@@ -55,8 +55,8 @@ class ImageTest(APITestBase):
 
         img2 = models.Image()
         img2.content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.png'
-        with self.assertRaises(NotImplementedError):
-            img2.save()
+        img2.save()
+        self.assertNotEqual(img2, img)
 
     def test_id(self):
         id_640 = models.Image.compute_id_from_file(PIL_Image.open('image/samples/test.jpg'))

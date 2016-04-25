@@ -195,7 +195,7 @@ class PostTest(APITestBase):
         img21 = Image(content=img21_content); img21.save()
         img22 = Image(content=img22_content); img22.save()
         imgNote2 = ImageNote(content='만두 사진'); imgNote2.save()
-        url2 = Url(content='http://maukistudio.com/'); url2.save()
+        url2 = Url(content='http://www.naver.com/'); url2.save()
         lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp.save();
         phone2 = PhoneNumber(content='010-5597-9245'); phone2.save()
 
@@ -281,7 +281,7 @@ class PostTest(APITestBase):
 
     def test_placed(self):
         vd = VD(); vd.save()
-        pb_add = PostBase('{"urls": [{"content": "http://www.maukistudio.com/"}]}')
+        pb_add = PostBase('{"urls": [{"content": "http://www.naver.com/"}]}')
         pb_place1 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]}')
         pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
 
@@ -307,7 +307,7 @@ class PostTest(APITestBase):
         vd = VD(); vd.save()
         pb_add = PostBase('''{
             "lonLat": {"lon": 127.0584149999999966, "lat": 37.3916389999999978},
-            "urls": [{"content": "http://www.maukistudio.com/"}]
+            "urls": [{"content": "http://www.naver.com/"}]
         }''')
         pb_name = PostBase('{"name": {"content": "능이향기"}}')
         pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
@@ -339,7 +339,7 @@ class PostTest(APITestBase):
     def test_placed_by_name2(self):
         vd = VD(); vd.save()
         pb_add = PostBase('''{
-            "urls": [{"content": "http://www.maukistudio.com/"}]
+            "urls": [{"content": "http://www.naver.com/"}]
         }''')
         pb_name = PostBase('{"name": {"content": "능이향기"}}')
         pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
@@ -368,6 +368,19 @@ class PostTest(APITestBase):
         self.assertEqual(place1, place2)
         self.assertNotEqual(place1.placePost.phone, None)
 
+    def test_image_by_url(self):
+        pb = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+        pb.load_additional_info()
+        self.assertEqual(pb.images[0].content, 'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg')
+
+        pb = PostBase('{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}')
+        pb.load_additional_info()
+        self.assertEqual(pb.images[0].content, 'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg')
+
+        pb = PostBase('{"urls": [{"content": "http://m.blog.naver.com/mardukas/220671562152"}]}')
+        pb.load_additional_info()
+        self.assertEqual(pb.images[0].content, 'http://blogthumb2.naver.net/20160401_292/mardukas_1459496453119PGXjg_JPEG/DSC03071.JPG?type=w2')
+
 
 class PostPieceTest(APITestBase):
 
@@ -384,7 +397,7 @@ class PostPieceTest(APITestBase):
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         self.image.content = img1_content
         self.image.save()
-        self.url = Url(content='http://maukistudio.com/')
+        self.url = Url(content='http://www.naver.com/')
         self.url.save()
 
         self.lp = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square')

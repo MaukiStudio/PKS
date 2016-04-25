@@ -98,6 +98,9 @@ class UserPlaceViewset(BaseViewset):
             if 'uplace_uuid' in request.data and request.data['uplace_uuid']:
                 pb.uplace_uuid = request.data['uplace_uuid']
 
+            # 추가 정보 가져오기 : 유저가 직접 입력했다고 봐도 무방한 사항만
+            pb.load_additional_info()
+
             # UserPlace/Place 찾기
             uplace = UserPlace.get_from_post(pb, vd)
             pb.uplace_uuid = uplace.uuid
