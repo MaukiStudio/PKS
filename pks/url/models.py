@@ -15,8 +15,9 @@ from requests import get as requests_get
 
 URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$')
 URL_REGEX_NAVER_MAP_URLS = (
-    re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+).*$'),
-    re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+).*$'),
+    re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'),
+    re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+)&?.*$'),
+    re_compile(r'^https?://m\.map\.naver\.com/siteview\.nhn\?code=(?P<PlaceId>[0-9]+)&?.*$'),
 )
 
 
