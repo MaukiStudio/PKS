@@ -60,6 +60,7 @@ class Url(Content):
                     pos2 = str.index('"', pos1)
                     if pos1 < pos2:
                         url_redirected = str[pos1:pos2]
+                        url = url_redirected
                         for regex in URL_REGEX_NAVER_MAP_URLS:
                             searcher = regex.search(url_redirected)
                             if searcher:

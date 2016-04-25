@@ -135,6 +135,19 @@ class UrlTest(APITestBase):
         pb = url.content_summarized
         self.assertEqual(pb.is_valid(), True)
 
+    def test_naver_shortener_url4(self):
+        url = models.Url()
+        test_value = 'http://me2.do/GNAl9bvK'
+        normalized_value = 'http://blog.naver.com/a878062/220392611381'
+        url.content = test_value
+        self.assertEqual(models.Url.objects.count(), 0)
+        url.save()
+        self.assertEqual(models.Url.objects.count(), 1)
+        saved = models.Url.objects.first()
+        self.assertEqual(url.content, normalized_value)
+        self.assertEqual(saved, url)
+        self.assertEqual(saved.content, normalized_value)
+
     def test_naver_shortener_url_with_garbage(self):
         url = models.Url()
         test_value = '''
