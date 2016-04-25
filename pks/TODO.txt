@@ -16,7 +16,9 @@ URL redirect 처리
     네이버맵 모바일용 단축 URL 처리
 
 
-
+위치 트래킹
+API 호출 이력
+지도 바로가기
 
 
 같은 장소로 판정된 UserPlace, Place Merge

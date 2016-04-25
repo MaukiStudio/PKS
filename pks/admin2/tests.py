@@ -104,7 +104,7 @@ class PlacedDetailTest2(AdminTestCase):
         with self.assertRaises(NotImplementedError):
             self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(placeName=placeName))
 
-    def test_placed_by_placeName_lonLat(self):
+    def test_placed_by_placeName_lonLat1(self):
         self.assertEqual(self.uplace.place, None)
         placeName = '사당삼겹살'
         raw_lonLat = 'https://report.map.naver.com/form.nhn?tab=map&bounds=37.4732692%2C126.9799704%2C37.4766689%2C126.9823672&lat=37.4749672&lng=126.9811688&dlevel=13&enc=b64'
@@ -114,3 +114,15 @@ class PlacedDetailTest2(AdminTestCase):
         self.assertNotEqual(self.uplace.place, None)
         self.assertAlmostEqual(self.uplace.place.lonLat.x, 126.9811688, delta=0.0001)
         self.assertAlmostEqual(self.uplace.place.lonLat.y, 37.4749672, delta=0.0001)
+
+    def test_placed_by_placeName_lonLat2(self):
+        self.assertEqual(self.uplace.place, None)
+        placeName = '평가옥 판교점'
+        raw_lonLat = 'http://map.naver.com/?dlevel=13&pinType=site&pinId=30840674&x=127.1064507&y=37.4009435&enc=b64'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(placeName=placeName, lonLat=raw_lonLat))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertNotEqual(self.uplace.place, None)
+        self.assertAlmostEqual(self.uplace.place.lonLat.x, 127.1064507, delta=0.0001)
+        self.assertAlmostEqual(self.uplace.place.lonLat.y, 37.4009435, delta=0.0001)
+
