@@ -56,41 +56,10 @@ class UrlTest(APITestBase):
         self.assertValidLocalFile(url.path_accessed)
         self.assertValidInternetUrl(url.url_accessed)
 
-    def test_summarize_methods(self):
-        url = models.Url()
-        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
-        url.content = test_data
-        url.save()
-
-        url.summarize()
-        self.assertValidLocalFile(url.path_summarized)
-        self.assertValidInternetUrl(url.url_summarized)
-
-    def test_content_summarized_by_naver(self):
-        url = models.Url()
-        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
-        url.content = test_data
-        url.save()
-        url.summarize()
-        pb = url.content_summarized
-        self.assertEqual(pb.is_valid(), True)
-        self.assertEqual(pb.name.content, '방아깐')
-
-    def test_content_summarized_by_kakao(self):
-        url = models.Url()
-        test_data = 'http://place.kakao.com/places/14720610'
-        url.content = test_data
-        url.save()
-        url.summarize()
-        pb = url.content_summarized
-        self.printJson(pb)
-        self.assertEqual(pb.is_valid(), True)
-        self.assertEqual(pb.name.content, '홍콩')
-
     def test_naver_shortener_url1(self):
         url = models.Url()
         test_value = 'http://me2.do/GZkw1y27'
-        normalized_value = 'http://map.naver.com/local/siteview.nhn?code=31130096'
+        normalized_value = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=%EB%8A%A5%EC%9D%B4%ED%96%A5%EA%B8%B0&dlevel=11'
         url.content = test_value
         self.assertEqual(models.Url.objects.count(), 0)
         url.save()
@@ -99,14 +68,11 @@ class UrlTest(APITestBase):
         self.assertEqual(url.content, normalized_value)
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, normalized_value)
-        url.summarize()
-        pb = url.content_summarized
-        self.assertEqual(pb.is_valid(), True)
 
     def test_naver_shortener_url2(self):
         url = models.Url()
         test_value = 'http://me2.do/xLOGJZ19'
-        normalized_value = 'http://map.naver.com/local/siteview.nhn?code=37333252'
+        normalized_value = 'http://m.store.naver.com/restaurants/detail?id=37333252'
         url.content = test_value
         self.assertEqual(models.Url.objects.count(), 0)
         url.save()
@@ -115,14 +81,11 @@ class UrlTest(APITestBase):
         self.assertEqual(url.content, normalized_value)
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, normalized_value)
-        url.summarize()
-        pb = url.content_summarized
-        self.assertEqual(pb.is_valid(), True)
 
     def test_naver_shortener_url3(self):
         url = models.Url()
         test_value = 'http://me2.do/xgcFeqMZ'
-        normalized_value = 'http://map.naver.com/local/siteview.nhn?code=31176899'
+        normalized_value = 'http://m.map.naver.com/siteview.nhn?code=31176899'
         url.content = test_value
         self.assertEqual(models.Url.objects.count(), 0)
         url.save()
@@ -131,9 +94,6 @@ class UrlTest(APITestBase):
         self.assertEqual(url.content, normalized_value)
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, normalized_value)
-        url.summarize()
-        pb = url.content_summarized
-        self.assertEqual(pb.is_valid(), True)
 
     def test_naver_shortener_url4(self):
         url = models.Url()
@@ -158,7 +118,7 @@ class UrlTest(APITestBase):
             http://me2.do/GZkw1y27
             업체명 : 능이향기
         '''
-        normalized_value = 'http://map.naver.com/local/siteview.nhn?code=31130096'
+        normalized_value = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=%EB%8A%A5%EC%9D%B4%ED%96%A5%EA%B8%B0&dlevel=11'
         url.content = test_value
         self.assertEqual(models.Url.objects.count(), 0)
         url.save()
@@ -167,6 +127,3 @@ class UrlTest(APITestBase):
         self.assertEqual(url.content, normalized_value)
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, normalized_value)
-        url.summarize()
-        pb = url.content_summarized
-        self.assertEqual(pb.is_valid(), True)

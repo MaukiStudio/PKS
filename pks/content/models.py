@@ -4,9 +4,13 @@ from __future__ import unicode_literals
 from uuid import UUID
 from re import compile as re_compile
 from django.contrib.gis.db import models
+from json import loads as json_loads
 
 from base.models import Content
 from phonenumbers import parse, format_number, PhoneNumberFormat
+from pyquery import PyQuery
+from pathlib2 import Path
+
 
 LP_REGEXS = (
     # '4ccffc63f6378cfaace1b1d6.4square'
@@ -23,7 +27,17 @@ LP_REGEXS = (
 )
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
-    (re_compile(r'^http://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
+    (re_compile(r'^https?://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
+
+    # 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=능이향기&dlevel=11'
+    (re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+
+    # 'http://m.store.naver.com/restaurants/detail?id=37333252'
+    (re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+
+    # 'http://m.map.naver.com/siteview.nhn?code=31176899'
+    (re_compile(r'^https?://m\.map\.naver\.com/siteview\.nhn\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+
 
     # 'https://place.kakao.com/places/14720610/홍콩'
     (re_compile(r'^https?://place\.kakao\.com/places/(?P<PlaceId>[0-9]+).*$'), 'kakao'),
@@ -42,9 +56,6 @@ class LegacyPlace(Content):
     place = models.ForeignKey('place.Place', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='lps')
     lp_type = models.SmallIntegerField(blank=True, null=True, default=None)
 
-    def pre_save(self):
-        self.lp_type = LP_TYPE[self.contentType]
-
     class Meta:
         unique_together = ('place', 'lp_type',)
 
@@ -61,6 +72,10 @@ class LegacyPlace(Content):
             return 'json'
         else:
             return 'html'
+
+    @property
+    def summarizedType(self):
+        return 'json'
 
     @classmethod
     def normalize_content(self, raw_content):
@@ -92,6 +107,112 @@ class LegacyPlace(Content):
         else:
             # TODO : 구글도 땡겨올 수 있게끔 수정
             raise NotImplementedError
+
+    @classmethod
+    def get_from_url(cls, url):
+        for regex in LP_REGEXS_URL:
+            searcher = regex[0].search(url.content)
+            if searcher:
+                PlaceId = searcher.group('PlaceId')
+                json = '{"content": "%s.%s"}' % (PlaceId, regex[1])
+                return cls.get_from_json(json)
+        return None
+
+
+    def summarize_force(self, accessed=None):
+        # TODO : 각종 URL 패턴들에 대해 정보 수집하여 요약
+        if not accessed:
+            accessed = self.content_accessed
+
+        if self.contentType == 'naver':
+            self.summarize_force_naver(accessed)
+        elif self.contentType == 'kakao':
+            self.summarize_force_kakao(accessed)
+        else:
+            raise NotImplementedError
+
+    def summarize_force_naver(self, accessed):
+        # 파싱
+        # TODO : 안전하게 파싱하여 처리. 라이브러리 알아볼 것
+        pq = PyQuery(accessed)
+        str1 = pq('script')[4].text
+        pos1 = str1.index('siteview')
+        pos1 = str1.index('{', pos1)
+
+        pos2 = str1.index('\n', pos1)
+        str2 = str1[pos1:pos2-1]
+        d0 = json_loads(str2)
+        d = d0['summary']
+
+        # 주요 정보
+        lon = float(d['coordinate']['x'])
+        lat = float(d['coordinate']['y'])
+        name = d['name']
+        phone = d['phone']
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr_new = d['roadAddr']['text']
+        addr = d['address']
+
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "addr2": {"content": "%s"},
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (lon, lat, name, phone, addr_new, addr, self.content,)
+
+        f = Path(self.path_summarized)
+        f.write_text(json)
+
+    def summarize_force_kakao(self, accessed):
+        # 파싱
+        pq = PyQuery(accessed)
+        str1 = pq('div').attr('data-react-props')
+        str2 = str1[:]
+        d0 = json_loads(str2)
+        d = d0['result']['place']
+
+        # 주요 정보
+        lon = float(d['lng'])
+        lat = float(d['lat'])
+        name = d['name']
+        phone = d['phone']
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr_new = d['address']
+        addr = d['address_old']
+
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "addr2": {"content": "%s"},
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (lon, lat, name, phone, addr_new, addr, self.content,)
+
+        f = Path(self.path_summarized)
+        f.write_text(json)
+
+    def pre_save(self):
+        if self.is_accessed:
+            self.summarize()
+        self.lp_type = LP_TYPE[self.contentType]
+
+    @property
+    def content_summarized(self):
+        from place.post import PostBase
+        file = Path(self.path_summarized)
+        json_str = file.read_text()
+        return PostBase(json_str)
 
 
 class PhoneNumber(Content):

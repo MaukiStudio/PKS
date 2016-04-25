@@ -10,6 +10,7 @@ from base.tests import APITestBase
 from content.models import LegacyPlace, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
 from pathlib2 import Path
 from place.models import Place
+from url.models import Url
 
 
 class LegacyPlaceTest(APITestBase):
@@ -241,6 +242,70 @@ class LegacyPlaceTest(APITestBase):
         lp3.place = place
         with self.assertRaises(IntegrityError):
             lp3.save()
+
+    def test_get_from_url(self):
+        url = Url(content='http://map.naver.com/local/siteview.nhn?code=21149144')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '21149144.naver')
+
+        url = Url(content='http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=능이향기&dlevel=11')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '31130096.naver')
+
+        url = Url(content='http://m.store.naver.com/restaurants/detail?id=37333252')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '37333252.naver')
+
+        url = Url(content='http://m.map.naver.com/siteview.nhn?code=31176899')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '31176899.naver')
+
+
+        url = Url(content='http://place.kakao.com/places/14720610')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '14720610.kakao')
+
+        url = Url(content='https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
+
+        url = Url(content='http://foursquare.com/v/4ccffc63f6378cfaace1b1d6')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
+
+    def test_access_methods(self):
+        lp = LegacyPlace()
+        test_data = '31130096.naver'
+        lp.content = test_data
+        lp.save()
+
+        lp.access()
+        self.assertValidLocalFile(lp.path_accessed)
+        self.assertValidInternetUrl(lp.url_accessed)
+
+    def test_summarize_methods(self):
+        lp = LegacyPlace()
+        test_data = '37333252.naver'
+        lp.content = test_data
+        lp.save()
+
+        lp.summarize()
+        self.assertValidLocalFile(lp.path_summarized)
+        self.assertValidInternetUrl(lp.url_summarized)
+
+    def test_content_summarized_by_naver(self):
+        lp = LegacyPlace()
+        test_data = '21149144.naver'
+        lp.content = test_data
+        lp.save()
+        lp.summarize()
+        pb = lp.content_summarized
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '방아깐')
+
+    def test_content_summarized_by_kakao(self):
+        lp = LegacyPlace()
+        test_data = '14720610.kakao'
+        lp.content = test_data
+        lp.save()
+        lp.summarize()
+        pb = lp.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '홍콩')
 
 
 class PhoneNumberTest(APITestBase):

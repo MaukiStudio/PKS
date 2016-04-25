@@ -560,12 +560,12 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_by_naver_map_url(self):
         self.uplace.place = self.place
         self.uplace.save()
-        url = Url()
+        lp = LegacyPlace()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
-        url.content = test_data
-        url.save()
-        url.summarize()
-        want = url.content_summarized.json
+        lp.content = test_data
+        lp.save()
+        lp.summarize()
+        want = lp.content_summarized.json
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
@@ -600,7 +600,6 @@ class UserPlaceViewSetTest(APITestBase):
         result_userPost = json_loads(response.content)['userPost']
         result_placePost = json_loads(response.content)['placePost']
         self.assertNotEqual(result_userPost['urls'][0], None)
-        self.assertNotEqual(result_placePost['urls'][0], None)
         self.assertNotEqual(result_placePost['lonLat'], None)
         self.assertNotEqual(result_placePost['name'], None)
         self.assertNotEqual(result_placePost['phone'], None)
@@ -634,7 +633,6 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('uplace_uuid', result_placePost)
         self.assertNotIn('place_id', result_placePost)
         self.assertNotEqual(result_userPost['urls'][0], None)
-        self.assertNotEqual(result_placePost['urls'][0], None)
         self.assertNotEqual(result_placePost['lonLat'], None)
         self.assertNotEqual(result_placePost['name'], None)
         self.assertNotEqual(result_placePost['phone'], None)
@@ -668,7 +666,6 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('uplace_uuid', result_placePost)
         self.assertNotIn('place_id', result_placePost)
         self.assertNotEqual(result_userPost['urls'][0], None)
-        self.assertNotEqual(result_placePost['urls'][0], None)
         self.assertNotEqual(result_placePost['lonLat'], None)
         self.assertNotEqual(result_placePost['name'], None)
         self.assertNotEqual(result_placePost['phone'], None)
@@ -702,7 +699,6 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('uplace_uuid', result_placePost)
         self.assertNotIn('place_id', result_placePost)
         self.assertNotEqual(result_userPost['urls'][0], None)
-        self.assertNotEqual(result_placePost['urls'][0], None)
         self.assertNotEqual(result_placePost['lonLat'], None)
         self.assertNotEqual(result_placePost['name'], None)
         self.assertNotIn('phone', result_placePost)

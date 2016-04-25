@@ -191,10 +191,6 @@ class Content(models.Model):
         splits = self.uuid.split('.')
         return '%s%s%s/%s/%s/%s' % (SERVER_HOST, MEDIA_URL, 'accessed', splits[1], splits[0][-3:], self.uuid_accessed)
 
-    @property
-    def content_accessed(self):
-        raise NotImplementedError('Must be overrided')
-
     # Methods for summary(thumbnail)
     def summarize_force(self, accessed=None):
         raise NotImplementedError
@@ -203,7 +199,7 @@ class Content(models.Model):
         if not self.id:
             raise NotImplementedError
         if not self.is_summarized:
-            if not self.is_accessed:
+            if not accessed and not self.is_accessed:
                 self.access_force()
             self.summarize_force(accessed)
 
@@ -213,8 +209,12 @@ class Content(models.Model):
         return file.exists()
 
     @property
+    def summarizedType(self):
+        return self.accessedType
+
+    @property
     def uuid_summarized(self):
-        return '%s.%s.%s' % (self.uuid, 'summary', self.accessedType,)
+        return '%s.%s.%s' % (self.uuid, 'summary', self.summarizedType,)
 
     @property
     def path_summarized(self):
@@ -230,3 +230,7 @@ class Content(models.Model):
     def content_accessed(self):
         file = Path(self.path_accessed)
         return file.read_text(encoding='utf-8')
+
+    @property
+    def content_summarized(self):
+        raise NotImplementedError

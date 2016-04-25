@@ -89,7 +89,7 @@ class Place(models.Model):
             qs = Place.objects.filter(placeName=placeName)\
                 .filter(lonLat__distance_lte=(lonLat, D(m=RADIUS_LOCAL_RANGE)))\
                 .annotate(distance=Distance('lonLat', lonLat)).order_by('distance')
-            if qs:
+            if qs and qs[0]:
                 _place = qs[0]
                 # TODO : 리팩토링 필요
                 if lp:

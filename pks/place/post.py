@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from json import loads as json_loads
 
-from content.models import LegacyPlace, PhoneNumber, LP_REGEXS_URL, PlaceName, Address, PlaceNote, ImageNote
+from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from image.models import Image
 from base.models import Point
 
@@ -195,6 +195,7 @@ class PostBase(object):
         if self.is_valid_json_item('uplace_uuid', json):
             self.uplace_uuid = json['uplace_uuid']
 
+
     @property
     def json(self):
         json = dict()
@@ -210,24 +211,30 @@ class PostBase(object):
         if self.images: json['images'] = [img.json for img in self.images]
         return json
 
+    def add_lps_from_urls(self):
+        for url in self.urls:
+            lp = LegacyPlace.get_from_url(url)
+            if lp and lp not in self.lps:
+                self.lps.append(lp)
+
     @property
     def pb_MAMMA(self):
-        for url in self.urls:
-            # TODO : 포스퀘어쪽 처리되고 나면 하기의 [:-2] 는 뺀다
-            regexs = LP_REGEXS_URL[:-2]
-            for regex in regexs:
-                searcher = regex[0].search(url.content)
-                if searcher:
-                    # TODO : 향후 제대로 구현할 것 (Django Celery 구조 등 도입 후)
-                    # 당장 어드민 구현을 위해, 네이버 MAP URL인 경우 임시적으로 바로 정보를 땡겨온다
-                    url.summarize()
+        # TODO : pb_MAMMA 호출 후에 self 가 변경되는 구조는 적절하지 않다
+        self.add_lps_from_urls()
+        self.sort()
 
-                    # 이미 요약되어 있으면 곧바로 처리되도록 함
-                    if url.is_summarized:
-                        result = url.content_summarized
-                        result.uplace_uuid = self.uplace_uuid
-                        result.place_id = self.place_id
-                        return result
+        # TODO : lps 가 2개 이상인 경우 UserPlace 쪼개는 처리
+        if self.lps and self.lps[0]:
+            lp = self.lps[0]
+            # TODO : 포스퀘어 요약 구현한 후 제거
+            if lp.lp_type == 1:
+                return None
+
+            lp.summarize()
+            result = lp.content_summarized
+            result.uplace_uuid = self.uplace_uuid
+            result.place_id = self.place_id
+            return result
         return None
 
     def is_valid(self, uplace=None):
