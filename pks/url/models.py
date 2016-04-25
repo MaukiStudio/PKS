@@ -13,8 +13,11 @@ from json import loads as json_loads
 from pathlib2 import Path
 from requests import get as requests_get
 
-URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^http://me2\.do/[A-za-z0-9_\-]+$')
-URL_REGEX_NAVER_MAP_URL = re_compile(r'^http://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+).*$')
+URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$')
+URL_REGEX_NAVER_MAP_URLS = (
+    re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+).*$'),
+    re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+).*$'),
+)
 
 
 class Url(Content):
@@ -50,14 +53,17 @@ class Url(Content):
             content_type = r.headers.get('content-type')
             if r.status_code in (status.HTTP_200_OK,) and content_type and content_type.startswith('text/html'):
                 str = r.content
+                print(str)
                 if str.startswith(b'<script>window.location.replace("'):
                     pos1 = str.index('"') + 1
                     pos2 = str.index('"', pos1)
                     if pos1 < pos2:
                         url_redirected = str[pos1:pos2]
-                        searcher = URL_REGEX_NAVER_MAP_URL.search(url_redirected)
-                        if searcher:
-                            url = 'http://map.naver.com/local/siteview.nhn?code=%s' % searcher.group('PlaceId')
+                        for regex in URL_REGEX_NAVER_MAP_URLS:
+                            searcher = regex.search(url_redirected)
+                            if searcher:
+                                url = 'http://map.naver.com/local/siteview.nhn?code=%s' % searcher.group('PlaceId')
+                                break
 
         return url
 

@@ -87,10 +87,26 @@ class UrlTest(APITestBase):
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '홍콩')
 
-    def test_naver_shortener_url(self):
+    def test_naver_shortener_url1(self):
         url = models.Url()
         test_value = 'http://me2.do/GZkw1y27'
         normalized_value = 'http://map.naver.com/local/siteview.nhn?code=31130096'
+        url.content = test_value
+        self.assertEqual(models.Url.objects.count(), 0)
+        url.save()
+        self.assertEqual(models.Url.objects.count(), 1)
+        saved = models.Url.objects.first()
+        self.assertEqual(url.content, normalized_value)
+        self.assertEqual(saved, url)
+        self.assertEqual(saved.content, normalized_value)
+        url.summarize()
+        pb = url.content_summarized
+        self.assertEqual(pb.is_valid(), True)
+
+    def test_naver_shortener_url2(self):
+        url = models.Url()
+        test_value = 'http://me2.do/xLOGJZ19'
+        normalized_value = 'http://map.naver.com/local/siteview.nhn?code=37333252'
         url.content = test_value
         self.assertEqual(models.Url.objects.count(), 0)
         url.save()
