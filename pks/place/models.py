@@ -169,16 +169,20 @@ class UserPlace(models.Model):
             # TODO : 이 부분이 테스트되는 테스트 코드 추가하기
             uplace = UserPlace.objects.filter(vd=vd, place=place).order_by('id').first()
 
+        lonLat = (place and place.lonLat) or pb.lonLat
+
         # 실시간 장소화
         if not uplace:
-            uplace = cls(vd=vd, place=place, lonLat=pb.lonLat)
+            uplace = cls(vd=vd, place=place, lonLat=lonLat)
             uplace.save()
         elif not uplace.place:
             uplace.place = place
+            uplace.lonLat = lonLat
             uplace.save()
         else:
             if place and uplace.place != place:
                 uplace.place = place
+                uplace.lonLat = lonLat
                 uplace.save()
                 # TODO : 로그 남겨서 Place Merge 시 우선순위 높여 참고하기
 

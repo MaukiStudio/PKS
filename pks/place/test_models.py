@@ -279,7 +279,7 @@ class PostTest(APITestBase):
         self.assertDictEqual(p1.json, p3.json)
         self.assertDictEqual(p2.json, p3.json)
 
-    def test_change_place(self):
+    def test_placed(self):
         vd = VD(); vd.save()
         pb_add = PostBase('{"urls": [{"content": "http://www.maukistudio.com/"}]}')
         pb_place1 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]}')
@@ -291,13 +291,17 @@ class PostTest(APITestBase):
         pb_place1.uplace_uuid = uplace.uuid
         uplace = UserPlace.get_from_post(pb_place1.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
+        self.assertEqual(uplace.lonLat, uplace.place.lonLat)
         place1 = uplace.place
 
         pb_place2.uplace_uuid = uplace.uuid
         uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
+        self.assertEqual(uplace.lonLat, uplace.place.lonLat)
         place2 = uplace.place
+
         self.assertNotEqual(place1, place2)
+        self.assertNotEqual(place1.lonLat, place2.lonLat)
 
     def test_placed_by_name1(self):
         vd = VD(); vd.save()
@@ -332,10 +336,9 @@ class PostTest(APITestBase):
         self.assertNotEqual(place2.placePost.phone, None)
         self.assertEqual(PostPiece.objects.count(), 2)
 
-    def __skip__test_placed_by_name2(self):
+    def test_placed_by_name2(self):
         vd = VD(); vd.save()
         pb_add = PostBase('''{
-            "lonLat": {"lon": 127.0584149999999966, "lat": 37.3916389999999978},
             "urls": [{"content": "http://www.maukistudio.com/"}]
         }''')
         pb_name = PostBase('{"name": {"content": "능이향기"}}')
