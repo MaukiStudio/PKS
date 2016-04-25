@@ -37,7 +37,7 @@ class Url(Content):
         # 네이버 단축 URL 처리 편의를 위한 기능
         try:
             pos = url.index('http')
-            url = url[pos:].split('\r')[0]
+            url = url[pos:].split('\n')[0]
         except ValueError:
             pass
 
