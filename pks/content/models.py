@@ -175,7 +175,7 @@ class LegacyPlace(Content):
         # 파싱
         pq = PyQuery(accessed)
         str1 = pq('div').attr('data-react-props')
-        str2 = str1[:]
+        str2 = str1
         d0 = json_loads(str2)
         d = d0['result']['place']
 
