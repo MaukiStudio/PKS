@@ -110,7 +110,7 @@ class Image(Content):
     def summarize_force(self, accessed=None):
         if not accessed:
             accessed = self.content_accessed
-        thumb = PIL_ImageOps.fit(accessed, (300, 300), PIL_Image.ANTIALIAS)
+        thumb = PIL_ImageOps.fit(accessed, (300, 300), PIL_Image.ANTIALIAS).convert('RGB')
         thumb.save(self.path_summarized)
 
     @classmethod

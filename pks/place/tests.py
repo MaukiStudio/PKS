@@ -54,6 +54,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertIn('lonLat', results[0])
         self.assertIn('lon', results[0]['lonLat'])
         self.assertIn('lat', results[0]['lonLat'])
+        self.assertNotIn('placeName', results[0])
 
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=100))
         results = json_loads(response.content)['results']
@@ -79,6 +80,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertNotIn('id', result)
         self.assertNotIn('vds', result)
+        self.assertNotIn('placeName', result)
         self.assertIn('place_id', result)
         self.assertIn('placePost', result)
         response = self.client.get('/places/null/')

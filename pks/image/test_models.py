@@ -156,6 +156,16 @@ class ImageTest(APITestBase):
         self.assertValidLocalFile(img.path_summarized)
         self.assertValidInternetUrl(img.url_summarized)
 
+    def test_summarize_methods_2(self):
+        img = models.Image()
+        test_data = 'http://bookmarkimgs.naver.com/img/naver_profile.png'
+        img.content = test_data
+        img.save()
+
+        img.summarize()
+        self.assertValidLocalFile(img.path_summarized)
+        self.assertValidInternetUrl(img.url_summarized)
+
     def test_json(self):
         img = models.Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
