@@ -79,7 +79,7 @@ class ImageTest(APITestBase):
         #self.assertLessEqual(models.Image.hamming_distance(id_640, id_org), 2)
         self.assertGreater(models.Image.hamming_distance(id_640, id2), 10)  # distance = 59
 
-    def test_gps_exif(self):
+    def test_exif_gps(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
         point = GEOSGeometry('POINT(%f %f)' % lonLat)
@@ -98,11 +98,30 @@ class ImageTest(APITestBase):
         self.assertEqual(img.lonLat, point)
         self.assertEqual(saved.lonLat, point)
 
+    def test_exif_ltimestamp(self):
+        exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
+        ltimestamp = exif_lib.get_ltimestamp(exif)
+        self.assertEqual(ltimestamp, 1459181934000)
+
+        rf = models.RawFile()
+        rf.file = self.uploadFile('gps_test.jpg')
+        rf.save()
+
+        img = models.Image()
+        img.content = rf.file.url
+        img.save()
+        saved = models.Image.objects.first()
+
+        self.assertEqual(img.ltimestamp, ltimestamp)
+        self.assertEqual(saved.ltimestamp, ltimestamp)
+
     def test_no_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/no_exif_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
+        ltimestamp = exif_lib.get_ltimestamp(exif)
         self.assertIsNone(lonLat[0])
         self.assertIsNone(lonLat[1])
+        self.assertIsNone(ltimestamp)
 
         rf = models.RawFile()
         rf.file = self.uploadFile('no_exif_test.jpg')
@@ -114,8 +133,10 @@ class ImageTest(APITestBase):
         saved = models.Image.objects.first()
 
         self.assertEqual(img.lonLat, None)
+        self.assertEqual(img.ltimestamp, None)
         self.assertEqual(saved, img)
         self.assertEqual(saved.lonLat, None)
+        self.assertEqual(saved.ltimestamp, None)
 
     def test_dhash(self):
         rf = models.RawFile()

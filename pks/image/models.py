@@ -27,6 +27,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 class Image(Content):
     dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
+    ltimestamp = models.BigIntegerField(blank=True, null=True, default=None)
 
     # MUST override
     @property
@@ -48,8 +49,8 @@ class Image(Content):
     def pre_save(self):
         if self.is_accessed:
             pil = self.content_accessed
-            if not self.lonLat:
-                self.lonLat = self.process_exif(pil)
+            if not self.lonLat or not self.ltimestamp:
+                self.lonLat, self.ltimestamp = self.process_exif(pil)
             if not self.dhash:
                 self.dhash = self.compute_id_from_file(pil)
             self.summarize(pil)
@@ -96,16 +97,20 @@ class Image(Content):
 
     @classmethod
     def process_exif(cls, pil):
+        result = [None, None]
         if not pil:
-            return None
+            return result
         try:
             exif = exif_lib.get_exif_data(pil)
             lonLat = exif_lib.get_lon_lat(exif)
             if lonLat and lonLat[0] and lonLat[1]:
-                return GEOSGeometry('POINT(%f %f)' % lonLat)
+                result[0] = GEOSGeometry('POINT(%f %f)' % lonLat)
+            ltimestamp = exif_lib.get_ltimestamp(exif)
+            if ltimestamp:
+                result[1] = ltimestamp
         except AttributeError:
             pass
-        return None
+        return result
 
     def summarize_force(self, accessed=None):
         if not accessed:

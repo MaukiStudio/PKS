@@ -1,4 +1,7 @@
 from PIL.ExifTags import TAGS, GPSTAGS
+from datetime import datetime
+from delorean import Delorean
+
 
 def get_exif_data(image):
     """Returns a dictionary from the exif data of an PIL Image item. Also converts the GPS Tags"""
@@ -19,11 +22,13 @@ def get_exif_data(image):
 
     return exif_data
 
+
 def _get_if_exist(data, key):
     if key in data:
         return data[key]
 
     return None
+
 
 def _convert_to_degress(value):
     """Helper function to convert the GPS coordinates stored in the EXIF to degress in float format"""
@@ -40,6 +45,7 @@ def _convert_to_degress(value):
     s = float(s0) / float(s1)
 
     return d + (m / 60.0) + (s / 3600.0)
+
 
 def get_lon_lat(exif_data):
     """Returns the latitude and longitude, if available, from the provided exif_data (obtained through get_exif_data above)"""
@@ -64,3 +70,17 @@ def get_lon_lat(exif_data):
                 lon = 0 - lon
 
     return lon, lat
+
+
+def get_ltimestamp(exif_data):
+    raw_date = _get_if_exist(exif_data, 'DateTime')
+    if not raw_date:
+        raw_date = _get_if_exist(exif_data, 'DateTimeOriginal')
+    if not raw_date:
+        raw_date = _get_if_exist(exif_data, 'DateTimeDigitized')
+    if not raw_date:
+        return None
+
+    dt = datetime.strptime(raw_date, '%Y:%m:%d %H:%M:%S')
+    d = Delorean(dt, timezone='UTC')
+    return int(round(d.epoch*1000))
