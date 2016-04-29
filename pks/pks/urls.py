@@ -13,6 +13,7 @@ from image import views as image_views
 from url import views as url_views
 from place import views as place_views
 from content import views as content_views
+from importer import views as importer_views
 
 
 router = DefaultRouter()
@@ -33,6 +34,8 @@ router.register(r'inotes', content_views.ImageNoteViewset)
 router.register(r'places', place_views.PlaceViewset)
 router.register(r'pps', place_views.PostPieceViewset)
 router.register(r'uplaces', place_views.UserPlaceViewset)
+router.register(r'proxies', importer_views.ProxyViewset)
+router.register(r'importers', importer_views.ImporterViewset)
 
 
 urlpatterns = [
