@@ -73,9 +73,9 @@ def get_lon_lat(exif_data):
 
 
 def get_ltimestamp(exif_data):
-    raw_date = _get_if_exist(exif_data, 'DateTime')
+    raw_date = _get_if_exist(exif_data, 'DateTimeOriginal')
     if not raw_date:
-        raw_date = _get_if_exist(exif_data, 'DateTimeOriginal')
+        raw_date = _get_if_exist(exif_data, 'DateTime')
     if not raw_date:
         raw_date = _get_if_exist(exif_data, 'DateTimeDigitized')
     if not raw_date:
