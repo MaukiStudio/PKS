@@ -195,12 +195,12 @@ class Content(models.Model):
     def summarize_force(self, accessed=None):
         raise NotImplementedError
 
-    def summarize(self, accessed=None):
+    def summarize(self, accessed=None, timeout=1):
         if not self.id:
             raise NotImplementedError
         if not self.is_summarized:
             if not accessed and not self.is_accessed:
-                self.access_force()
+                self.access_force(timeout=timeout)
             self.summarize_force(accessed)
 
     @property

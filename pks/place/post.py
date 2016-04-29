@@ -232,7 +232,7 @@ class PostBase(object):
             if lp.lp_type == 1:
                 return None
 
-            lp.summarize()
+            lp.summarize(timeout=3)
             result = lp.content_summarized
             result.uplace_uuid = self.uplace_uuid
             result.place_id = self.place_id
