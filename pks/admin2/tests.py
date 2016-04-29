@@ -2,10 +2,9 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from json import loads as json_loads
 from rest_framework import status
 
-from base.tests import AdminTestCase
+from base.tests import AdminTestCase, FunctionalTestBase
 from place.models import UserPlace
 
 
@@ -15,6 +14,16 @@ class IndexTest(AdminTestCase):
         response = self.client.get('/admin2/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('PlaceKoob Custom Admin - Home', response.content.decode('utf-8'))
+
+
+class IndexTestNotLogin(FunctionalTestBase):
+
+    def test_connect(self):
+        self.assertNotLogin()
+        self.assertVdNotLogin()
+        response = self.client.get('/admin2/')
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.url, '/admin/login/?next=/admin2/')
 
 
 class PlacedTest(AdminTestCase):

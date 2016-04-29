@@ -15,9 +15,8 @@ def index(request):
     if user.is_authenticated and user.is_active and user.is_staff:
         vd = user.vds.filter(deviceTypeName='ADMIN').order_by('-id')[0]
         request.session[VD_SESSION_KEY] = vd.id
-    else:
-        redirect('/admin/login/?next=/admin2/')
-    return render(request, 'admin2/index.html')
+        return render(request, 'admin2/index.html')
+    return redirect('/admin/login/?next=/admin2/')
 
 
 def placed(request):

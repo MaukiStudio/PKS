@@ -8,7 +8,7 @@
             {% for pb in pbs %}
                 <tr>
                     <td>
-                        <input type=checkbox class="form-control" onClick="window.open('{{ pb.uplace_uuid }}/');"/>
+                        <input type=checkbox onClick="window.open('{{ pb.uplace_uuid }}/'); return true;"/>
                     </td>
                     <td>
                         <a href="http://map.naver.com/?dlevel=13&x={{ pb.lonLat.x }}&y={{ pb.lonLat.y }}" target="_blank">

@@ -27,7 +27,7 @@ LP_REGEXS = (
 )
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
-    (re_compile(r'^https?://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)$'), 'naver'),
+    (re_compile(r'^https?://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
     # 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=능이향기&dlevel=11'
     (re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
@@ -40,13 +40,16 @@ LP_REGEXS_URL = (
 
 
     # 'https://place.kakao.com/places/14720610/홍콩'
-    (re_compile(r'^https?://place\.kakao\.com/places/(?P<PlaceId>[0-9]+).*$'), 'kakao'),
+    (re_compile(r'^https?://place\.kakao\.com/places/(?P<PlaceId>[0-9]+)&?.*$'), 'kakao'),
+
+    # 'http://m.map.daum.net/actions/detailInfoView?id=15493954'
+    (re_compile(r'^https?://(m\.)?map\.daum\.net/actions/detailInfoView\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'kakao'),
 
     # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
-    (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
+    (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
 
     # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
-    (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)$'), '4square'),
+    (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
 )
 
 LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4,}

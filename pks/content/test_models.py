@@ -170,6 +170,21 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000014720610'))
 
+    def test_content_property_kakao_case4(self):
+        lp = LegacyPlace()
+        test_data = 'http://m.map.daum.net/actions/detailInfoView?id=15493954'
+        normalized_test_data = '15493954.kakao'
+        lp.content = test_data
+        lp.save()
+        self.assertEqual(lp.uuid.split('.')[1], 'kakao')
+        saved = LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000015493954'))
+
     def __skip__test_access_by_4square(self):
         lp = LegacyPlace()
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
@@ -259,6 +274,9 @@ class LegacyPlaceTest(APITestBase):
 
         url = Url(content='http://place.kakao.com/places/14720610')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '14720610.kakao')
+
+        url = Url(content='http://m.map.daum.net/actions/detailInfoView?id=15493954')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '15493954.kakao')
 
         url = Url(content='https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
