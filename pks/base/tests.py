@@ -17,6 +17,7 @@ from rest_framework import status
 from pathlib2 import Path
 from place.post import PostBase
 from pks.celery import app
+from base.utils import remove_list, remove_duplicates
 
 
 class APITestBase(APITestCase):
@@ -158,6 +159,7 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
 
 
 def isSubsetOf(self, other):
+
     def isSubsetOf_dict(d1, d2):
         if not d1: return True
         elif not d2: return False
@@ -176,11 +178,18 @@ def isSubsetOf(self, other):
                 if key not in d2 or value != d2[key]:
                     return False
         return True
+
     def isSubsetOf_list(l1, l2):
         if not l1: return True
         elif not l2: return False
         elif type(l2) is not list: return False
-        elif len(l1) != len(l2): return False
+        elif len(l1) > len(l2): return False
+        if len(l1) < len(l2):
+            l2 = remove_duplicates(l2)
+        if len(l1) < len(l2):
+            diff = remove_list(l2, l1)
+            l2 = remove_list(l2, diff)
+        if len(l1) != len(l2): return False
 
         for key, value in enumerate(l1):
             if not value:
@@ -201,7 +210,6 @@ def isSubsetOf(self, other):
         self = self.json
     elif type(self) is unicode or type(self) is str:
         self = json_loads(self)
-
     if type(other) is PostBase:
         other = other.json
     elif type(other) is unicode or type(other) is str:

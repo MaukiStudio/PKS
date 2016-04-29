@@ -55,6 +55,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertIn('lon', results[0]['lonLat'])
         self.assertIn('lat', results[0]['lonLat'])
         self.assertNotIn('placeName', results[0])
+        self.assertNotIn('_totalPost', results[0])
 
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=100))
         results = json_loads(response.content)['results']
@@ -81,6 +82,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertNotIn('id', result)
         self.assertNotIn('vds', result)
         self.assertNotIn('placeName', result)
+        self.assertNotIn('_totalPost', result)
         self.assertIn('place_id', result)
         self.assertIn('placePost', result)
         response = self.client.get('/places/null/')
@@ -326,8 +328,7 @@ class UserPlaceViewSetTest(APITestBase):
         prev_result_placePost = result_placePost
         result_placePost = result['placePost']
         self.assertEqual(result_placePost, prev_result_placePost)
-        # TODO : assertIsSubsetOf() 완전한 구현 후 주석 풀기. 현재는 list 의 element 가 dict 이고 이빨이 빠진 경우 제대로 체크 못함
-        #self.assertIsSubsetOf(result_userPost, prev_result_userPost)
+        self.assertIsSubsetOf(result_userPost, prev_result_userPost)
         self.assertIsNotSubsetOf(prev_result_userPost, result_userPost)
         self.assertEqual(len(result_userPost['urls']), 2)
         result_userPost_str = json_dumps(result_userPost)

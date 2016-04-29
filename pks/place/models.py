@@ -55,6 +55,15 @@ class Place(models.Model):
             self.computePost()
         return self._pb_cache
 
+    @property
+    def _totalPost(self):
+        pb = PostBase()
+        for pp in (self.pps.all() | PostPiece.objects.filter(uplace__place_id=self.id)).order_by('id'):
+            pb_new = PostBase(pp.data, pp.timestamp)
+            pb.update(pb_new, pp.is_add)
+        pb.place_id = self.id
+        return pb
+
 
     # TODO : 값들이 서로 모순되는 경우에 대한 처리
     # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리

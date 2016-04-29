@@ -14,7 +14,7 @@ class PlaceSerializer(BaseSerializer):
 
     class Meta:
         model = Place
-        exclude = ('id','placeName',)
+        exclude = ('id', 'placeName',)
 
 
 class PostPieceSerializer(BaseSerializer):

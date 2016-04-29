@@ -265,11 +265,11 @@ class PostTest(APITestBase):
         self.assertIn('phone', uplace1.userPost.json)
         self.assertNotEqual(uplace1.userPost.json['images'][0]['content'], None)
 
-        self.assertEqual(isSubsetOf(want_userPost, uplace1.userPost.json), True)
-        self.assertEqual(isSubsetOf(uplace1.userPost.json, want_userPost), False)
+        self.assertIsSubsetOf(want_userPost, uplace1.userPost)
+        self.assertIsNotSubsetOf(uplace1.userPost, want_userPost)
 
-        self.assertEqual(isSubsetOf(want_placePost, uplace1.place.placePost.json), True)
-        self.assertEqual(isSubsetOf(uplace1.place.placePost.json, want_placePost), False)
+        self.assertIsSubsetOf(want_placePost, uplace1.place.placePost)
+        self.assertIsNotSubsetOf(uplace1.place.placePost, want_placePost)
         uplace1.clearCache()
         p1 = uplace1.place.placePost
         uplace2.clearCache()
@@ -290,6 +290,10 @@ class PostTest(APITestBase):
         pb13.update(pb1, add=False)
         pb_null = PostBase()
         self.assertEqual(pb13.json, pb_null.json)
+
+        totalPost = place._totalPost
+        self.assertIsSubsetOf(uplace1.place.placePost, totalPost)
+        self.assertIsNotSubsetOf(totalPost, uplace1.place.placePost)
 
 
     def test_placed(self):
@@ -524,6 +528,6 @@ class PostBaseTest(APITestBase):
         json = pb.json
         pb2 = PostBase(json)
         self.assertDictEqual(json, pb2.json)
-        self.assertEqual(isSubsetOf(json_loads(json_add), json), True)
+        self.assertIsSubsetOf(json_loads(json_add), json)
         self.printJson(pb.pb_MAMMA)
 
