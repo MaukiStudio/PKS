@@ -290,6 +290,10 @@ class PlaceNote(Content):
     def accessedType(self):
         return 'html'
 
+    @property
+    def content_for_search(self):
+        return self.content.replace('#', '')
+
 
 class ImageNote(Content):
     # MUST override

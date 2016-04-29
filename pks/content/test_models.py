@@ -509,6 +509,13 @@ class PlaceNoteTest(APITestBase):
         self.assertEqual(saved.id, pnote.id)
         self.assertEqual(saved.content, pnote.content)
 
+    def test_content_for_search(self):
+        pnote = PlaceNote()
+        test_data = '#여의도 #중소기업중앙회 #블로터미디어 #콘텐츠마케팅 #컨퍼런스 #72초티비 #피키캐스트 # 메이크어스 #ㅍㅍㅅㅅ'
+        pnote.content = test_data
+        pnote.save()
+        self.assertEqual(pnote.content_for_search, '여의도 중소기업중앙회 블로터미디어 콘텐츠마케팅 컨퍼런스 72초티비 피키캐스트  메이크어스 ㅍㅍㅅㅅ')
+
     # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
     def __skip__test_access_methods(self):
         pnote = PlaceNote()

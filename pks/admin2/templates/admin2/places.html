@@ -36,7 +36,7 @@
                     </td>
                     <td>
                         {% for note in pb.notes %}
-                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content }}"' target="_blank">{{ note.content }}</a><br/>
+                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
                         {% endfor %}
                     </td>
                 </tr>
