@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect, HttpResponse
 from re import compile as re_compile
 
-from place.models import UserPlace
+from place.models import UserPlace, Place
 from account.models import VD
 from pks.settings import VD_SESSION_KEY
 from place.post import PostBase
@@ -20,7 +20,7 @@ def index(request):
 
 
 def placed(request):
-    pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None)[:100]]
+    pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:100]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
@@ -30,7 +30,13 @@ def placed(request):
 
 
 def places(request):
-    return render(request, 'admin2/places.html', None)
+    pbs = [place._totalPost for place in Place.objects.order_by('-id')[:100]]
+    for pb in pbs:
+        if pb and pb.images:
+            for image in pb.images:
+                image.summarize()
+    context = dict(pbs=pbs)
+    return render(request, 'admin2/places.html', context)
 
 
 # TODO : 완전 리팩토링 필요;;; 일단 임시 땜빵임

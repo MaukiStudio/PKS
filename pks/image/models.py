@@ -115,8 +115,9 @@ class Image(Content):
     def summarize_force(self, accessed=None):
         if not accessed:
             accessed = self.content_accessed
-        thumb = PIL_ImageOps.fit(accessed, (300, 300), PIL_Image.ANTIALIAS).convert('RGB')
-        thumb.save(self.path_summarized)
+        if accessed:
+            thumb = PIL_ImageOps.fit(accessed, (300, 300), PIL_Image.ANTIALIAS).convert('RGB')
+            thumb.save(self.path_summarized)
 
     @classmethod
     def hamming_distance(cls, id1, id2):
@@ -128,13 +129,18 @@ class Image(Content):
 
     @property
     def content_accessed(self):
-        return PIL_Image.open(self.path_accessed)
+        img = None
+        try:
+            img = PIL_Image.open(self.path_accessed)
+        except IOError:
+            pass
+        return img
 
     def access_force(self, timeout=1):
         headers = {'user-agent': 'Chrome'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
-            raise ValueError('Not valid url_for_access')
+            print('Access failed : %s' % self.url_for_access)
 
         file = Path(self.path_accessed)
         if not file.parent.exists():

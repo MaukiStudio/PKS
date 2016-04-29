@@ -12,30 +12,30 @@
                     </td>
                     <td>
                         <a href="http://map.naver.com/?dlevel=13&x={{ pb.lonLat.x }}&y={{ pb.lonLat.y }}" target="_blank">
-                            위도: {{ pb.lonLat.y }}<br />
-                            경도: {{ pb.lonLat.x }}
+                            위도: {{ pb.lonLat.y }}<br/>
+                            경도: {{ pb.lonLat.x }}<br/>
                         </a>
                     </td>
                     <td>
-                        도로명주소: {{ pb.addr1 }}<br />
-                        지번 주소 : {{ pb.addr2 }}<br />
-                        범위 주소 : {{ pb.addr3 }}<br />
+                        도로명주소: {{ pb.addr1 }}<br/>
+                        지번 주소 : {{ pb.addr2 }}<br/>
+                        범위 주소 : {{ pb.addr3 }}<br/>
                     </td>
                     <td>
                         {% for image in pb.images %}
                             <a href="{{ image.content }}" target="_blank">
-                                <img src="{{ image.url_summarized }}" />
-                            </a>
+                                <img src="{{ image.url_summarized }}"/>
+                            </a><br/>
                         {% endfor %}
                     </td>
                     <td>
                         {% for url in pb.urls %}
-                            <a href="{{ url.content }}" target="_blank">{{ url.content }}</a>
+                            <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
                         {% endfor %}
                     </td>
                     <td>
                         {% for note in pb.notes %}
-                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content }}"' target="_blank">{{ note.content }}</a>
+                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content }}"' target="_blank">{{ note.content }}</a><br/>
                         {% endfor %}
                     </td>
                 </tr>

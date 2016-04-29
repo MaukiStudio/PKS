@@ -149,7 +149,7 @@ class Content(models.Model):
         headers = {'user-agent': 'Chrome'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
-            raise ValueError('Not valid url_for_access')
+            print('Access failed : %s' % self.url_for_access)
 
         file = Path(self.path_accessed)
         if not file.parent.exists():

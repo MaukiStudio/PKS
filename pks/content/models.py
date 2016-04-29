@@ -127,12 +127,13 @@ class LegacyPlace(Content):
         if not accessed:
             accessed = self.content_accessed
 
-        if self.contentType == 'naver':
-            self.summarize_force_naver(accessed)
-        elif self.contentType == 'kakao':
-            self.summarize_force_kakao(accessed)
-        else:
-            raise NotImplementedError
+        if accessed:
+            if self.contentType == 'naver':
+                self.summarize_force_naver(accessed)
+            elif self.contentType == 'kakao':
+                self.summarize_force_kakao(accessed)
+            else:
+                raise NotImplementedError
 
     def summarize_force_naver(self, accessed):
         # 파싱
