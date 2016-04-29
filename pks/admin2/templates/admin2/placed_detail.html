@@ -30,7 +30,7 @@
             </td>
             <td>
                 {% for note in userPost.notes %}
-                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content }}"' target="_blank">{{ note.content }}</a>
+                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a>
                 {% endfor %}
             </td>
         </tr>
