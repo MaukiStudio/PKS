@@ -1,16 +1,20 @@
 [Now]
 
-URL 에서 대표 이미지 뽑아서 활용
+Import 체계를 위한 VirtualDevice, RealUser 리팩토링
+    VirtualDevice : deviceName, deviceTypeName, deviceType, parent, type_mask, ...
+    RealUser : my_vds, import_vds
 
-Import 기능을 위한 뼈대 잡기 : Importer, ImportPlace, DropPlace, ...
+Import 체계를 위한, UserPlaceSerializer 분리
+    List 용과 Retrieve 용을 분리 : Retrieve 용을 별도 신설해서 특수 처리
 
+Import 기능을 위한 뼈대 잡기 : Importer, DropPlace, ...
+ 
 
 Tag 기능 뼈대 잡기
 
 
 장소화 로직 정리해서 모으기
 
-실시간 장소화 관련 리팩토링 : Url --> LegacyPlace
 
 
 URL redirect 처리
@@ -21,6 +25,8 @@ URL redirect 처리
 위치 트래킹
 API 호출 이력
 지도 바로가기
+
+
 
 
 같은 장소로 판정된 UserPlace, Place Merge
