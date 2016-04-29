@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^placed/$', views.placed, name='placed'),
     url(r'^placed/(?P<uplace_id>[0-9A-Za-z]+)\.uplace/$', views.placed_detail, name='placed_detail'),
+    url(r'^places/$', views.places, name='places'),
 ]

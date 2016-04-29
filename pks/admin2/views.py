@@ -29,6 +29,10 @@ def placed(request):
     return render(request, 'admin2/placed.html', context)
 
 
+def places(request):
+    return render(request, 'admin2/places.html', None)
+
+
 # TODO : 완전 리팩토링 필요;;; 일단 임시 땜빵임
 def placed_detail(request, uplace_id):
     if request.method == 'POST':

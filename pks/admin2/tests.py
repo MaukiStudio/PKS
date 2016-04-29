@@ -131,3 +131,10 @@ class PlacedDetailTest2(AdminTestCase):
         self.assertAlmostEqual(self.uplace.place.lonLat.x, 127.1064507, delta=0.0001)
         self.assertAlmostEqual(self.uplace.place.lonLat.y, 37.4009435, delta=0.0001)
 
+
+class PlacesTest(AdminTestCase):
+
+    def test_connect(self):
+        response = self.client.get('/admin2/places/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('PlaceKoob Custom Admin - Places', response.content.decode('utf-8'))
