@@ -21,3 +21,23 @@ def get_timestamp():
         _timestamp = _prev_timestamp + 1
     _prev_timestamp = _timestamp
     return _timestamp
+
+
+def is_valid_json_item(item_name, json):
+    if item_name in json and json[item_name]:
+        item_json = json[item_name]
+        if 'content' in item_json:
+            return item_json['content'] != 'None'
+        else:
+            return True
+    return False
+
+
+def remove_list(l1, l2):
+    return [e for e in l1 if e not in l2]
+
+
+def remove_duplicates(l):
+    if l:
+        return reduce(lambda a, b: b[0] in a and a or a + b, [[i] for i in l])
+    return None

@@ -279,6 +279,19 @@ class PostTest(APITestBase):
         self.assertDictEqual(p1.json, p3.json)
         self.assertDictEqual(p2.json, p3.json)
 
+        pb12 = PostBase(json_userPost)
+        pb12.update(pb1)
+        self.assertNotEqual(pb12.json, pb1.json)
+        pb12.normalize()
+        self.assertEqual(pb12.json, pb1.json)
+
+        pb13 = PostBase(json_userPost)
+        pb13.update(pb1)
+        pb13.update(pb1, add=False)
+        pb_null = PostBase()
+        self.assertEqual(pb13.json, pb_null.json)
+
+
     def test_placed(self):
         vd = VD(); vd.save()
         pb_add = PostBase('{"urls": [{"content": "http://www.naver.com/"}]}')

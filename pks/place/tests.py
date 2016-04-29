@@ -260,8 +260,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 2)
 
         self.uplace = UserPlace.objects.first()
-        want.sort()
-        self.uplace.userPost.sort()
+        want.normalize()
+        self.uplace.userPost.normalize()
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
         self.assertIsSubsetOf(want, self.uplace.placePost)
@@ -287,8 +287,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 2)
 
         self.uplace = UserPlace.objects.first()
-        want.sort()
-        self.uplace.userPost.sort()
+        want.normalize()
+        self.uplace.userPost.normalize()
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
         self.assertIsSubsetOf(want, self.uplace.placePost)
@@ -305,6 +305,8 @@ class UserPlaceViewSetTest(APITestBase):
         result_userPost = result['userPost']
         result_placePost = result['placePost']
 
+        self.printJson(result_userPost)
+        self.printJson(self.uplace.userPost)
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost, self.uplace.placePost.json)
 

@@ -35,6 +35,9 @@ class Point(object):
             return dict(lon=self.lonLat.x, lat=self.lonLat.y, timestamp=self.timestamp)
         return dict(lon=self.lonLat.x, lat=self.lonLat.y)
 
+    def __eq__(self, other):
+        return self.lonLat.__eq__(other.lonLat)
+
 
 class Content(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
@@ -142,7 +145,7 @@ class Content(models.Model):
         self.post_save()
 
     # Methods for access
-    def access_force(self, timeout=1):
+    def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
@@ -165,7 +168,7 @@ class Content(models.Model):
             summary.parent.mkdir(parents=True)
         file.symlink_to(source)
 
-    def access(self, timeout=1):
+    def access(self, timeout=3):
         if not self.id:
             raise NotImplementedError
         if not self.is_accessed:
@@ -195,7 +198,7 @@ class Content(models.Model):
     def summarize_force(self, accessed=None):
         raise NotImplementedError
 
-    def summarize(self, accessed=None, timeout=1):
+    def summarize(self, accessed=None, timeout=3):
         if not self.id:
             raise NotImplementedError
         if not self.is_summarized:

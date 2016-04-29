@@ -1,5 +1,8 @@
 [Now]
 
+admin2/places 구현
+    Place._totalPost 구현
+
 Import 체계를 위한 VirtualDevice, RealUser 리팩토링
     VirtualDevice : deviceName, deviceTypeName, deviceType, parent, type_mask, ...
     RealUser : my_vds, import_vds

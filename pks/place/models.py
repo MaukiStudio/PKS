@@ -43,6 +43,7 @@ class Place(models.Model):
                 pb.update(pb_new, pp.is_add)
         if pb:
             pb.place_id = self.id
+            pb.normalize()
         self._pb_cache = pb
 
     def clearCache(self):
@@ -72,7 +73,7 @@ class Place(models.Model):
         # Placed by LegacyPlace
         lp = None
         if pb.lps:
-            pb.sort()
+            pb.normalize()
             lp = pb.lps[0]
             if lp.place:
                 return lp.place
@@ -203,6 +204,7 @@ class UserPlace(models.Model):
         if pb:
             pb.uplace_uuid = self.uuid
             pb.place_id = self.place_id
+            pb.normalize()
         self._pb_cache = pb
 
     def clearCache(self):
