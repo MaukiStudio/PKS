@@ -63,6 +63,9 @@ class VD(models.Model):
     language = models.CharField(max_length=2, blank=True, null=True, default=None)
     timezone = models.CharField(max_length=5, blank=True, null=True, default=None)
 
+    parent = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='childs')
+    mask = models.SmallIntegerField(blank=True, null=True, default=None)
+
     def __unicode__(self):
         email = (self.realOwner and self.realOwner.email) or (self.authOwner and self.authOwner.email) or 'unknown@email'
         deviceTypeName = self.deviceTypeName or 'unknown device'
@@ -83,3 +86,24 @@ class VD(models.Model):
         if self.realOwner:
             return self.realOwner.vd_ids
         return [self.id]
+
+    @property
+    def is_private(self):
+        return (self.mask or 0) & 1 != 0
+    @is_private.setter
+    def is_private(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 1
+        else:
+            self.mask = (self.mask or 0) & (~1)
+
+    @property
+    def is_public(self):
+        return (self.mask or 0) & 2 != 0
+    @is_public.setter
+    def is_public(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 2
+        else:
+            self.mask = (self.mask or 0) & (~2)
+

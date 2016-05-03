@@ -1,12 +1,8 @@
 [Now]
 
-Import 체계를 위한 VirtualDevice, RealUser 리팩토링
-    VirtualDevice : deviceName, deviceTypeName, deviceType, parent, type_mask, ...
-    RealUser : my_vds, import_vds
+ImportedViewset
 
-Import 체계를 위한, UserPlaceSerializer 분리
-    List 용과 Retrieve 용을 분리 : Retrieve 용을 별도 신설해서 특수 처리
-
+ImporterTask
 Import 기능을 위한 뼈대 잡기 : Importer, DropPlace, ...
  
 
@@ -25,6 +21,10 @@ URL redirect 처리
 위치 트래킹
 API 호출 이력
 지도 바로가기
+
+
+Import 체계를 위한, UserPlaceSerializer 분리
+    List 용과 Retrieve 용을 분리 : Retrieve 용을 별도 신설해서 특수 처리
 
 
 

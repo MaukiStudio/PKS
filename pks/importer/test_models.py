@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from django.db import IntegrityError
+from json import loads as json_loads
 
 from base.tests import APITestBase
 from importer.models import Proxy, Importer
@@ -43,15 +44,17 @@ class ProxyTest(APITestBase):
     def test_guide_column(self):
         proxy = Proxy()
         proxy.vd = self.vd
-        test_data = dict(type="album", source_vd=1)
+        test_data = '{"type": "images", "vd": "myself"}'
         proxy.guide = test_data
         proxy.save()
+        self.assertEqual(proxy.guide, json_loads(test_data))
         saved = Proxy.objects.first()
-        self.assertEqual(saved.guide, test_data)
+        self.assertEqual(saved.guide, json_loads(test_data))
         proxy2 = Proxy()
         proxy2.vd = VD()
         proxy2.vd.save()
-        proxy2.guide = test_data
+        test_data2 = '{"vd": "myself", "type": "images"}'
+        proxy2.guide = test_data2
         with self.assertRaises(IntegrityError):
             proxy2.save()
 

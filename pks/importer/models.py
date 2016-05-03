@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db import IntegrityError
+from json import loads as json_loads
 
 from account.models import VD
 
@@ -25,6 +26,8 @@ class Proxy(models.Model):
             raise IntegrityError('Proxy.vd must not be None')
         if not self.id:
             self.id = self.vd.id
+        if self.guide and type(self.guide) is not dict:
+            self.guide = json_loads(self.guide)
         super(Proxy, self).save(*args, **kwargs)
 
 
@@ -35,3 +38,8 @@ class Importer(models.Model):
 
     class Meta:
         unique_together = ('subscriber', 'publisher',)
+
+    def save(self, *args, **kwargs):
+        if not self.publisher or not self.subscriber:
+            raise IntegrityError('Importer.publisher and subscriber must not be None')
+        super(Importer, self).save(*args, **kwargs)

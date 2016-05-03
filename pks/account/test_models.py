@@ -3,43 +3,42 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from json import loads as json_loads, dumps as json_dumps
-from account.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.db import IntegrityError
 
 from base.tests import APITestBase
 from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
-from account import models
+from account.models import User, RealUser, VD
 
 
 class RealUserTest(APITestBase):
 
     def test_string_representation(self):
         email = 'gulby@maukistudio.com'
-        realUser = models.RealUser(email=email)
+        realUser = RealUser(email=email)
         self.assertEqual(email, unicode(realUser))
 
     def test_save_and_retreive(self):
-        realUser = models.RealUser(email='gulby@maukistudio.com')
+        realUser = RealUser(email='gulby@maukistudio.com')
         realUser.save()
-        saved = models.RealUser.objects.first()
+        saved = RealUser.objects.first()
         self.assertEqual(saved, realUser)
 
     def test_email_not_null(self):
-        realUser = models.RealUser()
+        realUser = RealUser()
         with self.assertRaises(ValueError):
             realUser.save()
 
     def test_email_property(self):
         email = 'gulby@maukistudio.com'
-        realUser = models.RealUser(email=email)
+        realUser = RealUser(email=email)
         self.assertEqual(realUser.email, email)
         realUser.save()
-        saved = models.RealUser.objects.first()
+        saved = RealUser.objects.first()
         self.assertEqual(saved.email, email)
 
-        realUser2 = models.RealUser(email=email)
+        realUser2 = RealUser(email=email)
         with self.assertRaises(IntegrityError):
             realUser2.save()
 
@@ -53,19 +52,19 @@ class VDTest(APITestBase):
         self.user.password = SG('[\l]{6:10}&[\d]{2}').render()
         self.user.save()
 
-        self.realUser = models.RealUser(email='gulby@maukistudio.com')
+        self.realUser = RealUser(email='gulby@maukistudio.com')
         self.realUser.save()
 
     def test_string_representation(self):
-        vd1 = models.VD()
+        vd1 = VD()
         self.assertEqual("unknown@email's unknown device", unicode(vd1))
-        vd2 = models.VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
+        vd2 = VD(authOwner=self.user, realOwner=self.realUser, deviceTypeName='LG-F460L', deviceName='88:C9:D0:FA:79:57')
         self.assertEqual("gulby@maukistudio.com's LG-F460L (88:C9:D0:FA:79:57)", unicode(vd2))
 
     def test_save_and_retreive(self):
-        vd = models.VD()
+        vd = VD()
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(saved, vd)
 
     def test_simple_properties(self):
@@ -74,14 +73,14 @@ class VDTest(APITestBase):
         country = 'KR'
         language = 'ko'
         timezone = 'KST'
-        vd = models.VD()
+        vd = VD()
         vd.deviceName = deviceName
         vd.deviceTypeName = deviceTypeName
         vd.country = country
         vd.language = language
         vd.timezone = timezone
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(saved.deviceName, deviceName)
         self.assertEqual(saved.deviceTypeName, deviceTypeName)
         self.assertEqual(saved.country, country)
@@ -89,12 +88,12 @@ class VDTest(APITestBase):
         self.assertEqual(saved.timezone, timezone)
 
     def test_authOwner_property(self):
-        vd = models.VD(authOwner=self.user)
+        vd = VD(authOwner=self.user)
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(saved.authOwner, self.user)
 
-        vd2 = models.VD()
+        vd2 = VD()
         vd2.authOwner = vd.authOwner
         vd2.save()
         self.assertNotEqual(vd, vd2)
@@ -102,36 +101,36 @@ class VDTest(APITestBase):
 
     def test_authOwner_relationship(self):
         self.assertEqual(self.user.vds.all().count(), 0)
-        vd = models.VD(authOwner=self.user)
+        vd = VD(authOwner=self.user)
         vd.save()
         self.assertEqual(self.user.vds.all().count(), 1)
-        vd2 = models.VD(authOwner=self.user)
+        vd2 = VD(authOwner=self.user)
         vd2.save()
         self.assertEqual(self.user.vds.all().count(), 2)
 
     def test_data_property(self):
         j = '{"deviceName": "%s", "deviceTypeName": "%s"}' % (SG('[\w\-]{36}').render(), 'LG-F460L')
-        vd = models.VD()
+        vd = VD()
         vd.data = json_loads(j)
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(j, json_dumps(saved.data, encoding='utf-8'))
 
     def test_lastLonLat_property(self):
         point = GEOSGeometry('POINT(127.1037430 37.3997320)')
-        vd = models.VD()
+        vd = VD()
         vd.lastLonLat = point
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(point, saved.lastLonLat)
 
     def test_realOwner_property(self):
-        vd = models.VD(realOwner=self.realUser)
+        vd = VD(realOwner=self.realUser)
         vd.save()
-        saved = models.VD.objects.first()
+        saved = VD.objects.first()
         self.assertEqual(saved.realOwner, self.realUser)
 
-        vd2 = models.VD()
+        vd2 = VD()
         vd2.realOwner = vd.realOwner
         vd2.save()
         self.assertNotEqual(vd, vd2)
@@ -139,15 +138,15 @@ class VDTest(APITestBase):
 
     def test_realOwner_relationship(self):
         self.assertEqual(self.realUser.vds.all().count(), 0)
-        vd = models.VD(realOwner=self.realUser)
+        vd = VD(realOwner=self.realUser)
         vd.save()
         self.assertEqual(self.realUser.vds.all().count(), 1)
-        vd2 = models.VD(realOwner=self.realUser)
+        vd2 = VD(realOwner=self.realUser)
         vd2.save()
         self.assertEqual(self.realUser.vds.all().count(), 2)
 
     def test_aid(self):
-        vd1 = models.VD(authOwner=self.user)
+        vd1 = VD(authOwner=self.user)
         vd1.save()
         vd1_aid = unicode(vd1.aid)
         user2 = User(username='another')
@@ -161,3 +160,33 @@ class VDTest(APITestBase):
         self.assertEqual(vd1.aid2id(vd1_aid2), vd1.id)
         with self.assertRaises(InvalidToken):
             vd1.aid2id(vd1_aid)
+
+    def test_parent(self):
+        vd_parent = VD()
+        vd_parent.save()
+        self.assertEqual(vd_parent.childs.count(), 0)
+        vd_child = VD(parent=vd_parent)
+        vd_child.save()
+        saved = VD.objects.all().order_by('-id')[0]
+        self.assertEqual(vd_child, saved)
+        self.assertEqual(saved.parent, vd_parent)
+        self.assertEqual(vd_parent.childs.count(), 1)
+        self.assertEqual(vd_parent.childs.first(), saved)
+
+    def test_mask(self):
+        vd = VD()
+        vd.is_private = True
+        vd.is_public = False
+        vd.save()
+        saved = VD.objects.first()
+        self.assertEqual(saved.is_private, True)
+        self.assertEqual(saved.is_public, False)
+        self.assertEqual(saved.mask, 0 | 1)
+
+        vd.is_private = False
+        vd.is_public = True
+        vd.save()
+        saved = VD.objects.first()
+        self.assertEqual(saved.is_private, False)
+        self.assertEqual(saved.is_public, True)
+        self.assertEqual(saved.mask, 2 | 0)
