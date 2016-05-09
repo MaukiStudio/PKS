@@ -12,13 +12,13 @@ from rest_framework import status
 
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY, VD_SESSION_KEY
-from account import models
-from account import serializers
+from account.models import User, RealUser, VD
+from account.serializers import UserSerializer, RealUserSerializer, VDSerializer
 
 
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
+    serializer_class = UserSerializer
 
     @list_route(methods=['post'])
     def register(self, request):
@@ -57,8 +57,8 @@ class UserViewset(ModelViewSet):
 
 
 class VDViewset(ModelViewSet):
-    queryset = models.VD.objects.all()
-    serializer_class = serializers.VDSerializer
+    queryset = VD.objects.all()
+    serializer_class = VDSerializer
 
     def getToken(self, vd):
         raw_token = '%s|%s' % (vd.id, vd.authOwner_id)
@@ -93,7 +93,7 @@ class VDViewset(ModelViewSet):
 
         # Temporary : 곧바로 이메일 인증이 된 것으로 처리
         if vd.authOwner and vd.authOwner.email:
-            realUser, isCreated = models.RealUser.objects.get_or_create(email=vd.authOwner.email)
+            realUser, isCreated = RealUser.objects.get_or_create(email=vd.authOwner.email)
             vd.realOwner = realUser
             vd.save()
 
@@ -111,8 +111,8 @@ class VDViewset(ModelViewSet):
 
         # check credentials
         try:
-            vd = models.VD.objects.get(id=vd_id)
-        except models.VD.DoesNotExist:
+            vd = VD.objects.get(id=vd_id)
+        except VD.DoesNotExist:
             vd = None
         if vd and vd_id and vd_id == vd.id and user_id and request.user.is_authenticated()\
                 and user_id == request.user.id and user_id == vd.authOwner_id:
@@ -135,12 +135,12 @@ class VDViewset(ModelViewSet):
             vd_id = self.request.session[VD_SESSION_KEY]
         else:
             vd_id = self.request.user.aid2id(aid)
-        return models.VD.objects.get(id=vd_id)
+        return VD.objects.get(id=vd_id)
 
 
 class RealUserViewset(ModelViewSet):
-    queryset = models.RealUser.objects.all()
-    serializer_class = serializers.RealUserSerializer
+    queryset = RealUser.objects.all()
+    serializer_class = RealUserSerializer
 
     def get_object(self):
         aid = self.kwargs['pk']
@@ -148,7 +148,7 @@ class RealUserViewset(ModelViewSet):
             vd_id = self.request.session[VD_SESSION_KEY]
             if not vd_id:
                 return None
-            vd = models.VD.objects.get(id=vd_id)
+            vd = VD.objects.get(id=vd_id)
             if not vd:
                 return None
             return vd.realOwner
@@ -158,6 +158,6 @@ class RealUserViewset(ModelViewSet):
     def vds(self, request, pk=None):
         ru = self.get_object()
         vd_id = self.request.session[VD_SESSION_KEY]
-        serializer = serializers.VDSerializer(ru.vds.exclude(id=vd_id), many=True)
+        serializer = VDSerializer(ru.vds.exclude(id=vd_id), many=True)
         return Response(serializer.data)
 
