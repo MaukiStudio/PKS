@@ -147,6 +147,11 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(results[1]['uplace_uuid'], self.uplace.uuid)
         self.assertEqual(results[2]['uplace_uuid'], uplace2.uuid)
 
+        uplace_drop = UserPlace.objects.create(is_drop=True, vd=self.vd, lonLat=point2)
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+
 
     def test_detail(self):
         self.uplace.save()

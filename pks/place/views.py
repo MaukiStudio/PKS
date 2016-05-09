@@ -6,6 +6,7 @@ from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
+from django.db.models import F
 
 from place.models import Place, UserPlace, PostPiece
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
@@ -44,6 +45,8 @@ class UserPlaceViewset(BaseViewset):
             raise NotImplementedError('Now, ru=myself only')
         # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
         qs1 = self.queryset.filter(vd_id__in=self.vd.realOwner_vd_ids)
+        # TODO : 리팩토링
+        qs1 = qs1.filter(mask=F('mask').bitand(~1))
         if 'lon' in params and 'lat' in params:
             r = int(params.get('r', 1000))
             lon = float(params['lon'])
