@@ -208,7 +208,11 @@ class UserPlace(models.Model):
                 if pp.is_add:
                     pb = pb_new
             else:
-                pb.update(pb_new, pp.is_add)
+                if pp.is_drop:
+                    # TODO : 이 부분이 테스트되는 테스트 추가
+                    pb = None
+                else:
+                    pb.update(pb_new, pp.is_add)
         if pb:
             pb.uplace_uuid = self.uuid
             pb.place_id = self.place_id

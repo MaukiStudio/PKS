@@ -1,11 +1,18 @@
 [Now]
 
+ImportedPlaceViewset
+    List
+    Detail
+        Take
+        Drop
+        
 
-리스팅시 UserPlace.is_drop 참조하도록 수정
-PostBase 확장하여 drop 처리할 수 있도록 만들기
-UserPlace 삭제, 장소화된 경우는 drop 으로 처리되도록 수정 
+PostBase 확장하여 Import 하여 내장소로 가져오는 처리를 할 수 있도록 만들기
+Import 함과 동시에 drop 처리가 가능하도록 구현
 
 DropPlace
+ImportedPlace
+
 ImportedViewset
 
 ImporterTask

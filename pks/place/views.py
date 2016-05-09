@@ -122,13 +122,15 @@ class UserPlaceViewset(BaseViewset):
                 # TODO : 좀 더 Readability 가 높은 형태로 리팩토링
                 uplace = UserPlace.get_from_post(pb_MAMMA, vd)
 
-            # TODO : 튜닝 필요
+            # 결과 처리 : 저장
             lonLat = (pb_MAMMA and pb_MAMMA.lonLat) or pb.lonLat
             if lonLat and uplace.place and not uplace.place.lonLat:
                 uplace.place.lonLat = lonLat
                 uplace.place.save()
             uplace.lonLat = uplace.lonLat or lonLat
             uplace.modified = get_timestamp()
+            # TODO : 아래 코드가 테스트되는 테스트 추가
+            uplace.is_drop = False
             uplace.save()
 
 
@@ -137,3 +139,20 @@ class UserPlaceViewset(BaseViewset):
         #######################################
         serializer = self.get_serializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+    def perform_destroy(self, instance):
+        # vd 조회
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        # 장소화 안된 경우 완전 삭제
+        if not instance.place:
+            super(UserPlaceViewset, self).perform_destroy(instance)
+
+        # 장소화된 경우 drop 처리
+        else:
+            instance.is_drop = True
+            instance.save()
+            pb = PostBase('{"notes": [{"content": "delete"}]}')
+            pp = PostPiece.objects.create(is_drop=True, uplace=instance, vd=vd, data=pb.json)

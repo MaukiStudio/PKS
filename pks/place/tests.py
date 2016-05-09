@@ -105,7 +105,6 @@ class UserPlaceViewSetTest(APITestBase):
         self.uplace.save()
 
     def test_list(self):
-        self.uplace.save()
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
@@ -154,7 +153,6 @@ class UserPlaceViewSetTest(APITestBase):
 
 
     def test_detail(self):
-        self.uplace.save()
         response = self.client.get('/uplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -170,12 +168,27 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.content, response.content)
 
-    def test_delete(self):
-        self.uplace.save()
+    def test_delete_not_placed(self):
         self.assertEqual(UserPlace.objects.count(), 1)
         response2 = self.client.delete('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
         self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(UserPlace.objects.count(), 0)
+
+    def test_delete_placed(self):
+        self.uplace.place = self.place
+        self.uplace.save()
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(PostPiece.objects.count(), 0)
+        self.assertEqual(self.uplace.is_drop, False)
+        response2 = self.client.delete('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
+        self.assertEqual(response2.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.uplace = UserPlace.objects.first()
+        self.assertEqual(self.uplace.is_drop, True)
+        self.assertEqual(PostPiece.objects.count(), 1)
+        pp = PostPiece.objects.first()
+        self.assertEqual(pp.uplace, self.uplace)
+        self.assertEqual(pp.data['notes'][0]['content'], 'delete')
 
     def test_create_full(self):
         self.uplace.place = self.place
