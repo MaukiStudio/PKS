@@ -114,6 +114,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('created', results[0])
         self.assertIn('modified', results[0])
         self.assertIn('place_id', results[0])
+        self.assertIn('uplace_uuid', results[0])
         self.assertNotIn('id', results[0])
         self.assertNotIn('place', results[0])
         self.assertNotIn('vd', results[0])
