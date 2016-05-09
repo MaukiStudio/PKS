@@ -267,7 +267,7 @@ class PostPiece(models.Model):
     # id
     id = models.UUIDField(primary_key=True, default=None)
 
-    # property mask - 0:is_remove, 1:by_MAMMA
+    # properties mask
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     # ref
@@ -324,3 +324,13 @@ class PostPiece(models.Model):
             self.mask = (self.mask or 0) | 2
         else:
             self.mask = (self.mask or 0) & (~2)
+
+    @property
+    def is_drop(self):
+        return ((self.mask or 0) & 4) != 0
+    @is_drop.setter
+    def is_drop(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 4
+        else:
+            self.mask = (self.mask or 0) & (~4)

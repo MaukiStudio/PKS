@@ -1,6 +1,6 @@
 [Now]
 
-PostPiece.is_drop
+
 리스팅시 UserPlace.is_drop 참조하도록 수정
 PostBase 확장하여 drop 처리할 수 있도록 만들기
 UserPlace 삭제, 장소화된 경우는 drop 으로 처리되도록 수정 

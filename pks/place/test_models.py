@@ -530,33 +530,40 @@ class PostPieceTest(APITestBase):
         self.assertEqual(saved.is_remove, False)
         self.assertEqual(saved.is_add, True)
         self.assertEqual(saved.by_MAMMA, False)
+        self.assertEqual(saved.is_drop, False)
         self.assertEqual(saved.mask, 0 | 0)
 
         pp.is_remove = True
         pp.by_MAMMA = False
+        pp.is_drop = True
         pp.save()
         saved = PostPiece.objects.first()
         self.assertEqual(saved.is_remove, True)
         self.assertEqual(saved.is_add, False)
         self.assertEqual(saved.by_MAMMA, False)
-        self.assertEqual(saved.mask, 0 | 1)
+        self.assertEqual(saved.is_drop, True)
+        self.assertEqual(saved.mask, 4 | 0 | 1)
 
         pp.is_remove = False
         pp.by_MAMMA = True
+        pp.is_drop = False
         pp.save()
         saved = PostPiece.objects.first()
         self.assertEqual(saved.is_remove, False)
         self.assertEqual(saved.is_add, True)
         self.assertEqual(saved.by_MAMMA, True)
-        self.assertEqual(saved.mask, 2 | 0)
+        self.assertEqual(saved.is_drop, False)
+        self.assertEqual(saved.mask, 0 | 2 | 0)
 
         pp.by_MAMMA = False
+        pp.is_drop = True
         pp.save()
         saved = PostPiece.objects.first()
         self.assertEqual(saved.is_remove, False)
         self.assertEqual(saved.is_add, True)
         self.assertEqual(saved.by_MAMMA, False)
-        self.assertEqual(saved.mask, 0 | 0)
+        self.assertEqual(saved.is_drop, True)
+        self.assertEqual(saved.mask, 4 | 0 | 0)
 
 
 class PostBaseTest(APITestBase):
