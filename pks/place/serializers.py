@@ -32,4 +32,4 @@ class UserPlaceSerializer(BaseSerializer):
 
     class Meta:
         model = UserPlace
-        exclude = ('id', 'place', 'vd',)
+        exclude = ('id', 'place', 'vd', 'mask',)

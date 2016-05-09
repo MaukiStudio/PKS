@@ -1,10 +1,11 @@
 [Now]
 
 ImportedPlaceViewset
-    List
-    Detail
-        Take
-        Drop
+    List : Done
+    Detail : Done
+        Take : Done
+        Drop : Done
+    FunctionalTest
         
 
 PostBase 확장하여 Import 하여 내장소로 가져오는 처리를 할 수 있도록 만들기
@@ -24,6 +25,8 @@ Tag 기능 뼈대 잡기
 
 장소화 로직 정리해서 모으기
 
+
+get_queryset(), get_object() 리팩토링 
 
 
 URL redirect 처리

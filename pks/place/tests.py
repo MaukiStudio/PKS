@@ -118,6 +118,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('id', results[0])
         self.assertNotIn('place', results[0])
         self.assertNotIn('vd', results[0])
+        self.assertNotIn('mask', results[0])
 
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
@@ -163,6 +164,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('userPost', result)
         self.assertIn('placePost', result)
         self.assertNotIn('id', result)
+        self.assertNotIn('mask', result)
 
         response2 = self.client.get('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
         self.assertEqual(response2.status_code, status.HTTP_200_OK)

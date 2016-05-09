@@ -24,4 +24,4 @@ class ImportedPlaceSerializer(BaseSerializer):
 
     class Meta:
         model = ImportedPlace
-        exclude = ('id', 'place', 'vd', 'modified',)
+        exclude = ('id', 'place', 'vd', 'mask', 'modified',)

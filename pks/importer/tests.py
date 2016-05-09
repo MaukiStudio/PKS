@@ -127,6 +127,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertNotIn('id', results[0])
         self.assertNotIn('place', results[0])
         self.assertNotIn('vd', results[0])
+        self.assertNotIn('mask', results[0])
         self.assertEqual(results[0]['iplace_uuid'], self.iplace.uuid)
 
     def test_detail(self):
@@ -146,6 +147,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertNotIn('id', result)
         self.assertNotIn('place', result)
         self.assertNotIn('vd', result)
+        self.assertNotIn('mask', result)
         self.assertEqual(result['iplace_uuid'], self.iplace.uuid)
 
         response2 = self.client.get('/iplaces/%s/' % self.iplace.uuid.split('.')[0])
@@ -164,3 +166,24 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(result1['userPost']['iplace_uuid'], self.iplace.uuid)
         self.assertIn('notes', result1['userPost'])
         self.assertEqual(result1['userPost']['notes'][0]['content'], 'test note')
+
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 0)
+
+    def test_drop(self):
+        self.assertEqual(UserPlace.objects.count(), 4)
+        response1 = self.client.post('/iplaces/%s/drop/' % self.iplace2.id)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(UserPlace.objects.count(), 4)
+
+        self.assertEqual(UserPlace.objects.count(), 4)
+        response1 = self.client.post('/iplaces/%s/drop/' % self.iplace.id)
+        self.assertEqual(response1.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(UserPlace.objects.count(), 5)
+
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 0)

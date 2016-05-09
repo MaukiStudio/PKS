@@ -62,7 +62,7 @@ class ImporterViewset(BaseViewset):
                     return Response(status=status.HTTP_403_FORBIDDEN)
 
         # importer 생성
-        importer, created = Importer.objects.get_or_create(publisher=proxy, subscriber=vd)
+        importer, is_created = Importer.objects.get_or_create(publisher=proxy, subscriber=vd)
 
         # 결과 처리
         serializer = self.get_serializer(importer)
@@ -119,7 +119,33 @@ class ImportedPlaceViewset(BaseViewset):
         pb.place_id = iplace.place_id
         pb.uplace_uuid = None
 
-        uplace = UserPlace.get_from_post(pb, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
         pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, data=pb.json)
         serializer = UserPlaceSerializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['post'])
+    def drop(self, request, pk=None):
+        # vd 조회
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        iplace = self.get_object()
+        pb = iplace.userPost or PostBase()
+        pb.iplace_uuid = iplace.uuid
+        pb.place_id = iplace.place_id
+        pb.uplace_uuid = None
+
+        uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
+        if is_created:
+            # 매칭되는 UserPlace 가 없었다면 drop 처리
+            pp = PostPiece.objects.create(is_drop=True, place=None, uplace=uplace, vd=vd, data=pb.json)
+            uplace.is_drop = True
+            uplace.save()
+            serializer = UserPlaceSerializer(uplace)
+            return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        else:
+            # 매칭되는 UserPlace 가 있었다면 무시
+            # 이를 drop 처리하려면 delete /uplaces/detail/
+            serializer = UserPlaceSerializer(uplace)
+            return Response(serializer.data, status=status.HTTP_200_OK)
