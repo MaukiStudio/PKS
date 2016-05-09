@@ -5,14 +5,13 @@ from base64 import b16encode
 from uuid import UUID
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
-from random import randrange
 from json import loads as json_loads
 from rest_framework import status
 
 from imagehash import dhash
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from account.models import VD
-from base.utils import get_timestamp, BIT_ON_8_BYTE
+from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
 from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
@@ -166,8 +165,7 @@ class RawFile(models.Model):
 
     def _id(self, timestamp):
         vd_id = self.vd_id or 0
-        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
-        return UUID(hstr.rjust(32, b'0'))
+        return get_uuid_from_ts_vd(timestamp, vd_id)
 
     @property
     def timestamp(self):

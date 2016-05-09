@@ -1,8 +1,6 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from delorean import Delorean
-
 
 # bit mask
 BIT_ON_8_BYTE = int('0xFFFFFFFFFFFFFFFF', 16)
@@ -13,8 +11,9 @@ class HashCollisionError(NotImplementedError):
     pass
 
 
-_prev_timestamp = int(round(Delorean().epoch*1000))
+_prev_timestamp = 0
 def get_timestamp():
+    from delorean import Delorean
     global _prev_timestamp
     _timestamp = int(round(Delorean().epoch*1000))
     if _prev_timestamp >= _timestamp:
@@ -41,3 +40,10 @@ def remove_duplicates(l):
     if l:
         return reduce(lambda a, b: b[0] in a and a or a + b, [[i] for i in l])
     return None
+
+
+def get_uuid_from_ts_vd(timestamp, vd_id):
+    from uuid import UUID
+    from random import randrange
+    hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]     # 끝에 붙는 L 을 떼내기 위해 -1
+    return UUID(hstr.rjust(32, b'0'))
