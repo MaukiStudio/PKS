@@ -242,10 +242,10 @@ class PostTest(APITestBase):
         pb1 = PostBase(json_userPost)
         pb2 = PostBase(json_placePost)
         self.assertEqual(PostPiece.objects.count(), 0)
-        pp1 = PostPiece.objects.create(type_mask=0, place=None, uplace=uplace1, vd=vd1, data=pb1.json)
+        pp1 = PostPiece.objects.create(place=None, uplace=uplace1, vd=vd1, data=pb1.json)
         self.assertEqual(PostPiece.objects.count(), 1)
-        pp2 = PostPiece.objects.create(type_mask=0, place=None, uplace=uplace2, vd=vd2, data=pb2.json)
-        pp3 = PostPiece.objects.create(type_mask=2, place=place, uplace=None, vd=vd1, data=pb2.json)
+        pp2 = PostPiece.objects.create(place=None, uplace=uplace2, vd=vd2, data=pb2.json)
+        pp3 = PostPiece.objects.create(by_MAMMA=True, place=place, uplace=None, vd=vd1, data=pb2.json)
         self.assertEqual(PostPiece.objects.count(), 3)
 
         want_userPost = json_loads(json_userPost)
@@ -486,6 +486,7 @@ class PostPieceTest(APITestBase):
         self.assertEqual(saved.vd, pp.vd)
 
     def test_data_property(self):
+        # TODO : json 에 대한 query 테스트 추가
         pp = PostPiece()
         json_add = '''
             {
@@ -503,7 +504,33 @@ class PostPieceTest(APITestBase):
         self.assertEqual(json_add, pp.data)
         self.assertEqual(json_add, saved.data)
 
-        # TODO : json 에 대한 query 테스트 추가
+    def test_mask(self):
+        pp = PostPiece()
+        pp.is_remove = True
+        pp.by_MAMMA = False
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_remove, True)
+        self.assertEqual(saved.is_add, False)
+        self.assertEqual(saved.by_MAMMA, False)
+        self.assertEqual(saved.mask, 0 | 1)
+
+        pp.is_remove = False
+        pp.by_MAMMA = True
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_remove, False)
+        self.assertEqual(saved.is_add, True)
+        self.assertEqual(saved.by_MAMMA, True)
+        self.assertEqual(saved.mask, 2 | 0)
+
+        pp.by_MAMMA = False
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_remove, False)
+        self.assertEqual(saved.is_add, True)
+        self.assertEqual(saved.by_MAMMA, False)
+        self.assertEqual(saved.mask, 0 | 0)
 
 
 class PostBaseTest(APITestBase):

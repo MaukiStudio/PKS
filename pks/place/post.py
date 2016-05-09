@@ -27,6 +27,7 @@ class PostBase(object):
 
         self.place_id = None
         self.uplace_uuid = None
+        self.by_MAMMA = False
 
         t = type(json)
         if json is None:
@@ -232,6 +233,7 @@ class PostBase(object):
             result = lp.content_summarized
             result.uplace_uuid = self.uplace_uuid
             result.place_id = self.place_id
+            result.by_MAMMA = True
             return result
         return None
 

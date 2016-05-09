@@ -105,7 +105,7 @@ class Place(models.Model):
                 if lp:
                     lp.place = _place
                     lp.save()
-                    PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+                    PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
                 return _place
 
 
@@ -119,7 +119,7 @@ class Place(models.Model):
             _place.save()
             lp.place = _place
             lp.save()
-            PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
             return _place
 
         # Placed by placeName/lonLat
@@ -128,7 +128,7 @@ class Place(models.Model):
                 pb.point = Point(lonLat.x, lonLat.y)
             _place = Place(lonLat=lonLat, placeName=placeName)
             _place.save()
-            PostPiece.objects.create(type_mask=2, place=_place, uplace=None, vd=vd, data=pb.json)
+            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
             return _place
 
         # last : old_place
@@ -167,7 +167,6 @@ class UserPlace(models.Model):
         return cls.objects.get(id=_id)
 
     @classmethod
-    # TODO : save() 너무 많이 함. 튜닝 필요
     def get_from_post(cls, pb, vd):
         place = Place.get_from_post(pb, vd)
         uplace = None
@@ -233,7 +232,7 @@ class UserPlace(models.Model):
 
     def _id(self, timestamp):
         vd_id = self.vd_id or 0
-        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]
+        hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]     # 끝에 붙는 L 을 떼내기 위해 -1
         return UUID(hstr.rjust(32, b'0'))
 
     def save(self, *args, **kwargs):
@@ -257,9 +256,8 @@ class PostPiece(models.Model):
     # id
     id = models.UUIDField(primary_key=True, default=None)
 
-    # mode : 0bit:0/add,1/remove, 1bit:is_MAMMA
-    # so... : 0/add, 1/remove, 2/add_by_MAMMA, ...
-    type_mask = models.SmallIntegerField(blank=True, null=True, default=None)
+    # property mask - 0:is_remove, 1:by_MAMMA
+    mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     # ref
     uplace = models.ForeignKey(UserPlace, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='pps')
@@ -281,11 +279,11 @@ class PostPiece(models.Model):
         if not self.id:
             timestamp = kwargs.pop('timestamp', get_timestamp())
             self.id = self._id(timestamp)
-        if not self.type_mask:
-            self.type_mask = 0
+        if not self.mask:
+            self.mask = 0
 
-        # Machine 이 포스팅한 경우 vd를 None 으로. 단, vd값이 넘어온 경우 id값 계산시엔 활용
-        if self.type_mask >= 2:
+        # Machine 이 포스팅한 경우 vd를 None 으로. 단, vd값이 넘어온 경우 id값 계산시엔 활용 (위에서 이미 id 계산)
+        if self.by_MAMMA:
             self.vd = None
         super(PostPiece, self).save(*args, **kwargs)
 
@@ -294,9 +292,25 @@ class PostPiece(models.Model):
         return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
     @property
-    def is_add(self):
-        return (self.type_mask & 1) == 0
+    def is_remove(self):
+        return ((self.mask or 0) & 1) != 0
+    @is_remove.setter
+    def is_remove(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 1
+        else:
+            self.mask = (self.mask or 0) & (~1)
 
     @property
-    def is_remove(self):
-        return (self.type_mask & 1) == 1
+    def is_add(self):
+        return not self.is_remove
+
+    @property
+    def by_MAMMA(self):
+        return ((self.mask or 0) & 2) != 0
+    @by_MAMMA.setter
+    def by_MAMMA(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 2
+        else:
+            self.mask = (self.mask or 0) & (~2)

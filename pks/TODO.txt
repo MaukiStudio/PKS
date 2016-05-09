@@ -1,10 +1,11 @@
 [Now]
 
+DropPlace
 ImportedViewset
 
 ImporterTask
 Import 기능을 위한 뼈대 잡기 : Importer, DropPlace, ...
- 
+
 
 Tag 기능 뼈대 잡기
 
