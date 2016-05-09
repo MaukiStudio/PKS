@@ -175,6 +175,12 @@ class VDTest(APITestBase):
 
     def test_mask(self):
         vd = VD()
+        vd.save()
+        saved = VD.objects.first()
+        self.assertEqual(saved.is_private, False)
+        self.assertEqual(saved.is_public, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
         vd.is_private = True
         vd.is_public = False
         vd.save()

@@ -164,6 +164,25 @@ class SimpleUserPlaceTest(APITestBase):
         qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
+    def test_mask(self):
+        uplace = UserPlace(vd=self.vd, place=self.place)
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_drop, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
+        uplace.is_drop = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_drop, True)
+        self.assertEqual(saved.mask, 0 | 1)
+
+        uplace.is_drop = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_drop, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
 
 class PostTest(APITestBase):
 
@@ -506,6 +525,13 @@ class PostPieceTest(APITestBase):
 
     def test_mask(self):
         pp = PostPiece()
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_remove, False)
+        self.assertEqual(saved.is_add, True)
+        self.assertEqual(saved.by_MAMMA, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
         pp.is_remove = True
         pp.by_MAMMA = False
         pp.save()

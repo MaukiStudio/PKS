@@ -148,6 +148,7 @@ class UserPlace(models.Model):
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='uplaces')
     modified = models.BigIntegerField(blank=True, null=True, default=None)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
+    mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def __init__(self, *args, **kwargs):
         self._pb_cache = None
@@ -239,6 +240,8 @@ class UserPlace(models.Model):
             self.id = self._id(self.modified)
         if not self.lonLat:
             self.lonLat = (self.place and self.place.lonLat) or None
+        if not self.mask:
+            self.mask = 0
         super(UserPlace, self).save(*args, **kwargs)
 
     @property
@@ -248,6 +251,16 @@ class UserPlace(models.Model):
     @property
     def lonLat_json(self):
         return Point(self.lonLat.x, self.lonLat.y).json
+
+    @property
+    def is_drop(self):
+        return ((self.mask or 0) & 1) != 0
+    @is_drop.setter
+    def is_drop(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 1
+        else:
+            self.mask = (self.mask or 0) & (~1)
 
 
 class PostPiece(models.Model):

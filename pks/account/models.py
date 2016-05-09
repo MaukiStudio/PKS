@@ -107,3 +107,7 @@ class VD(models.Model):
         else:
             self.mask = (self.mask or 0) & (~2)
 
+    def save(self, *args, **kwargs):
+        if not self.mask:
+            self.mask = 0
+        super(VD, self).save(*args, **kwargs)
