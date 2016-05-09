@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from json import loads as json_loads
 
 from account.models import VD
+from place.models import UserPlace
 
 
 class Proxy(models.Model):
@@ -43,3 +44,6 @@ class Importer(models.Model):
         if not self.publisher or not self.subscriber:
             raise IntegrityError('Importer.publisher and subscriber must not be None')
         super(Importer, self).save(*args, **kwargs)
+
+
+ImportedPlace = UserPlace

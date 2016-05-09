@@ -6,8 +6,8 @@ from rest_framework import status
 from json import loads as json_loads
 
 from base.views import BaseViewset
-from importer.models import Proxy, Importer
-from importer.serializers import ProxySerializer, ImporterSerializer
+from importer.models import Proxy, Importer, ImportedPlace
+from importer.serializers import ProxySerializer, ImporterSerializer, ImportedPlaceSerializer
 from account.models import VD
 
 
@@ -63,3 +63,8 @@ class ImporterViewset(BaseViewset):
         # 결과 처리
         serializer = self.get_serializer(importer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ImportedPlaceViewset(BaseViewset):
+    queryset = ImportedPlace.objects.all()
+    serializer_class = ImportedPlaceSerializer

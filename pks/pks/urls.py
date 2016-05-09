@@ -36,6 +36,7 @@ router.register(r'pps', place_views.PostPieceViewset)
 router.register(r'uplaces', place_views.UserPlaceViewset)
 router.register(r'proxies', importer_views.ProxyViewset)
 router.register(r'importers', importer_views.ImporterViewset)
+router.register(r'iplaces', importer_views.ImportedPlaceViewset)
 
 
 urlpatterns = [

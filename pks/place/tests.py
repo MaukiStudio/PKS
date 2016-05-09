@@ -151,7 +151,6 @@ class UserPlaceViewSetTest(APITestBase):
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
 
-
     def test_detail(self):
         response = self.client.get('/uplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
