@@ -8,5 +8,5 @@ from time import sleep
 
 @app.task
 def for_unit_test(x, y):
-    sleep(0.1)
+    sleep(0.2)
     return x + y
