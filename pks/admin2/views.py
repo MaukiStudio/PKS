@@ -58,7 +58,7 @@ def placed_detail(request, uplace_id):
             pb.uplace_uuid = '%s.uplace' % uplace_id
 
             # UserPlace/Place 찾기
-            uplace = UserPlace.get_from_post(pb, vd)
+            uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
             pb.uplace_uuid = uplace.uuid
 
             # valid check
@@ -67,7 +67,7 @@ def placed_detail(request, uplace_id):
 
             pb_MAMMA = pb.pb_MAMMA
             if pb_MAMMA:
-                uplace = UserPlace.get_from_post(pb_MAMMA, vd)
+                uplace, is_created = UserPlace.get_or_create_smart(pb_MAMMA, vd)
 
             # redirect
             return redirect('/admin2/placed/%s.uplace/' % uplace_id)
@@ -108,7 +108,7 @@ def placed_detail(request, uplace_id):
             pb.uplace_uuid = '%s.uplace' % uplace_id
 
             # 장소화
-            uplace = UserPlace.get_from_post(pb, vd)
+            uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
 
             # redirect
             return redirect('/admin2/placed/%s.uplace/' % uplace_id)

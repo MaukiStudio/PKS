@@ -114,10 +114,10 @@ class Content(models.Model):
         elif 'content' in json and json['content']:
             content = cls.normalize_content(json['content'])
             if content:
-                result, created = cls.objects.get_or_create(content=content)
+                result, is_created = cls.objects.get_or_create(content=content)
                 if result.content != content:
                     raise HashCollisionError
-                if created:
+                if is_created:
                     cls.on_create(result)
         if result and 'timestamp' in json:
             result.timestamp = json['timestamp']

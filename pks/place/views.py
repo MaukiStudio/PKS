@@ -105,7 +105,7 @@ class UserPlaceViewset(BaseViewset):
             pb.load_additional_info()
 
             # UserPlace/Place 찾기
-            uplace = UserPlace.get_from_post(pb, vd)
+            uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
             pb.uplace_uuid = uplace.uuid
 
             # valid check
@@ -120,7 +120,7 @@ class UserPlaceViewset(BaseViewset):
             if pb_MAMMA:
                 # 아래 호출에서 Place 가 생성되고, 필요시 Place PostPiece 도 생성됨
                 # TODO : 좀 더 Readability 가 높은 형태로 리팩토링
-                uplace = UserPlace.get_from_post(pb_MAMMA, vd)
+                uplace, is_created = UserPlace.get_or_create_smart(pb_MAMMA, vd)
 
             # 결과 처리 : 저장
             lonLat = (pb_MAMMA and pb_MAMMA.lonLat) or pb.lonLat
@@ -144,7 +144,8 @@ class UserPlaceViewset(BaseViewset):
     def perform_destroy(self, instance):
         # vd 조회
         vd = self.vd
-        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if not vd:
+            raise NotImplementedError
 
         # 장소화 안된 경우 완전 삭제
         if not instance.place:

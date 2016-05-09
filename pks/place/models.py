@@ -68,7 +68,7 @@ class Place(models.Model):
     # TODO : 추가로 실시간으로 같은 place 를 찾을 수 있는 상황이라면 곧바로 처리
     # TODO : 장소이름만 단독으로 먼저 붙이고, 그 이후에 좌표를 추가하는 경우 현재 장소화가 안됨.
     @classmethod
-    def get_from_post(cls, pb, vd):
+    def get_or_create_smart(cls, pb, vd):
 
         #######################################
         # Direct Placed Part
@@ -76,7 +76,7 @@ class Place(models.Model):
 
         # place_id 가 명확히 지정된 경우
         if pb.place_id:
-            return cls.objects.get(id=pb.place_id)
+            return cls.objects.get(id=pb.place_id), False
 
         # Placed by LegacyPlace
         lp = None
@@ -84,7 +84,7 @@ class Place(models.Model):
             pb.normalize()
             lp = pb.lps[0]
             if lp.place:
-                return lp.place
+                return lp.place, False
 
         # uplace, lonLat 조회
         uplace = None
@@ -105,7 +105,7 @@ class Place(models.Model):
                     lp.place = _place
                     lp.save()
                     PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
-                return _place
+                return _place, False
 
 
         #######################################
@@ -114,27 +114,25 @@ class Place(models.Model):
 
         # Placed by LegacyPlace
         if lp:
-            _place = Place(lonLat=lonLat, placeName=placeName)
-            _place.save()
+            _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
             lp.place = _place
             lp.save()
             PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
-            return _place
+            return _place, True
 
         # Placed by placeName/lonLat
         if placeName and lonLat:
             if not pb.lonLat:
                 pb.point = Point(lonLat.x, lonLat.y)
-            _place = Place(lonLat=lonLat, placeName=placeName)
-            _place.save()
+            _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
             PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
-            return _place
+            return _place, True
 
         # last : old_place
         if uplace:
-            return uplace.place
+            return uplace.place, False
 
-        return None
+        return None, False
 
 
     @property
@@ -167,9 +165,10 @@ class UserPlace(models.Model):
         return cls.objects.get(id=_id)
 
     @classmethod
-    def get_from_post(cls, pb, vd):
-        place = Place.get_from_post(pb, vd)
+    def get_or_create_smart(cls, pb, vd):
+        place, is_place_created = Place.get_or_create_smart(pb, vd)
         uplace = None
+        is_uplace_created = False
 
         # TODO : uplace 좀 더 찾기...
         if pb.uplace_uuid:
@@ -181,8 +180,8 @@ class UserPlace(models.Model):
 
         # 실시간 장소화
         if not uplace:
-            uplace = cls(vd=vd, place=place, lonLat=lonLat)
-            uplace.save()
+            uplace = cls.objects.create(vd=vd, place=place, lonLat=lonLat)
+            is_uplace_created = True
         elif not uplace.place:
             uplace.place = place
             uplace.lonLat = lonLat
@@ -197,7 +196,7 @@ class UserPlace(models.Model):
         # 결과 처리
         pb.place_id = uplace.place_id
         pb.uplace_uuid = uplace.uuid
-        return uplace
+        return uplace, is_uplace_created
 
     def computePost(self):
         pb = None

@@ -125,10 +125,10 @@ class SimpleUserPlaceTest(APITestBase):
         self.assertEqual(uplace.place, uplace2.place)
 
     def test_get_or_create(self):
-        uplace, created = UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
-        self.assertEqual(created, True)
-        uplace2, created = UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
-        self.assertEqual(created, False)
+        uplace, is_created = UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
+        self.assertEqual(is_created, True)
+        uplace2, is_created = UserPlace.objects.get_or_create(vd=self.vd, place=self.place)
+        self.assertEqual(is_created, False)
         self.assertEqual(uplace, uplace2)
 
     def test_created_modified(self):
@@ -195,7 +195,7 @@ class SimpleUserPlaceTest(APITestBase):
         self.vd.realOwner = ru
         self.vd.save()
         vd_mine = VD.objects.create(realOwner=ru)
-        uplace_check = UserPlace.get_from_post(pb, vd_mine)
+        uplace_check, is_created = UserPlace.get_or_create_smart(pb, vd_mine)
         self.assertNotEqual(uplace1, uplace_check)
         self.assertNotEqual(uplace2, uplace_check)
         self.assertEqual(uplace3, uplace_check)
@@ -338,17 +338,17 @@ class PostTest(APITestBase):
         pb_place1 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]}')
         pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
 
-        uplace = UserPlace.get_from_post(pb_add, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_add, vd)
         self.assertEqual(uplace.place, None)
 
         pb_place1.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_place1.pb_MAMMA, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_place1.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
         self.assertEqual(uplace.lonLat, uplace.place.lonLat)
         place1 = uplace.place
 
         pb_place2.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_place2.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
         self.assertEqual(uplace.lonLat, uplace.place.lonLat)
         place2 = uplace.place
@@ -367,13 +367,13 @@ class PostTest(APITestBase):
 
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
-        uplace = UserPlace.get_from_post(pb_add, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_add, vd)
         self.assertEqual(uplace.place, None)
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
 
         pb_name.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_name, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_name, vd)
         self.assertNotEqual(uplace.place, None)
         self.assertEqual(Place.objects.count(), 1)
         self.assertEqual(PostPiece.objects.count(), 1)
@@ -381,7 +381,7 @@ class PostTest(APITestBase):
         self.assertEqual(place1.placePost.phone, None)
 
         pb_place2.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_place2.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
         place2 = uplace.place
         self.assertEqual(place1, place2)
@@ -399,13 +399,13 @@ class PostTest(APITestBase):
 
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
-        uplace = UserPlace.get_from_post(pb_add, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_add, vd)
         self.assertEqual(uplace.place, None)
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
 
         pb_place2.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_place2.pb_MAMMA, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_place2.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
         place2 = uplace.place
         self.assertEqual(Place.objects.count(), 1)
@@ -413,7 +413,7 @@ class PostTest(APITestBase):
         self.assertEqual(PostPiece.objects.count(), 1)
 
         pb_name.uplace_uuid = uplace.uuid
-        uplace = UserPlace.get_from_post(pb_name, vd)
+        uplace, is_created = UserPlace.get_or_create_smart(pb_name, vd)
         self.assertNotEqual(uplace.place, None)
         self.assertEqual(Place.objects.count(), 1)
         self.assertEqual(PostPiece.objects.count(), 1)

@@ -41,7 +41,7 @@ class ContentViewset(ModelViewSet):
         ModelClass = self.serializer_class.Meta.model
         raw_content = request.data['content']
         content = ModelClass.normalize_content(raw_content)
-        model, created = ModelClass.objects.get_or_create(content=content)
+        model, is_created = ModelClass.objects.get_or_create(content=content)
         if model.content != content:
             raise HashCollisionError
         serializer = self.get_serializer(model)

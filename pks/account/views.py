@@ -93,7 +93,7 @@ class VDViewset(ModelViewSet):
 
         # Temporary : 곧바로 이메일 인증이 된 것으로 처리
         if vd.authOwner and vd.authOwner.email:
-            realUser, isCreated = RealUser.objects.get_or_create(email=vd.authOwner.email)
+            realUser, is_created = RealUser.objects.get_or_create(email=vd.authOwner.email)
             vd.realOwner = realUser
             vd.save()
 
