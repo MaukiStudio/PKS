@@ -175,8 +175,7 @@ class UserPlace(models.Model):
         if pb.uplace_uuid:
             uplace = cls.get_from_uuid(pb.uplace_uuid)
         if not uplace and place:
-            # TODO : 이 부분이 테스트되는 테스트 코드 추가하기
-            uplace = UserPlace.objects.filter(vd=vd, place=place).order_by('id').first()
+            uplace = UserPlace.objects.filter(vd_id__in=vd.realOwner_vd_ids, place=place).order_by('id').first()
 
         lonLat = (place and place.lonLat) or pb.lonLat
 

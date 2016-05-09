@@ -8,7 +8,7 @@ from json import loads as json_loads
 
 from base.tests import APITestBase, isSubsetOf
 from place.models import Place, UserPlace, PostPiece
-from account.models import VD
+from account.models import VD, RealUser
 from image.models import Image
 from url.models import Url
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
@@ -182,6 +182,23 @@ class SimpleUserPlaceTest(APITestBase):
         saved = UserPlace.objects.first()
         self.assertEqual(saved.is_drop, False)
         self.assertEqual(saved.mask, 0 | 0)
+
+    def test_get_from_post(self):
+        vd_other = VD.objects.create()
+        place_other = Place.objects.create()
+        uplace1 = UserPlace.objects.create(vd=vd_other, place=self.place)
+        uplace2 = UserPlace.objects.create(vd=self.vd, place=place_other)
+        uplace3 = UserPlace.objects.create(vd=self.vd, place=self.place)
+        pb = PostBase()
+        pb.place_id = self.place.id
+        ru = RealUser.objects.create(email='gulby@maukistudio.com')
+        self.vd.realOwner = ru
+        self.vd.save()
+        vd_mine = VD.objects.create(realOwner=ru)
+        uplace_check = UserPlace.get_from_post(pb, vd_mine)
+        self.assertNotEqual(uplace1, uplace_check)
+        self.assertNotEqual(uplace2, uplace_check)
+        self.assertEqual(uplace3, uplace_check)
 
 
 class PostTest(APITestBase):
