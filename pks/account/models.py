@@ -35,12 +35,18 @@ class User(AbstractUser):
 class RealUser(models.Model):
     email = models.EmailField(unique=True, blank=False, null=False, default=None)
 
+    def __init__(self, *args, **kwargs):
+        self._vd_ids_cache = None
+        super(RealUser, self).__init__(*args, **kwargs)
+
     def __unicode__(self):
         return self.email
 
     @property
     def vd_ids(self):
-        return [vd.id for vd in self.vds.all()]
+        if not self._vd_ids_cache:
+            self._vd_ids_cache = [vd.id for vd in self.vds.all()]
+        return self._vd_ids_cache
 
     def save(self, *args, **kwargs):
         if not self.email:
