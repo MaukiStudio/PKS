@@ -9,6 +9,7 @@ from base.views import BaseViewset
 from importer.models import Proxy, Importer, ImportedPlace
 from importer.serializers import ProxySerializer, ImporterSerializer, ImportedPlaceSerializer
 from account.models import VD
+from place.models import UserPlace, Place
 
 
 class ProxyViewset(BaseViewset):
@@ -68,3 +69,27 @@ class ImporterViewset(BaseViewset):
 class ImportedPlaceViewset(BaseViewset):
     queryset = ImportedPlace.objects.all()
     serializer_class = ImportedPlaceSerializer
+
+    def get_queryset(self):
+        params = self.request.query_params
+        if 'ru' in params and params['ru'] != 'myself':
+            raise NotImplementedError('Now, ru=myself only')
+        publisher_ids = self.publisher_ids
+        if publisher_ids:
+            qs1 = self.queryset.filter(vd_id__in=publisher_ids)
+            qs2 = qs1.exclude(place_id__in=self.subscriber_places)
+            return qs2.order_by('-modified')
+        else:
+            return self.queryset.filter(id=None)
+
+    # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
+    @property
+    def publisher_ids(self):
+        importers = Importer.objects.filter(subscriber_id__in=self.vd.realOwner_vd_ids)
+        return [importer.publisher_id for importer in importers]
+
+    # TODO : 튜닝
+    @property
+    def subscriber_places(self):
+        places = Place.objects.filter(uplaces__vd_id__in=self.vd.realOwner_vd_ids)
+        return places

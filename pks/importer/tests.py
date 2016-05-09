@@ -98,19 +98,17 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
     def setUp(self):
         super(ImportedPlaceViewSetTest, self).setUp()
-        self.vd_publisher = VD()
-        self.vd_publisher.save()
-        self.proxy = Proxy()
-        self.proxy.vd = self.vd_publisher
-        self.proxy.save()
+        self.vd_publisher = VD.objects.create()
+        self.proxy = Proxy.objects.create(vd=self.vd_publisher)
         self.vd_subscriber = VD.objects.get(id=self.vd_id)
-        self.imp = Importer()
-        self.imp.publisher = self.proxy
-        self.imp.subscriber = self.vd_subscriber
-        self.imp.save()
-        self.place = Place(); self.place.save()
-        self.uplace = UserPlace(vd=self.vd_publisher)
-        self.uplace.save()
+        self.imp = Importer.objects.create(publisher=self.proxy, subscriber=self.vd_subscriber)
+        self.place = Place.objects.create()
+        self.place2 = Place.objects.create()
+        self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
+        self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
+        self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
+        self.vd_other = VD.objects.create()
+        self.uplace_other = UserPlace.objects.create(vd=self.vd_other, place=self.place)
 
     def test_list(self):
         response = self.client.get('/iplaces/')
@@ -119,26 +117,34 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(len(results), 1)
         self.assertIn('userPost', results[0])
         self.assertIn('placePost', results[0])
-        self.assertIn('created', results[0])
-        self.assertIn('modified', results[0])
+        self.assertNotIn('created', results[0])
+        self.assertNotIn('modified', results[0])
         self.assertIn('place_id', results[0])
+        self.assertIn('iplace_uuid', results[0])
         self.assertNotIn('id', results[0])
         self.assertNotIn('place', results[0])
         self.assertNotIn('vd', results[0])
-
+        self.assertEqual(results[0]['iplace_uuid'], self.iplace.uuid)
 
     def test_detail(self):
         response = self.client.get('/iplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        response = self.client.get('/iplaces/%s/' % self.uplace.id)
+        response = self.client.get('/iplaces/%s/' % self.iplace.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertIn('userPost', result)
         self.assertIn('placePost', result)
+        self.assertNotIn('created', result)
+        self.assertNotIn('modified', result)
+        self.assertIn('place_id', result)
+        self.assertIn('iplace_uuid', result)
         self.assertNotIn('id', result)
+        self.assertNotIn('place', result)
+        self.assertNotIn('vd', result)
+        self.assertEqual(result['iplace_uuid'], self.iplace.uuid)
 
-        response2 = self.client.get('/iplaces/%s/' % self.uplace.uuid.split('.')[0])
+        response2 = self.client.get('/iplaces/%s/' % self.iplace.uuid.split('.')[0])
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.content, response.content)

@@ -1,9 +1,8 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from base.serializers import BaseSerializer
+from base.serializers import BaseSerializer, ReadOnlyField
 from importer.models import Proxy, Importer, ImportedPlace
-from place.serializers import UserPlaceSerializer
 
 
 class ProxySerializer(BaseSerializer):
@@ -16,7 +15,13 @@ class ImporterSerializer(BaseSerializer):
         model = Importer
 
 
-class ImportedPlaceSerializer(UserPlaceSerializer):
+class ImportedPlaceSerializer(BaseSerializer):
+    userPost = ReadOnlyField(source='userPost.json')
+    placePost = ReadOnlyField(source='placePost.json')
+    iplace_uuid = ReadOnlyField(source='uuid')
+    lonLat = ReadOnlyField(source='lonLat_json')
+    place_id = ReadOnlyField()
+
     class Meta:
         model = ImportedPlace
-        exclude = ('id', 'place', 'vd',)
+        exclude = ('id', 'place', 'vd', 'modified',)
