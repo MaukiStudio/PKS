@@ -289,11 +289,11 @@ class PostTest(APITestBase):
 
         self.assertIsSubsetOf(want_placePost, uplace1.place.placePost)
         self.assertIsNotSubsetOf(uplace1.place.placePost, want_placePost)
-        uplace1.clearCache()
+        uplace1._clearCache()
         p1 = uplace1.place.placePost
-        uplace2.clearCache()
+        uplace2._clearCache()
         p2 = uplace2.place.placePost
-        place.clearCache()
+        place._clearCache()
         p3 = place.placePost
         self.assertDictEqual(p1.json, p3.json)
         self.assertDictEqual(p2.json, p3.json)

@@ -1,6 +1,5 @@
 [Now]
 
-clearCache --> _clearCache
 PostPiece.is_drop
 리스팅시 UserPlace.is_drop 참조하도록 수정
 PostBase 확장하여 drop 처리할 수 있도록 만들기

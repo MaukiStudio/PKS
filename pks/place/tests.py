@@ -339,9 +339,9 @@ class UserPlaceViewSetTest(APITestBase):
 
         # 내장소 목록
         dummy_place = Place(); dummy_place.save()
-        self.uplace.clearCache()
+        self.uplace._clearCache()
         response = self.client.get('/uplaces/?ru=myself')
-        self.uplace.clearCache()
+        self.uplace._clearCache()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         result_userPost = results[0]['userPost']

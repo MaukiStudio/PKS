@@ -45,7 +45,7 @@ class Place(models.Model):
             pb.normalize()
         self._pb_cache = pb
 
-    def clearCache(self):
+    def _clearCache(self):
         self._pb_cache = None
 
     @property
@@ -215,10 +215,10 @@ class UserPlace(models.Model):
             pb.normalize()
         self._pb_cache = pb
 
-    def clearCache(self):
+    def _clearCache(self):
         self._pb_cache = None
         if self.place:
-            self.place.clearCache()
+            self.place._clearCache()
 
     @property
     def userPost(self):
