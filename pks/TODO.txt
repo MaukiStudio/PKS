@@ -1,7 +1,5 @@
 [Now]
 
-vd_id equal 조건으로만 검색하는 부분 모두 찾아 수정
-
 ImportedPlaceViewset
     List
     Detail

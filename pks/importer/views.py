@@ -4,12 +4,15 @@ from __future__ import unicode_literals
 from rest_framework.response import Response
 from rest_framework import status
 from json import loads as json_loads
+from rest_framework.decorators import detail_route
 
 from base.views import BaseViewset
 from importer.models import Proxy, Importer, ImportedPlace
 from importer.serializers import ProxySerializer, ImporterSerializer, ImportedPlaceSerializer
 from account.models import VD
-from place.models import UserPlace, Place
+from place.models import Place, UserPlace, PostPiece
+from place.post import PostBase
+from place.serializers import UserPlaceSerializer
 
 
 class ProxyViewset(BaseViewset):
@@ -93,3 +96,30 @@ class ImportedPlaceViewset(BaseViewset):
     def subscriber_places(self):
         places = Place.objects.filter(uplaces__vd_id__in=self.vd.realOwner_vd_ids)
         return places
+
+    # ImportedPlace 는 직접 생성할 수 없음. Publisher 에서 생성된 것이 Import 되면서 생성
+    def create(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # ImportedPlace 는 직접 수정할 수 없음. Publisher 에서 수정하거나 UserPlace 로 전환 후 수정 가능
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'])
+    def take(self, request, pk=None):
+        # vd 조회
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        iplace = self.get_object()
+        # 일단 take 시점의 iplace.userPost 를 복사함
+        # TODO : 향후 iplace.userPost 변경 사항을 반영하는 최신화가 필요할 수도...
+        pb = iplace.userPost or PostBase()
+        pb.iplace_uuid = iplace.uuid
+        pb.place_id = iplace.place_id
+        pb.uplace_uuid = None
+
+        uplace = UserPlace.get_from_post(pb, vd)
+        pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, data=pb.json)
+        serializer = UserPlaceSerializer(uplace)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

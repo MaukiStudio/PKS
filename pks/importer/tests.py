@@ -8,7 +8,8 @@ from json import loads as json_loads
 from base.tests import FunctionalTestAfterLoginBase
 from importer.models import Proxy, Importer, ImportedPlace
 from account.models import VD
-from place.models import UserPlace, Place
+from place.models import UserPlace, Place, PostPiece
+from place.post import PostBase
 
 
 class ProxyViewSetTest(FunctionalTestAfterLoginBase):
@@ -105,6 +106,8 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.place = Place.objects.create()
         self.place2 = Place.objects.create()
         self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
+        pb = PostBase('{"notes": [{"content": "test note"}]}')
+        self.pp = PostPiece.objects.create(place=None, uplace=self.iplace, vd=self.vd_publisher, data=pb.json)
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
         self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
         self.vd_other = VD.objects.create()
@@ -148,3 +151,16 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         response2 = self.client.get('/iplaces/%s/' % self.iplace.uuid.split('.')[0])
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.content, response.content)
+
+    def test_take(self):
+        self.assertEqual(UserPlace.objects.count(), 4)
+        response1 = self.client.post('/iplaces/%s/take/' % self.iplace.id)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 5)
+        result1 = json_loads(response1.content)
+        imported = UserPlace.objects.get(id=result1['uplace_uuid'].split('.')[0])
+        self.assertEqual(imported, UserPlace.objects.all().order_by('-id')[0])
+        self.assertIn('iplace_uuid', result1['userPost'])
+        self.assertEqual(result1['userPost']['iplace_uuid'], self.iplace.uuid)
+        self.assertIn('notes', result1['userPost'])
+        self.assertEqual(result1['userPost']['notes'][0]['content'], 'test note')

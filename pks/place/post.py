@@ -28,6 +28,7 @@ class PostBase(object):
         self.place_id = None
         self.uplace_uuid = None
         self.by_MAMMA = False
+        self.iplace_uuid = None
 
         t = type(json)
         if json is None:
@@ -89,6 +90,7 @@ class PostBase(object):
         return (self.points and self.points[0] and self.points[0].lonLat) or None
 
 
+    # TODO : iplace_uuid 가 세팅된 경우 원본 소스의 최신 데이터를 가져오는 처리
     def update(self, other, add=True):
         if add:
             self.names = other.names + self.names
@@ -188,11 +190,13 @@ class PostBase(object):
                             img.note = note
                     self.images.append(img)
 
-        # place_id, uplace_uuid 조회
+        # place_id, uplace_uuid, iplace_uuid 조회
         if is_valid_json_item('place_id', json):
             self.place_id = json['place_id']
         if is_valid_json_item('uplace_uuid', json):
             self.uplace_uuid = json['uplace_uuid']
+        if is_valid_json_item('iplace_uuid', json):
+            self.iplace_uuid = json['iplace_uuid']
 
 
     # TODO : 지식의 집단화 적용
@@ -209,6 +213,7 @@ class PostBase(object):
         if self.urls: json['urls'] = [url.json for url in self.urls]
         if self.notes: json['notes'] = [note.json for note in self.notes]
         if self.images: json['images'] = [img.json for img in self.images]
+        if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         return json
 
     def add_lps_from_urls(self):
