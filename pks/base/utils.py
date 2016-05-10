@@ -39,7 +39,7 @@ def remove_list(l1, l2):
 def remove_duplicates(l):
     if l:
         return reduce(lambda a, b: b[0] in a and a or a + b, [[i] for i in l])
-    return None
+    return l
 
 
 def get_uuid_from_ts_vd(timestamp, vd_id):

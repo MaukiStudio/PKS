@@ -34,7 +34,7 @@ class Place(models.Model):
     def computePost(self):
         pb = None
         for pp in self.pps.all().order_by('id'):
-            pb_new = PostBase(pp.data, pp.timestamp)
+            pb_new = pp.pb
             if not pb:
                 if pp.is_add:
                     pb = pb_new
@@ -58,7 +58,7 @@ class Place(models.Model):
     def _totalPost(self):
         pb = PostBase()
         for pp in (self.pps.all() | PostPiece.objects.filter(uplace__place_id=self.id)).order_by('id'):
-            pb_new = PostBase(pp.data, pp.timestamp)
+            pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
         return pb
@@ -201,7 +201,7 @@ class UserPlace(models.Model):
     def computePost(self):
         pb = None
         for pp in self.pps.all().order_by('id'):
-            pb_new = PostBase(pp.data, pp.timestamp)
+            pb_new = pp.pb
             if not pb:
                 if pp.is_add:
                     pb = pb_new
@@ -336,3 +336,12 @@ class PostPiece(models.Model):
             self.mask = (self.mask or 0) | 4
         else:
             self.mask = (self.mask or 0) & (~4)
+
+    @property
+    def pb(self):
+        pb1 = PostBase(self.data, self.timestamp)
+        if pb1.iplace_uuid:
+            iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)
+            if iplace:
+                pb1.update(iplace.userPost)
+        return pb1
