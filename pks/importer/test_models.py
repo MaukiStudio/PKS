@@ -63,16 +63,10 @@ class ImporterTest(APITestBase):
 
     def setUp(self):
         super(ImporterTest, self).setUp()
-        self.vd = VD()
-        self.vd.save()
-        self.proxy = Proxy()
-        self.proxy.vd = VD()
-        self.proxy.vd.save()
-        self.proxy.save()
-        self.imp = Importer()
-        self.imp.publisher = self.proxy
-        self.imp.subscriber = self.vd
-        self.imp.save()
+        self.subscriber = VD.objects.create()
+        self.publisher_vd = VD.objects.create()
+        self.proxy = Proxy.objects.create(vd=self.publisher_vd)
+        self.imp = Importer.objects.create(publisher=self.proxy, subscriber=self.subscriber)
 
     def test_save_and_retrieve(self):
         saved = Importer.objects.first()
@@ -81,7 +75,7 @@ class ImporterTest(APITestBase):
         self.assertEqual(saved.subscriber, self.imp.subscriber)
 
     def test_relationship(self):
-        self.assertEqual(self.proxy.subscribers.first(), self.vd)
+        self.assertEqual(self.proxy.subscribers.first(), self.subscriber)
         self.assertEqual(self.proxy.importers.first(), self.imp)
-        self.assertEqual(self.vd.proxies.first(), self.proxy)
-        self.assertEqual(self.vd.importers.first(), self.imp)
+        self.assertEqual(self.subscriber.proxies.first(), self.proxy)
+        self.assertEqual(self.subscriber.importers.first(), self.imp)

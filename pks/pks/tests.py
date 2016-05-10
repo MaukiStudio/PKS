@@ -55,7 +55,7 @@ class CelerySyncTest(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         app.conf.CELERY_ALWAYS_EAGER = True
 
-    def test_unittest(self):
+    def test_basic(self):
         r = for_unit_test.delay('test ', 'sync')
         self.assertEqual(r.state, 'SUCCESS')
         self.assertEqual(r.result, 'test sync')

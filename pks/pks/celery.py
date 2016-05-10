@@ -5,11 +5,15 @@ from __future__ import absolute_import
 from celery import Celery
 
 
-app = Celery('pks',
-             broker='amqp://guest:guest@localhost:5672//',
-             backend='amqp://guest:guest@localhost:5672//',
-             include=['pks.tasks'],
-             )
+app = Celery(
+    'pks',
+    broker='amqp://guest:guest@localhost:5672//',
+    backend='rpc://',
+    include=[
+        'pks.tasks',
+        'importer.tasks',
+    ],
+)
 
 # Optional configuration, see the application user guide.
 app.conf.update(

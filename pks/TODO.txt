@@ -1,9 +1,16 @@
 [Now]
 
+ImagesImporter
+    Task 뼈대 잡기
+    Reference PostPiece 만들기
+
 ImporterTask : Grouping 하여 Publisher VD 에서 UserPlace 생성
 
 
 Tag 기능 뼈대 잡기
+
+
+퍼미션 처리
 
 
 장소화 로직 정리해서 모으기
