@@ -1,23 +1,6 @@
 [Now]
 
-ImportedPlaceViewset
-    List : Done
-    Detail : Done
-        Take : Done
-        Drop : Done
-    FunctionalTest
-        
-
-PostBase 확장하여 Import 하여 내장소로 가져오는 처리를 할 수 있도록 만들기
-Import 함과 동시에 drop 처리가 가능하도록 구현
-
-DropPlace
-ImportedPlace
-
-ImportedViewset
-
-ImporterTask
-Import 기능을 위한 뼈대 잡기 : Importer, DropPlace, ...
+ImporterTask : Grouping 하여 Publisher VD 에서 UserPlace 생성
 
 
 Tag 기능 뼈대 잡기
