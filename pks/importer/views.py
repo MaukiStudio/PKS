@@ -52,14 +52,15 @@ class ImporterViewset(BaseViewset):
             proxy = Proxy.objects.create(vd=vd_publisher, guide=guide)
 
         # check validation
-        if proxy.vd:
-            if proxy.vd == vd:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            if proxy.vd.is_private:
-                if not proxy.vd.parent:
-                    raise NotImplementedError
-                if proxy.vd.parent != vd:
-                    return Response(status=status.HTTP_403_FORBIDDEN)
+        if not proxy.vd:
+            raise NotImplementedError
+        if proxy.vd == vd:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if proxy.vd.is_private:
+            if not proxy.vd.parent:
+                raise NotImplementedError
+            if proxy.vd.parent != vd:
+                return Response(status=status.HTTP_403_FORBIDDEN)
 
         # importer 생성
         importer, is_created = Importer.objects.get_or_create(publisher=proxy, subscriber=vd)
@@ -76,7 +77,8 @@ class ImportedPlaceViewset(BaseViewset):
     def get_queryset(self):
         params = self.request.query_params
         if 'ru' in params and params['ru'] != 'myself':
-            raise NotImplementedError('Now, ru=myself only')
+            # Now, ru=myself only
+            raise NotImplementedError
         publisher_ids = self.publisher_ids
         if publisher_ids:
             qs1 = self.queryset.filter(vd_id__in=publisher_ids)

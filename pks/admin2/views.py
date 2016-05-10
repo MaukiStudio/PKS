@@ -100,7 +100,8 @@ def placed_detail(request, uplace_id):
                     lon = _uplace.lonLat.x
                     lat = _uplace.lonLat.y
             if not lon or not lat:
-                raise NotImplementedError('현재는 이름과 함께 좌표(위도경도)를 넣어줘야 장소화가 됨 (향후 좌표 대신 주소도 가능)')
+                # 현재는 이름과 함께 좌표(위도경도)를 넣어줘야 장소화가 됨 (향후 좌표 대신 주소도 가능)
+                raise NotImplementedError
 
             # PostBase instance 생성
             json_add = '{"lonLat": {"lon": %f, "lat": %f}, "name": {"content": "%s"}}' % (lon, lat, placeName,)
