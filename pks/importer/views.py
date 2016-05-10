@@ -80,8 +80,9 @@ class ImportedPlaceViewset(BaseViewset):
         publisher_ids = self.publisher_ids
         if publisher_ids:
             qs1 = self.queryset.filter(vd_id__in=publisher_ids)
-            qs2 = qs1.exclude(place_id__in=self.subscriber_places)
-            return qs2.order_by('-modified')
+            qs2 = qs1.exclude(place_id=None)
+            qs3 = qs2.exclude(place_id__in=self.subscriber_places)
+            return qs3.order_by('-modified')
         else:
             return self.queryset.filter(id=None)
 

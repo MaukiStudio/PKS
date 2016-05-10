@@ -109,6 +109,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         pb = PostBase('{"notes": [{"content": "test note"}]}')
         self.pp = PostPiece.objects.create(place=None, uplace=self.iplace, vd=self.vd_publisher, data=pb.json)
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
+        self.iplace3 = ImportedPlace.objects.create(vd=self.vd_publisher, place=None)
         self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
         self.vd_other = VD.objects.create()
         self.uplace_other = UserPlace.objects.create(vd=self.vd_other, place=self.place)
@@ -155,10 +156,10 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response2.content, response.content)
 
     def test_take(self):
-        self.assertEqual(UserPlace.objects.count(), 4)
+        self.assertEqual(UserPlace.objects.count(), 5)
         response1 = self.client.post('/iplaces/%s/take/' % self.iplace.id)
         self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(UserPlace.objects.count(), 5)
+        self.assertEqual(UserPlace.objects.count(), 6)
         result1 = json_loads(response1.content)
         imported = UserPlace.objects.get(id=result1['uplace_uuid'].split('.')[0])
         self.assertEqual(imported, UserPlace.objects.all().order_by('-id')[0])
@@ -173,15 +174,15 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(len(results), 0)
 
     def test_drop(self):
-        self.assertEqual(UserPlace.objects.count(), 4)
+        self.assertEqual(UserPlace.objects.count(), 5)
         response1 = self.client.post('/iplaces/%s/drop/' % self.iplace2.id)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(UserPlace.objects.count(), 4)
+        self.assertEqual(UserPlace.objects.count(), 5)
 
-        self.assertEqual(UserPlace.objects.count(), 4)
+        self.assertEqual(UserPlace.objects.count(), 5)
         response1 = self.client.post('/iplaces/%s/drop/' % self.iplace.id)
         self.assertEqual(response1.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(UserPlace.objects.count(), 5)
+        self.assertEqual(UserPlace.objects.count(), 6)
 
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
