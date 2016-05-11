@@ -8,6 +8,7 @@ from json import loads as json_loads
 
 from account.models import VD
 from place.models import UserPlace
+from base.utils import get_timestamp
 
 
 class Proxy(models.Model):
@@ -36,6 +37,8 @@ class Importer(models.Model):
 
     publisher = models.ForeignKey(Proxy, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='importers')
     subscriber = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='importers')
+    started = models.BigIntegerField(blank=True, null=True, default=None)
+    ended = models.BigIntegerField(blank=True, null=True, default=None)
 
     class Meta:
         unique_together = ('subscriber', 'publisher',)
@@ -45,5 +48,10 @@ class Importer(models.Model):
             raise IntegrityError('Importer.publisher and subscriber must not be None')
         super(Importer, self).save(*args, **kwargs)
 
+    def reload(self):
+        return Importer.objects.get(id=self.id)
 
+
+# 일단 iplace 는 별도 저장하지 않고 uplace 에서 조회하여 사용
+# 향후 성능을 위해 별도 저장할 수도 있음
 ImportedPlace = UserPlace

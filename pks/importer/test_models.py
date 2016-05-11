@@ -79,3 +79,13 @@ class ImporterTest(APITestBase):
         self.assertEqual(self.proxy.importers.first(), self.imp)
         self.assertEqual(self.subscriber.proxies.first(), self.proxy)
         self.assertEqual(self.subscriber.importers.first(), self.imp)
+
+    def test_reload(self):
+        imp2 = Importer.objects.get(id=self.imp.id)
+        self.imp.started = 1
+        self.imp.save()
+        self.assertEqual(imp2, self.imp)
+        self.assertNotEqual(imp2.started, self.imp.started)
+        imp2 = imp2.reload()
+        self.assertEqual(imp2, self.imp)
+        self.assertEqual(imp2.started, self.imp.started)
