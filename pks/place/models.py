@@ -33,17 +33,12 @@ class Place(models.Model):
         return 'No named place object'
 
     def computePost(self):
-        pb = None
+        pb = PostBase()
         for pp in self.pps.all().order_by('id'):
             pb_new = pp.pb
-            if not pb:
-                if pp.is_add:
-                    pb = pb_new
-            else:
-                pb.update(pb_new, pp.is_add)
-        if pb:
-            pb.place_id = self.id
-            pb.normalize()
+            pb.update(pb_new, pp.is_add)
+        pb.place_id = self.id
+        pb.normalize()
         self._pb_cache = pb
 
     def _clearCache(self):
@@ -201,22 +196,17 @@ class UserPlace(models.Model):
         return uplace, is_uplace_created
 
     def computePost(self):
-        pb = None
+        pb = PostBase()
         for pp in self.pps.all().order_by('id'):
             pb_new = pp.pb
-            if not pb:
-                if pp.is_add:
-                    pb = pb_new
+            if pp.is_drop:
+                # TODO : 이 부분이 테스트되는 테스트 추가
+                pb = PostBase()
             else:
-                if pp.is_drop:
-                    # TODO : 이 부분이 테스트되는 테스트 추가
-                    pb = None
-                else:
-                    pb.update(pb_new, pp.is_add)
-        if pb:
-            pb.uplace_uuid = self.uuid
-            pb.place_id = self.place_id
-            pb.normalize()
+                pb.update(pb_new, pp.is_add)
+        pb.uplace_uuid = self.uuid
+        pb.place_id = self.place_id
+        pb.normalize()
         self._pb_cache = pb
 
     def _clearCache(self):

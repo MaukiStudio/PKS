@@ -1,7 +1,5 @@
 [Now]
 
-uplaces, 다양한 정렬 기능 추가
-
 Image 업로드 시 GPS data 를 별도로 올릴 수 있도록 수정 : json 으로 받자.
 
 ImagesImporter
@@ -28,9 +26,14 @@ Tag 기능 뼈대 잡기
 get_queryset(), get_object() 리팩토링 
 
 
+Content.get_from_json() 에서 에러 났을 때 empty UserPlace 가 저장되는 버그 처리 
+
+
 URL redirect 처리
     Content.same 처리 구조 잡기
     네이버맵 모바일용 단축 URL 처리
+
+
 
 
 위치 트래킹

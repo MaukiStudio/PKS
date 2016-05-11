@@ -103,6 +103,7 @@ class PostBase(object):
             self.urls = other.urls + self.urls
             self.notes = other.notes + self.notes
             self.images = other.images + self.images
+            self.iplace_uuid = self.iplace_uuid or other.iplace_uuid
         else:
             self.names = remove_list(self.names, other.names)
             self.points = remove_list(self.points, other.points)
