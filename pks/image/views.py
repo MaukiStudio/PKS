@@ -1,21 +1,49 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.gis.geos import GEOSGeometry
+from datetime import datetime
 
-from image import models
-from image import serializers
+from image.models import Image, RawFile
+from image.serializers import ImageSerializer, RawFileSerializer
 from base.views import BaseViewset, ContentViewset
+from delorean import Delorean
 
 
 class ImageViewset(ContentViewset):
-    queryset = models.Image.objects.all()
-    serializer_class = serializers.ImageSerializer
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
+
+    def create(self, request, *args, **kwargs):
+        if 'content' not in request.data or not request.data['content']:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # TODO : DB 처리가 1회에 끝나도록 튜닝 (get_from_json() --> get_or_create_smart() 로 변경하고 json 에 lonLat, ltimestamp 추가...)
+        img = Image.get_from_json('{"content": "%s"}' % request.data['content'])
+        dirty = False
+        if 'lon' in request.data and request.data['lon'] and 'lat' in request.data and request.data['lat']:
+            lon = float(request.data['lon'])
+            lat = float(request.data['lat'])
+            point = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+            img.lonLat = point
+            dirty = True
+        if 'local_datetime' in request.data and request.data['local_datetime']:
+            dt = datetime.strptime(request.data['local_datetime'], '%Y:%m:%d %H:%M:%S')
+            d = Delorean(dt, timezone='UTC')
+            img.ltimestamp = int(round(d.epoch*1000))
+            dirty = True
+        if dirty:
+            img.save()
+
+        serializer = self.get_serializer(img)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class RawFileViewset(BaseViewset):
-    queryset = models.RawFile.objects.all()
-    serializer_class = serializers.RawFileSerializer
+    queryset = RawFile.objects.all()
+    serializer_class = RawFileSerializer
 
     def perform_create(self, serializer):
         serializer.save(vd=self.vd)

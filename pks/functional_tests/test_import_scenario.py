@@ -40,7 +40,7 @@ class ImagesImportScenarioTest(FunctionalTestAfterLoginBase):
                 response = self.client.post('/rfs/', dict(file=f))
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 img_url = json_loads(response.content)['file']
-                response = self.client.post('/imgs/', dict(content=img_url))
+                response = self.client.post('/imgs/', dict(content=img_url, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19'))
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Create Importer

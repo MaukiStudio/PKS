@@ -49,7 +49,9 @@ class Image(Content):
         if self.is_accessed:
             pil = self.content_accessed
             if not self.lonLat or not self.ltimestamp:
-                self.lonLat, self.ltimestamp = self.process_exif(pil)
+                lonLat, ltimestamp = self.process_exif(pil)
+                self.lonLat = self.lonLat or lonLat
+                self.ltimestamp = self.ltimestamp or ltimestamp
             if not self.dhash:
                 self.dhash = self.compute_id_from_file(pil)
             self.summarize(pil)
