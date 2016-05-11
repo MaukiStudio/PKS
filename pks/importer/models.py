@@ -6,7 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import IntegrityError
 from json import loads as json_loads
 
-from account.models import VD
+from account.models import VD, RealUser
 from place.models import UserPlace
 
 
@@ -45,8 +45,14 @@ class Proxy(models.Model):
         # TODO : 정확한 구현인지 확인
         if r.failed():
             raise NotImplementedError
-
         return r
+
+    @property
+    def vd_ids(self):
+        if self.guide and 'type' in self.guide and self.guide['type'] == 'user':
+            ru = RealUser.objects.get(email=self.guide['email'])
+            return ru.vd_ids
+        return [self.id]
 
 
 class Importer(models.Model):
@@ -76,7 +82,6 @@ class Importer(models.Model):
         # TODO : 정확한 구현인지 확인
         if r.failed():
             raise NotImplementedError
-
         return r
 
 

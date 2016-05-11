@@ -9,7 +9,7 @@ from rest_framework.decorators import detail_route
 from base.views import BaseViewset
 from importer.models import Proxy, Importer, ImportedPlace
 from importer.serializers import ProxySerializer, ImporterSerializer, ImportedPlaceSerializer
-from account.models import VD
+from account.models import VD, RealUser
 from place.models import Place, UserPlace, PostPiece
 from place.post import PostBase
 from place.serializers import UserPlaceSerializer
@@ -38,6 +38,12 @@ class ImporterViewset(BaseViewset):
         if 'vd' in guide and guide['vd'] == 'myself':
             guide['vd'] = vd.id
 
+        # check validation 1
+        if 'type' in guide and guide['type'] == 'user':
+            ru = RealUser.objects.get(email=guide['email'])
+            if ru == self.vd.realOwner:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
         # proxy 조회
         try:
             proxy = Proxy.objects.get(guide=guide)
@@ -51,7 +57,7 @@ class ImporterViewset(BaseViewset):
             vd_publisher.save()
             proxy = Proxy.objects.create(vd=vd_publisher, guide=guide)
 
-        # check validation
+        # check validation 2
         if not proxy.vd:
             raise NotImplementedError
         if proxy.vd == vd:
@@ -87,13 +93,16 @@ class ImportedPlaceViewset(BaseViewset):
             qs3 = qs2.exclude(place_id__in=self.subscriber_places)
             return qs3.order_by('-modified')
         else:
+            # TODO : empty resultset 을 넘기는 깔끔한 방법으로 대체
             return self.queryset.filter(id=None)
 
     # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
     @property
     def publisher_ids(self):
         importers = Importer.objects.filter(subscriber_id__in=self.vd.realOwner_vd_ids)
-        return [importer.publisher_id for importer in importers]
+        if importers:
+            return reduce(lambda a, b: a.extends(b), [importer.publisher.vd_ids for importer in importers])
+        return []
 
     # TODO : 튜닝
     @property

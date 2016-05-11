@@ -1,15 +1,15 @@
 [Now]
 
+uplaces, 다양한 정렬 기능 추가
+
+Image 업로드 시 GPS data 를 별도로 올릴 수 있도록 수정 : json 으로 받자.
+
 ImagesImporter
-    Reference PostPiece 구현 및 take 에서 활용 : Done
-    Task 뼈대 잡기 : Done
     이미지 전처리
     GPS 좌표 있는 것들만 모아 시간 순서로 정렬
     1장씩 판단하며 Merge
     Merge 가능 Group 모아 UserPlace 로
         이미 생성된 UserPlace 가 있으면 거기에 pp 추가
-
-ImporterTask : Grouping 하여 Publisher VD 에서 UserPlace 생성
 
 
 Tag 기능 뼈대 잡기

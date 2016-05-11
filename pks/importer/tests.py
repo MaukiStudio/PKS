@@ -7,7 +7,7 @@ from json import loads as json_loads
 
 from base.tests import FunctionalTestAfterLoginBase
 from importer.models import Proxy, Importer, ImportedPlace
-from account.models import VD
+from account.models import VD, RealUser
 from place.models import UserPlace, Place, PostPiece
 from place.post import PostBase
 
@@ -29,10 +29,10 @@ class ProxyViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ImporterViewSetTest(FunctionalTestAfterLoginBase):
+class BasicImporterViewSetTest(FunctionalTestAfterLoginBase):
 
     def setUp(self):
-        super(ImporterViewSetTest, self).setUp()
+        super(BasicImporterViewSetTest, self).setUp()
         self.vd_publisher = VD()
         self.vd_publisher.save()
         self.proxy = Proxy()
@@ -70,7 +70,7 @@ class ImporterViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(Importer.objects.count(), 2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_images3_import_self(self):
+    def test_create_images3_importer_self(self):
         self.assertEqual(Proxy.objects.count(), 1)
         guide_json2 = '{"type": "images", "vd": %d}' % self.vd_subscriber.id
         proxy = Proxy.objects.create(vd=self.vd_subscriber, guide=guide_json2)
@@ -79,7 +79,7 @@ class ImporterViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(Proxy.objects.count(), 2)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_images4_import_private(self):
+    def test_create_images4_importer_private(self):
         self.assertEqual(Proxy.objects.count(), 1)
         guide_json2 = '{"type": "images", "vd": %d}' % self.vd_subscriber.id
         vd = VD()
@@ -93,6 +93,48 @@ class ImporterViewSetTest(FunctionalTestAfterLoginBase):
         response = self.client.post('/importers/', dict(guide=guide_json2))
         self.assertEqual(Proxy.objects.count(), 2)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ComplexImporterViewSetTest(FunctionalTestAfterLoginBase):
+
+    def setUp(self):
+        super(ComplexImporterViewSetTest, self).setUp()
+        self.ru = RealUser.objects.create(email='gulby@naver.com')
+
+    def test_create_user_importer(self):
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 0)
+
+        publisher_vd1 = VD.objects.create(realOwner=self.ru)
+        publisher_vd2 = VD.objects.create()
+        place1 = Place.objects.create()
+        uplace1 = UserPlace.objects.create(place=place1, vd=publisher_vd1)
+        place2 = Place.objects.create()
+        uplace2 = UserPlace.objects.create(place=place2, vd=publisher_vd2)
+
+        self.assertEqual(Proxy.objects.count(), 0)
+        self.assertEqual(Importer.objects.count(), 0)
+        self.assertEqual(VD.objects.count(), 3)
+        guide_json = '{"type": "user", "email": "gulby@naver.com"}'
+        response = self.client.post('/importers/', dict(guide=guide_json))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Proxy.objects.count(), 1)
+        self.assertEqual(Importer.objects.count(), 1)
+        self.assertEqual(VD.objects.count(), 4)
+
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+
+        publisher_vd2.realOwner = self.ru
+        publisher_vd2.save()
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 2)
 
 
 class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):

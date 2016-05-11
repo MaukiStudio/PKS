@@ -7,6 +7,7 @@ from rest_framework import status
 from glob import glob
 
 from base.tests import FunctionalTestAfterLoginBase
+from account.models import RealUser, VD
 
 
 class ImagesImportScenarioTest(FunctionalTestAfterLoginBase):
@@ -16,9 +17,23 @@ class ImagesImportScenarioTest(FunctionalTestAfterLoginBase):
                 "type": "images",
                 "vd": "myself"
             }
+            {
+                "type": "user",
+                "email": "gulby@naver.com"
+            }
     '''
 
-    def test_images_import(self):
+    def setUp(self):
+        super(ImagesImportScenarioTest, self).setUp()
+        self.ru = RealUser.objects.create(email='gulby@naver.com')
+
+    def test_import_user(self):
+        # Create Importer
+        guide_json = '{"type": "user", "email": "gulby@naver.com"}'
+        response = self.client.post('/importers/', dict(guide=guide_json))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_import_images(self):
         # File Upload & Register Image
         for file_name in glob('image/samples/*.jpg'):
             with open(file_name) as f:

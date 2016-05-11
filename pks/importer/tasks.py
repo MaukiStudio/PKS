@@ -31,8 +31,10 @@ class ImporterTask(Task):
         try:
             r = imp.publisher.start()
             if r.failed():
+                print('ImporterTask : if r.failed()')
                 result = False
         except:
+            print('ImporterTask : except')
             result = False
 
         imp.ended = get_timestamp()
@@ -61,12 +63,20 @@ class ProxyTask(Task):
             pass
         elif guide_type == 'images':
             result = self.import_images(proxy)
+        elif guide_type == 'user':
+            result = self.import_user(proxy)
         else:
+            print('ProxyTask : else')
             result = False
 
         proxy.ended = get_timestamp()
         proxy.save()
         return result
 
+    def import_user(self, proxy):
+        # TODO : 향후엔 별도로 생성한 VD 에 해당 유저의 uplace 정보를 모으는 형태의 튜닝 필요
+        return True
+
     def import_images(self, proxy):
         return True
+
