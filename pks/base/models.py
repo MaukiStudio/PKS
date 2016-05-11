@@ -116,6 +116,9 @@ class Content(models.Model):
             if content:
                 result, is_created = cls.objects.get_or_create(content=content)
                 if result.content != content:
+                    print(json['content'])
+                    print(content)
+                    print(result.content)
                     raise HashCollisionError
                 if is_created:
                     cls.on_create(result)

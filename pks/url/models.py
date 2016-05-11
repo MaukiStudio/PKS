@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from re import compile as re_compile
 from rest_framework import status
+from urllib2 import unquote
 
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
@@ -34,6 +35,9 @@ class Url(Content):
         except ValueError:
             pass
 
+        # URL encoding 처리
+        url = unquote(url.encode('utf-8')).decode('utf-8')
+
         url = url_norms(url)
         if not url.startswith('http'):
             url = '%s%s' % (SERVER_HOST, url)
@@ -46,7 +50,6 @@ class Url(Content):
             content_type = r.headers.get('content-type')
             if r.status_code in (status.HTTP_200_OK,) and content_type and content_type.startswith('text/html'):
                 str = r.content
-                print(str)
                 if str.startswith(b'<script>window.location.replace("'):
                     pos1 = str.index('"') + 1
                     pos2 = str.index('"', pos1)
