@@ -15,6 +15,7 @@ sudo apt-get install -y rabbitmq-server
 sudo easy_install -U pip
 hash -r
 
+sudo -H pip install --upgrade pip
 sudo -H pip install -r requirements.txt --upgrade
 sudo -u postgres psql -a -f initdb.sql
 
