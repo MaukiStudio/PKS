@@ -52,7 +52,6 @@ class UserViewset(ModelViewSet):
 
         # login
         login(request, user)
-        #return Response({'result': True}, status=status.HTTP_302_FOUND)
         return Response({'result': True}, status=status.HTTP_200_OK)
 
 
@@ -118,7 +117,6 @@ class VDViewset(ModelViewSet):
                 and user_id == request.user.id and user_id == vd.authOwner_id:
             request.session[VD_SESSION_KEY] = vd_id
             token = self.getToken(vd)
-            #return Response({'auth_vd_token': token}, status=status.HTTP_302_FOUND)
             return Response({'auth_vd_token': token}, status=status.HTTP_200_OK)
         else:
             return Response({'auth_vd_token': None}, status=status.HTTP_401_UNAUTHORIZED)

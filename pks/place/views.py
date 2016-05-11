@@ -80,8 +80,6 @@ class UserPlaceViewset(BaseViewset):
         return qs.order_by(order_by)
 
     def create(self, request, *args, **kwargs):
-        # TODO : 향후 remove mode 구현하기
-
         # vd 조회
         vd = self.vd
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
