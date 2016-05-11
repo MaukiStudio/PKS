@@ -26,6 +26,8 @@ class APITestBase(APITestCase):
         self.clear_media_files()
         settings.CELERY_ALWAYS_EAGER = True
         app.conf.CELERY_ALWAYS_EAGER = True
+        #settings.CELERY_EAGER_TRANSACTION = True
+        #app.conf.CELERY_EAGER_TRANSACTION = True
 
     def check_login(self, user=None):
         session_key = self.client.session.get(SESSION_KEY)

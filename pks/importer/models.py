@@ -8,7 +8,6 @@ from json import loads as json_loads
 
 from account.models import VD
 from place.models import UserPlace
-from base.utils import get_timestamp
 
 
 class Proxy(models.Model):
@@ -17,6 +16,8 @@ class Proxy(models.Model):
     vd = models.OneToOneField(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='proxy')
     guide = JSONField(blank=True, null=True, default=None, db_index=True, unique=True)
     subscribers = models.ManyToManyField(VD, through='Importer', related_name='proxies')
+    started = models.BigIntegerField(blank=True, null=True, default=None)
+    ended = models.BigIntegerField(blank=True, null=True, default=None)
 
     def __unicode__(self):
         if self.vd:
@@ -31,6 +32,21 @@ class Proxy(models.Model):
         if self.guide and type(self.guide) is not dict:
             self.guide = json_loads(self.guide)
         super(Proxy, self).save(*args, **kwargs)
+
+    def reload(self):
+        return Proxy.objects.get(id=self.id)
+
+    # TODO : priority 처리 구현
+    def start(self, high_priority=False):
+        from importer.tasks import ProxyTask
+        task = ProxyTask()
+        r = task.delay(self)
+
+        # TODO : 정확한 구현인지 확인
+        if r.failed():
+            raise NotImplementedError
+
+        return r
 
 
 class Importer(models.Model):
@@ -50,6 +66,18 @@ class Importer(models.Model):
 
     def reload(self):
         return Importer.objects.get(id=self.id)
+
+    # TODO : priority 처리 구현
+    def start(self, high_priority=False):
+        from importer.tasks import ImporterTask
+        task = ImporterTask()
+        r = task.delay(self)
+
+        # TODO : 정확한 구현인지 확인
+        if r.failed():
+            raise NotImplementedError
+
+        return r
 
 
 # 일단 iplace 는 별도 저장하지 않고 uplace 에서 조회하여 사용

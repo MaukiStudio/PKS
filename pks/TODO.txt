@@ -1,8 +1,8 @@
 [Now]
 
 ImagesImporter
-    Task 뼈대 잡기 : Done
     Reference PostPiece 구현 및 take 에서 활용 : Done
+    Task 뼈대 잡기 : Done
     이미지 전처리
     GPS 좌표 있는 것들만 모아 시간 순서로 정렬
     1장씩 판단하며 Merge
@@ -15,6 +15,8 @@ ImporterTask : Grouping 하여 Publisher VD 에서 UserPlace 생성
 Tag 기능 뼈대 잡기
     확률 기반
     기본은 Place, 상속받아 UserPlace 에서 Override
+    Place 레벨에서는 관측 확률, UserPlace 레벨에서는 유저가 붙였다면 100%
+    관측되지 않은 Tag 확률 계산은 다른 Tag 들을 활용한 간접 계산
 
 
 퍼미션 처리

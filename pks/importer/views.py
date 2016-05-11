@@ -62,8 +62,9 @@ class ImporterViewset(BaseViewset):
             if proxy.vd.parent != vd:
                 return Response(status=status.HTTP_403_FORBIDDEN)
 
-        # importer 생성
+        # importer 생성 및 celery task 처리
         importer, is_created = Importer.objects.get_or_create(publisher=proxy, subscriber=vd)
+        importer.start(high_priority=is_created)
 
         # 결과 처리
         serializer = self.get_serializer(importer)
