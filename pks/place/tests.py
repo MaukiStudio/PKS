@@ -420,16 +420,22 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
+        self.assertEqual(Image.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 2)
+        uplace = UserPlace.get_from_uuid(json_loads(response.content)['uplace_uuid'])
         self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = UserPlace.objects.first()
+        self.assertEqual(Image.objects.count(), 1)
+        img = Image.objects.first()
+        self.assertEqual(img.lonLat, point1)
+        self.assertEqual(img.timestamp, uplace.created - 1000)
+
         want = json_loads(json_add)
-        self.assertIsSubsetOf(want, self.uplace.userPost)
-        self.assertEqual(self.uplace.placePost, None)
-        self.assertIsNotSubsetOf(self.uplace.userPost, want)
+        self.assertIsSubsetOf(want, uplace.userPost)
+        self.assertEqual(uplace.placePost, None)
+        self.assertIsNotSubsetOf(uplace.userPost, want)
 
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
         self.assertEqual(Place.objects.count(), 1)

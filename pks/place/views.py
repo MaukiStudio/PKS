@@ -140,11 +140,20 @@ class UserPlaceViewset(BaseViewset):
                 # TODO : 좀 더 Readability 가 높은 형태로 리팩토링
                 uplace, is_created = UserPlace.get_or_create_smart(pb_MAMMA, vd)
 
-            # 결과 처리 : 저장
+            # Place.lonLat 관련 예외 처리
             lonLat = (pb_MAMMA and pb_MAMMA.lonLat) or pb.lonLat
             if lonLat and uplace.place and not uplace.place.lonLat:
                 uplace.place.lonLat = lonLat
                 uplace.place.save()
+
+            # 현재 위치 저장인 경우 이미지에 추가 정보 붙이기
+            if is_created and lonLat and pb.images and len(pb.images) == 1 and pb.images[0]:
+                img = pb.images[0]
+                img.lonLat = lonLat
+                img.timestamp = uplace.created - 1000
+                img.save()
+
+            # 최종 저장
             uplace.lonLat = uplace.lonLat or lonLat
             uplace.modified = get_timestamp()
             # TODO : 아래 코드가 테스트되는 테스트 추가
