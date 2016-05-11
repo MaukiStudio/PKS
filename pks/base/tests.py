@@ -18,6 +18,7 @@ from pathlib2 import Path
 from place.post import PostBase
 from pks.celery import app
 from base.utils import remove_list, remove_duplicates
+from pks.settings import SERVER_HOST
 
 
 class APITestBase(APITestCase):
@@ -121,6 +122,9 @@ class APITestBase(APITestCase):
             self.printJson(A)
             self.printJson(B)
             self.fail('assertIsNotSubsetOf() fail')
+
+    def normalize_testserver_url(self, testserver_url):
+        return testserver_url.replace('http://testserver', SERVER_HOST)
 
 
 class FunctionalTestBase(APITestBase):
