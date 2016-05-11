@@ -51,7 +51,7 @@ class ImageViewsetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img = Image.objects.get(content=self.content2)
         self.assertEqual(img.lonLat, GEOSGeometry('POINT(%f %f)' % (127.0, 37.0), srid=4326))
-        self.assertEqual(img.ltimestamp, 1429703659000)
+        self.assertEqual(img.timestamp, 1429671259000)
 
     def test_create3(self):
         with open('image/samples/gps_test.jpg') as f:
@@ -62,7 +62,7 @@ class ImageViewsetTest(APITestBase):
         uuid = json_loads(response.content)['uuid']
         img = Image.get_from_json('{"uuid": "%s"}' % uuid)
         self.assertEqual(img.lonLat, GEOSGeometry('POINT(%f %f)' % (127.103744, 37.399731), srid=4326))
-        self.assertEqual(img.ltimestamp, 1459181934000)
+        self.assertEqual(img.timestamp, 1459149534000)
 
     def test_create4(self):
         with open('image/samples/gps_test.jpg') as f:
@@ -73,7 +73,7 @@ class ImageViewsetTest(APITestBase):
         uuid = json_loads(response.content)['uuid']
         img = Image.get_from_json('{"uuid": "%s"}' % uuid)
         self.assertEqual(img.lonLat, GEOSGeometry('POINT(%f %f)' % (127.0, 37.0), srid=4326))
-        self.assertEqual(img.ltimestamp, 1429703659000)
+        self.assertEqual(img.timestamp, 1429671259000)
 
     def test_create_twice(self):
         self.assertEqual(Image.objects.count(), 1)

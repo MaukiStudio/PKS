@@ -98,10 +98,10 @@ class ImageTest(APITestBase):
         self.assertEqual(img.lonLat, point)
         self.assertEqual(saved.lonLat, point)
 
-    def test_exif_ltimestamp(self):
+    def test_exif_timestamp(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
-        ltimestamp = exif_lib.get_ltimestamp(exif)
-        self.assertEqual(ltimestamp, 1459181934000)
+        timestamp = exif_lib.get_timestamp(exif)
+        self.assertEqual(timestamp, 1459149534000)
 
         rf = models.RawFile()
         rf.file = self.uploadFile('gps_test.jpg')
@@ -112,16 +112,16 @@ class ImageTest(APITestBase):
         img.save()
         saved = models.Image.objects.first()
 
-        self.assertEqual(img.ltimestamp, ltimestamp)
-        self.assertEqual(saved.ltimestamp, ltimestamp)
+        self.assertEqual(img.timestamp, timestamp)
+        self.assertEqual(saved.timestamp, timestamp)
 
     def test_no_exif(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/no_exif_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
-        ltimestamp = exif_lib.get_ltimestamp(exif)
+        timestamp = exif_lib.get_timestamp(exif)
         self.assertIsNone(lonLat[0])
         self.assertIsNone(lonLat[1])
-        self.assertIsNone(ltimestamp)
+        self.assertIsNone(timestamp)
 
         rf = models.RawFile()
         rf.file = self.uploadFile('no_exif_test.jpg')
@@ -133,10 +133,10 @@ class ImageTest(APITestBase):
         saved = models.Image.objects.first()
 
         self.assertEqual(img.lonLat, None)
-        self.assertEqual(img.ltimestamp, None)
+        self.assertEqual(img.timestamp, None)
         self.assertEqual(saved, img)
         self.assertEqual(saved.lonLat, None)
-        self.assertEqual(saved.ltimestamp, None)
+        self.assertEqual(saved.timestamp, None)
 
     def test_dhash(self):
         rf = models.RawFile()

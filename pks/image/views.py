@@ -20,7 +20,7 @@ class ImageViewset(ContentViewset):
         if 'content' not in request.data or not request.data['content']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        # TODO : DB 처리가 1회에 끝나도록 튜닝 (get_from_json() --> get_or_create_smart() 로 변경하고 json 에 lonLat, ltimestamp 추가...)
+        # TODO : DB 처리가 1회에 끝나도록 튜닝 (get_from_json() --> get_or_create_smart() 로 변경하고 json 에 lonLat, timestamp 추가...)
         img = Image.get_from_json('{"content": "%s"}' % request.data['content'])
         dirty = False
         if 'lon' in request.data and request.data['lon'] and 'lat' in request.data and request.data['lat']:
@@ -31,8 +31,9 @@ class ImageViewset(ContentViewset):
             dirty = True
         if 'local_datetime' in request.data and request.data['local_datetime']:
             dt = datetime.strptime(request.data['local_datetime'], '%Y:%m:%d %H:%M:%S')
-            d = Delorean(dt, timezone='UTC')
-            img.ltimestamp = int(round(d.epoch*1000))
+            # TODO : VD.timezone 을 참조하여 변환
+            d = Delorean(dt, timezone='Asia/Seoul')
+            img.timestamp = int(round(d.epoch*1000))
             dirty = True
         if dirty:
             img.save()

@@ -26,7 +26,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 class Image(Content):
     dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
-    ltimestamp = models.BigIntegerField(blank=True, null=True, default=None)
+    timestamp = models.BigIntegerField(blank=True, null=True, default=None)
 
     # MUST override
     @property
@@ -48,10 +48,10 @@ class Image(Content):
     def pre_save(self):
         if self.is_accessed:
             pil = self.content_accessed
-            if not self.lonLat or not self.ltimestamp:
-                lonLat, ltimestamp = self.process_exif(pil)
+            if not self.lonLat or not self.timestamp:
+                lonLat, timestamp = self.process_exif(pil)
                 self.lonLat = self.lonLat or lonLat
-                self.ltimestamp = self.ltimestamp or ltimestamp
+                self.timestamp = self.timestamp or timestamp
             if not self.dhash:
                 self.dhash = self.compute_id_from_file(pil)
             self.summarize(pil)
@@ -106,9 +106,9 @@ class Image(Content):
             lonLat = exif_lib.get_lon_lat(exif)
             if lonLat and lonLat[0] and lonLat[1]:
                 result[0] = GEOSGeometry('POINT(%f %f)' % lonLat)
-            ltimestamp = exif_lib.get_ltimestamp(exif)
-            if ltimestamp:
-                result[1] = ltimestamp
+            timestamp = exif_lib.get_timestamp(exif)
+            if timestamp:
+                result[1] = timestamp
         except AttributeError:
             pass
         return result

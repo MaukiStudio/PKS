@@ -1,7 +1,6 @@
 [Now]
 
-Image 업로드 시 GPS data 를 별도로 올릴 수 있도록 수정 : json 으로 받자.
-
+현재 위치 저장 시 함께 올라온 이미지에 대해서는 lonLat 및 timestamp 를 채우도록 변경
 ImagesImporter
     이미지 전처리
     GPS 좌표 있는 것들만 모아 시간 순서로 정렬
@@ -28,6 +27,7 @@ get_queryset(), get_object() 리팩토링
 
 Content.get_from_json() 에서 에러 났을 때 empty UserPlace 가 저장되는 버그 처리 
 
+VD.timezone 처리
 
 URL redirect 처리
     Content.same 처리 구조 잡기

@@ -1,3 +1,6 @@
+#-*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from PIL.ExifTags import TAGS, GPSTAGS
 from datetime import datetime
 from delorean import Delorean
@@ -72,7 +75,7 @@ def get_lon_lat(exif_data):
     return lon, lat
 
 
-def get_ltimestamp(exif_data):
+def get_timestamp(exif_data):
     raw_date = _get_if_exist(exif_data, 'DateTimeOriginal')
     if not raw_date:
         raw_date = _get_if_exist(exif_data, 'DateTime')
@@ -82,5 +85,6 @@ def get_ltimestamp(exif_data):
         return None
 
     dt = datetime.strptime(raw_date, '%Y:%m:%d %H:%M:%S')
-    d = Delorean(dt, timezone='UTC')
+    # TODO : VD.timezone 을 참조하여 변환
+    d = Delorean(dt, timezone='Asia/Seoul')
     return int(round(d.epoch*1000))
