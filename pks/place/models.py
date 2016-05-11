@@ -13,6 +13,7 @@ from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
 from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
+from geopy.distance import vincenty as vincenty_distance
 
 RADIUS_LOCAL_RANGE = 100
 
@@ -150,6 +151,7 @@ class UserPlace(models.Model):
 
     def __init__(self, *args, **kwargs):
         self._pb_cache = None
+        self._origin = None
         super(UserPlace, self).__init__(*args, **kwargs)
 
     @property
@@ -263,6 +265,19 @@ class UserPlace(models.Model):
             self.mask = (self.mask or 0) | 1
         else:
             self.mask = (self.mask or 0) & (~1)
+
+    @property
+    def origin(self):
+        return self._origin
+    @origin.setter
+    def origin(self, value):
+        self._origin = value
+
+    @property
+    def distance_from_origin(self):
+        if not self.origin or not self.lonLat:
+            return None
+        return vincenty_distance(self.origin, self.lonLat).meters
 
 
 class PostPiece(models.Model):

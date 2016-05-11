@@ -200,6 +200,28 @@ class SimpleUserPlaceTest(APITestBase):
         self.assertNotEqual(uplace2, uplace_check)
         self.assertEqual(uplace3, uplace_check)
 
+    def test_origin(self):
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        uplace = UserPlace.objects.create(vd=self.vd, lonLat=point)
+        uplace.origin = point
+        self.assertEqual(uplace.origin, point)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        uplace2 = UserPlace.objects.first()
+        self.assertEqual(uplace2.origin, None)
+
+    def test_distance_from_origin(self):
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        uplace = UserPlace.objects.create(vd=self.vd, lonLat=point)
+        self.assertEqual(uplace.distance_from_origin, None)
+        uplace.origin = point
+        self.assertEqual(uplace.distance_from_origin, 0)
+
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        uplace.origin = point2
+        self.assertGreater(uplace.distance_from_origin, 100)
+        self.assertLess(uplace.distance_from_origin, 1000)
+        self.assertAlmostEqual(uplace.distance_from_origin, 406, delta=1)
+
 
 class PostTest(APITestBase):
 

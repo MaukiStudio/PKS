@@ -21,3 +21,4 @@ cssselect
 pyquery
 celery
 librabbitmq
+geopy
