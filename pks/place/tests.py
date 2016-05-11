@@ -154,6 +154,20 @@ class UserPlaceViewSetTest(APITestBase):
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
 
+        # order_by
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0, order_by='distance_from_origin', limit=20, offset=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(results[0]['uplace_uuid'], uplace3.uuid)
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0, order_by='-distance_from_origin', limit=20, offset=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(results[0]['uplace_uuid'], uplace2.uuid)
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0, order_by='modified', limit=20, offset=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(results[0]['uplace_uuid'], self.uplace.uuid)
+        response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=0, order_by='-modified', limit=20, offset=0))
+        results = json_loads(response.content)['results']
+        self.assertEqual(results[0]['uplace_uuid'], uplace3.uuid)
+
     def test_detail(self):
         response = self.client.get('/uplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -38,7 +38,9 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         # 이러한 페이징 인터페이스는 /places/ API 에도 동일하게 적용됨
         # userPost 와 placePost 모두 조회됨
 
-        response = self.client.get('/uplaces/?ru=myself&limit=1000&offset=0')
+        # 지원 order_by : 'distance_from_origin', '-distance_from_origin', 'modified', '-modified'
+
+        response = self.client.get('/uplaces/?lon=127.1037430&lat=37.3997320&r=0&limit=1000&offset=0&order_by=-distance_from_origin')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)

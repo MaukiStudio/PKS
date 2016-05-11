@@ -37,10 +37,11 @@ class UserPlaceSerializer(BaseSerializer):
         exclude = ('id', 'place', 'vd', 'mask',)
 
     def to_representation(self, instance):
-        params = self._context['request'].query_params
-        if 'lon' in params and 'lat' in params:
-            lon = float(params['lon'])
-            lat = float(params['lat'])
-            p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
-            instance.origin = p
+        if 'request' in self._context:
+            params = self._context['request'].query_params
+            if 'lon' in params and 'lat' in params:
+                lon = float(params['lon'])
+                lat = float(params['lat'])
+                p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+                instance.origin = p
         return super(UserPlaceSerializer, self).to_representation(instance)

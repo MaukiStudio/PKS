@@ -39,26 +39,45 @@ class UserPlaceViewset(BaseViewset):
     queryset = UserPlace.objects.all()
     serializer_class = UserPlaceSerializer
 
+    # TODO : filter_queryset() 이용한 리팩토링
     def get_queryset(self):
         params = self.request.query_params
         if 'ru' in params and params['ru'] != 'myself':
             # Now, ru=myself only
             raise NotImplementedError
+
+        order_by = None
+        if 'order_by' in params and params['order_by']:
+            if params['order_by'] in ('modified', '-modified'):
+                order_by = params['order_by']
+            elif params['order_by'] in ('distance_from_origin', '-distance_from_origin'):
+                order_by = params['order_by'].split('_')[0]
+
         # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
-        qs1 = self.queryset.filter(vd_id__in=self.vd.realOwner_vd_ids)
+        qs = self.queryset.filter(vd_id__in=self.vd.realOwner_vd_ids)
         # TODO : 리팩토링
-        qs1 = qs1.filter(mask=F('mask').bitand(~1))
+        qs = qs.filter(mask=F('mask').bitand(~1))
+
+        origin = None
         if 'lon' in params and 'lat' in params:
             r = int(params.get('r', 1000))
             lon = float(params['lon'])
             lat = float(params['lat'])
-            p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+            origin = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
             if r == 0:
-                qs2 = qs1.exclude(lonLat=None)
+                qs = qs.exclude(lonLat=None)
             else:
-                qs2 = qs1.filter(lonLat__distance_lte=(p, D(m=r)))
-            return qs2.annotate(distance=Distance('lonLat', p)).order_by('distance')
-        return qs1.order_by('-modified')
+                qs = qs.filter(lonLat__distance_lte=(origin, D(m=r)))
+            if not order_by:
+                order_by = 'distance'
+
+        if not order_by:
+            order_by = '-modified'
+        if order_by.endswith('distance'):
+            if not origin:
+                raise NotImplementedError
+            qs = qs.annotate(distance=Distance('lonLat', origin))
+        return qs.order_by(order_by)
 
     def create(self, request, *args, **kwargs):
         # TODO : 향후 remove mode 구현하기
