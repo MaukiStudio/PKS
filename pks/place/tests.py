@@ -773,7 +773,8 @@ class UserPlaceViewSetTest(APITestBase):
     def test_image_by_url(self):
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']
-        self.assertEqual(result, 'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg')
+        #self.assertEqual(result, 'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg')
+        self.assertEqual(result, 'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default')
 
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']

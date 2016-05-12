@@ -267,7 +267,12 @@ class UserPlace(models.Model):
     def distance_from_origin(self):
         if not self.origin or not self.lonLat:
             return None
-        return vincenty_distance(self.origin, self.lonLat).meters
+        m = vincenty_distance(self.origin, self.lonLat).meters
+        m = int(round(m/10.0))*10.0
+        if m < 1000.0:
+            return '%dm' % m
+        k = int(round(m/100.0))/10.0
+        return '%.1fkm' % k
 
 
 class PostPiece(models.Model):

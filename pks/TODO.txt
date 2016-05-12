@@ -1,13 +1,14 @@
 [Now]
 
-ImportedPlace, Proxy model 로 교체
-
 ImagesImporter
     이미지 전처리
     GPS 좌표 있는 것들만 모아 시간 순서로 정렬
     1장씩 판단하며 Merge
     Merge 가능 Group 모아 UserPlace 로
         이미 생성된 UserPlace 가 있으면 거기에 pp 추가
+
+포스퀘어 장소화 구현
+구글 장소화 구현
 
 
 Tag 기능 뼈대 잡기

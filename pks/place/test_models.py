@@ -214,13 +214,15 @@ class SimpleUserPlaceTest(APITestBase):
         uplace = UserPlace.objects.create(vd=self.vd, lonLat=point)
         self.assertEqual(uplace.distance_from_origin, None)
         uplace.origin = point
-        self.assertEqual(uplace.distance_from_origin, 0)
+        self.assertEqual(uplace.distance_from_origin, '0m')
 
         point2 = GEOSGeometry('POINT(127.107316 37.400998)')
         uplace.origin = point2
-        self.assertGreater(uplace.distance_from_origin, 100)
-        self.assertLess(uplace.distance_from_origin, 1000)
-        self.assertAlmostEqual(uplace.distance_from_origin, 406, delta=1)
+        self.assertEqual(uplace.distance_from_origin, '410m')
+
+        point3 = GEOSGeometry('POINT(127.0 37.0)')
+        uplace.origin = point3
+        self.assertEqual(uplace.distance_from_origin, '29.2km')
 
 
 class PostTest(APITestBase):
@@ -446,7 +448,9 @@ class PostTest(APITestBase):
     def test_image_by_url(self):
         pb = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
         pb.load_additional_info()
-        self.assertEqual(pb.images[0].content, 'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg')
+        print(pb.images[0].content)
+        #self.assertEqual(pb.images[0].content, 'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg')
+        self.assertEqual(pb.images[0].content, 'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default')
 
         pb = PostBase('{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}')
         pb.load_additional_info()
