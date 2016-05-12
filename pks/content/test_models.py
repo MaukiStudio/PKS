@@ -313,8 +313,10 @@ class LegacyPlaceTest(APITestBase):
         pb = lp.content_summarized
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '방아깐')
-        #self.assertEqual(pb.images[0].content, 'http://ldb.phinf.naver.net/20150901_174/1441078320814Nj4Fe_JPEG/146466556151173_0.jpeg')
-        self.assertEqual(pb.images[0].content, 'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.092557%2C37.390271&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.092557%2C37.390271&baselayer=default')
+        self.assertIn(pb.images[0].content, [
+            'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.092557%2C37.390271&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.092557%2C37.390271&baselayer=default',
+            'http://ldb.phinf.naver.net/20150901_174/1441078320814Nj4Fe_JPEG/146466556151173_0.jpeg',
+        ])
 
     def test_content_summarized_by_kakao(self):
         lp = LegacyPlace()
