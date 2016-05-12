@@ -85,6 +85,8 @@ class Importer(models.Model):
         return r
 
 
-# 일단 iplace 는 별도 저장하지 않고 uplace 에서 조회하여 사용
+# 일단 iplace 는 별도 저장하지 않고 uplace 에서 조회하여 사용 : So Proxy Model
 # 향후 성능을 위해 별도 저장할 수도 있음
-ImportedPlace = UserPlace
+class ImportedPlace(UserPlace):
+    class Meta:
+        proxy = True
