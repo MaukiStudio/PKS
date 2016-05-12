@@ -1,6 +1,7 @@
 [Now]
 
-현재 위치 저장 시 함께 올라온 이미지에 대해서는 lonLat 및 timestamp 를 채우도록 변경
+ImportedPlace, Proxy model 로 교체
+
 ImagesImporter
     이미지 전처리
     GPS 좌표 있는 것들만 모아 시간 순서로 정렬

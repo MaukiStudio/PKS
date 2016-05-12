@@ -5,6 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from json import loads as json_loads
 from rest_framework.decorators import detail_route
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
+from django.db.models import F
 
 from base.views import BaseViewset
 from importer.models import Proxy, Importer, ImportedPlace
@@ -77,6 +81,7 @@ class ImporterViewset(BaseViewset):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+# TODO : UserPlaceViewset 과 유사/중복존재. 가능할 때 리팩토링
 class ImportedPlaceViewset(BaseViewset):
     queryset = ImportedPlace.objects.all()
     serializer_class = ImportedPlaceSerializer
@@ -86,15 +91,45 @@ class ImportedPlaceViewset(BaseViewset):
         if 'ru' in params and params['ru'] != 'myself':
             # Now, ru=myself only
             raise NotImplementedError
-        publisher_ids = self.publisher_ids
-        if publisher_ids:
-            qs1 = self.queryset.filter(vd_id__in=publisher_ids)
-            qs2 = qs1.exclude(place_id=None)
-            qs3 = qs2.exclude(place_id__in=self.subscriber_places)
-            return qs3.order_by('-modified')
-        else:
-            # TODO : empty resultset 을 넘기는 깔끔한 방법으로 대체
-            return self.queryset.filter(id=None)
+
+        order_by = None
+        if 'order_by' in params and params['order_by']:
+            if params['order_by'] in ('modified', '-modified'):
+                order_by = params['order_by']
+            elif params['order_by'] in ('distance_from_origin', '-distance_from_origin'):
+                order_by = params['order_by'].split('_')[0]
+
+        # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
+        vd_ids = self.publisher_ids
+        qs = self.queryset.filter(vd_id__in=vd_ids)
+        # TODO : 리팩토링
+        qs = qs.filter(mask=F('mask').bitand(~1))
+
+        # iplace filtering
+        qs = qs.exclude(place_id=None)
+        qs = qs.exclude(place_id__in=self.subscriber_places)
+
+        origin = None
+        if 'lon' in params and 'lat' in params:
+            r = int(params.get('r', 1000))
+            lon = float(params['lon'])
+            lat = float(params['lat'])
+            origin = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+            if r == 0:
+                qs = qs.exclude(lonLat=None)
+            else:
+                qs = qs.filter(lonLat__distance_lte=(origin, D(m=r)))
+            if not order_by:
+                order_by = 'distance'
+
+        if not order_by:
+            order_by = '-modified'
+        if order_by.endswith('distance'):
+            if not origin:
+                raise NotImplementedError
+            qs = qs.annotate(distance=Distance('lonLat', origin))
+        return qs.order_by(order_by)
+
 
     # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
     @property

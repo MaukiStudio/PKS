@@ -69,7 +69,10 @@ class ImportedPlaceScenarioTest(FunctionalTestAfterLoginBase):
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
 
     def test_iplaces_take_drop(self):
-        # 아직 처리되지 않은 iplace 목록 조회
+        # iplace 목록 조회 : take/drop 하지 않은 모든 ImportedPlace
+        # /uplaces/ 와 동일한 인터페이스 지원
+        # 당분간은 지도 화면 기준으로 조회를 해서, 내가 원하는 위치의 iplace 부터 먼저 take/drop 을 할 수 있도록
+        # 향후에는 추천지수 (내가 주로 가는 장소와의 거리도 함께 활용되어 계산) 로 정렬해서 보여줄 것이기 때문에 굳이 위와 같이 구현 안해도 됨
         response = self.client.get('/iplaces/?ru=myself&limit=1000&offset=0')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']

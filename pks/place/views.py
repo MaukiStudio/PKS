@@ -54,7 +54,8 @@ class UserPlaceViewset(BaseViewset):
                 order_by = params['order_by'].split('_')[0]
 
         # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
-        qs = self.queryset.filter(vd_id__in=self.vd.realOwner_vd_ids)
+        vd_ids = self.vd.realOwner_vd_ids
+        qs = self.queryset.filter(vd_id__in=vd_ids)
         # TODO : 리팩토링
         qs = qs.filter(mask=F('mask').bitand(~1))
 
@@ -78,6 +79,7 @@ class UserPlaceViewset(BaseViewset):
                 raise NotImplementedError
             qs = qs.annotate(distance=Distance('lonLat', origin))
         return qs.order_by(order_by)
+
 
     def create(self, request, *args, **kwargs):
         # vd 조회
