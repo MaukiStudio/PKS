@@ -131,6 +131,17 @@ class PlacedDetailTest2(AdminTestCase):
         self.assertAlmostEqual(self.uplace.place.lonLat.x, 127.1064507, delta=0.0001)
         self.assertAlmostEqual(self.uplace.place.lonLat.y, 37.4009435, delta=0.0001)
 
+    def test_placed_by_placeName_lonLat3(self):
+        self.assertEqual(self.uplace.place, None)
+        placeName = 'Nanyodo Books'
+        raw_lonLat = 'https://www.google.com/maps/place/Nanyodo+Books/@35.6951861,139.7589115,17z/data=!4m5!3m4!1s0x60188c105ea64a1f:0xe82f337cd2c02f24!8m2!3d35.6951861!4d139.7611002?hl=ko-KR'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(placeName=placeName, lonLat=raw_lonLat))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertNotEqual(self.uplace.place, None)
+        self.assertAlmostEqual(self.uplace.place.lonLat.x, 139.7589115, delta=0.0001)
+        self.assertAlmostEqual(self.uplace.place.lonLat.y, 35.6951861, delta=0.0001)
+
 
 class PlacesTest(AdminTestCase):
 

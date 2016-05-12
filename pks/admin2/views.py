@@ -85,6 +85,7 @@ def placed_detail(request, uplace_id):
                     re_compile(r'^.*[&\?]?lat=(?P<lat>[0-9\.]+)&lon=(?P<lon>[0-9\.]+)&?.*$'),
                     re_compile(r'^.*[&\?]?lon=(?P<lon>[0-9\.]+)&lat=(?P<lat>[0-9\.]+)&?.*$'),
                     re_compile(r'^.*[&\?]?x=(?P<lon>[0-9\.]+)&y=(?P<lat>[0-9\.]+)&?.*$'),
+                    re_compile(r'^https.+\.google\..+map.+@(?P<lat>[0-9\.]+),(?P<lon>[0-9\.]+),[0-9]+z.*$'),
                 ]
                 for regex in regexs:
                     searcher = regex.search(raw_lonLat)

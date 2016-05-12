@@ -25,12 +25,12 @@
             </td>
             <td>
                 {% for url in userPost.urls %}
-                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a>
+                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
                 {% endfor %}
             </td>
             <td>
                 {% for note in userPost.notes %}
-                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a>
+                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
                 {% endfor %}
             </td>
         </tr>
@@ -51,7 +51,7 @@
             </td>
             <td>
                 {% for url in placePost.urls %}
-                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a>
+                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
                 {% endfor %}
             </td>
             <td>
