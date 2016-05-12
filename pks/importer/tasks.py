@@ -25,7 +25,7 @@ class ImporterTask(Task):
         imp.save()
 
         # 현재는 ImporterTask 가 하는 일은 없다
-        # TODO : 향후 iplace 를 물리적으로 저장하는 튜닝 진행 시 추가 구현 필요
+        # TODO : 향후 iplace 를 물리적 혹은 User vds 들을 합친 VD 등을 생성하는 튜닝 진행 시 추가 구현 필요
 
         # ProxyTask 처리
         try:
@@ -62,9 +62,11 @@ class ProxyTask(Task):
         if guide_type == 'nothing':
             pass
         elif guide_type == 'images':
-            result = self.import_images(proxy)
+            # TODO : 향후엔 별도로 생성한 VD 에 해당 유저의 uplace 정보를 모으는 형태의 튜닝 필요
+            result = True
         elif guide_type == 'user':
-            result = self.import_user(proxy)
+            task = ImagesProxyTask()
+            result = task.run(proxy)
         else:
             print('ProxyTask : else')
             result = False
@@ -73,10 +75,10 @@ class ProxyTask(Task):
         proxy.save()
         return result
 
-    def import_user(self, proxy):
-        # TODO : 향후엔 별도로 생성한 VD 에 해당 유저의 uplace 정보를 모으는 형태의 튜닝 필요
+
+class ImagesProxyTask(Task):
+
+    def run(self, proxy):
         return True
 
-    def import_images(self, proxy):
-        return True
 
