@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from django.db import IntegrityError
 from base64 import b16encode
+from urllib import unquote_plus
 
 from base.tests import APITestBase
 from url.models import Url
@@ -65,9 +66,9 @@ class UrlTest(APITestBase):
         url.save()
         self.assertEqual(Url.objects.count(), 1)
         saved = Url.objects.first()
-        self.assertEqual(url.content, normalized_value)
+        self.assertEqual(url.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
         self.assertEqual(saved, url)
-        self.assertEqual(saved.content, normalized_value)
+        self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
 
     def test_naver_shortener_url2(self):
         url = Url()
@@ -124,9 +125,9 @@ class UrlTest(APITestBase):
         url.save()
         self.assertEqual(Url.objects.count(), 1)
         saved = Url.objects.first()
-        self.assertEqual(url.content, normalized_value)
+        self.assertEqual(url.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
         self.assertEqual(saved, url)
-        self.assertEqual(saved.content, normalized_value)
+        self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
 
     def test_encoded_url1(self):
         test_data1 = 'https://place.kakao.com/places/10972091/%ED%99%8D%EB%AA%85'

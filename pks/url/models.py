@@ -25,18 +25,7 @@ class Url(Content):
     # CAN override
     @classmethod
     def normalize_content(cls, raw_content):
-        url = raw_content.strip()
-
-        # 네이버 단축 URL 처리 편의를 위한 기능
-        try:
-            pos = url.index('http')
-            url = url[pos:].split('\n')[0]
-        except ValueError:
-            pass
-
-        url = url_norms(url)
-        if not url.startswith('http'):
-            url = '%s%s' % (SERVER_HOST, url)
+        url = url_norms(raw_content)
 
         # 네이버 단축 URL 처리
         # TODO : 다른 단축 URL 처리 구현과 함께 리팩토링 필요
@@ -51,6 +40,6 @@ class Url(Content):
                     pos2 = str.index('"', pos1)
                     if pos1 < pos2:
                         url_redirected = str[pos1:pos2]
-                        url = url_redirected
+                        url = url_norms(url_redirected)
 
         return url

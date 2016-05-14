@@ -40,10 +40,7 @@ class Image(Content):
     # CAN override
     @classmethod
     def normalize_content(cls, raw_content):
-        url = url_norms(raw_content.strip())
-        if not url.startswith('http'):
-            url = '%s%s' % (SERVER_HOST, url)
-        return url
+        return url_norms(raw_content)
 
     def pre_save(self):
         if self.is_accessed:

@@ -47,6 +47,8 @@ from urllib import unquote, unquote_plus
 from string import lower
 import re
 
+from pks.settings import SERVER_HOST
+
 _collapse = re.compile('([^/]+/\.\./?|/\./|//|/\.$|/\.\.$)')
 _server_authority = re.compile('^(?:([^\@]+)\@)?([^\:]+)(?:\:(.+))?$')
 _default_port = {   'http': '80',
@@ -79,9 +81,19 @@ _server_authority_schemes = [   'http',
 
 
 def norms(urlstring):
-    urlstring = unquote_plus(urlstring.encode('utf-8')).decode('utf-8')
+    lines = urlstring.split('\n')
+    if len(lines) > 1:
+        for line in lines:
+            line = line.strip()
+            if line.startswith('http://') or line.startswith('https://'):
+                urlstring = line
+                break
+    urlstring = unquote_plus(urlstring.strip().encode('utf-8')).decode('utf-8')
     """given a string URL, return its normalised form"""
-    return urlunparse(norm(urlparse(urlstring)))
+    result = urlunparse(norm(urlparse(urlstring)))
+    if not result.startswith('http'):
+        result = '%s%s' % (SERVER_HOST, result)
+    return result
 
 
 def norm(urltuple):
