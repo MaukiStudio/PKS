@@ -5,6 +5,7 @@ from __future__ import print_function
 from uuid import UUID
 from base64 import b16encode
 from django.db import IntegrityError
+from urllib import unquote_plus
 
 from base.tests import APITestBase
 from content.models import LegacyPlace, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
@@ -314,7 +315,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '방아깐')
         self.assertIn(pb.images[0].content, [
-            'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.092557%2C37.390271&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.092557%2C37.390271&baselayer=default',
+            unquote_plus('https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.092557%2C37.390271&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.092557%2C37.390271&baselayer=default'),
             'http://ldb.phinf.naver.net/20150901_174/1441078320814Nj4Fe_JPEG/146466556151173_0.jpeg',
         ])
 
@@ -328,7 +329,9 @@ class LegacyPlaceTest(APITestBase):
         self.printJson(pb)
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, '홍콩')
-        self.assertEqual(pb.images[0].content, 'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg')
+        self.assertEqual(pb.images[0].content, unquote_plus(
+            'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg'
+        ))
 
 
 class PhoneNumberTest(APITestBase):

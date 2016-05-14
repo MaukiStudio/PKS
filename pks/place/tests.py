@@ -6,6 +6,7 @@ from json import loads as json_loads, dumps as json_dumps
 from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
+from urllib import unquote_plus
 
 from base.tests import APITestBase
 from place.models import UserPlace, Place, PostPiece
@@ -774,13 +775,15 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']
         self.assertIn(result, [
-            'https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default',
+            unquote_plus('https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default'),
             'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg',
         ])
 
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']
-        self.assertEqual(result, 'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg')
+        self.assertEqual(result, unquote_plus(
+            'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg'
+        ))
 
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://m.blog.naver.com/mardukas/220671562152"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']

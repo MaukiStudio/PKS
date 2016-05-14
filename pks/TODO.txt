@@ -5,6 +5,8 @@ ImagesImporter
         이미지 리사이징 : Done
         이미지 등록
             (!!!) 그전에 해당 이미지를 등록한 VD 가 무엇인지 알 수 있도록 하기
+            RawFile URL 처리 부분 리팩토링
+            RawFile 쉽게 등록할 수 있도록 하기 : Token Authentication
         이미지들 전체를 뽑아 메모리에 저장
         1차 그룹화 : GPS 좌표만 사용
             각 점들마다 100~1km 미만인 점들을 모아 Group 화 (disjoint 아님)

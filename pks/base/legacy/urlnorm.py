@@ -43,7 +43,7 @@ SOFTWARE.
 __version__ = "0.93"
 
 from urlparse import urlparse, urlunparse
-from urllib import unquote
+from urllib import unquote, unquote_plus
 from string import lower
 import re
 
@@ -79,6 +79,7 @@ _server_authority_schemes = [   'http',
 
 
 def norms(urlstring):
+    urlstring = unquote_plus(urlstring.encode('utf-8')).decode('utf-8')
     """given a string URL, return its normalised form"""
     return urlunparse(norm(urlparse(urlstring)))
 
