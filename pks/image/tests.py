@@ -117,7 +117,7 @@ class RawFileViewsetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertIn('uuid', result)
         self.assertIn('vd', result)
-        self.assertNotIn('file', result)
+        #self.assertNotIn('file', result)
         self.assertNotIn('id', result)
         self.assertNotIn('dhash', result)
         self.assertNotIn('mhash', result)
