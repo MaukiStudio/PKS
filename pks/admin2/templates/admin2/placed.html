@@ -11,10 +11,14 @@
                         <input type=checkbox onClick="window.open('{{ pb.uplace_uuid }}/'); return true;"/>
                     </td>
                     <td>
-                        <a href="http://map.naver.com/?dlevel=13&x={{ pb.lonLat.x }}&y={{ pb.lonLat.y }}" target="_blank">
-                            위도: {{ pb.lonLat.y }}<br/>
-                            경도: {{ pb.lonLat.x }}<br/>
-                        </a>
+                        {% if pb.map_url %}
+                            <a href="{{ pb.map_url }}" target="_blank">
+                                위도: {{ pb.lonLat.y }}<br/>
+                                경도: {{ pb.lonLat.x }}<br/>
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
                     </td>
                     <td>
                         도로명주소: {{ pb.addr1 }}<br/>

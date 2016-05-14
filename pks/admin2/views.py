@@ -8,6 +8,7 @@ from place.models import UserPlace, Place
 from account.models import VD
 from pks.settings import VD_SESSION_KEY
 from place.post import PostBase
+from geopy.geocoders import Nominatim
 
 
 def index(request):
@@ -21,10 +22,20 @@ def index(request):
 
 def placed(request):
     pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:100]]
+    geolocator = Nominatim()
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
                 image.summarize()
+            map_url = None
+            if pb.lonLat:
+                location = geolocator.reverse((pb.lonLat.y, pb.lonLat.x))
+                if location.raw['address']['country_code'] == 'kr':
+                    map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (pb.lonLat.x, pb.lonLat.y)
+                else:
+                    map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (pb.lonLat.x, pb.lonLat.y)
+                map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (pb.lonLat.x, pb.lonLat.y)
+            pb.map_url = map_url
     context = dict(pbs=pbs)
     return render(request, 'admin2/placed.html', context)
 
