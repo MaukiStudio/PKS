@@ -8,11 +8,8 @@
             {% for pb in pbs %}
                 <tr>
                     <td>
-                        <input type=checkbox onClick="window.open('{{ pb.uplace_uuid }}/'); return true;"/>
-                    </td>
-                    <td>
                         {% for point in pb.points %}
-                            <a href="http://map.naver.com/?dlevel=13&x={{ point.lonLat.x }}&y={{ point.lonLat.y }}" target="_blank">
+                            <a href="{{ point.map_url }}" target="_blank">
                                 ({{ point.lonLat.y }}, {{ point.lonLat.x }})
                             </a><br/>
                         {% endfor %}

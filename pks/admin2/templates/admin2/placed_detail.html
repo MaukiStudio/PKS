@@ -6,10 +6,14 @@
     <table class="table">
         <tr>
             <td>
-                <a href="http://map.naver.com/?dlevel=13&x={{ userPost.lonLat.x }}&y={{ userPost.lonLat.y }}" target="_blank">
-                    위도: {{ userPost.lonLat.y }}<br/>
-                    경도: {{ userPost.lonLat.x }}
-                </a>
+                {% if userPost.map_url %}
+                    <a href="{{ userPost.map_url }}" target="_blank">
+                        위도: {{ userPost.lonLat.y }}<br/>
+                        경도: {{ userPost.lonLat.x }}
+                    </a>
+                {% else %}
+                    &nbsp;
+                {% endif %}
             </td>
             <td>
                 도로명주소: {{ userPost.addr1 }}<br/>
@@ -36,10 +40,14 @@
         </tr>
         <tr>
             <td>
-                <a href="http://map.naver.com/?dlevel=13&x={{ placePost.lonLat.x }}&y={{ placePost.lonLat.y }}" target="_blank">
-                    위도: {{ placePost.lonLat.y }}<br/>
-                    경도: {{ placePost.lonLat.x }}
-                </a>
+                {% if placePost.map_url %}
+                    <a href="{{ placePost.map_url }}" target="_blank">
+                        위도: {{ placePost.lonLat.y }}<br/>
+                        경도: {{ placePost.lonLat.x }}
+                    </a>
+                {% else %}
+                    &nbsp;
+                {% endif %}
             </td>
             <td>
                 도로명주소: {{ placePost.addr1 }}<br/>

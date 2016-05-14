@@ -10,6 +10,26 @@ from pks.settings import VD_SESSION_KEY
 from place.post import PostBase
 from geopy.geocoders import Nominatim
 
+geolocator = Nominatim()
+
+def get_map_url(lonLat):
+    map_url = None
+    if lonLat:
+        # TODO : 튜닝 후 주석 해제하고 부정확한 임시 구현 삭제
+        '''
+        location = geolocator.reverse((lonLat.y, lonLat.x))
+        if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
+            if location.raw['address']['country_code'] == 'kr':
+                map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+            else:
+                map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
+        '''
+        if lonLat.y > 33.0 and lonLat.y <= 43.0 and lonLat.x > 124.0 and lonLat.x < 132.0:
+            map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+        else:
+            map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
+    return map_url
+
 
 def index(request):
     user = request.user
@@ -27,14 +47,7 @@ def placed(request):
         if pb and pb.images:
             for image in pb.images:
                 image.summarize()
-            map_url = None
-            if pb.lonLat:
-                location = geolocator.reverse((pb.lonLat.y, pb.lonLat.x))
-                if location.raw['address']['country_code'] == 'kr':
-                    map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (pb.lonLat.x, pb.lonLat.y)
-                else:
-                    map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (pb.lonLat.y, pb.lonLat.x)
-            pb.map_url = map_url
+        pb.map_url = get_map_url(pb.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/placed.html', context)
 
@@ -45,6 +58,9 @@ def places(request):
         if pb and pb.images:
             for image in pb.images:
                 image.summarize()
+        if pb and pb.points:
+            for point in pb.points:
+                pb.point.map_url = get_map_url(pb.point.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/places.html', context)
 
@@ -133,5 +149,8 @@ def placed_detail(request, uplace_id):
     default_lonLat = 'LonLat Required'
     if uplace.lonLat:
         default_lonLat = 'lon=%f&lat=%f' % (uplace.lonLat.x, uplace.lonLat.y)
+    uplace.userPost.map_url = get_map_url(uplace.lonLat)
+    if uplace.placePost:
+        uplace.placePost.map_url = get_map_url(uplace.placePost.lonLat)
     context = dict(userPost=uplace.userPost, placePost=uplace.placePost, default_lonLat=default_lonLat)
     return render(request, 'admin2/placed_detail.html', context)
