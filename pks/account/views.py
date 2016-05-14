@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from uuid import uuid1
 from base64 import urlsafe_b64encode
-from account.models import User
 from django.contrib.auth import login, authenticate
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import list_route, detail_route

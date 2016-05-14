@@ -25,8 +25,38 @@ class BaseViewset(ModelViewSet):
     @property
     def vd(self):
         if not self._vd:
-            vd_id = self.request.session[VD_SESSION_KEY]
-            self._vd = VD.objects.get(id=vd_id)
+            if VD_SESSION_KEY in self.request.session:
+                # Session Authentication
+                vd_id = self.request.session[VD_SESSION_KEY]
+                self._vd = VD.objects.get(id=vd_id)
+            else:
+                # Token Authentication
+                # TODO : account 쪽과 중복. 리팩토링~
+                from cryptography.fernet import Fernet
+                from pks.settings import USER_ENC_KEY
+                from django.contrib.auth import authenticate
+                print('token authentication')
+                auth_user_token = self.request.data['auth_user_token']
+                auth_vd_token = self.request.data['auth_vd_token']
+
+                # user auth
+                decrypter = Fernet(USER_ENC_KEY)
+                raw_token = decrypter.decrypt(auth_user_token.encode(encoding='utf-8'))
+                user_id = int(raw_token.split('|')[0])
+                username = raw_token.split('|')[1]
+                password = raw_token.split('|')[2]
+                user = authenticate(username=username, password=password)
+                if not user or user.id != user_id or user.is_active is False:
+                    return None
+
+                # VD auth
+                decrypter = Fernet(user.crypto_key)
+                raw_token = decrypter.decrypt(auth_vd_token.encode(encoding='utf-8'))
+                vd_id = int(raw_token.split('|')[0])
+                user_id = int(raw_token.split('|')[1])
+                vd = VD.objects.get(id=vd_id)
+                if vd and vd_id and vd_id == vd.id and user_id and user_id == user.id and user_id == vd.authOwner_id:
+                    self._vd = vd
         return self._vd
 
     # queryset 부분만 제외하고는 GenericAPIView.get_object() 와 동일

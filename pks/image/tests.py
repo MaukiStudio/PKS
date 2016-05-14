@@ -14,6 +14,7 @@ from requests import get as requests_get
 
 
 class ImageViewsetTest(APITestBase):
+
     def setUp(self):
         super(ImageViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
@@ -89,6 +90,7 @@ class ImageViewsetTest(APITestBase):
 
 
 class RawFileViewsetTest(APITestBase):
+
     def setUp(self):
         super(RawFileViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
@@ -140,3 +142,17 @@ class RawFileViewsetTest(APITestBase):
         self.assertEqual(RawFile.objects.count(), 2)
         result = json_loads(response.content)
         self.assertEqual(result['vd'], self.vd.id)
+
+    def test_create_with_token_authentication(self):
+        self.logout()
+        self.assertEqual(RawFile.objects.count(), 1)
+        self.assertNotLogin()
+        self.assertVdNotLogin()
+        self.assertEqual(self.vd_id, None)
+        with open('image/samples/test.png') as f:
+            response = self.client.post('/rfs/', dict(file=f, auth_user_token=self.auth_user_token, auth_vd_token=self.auth_vd_token))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(RawFile.objects.count(), 2)
+        self.assertNotLogin()
+        self.assertVdNotLogin()
+        self.assertEqual(self.vd_id, None)
