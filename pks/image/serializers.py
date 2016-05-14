@@ -15,7 +15,9 @@ class ImageSerializer(ContentSerializer):
 
 class RawFileSerializer(ModelSerializer):
     uuid = ReadOnlyField()
+    url = ReadOnlyField()
 
     class Meta:
         model = RawFile
         exclude = ('id', 'mhash',)
+        extra_kwargs = {'file': {'write_only': True}}

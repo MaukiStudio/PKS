@@ -66,8 +66,8 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         with open(resized) as f:
             response = self.client.post('/rfs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        file_url = json_loads(response.content)['file']
-        first_file_url = file_url
+        file_url = json_loads(response.content)['url']
+        will_remove_url = file_url
 
         # 주소값 조회
         addr1_new = '경기도 성남시 분당구 산운로32번길 12'
@@ -110,7 +110,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
         #######################################
         with open('image/samples/no_exif_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
-        file_url = json_loads(response.content)['file']
+        file_url = json_loads(response.content)['url']
         note = self.input_from_user('사진 노트')
         json_add = '''
             {
@@ -134,7 +134,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "uplace_uuid": "%s",
                 "images": [{"content": "%s"}]
             }
-        ''' % (uplace_uuid, first_file_url,)
+        ''' % (uplace_uuid, will_remove_url,)
         response = self.client.post('/uplaces/', dict(remove=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)

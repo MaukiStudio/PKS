@@ -14,6 +14,7 @@ from base.legacy import exif_lib
 from account.models import VD
 from base.utils import get_timestamp
 from content.models import ImageNote
+from pks.settings import SERVER_HOST
 
 
 class ImageTest(APITestBase):
@@ -279,3 +280,13 @@ class RawFileTest(APITestBase):
         img.save()
         self.assertValidInternetUrl(img.url_accessed)
         self.assertValidInternetUrl(img.url_summarized)
+
+    def test_url_property(self):
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.png')
+        rf.save()
+        saved = models.RawFile.objects.first()
+
+        url = rf.file.url
+        self.assertEqual(rf.url, '%s%s' % (SERVER_HOST, url))
+        self.assertEqual(rf.url, saved.url)

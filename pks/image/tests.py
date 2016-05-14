@@ -9,6 +9,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from base.tests import APITestBase
 from image.models import Image, RawFile
 from account.models import VD
+from pks.settings import SERVER_HOST
+from requests import get as requests_get
 
 
 class ImageViewsetTest(APITestBase):
@@ -56,7 +58,7 @@ class ImageViewsetTest(APITestBase):
     def test_create3(self):
         with open('image/samples/gps_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
-        img_url = self.normalize_testserver_url(json_loads(response.content)['file'])
+        img_url = json_loads(response.content)['url']
         response = self.client.post('/imgs/', dict(content=img_url))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         uuid = json_loads(response.content)['uuid']
@@ -67,7 +69,7 @@ class ImageViewsetTest(APITestBase):
     def test_create4(self):
         with open('image/samples/gps_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
-        img_url = self.normalize_testserver_url(json_loads(response.content)['file'])
+        img_url = json_loads(response.content)['url']
         response = self.client.post('/imgs/', dict(content=img_url, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19'))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         uuid = json_loads(response.content)['uuid']
@@ -115,11 +117,18 @@ class RawFileViewsetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertIn('uuid', result)
         self.assertIn('vd', result)
-        self.assertIn('file', result)
+        self.assertNotIn('file', result)
         self.assertNotIn('id', result)
         self.assertNotIn('dhash', result)
+        self.assertNotIn('mhash', result)
         self.assertEqual(result['uuid'], self.rf.uuid)
         self.assertEqual(result['vd'], self.vd.id)
+
+        self.assertIn('url', result)
+        url = result['url']
+        self.assertEqual(url.startswith(SERVER_HOST), True)
+        r = requests_get(url)
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
 
     def test_create(self):
         self.assertEqual(RawFile.objects.count(), 1)

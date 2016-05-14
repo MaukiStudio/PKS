@@ -195,3 +195,7 @@ class RawFile(models.Model):
                 raise ValueError('Invalid image URL')
             img.id = img._id
             img.access_local(self.file.path)
+
+    @property
+    def url(self):
+        return '%s%s' % (SERVER_HOST, self.file.url)
