@@ -8,6 +8,9 @@ from rest_framework import status
 from json import loads as json_loads
 from requests import post as requests_post
 
+#from pks.settings import SERVER_HOST
+SERVER_HOST = 'http://192.168.1.2:8000'
+
 
 def prepare_images():
     for file_name in glob('/media/gulby/HDD/photo/*/*/*'):
@@ -34,25 +37,30 @@ def prepare_images():
 
 
 def register_images():
+    auth_user_token = 'gAAAAABXN2sAlTeWvJG49cfhCyj_40EkyTc8MPz6325TKx16zqI-BrgZzA9blzDH_C2AnXtuIcw0ditCd-FSvh2eQyQzxMj5pvBocqS5boEbmU9BGePQmoqjqp5kaZBs0kZz_O3QUL7L'
+    auth_vd_token = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk80YMZ8y-zMA8S68q7MKZcY2NLiHsua7_ZYSA=='
+    auth_token = {'auth_user_token': auth_user_token, 'auth_vd_token': auth_vd_token}
     for file_name in glob('/home/gulby/PKS/temp/prepared/*.jpg'):
         with open(file_name, 'rb') as f:
             files = {'file': f}
-            response = requests_post('/rfs/', files=files)
+            response = requests_post('%s/rfs/' % SERVER_HOST, files=files, data=auth_token)
             if response.status_code != status.HTTP_201_CREATED:
                 print(response.text)
                 print(file_name)
-                break
+                print('------------------------------')
+                #break
                 continue
-            img_url = json_loads(response.text)['file']
+            img_url = json_loads(response.text)['url']
             data = {'content': img_url}
-            response = requests_post('/imgs/', json=data)
+            response = requests_post('%s/imgs/' % SERVER_HOST, json=data)
             if response.status_code != status.HTTP_201_CREATED:
                 print(response.text)
                 print(file_name)
                 print(img_url)
-                break
+                print('------------------------------')
+                #break
                 continue
-        break
+        #break
 
 
 #prepare_images()
