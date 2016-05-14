@@ -15,18 +15,15 @@ geolocator = Nominatim()
 def get_map_url(lonLat):
     map_url = None
     if lonLat:
-        # TODO : 튜닝 후 주석 해제하고 부정확한 임시 구현 삭제
-        '''
-        location = geolocator.reverse((lonLat.y, lonLat.x))
-        if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
-            if location.raw['address']['country_code'] == 'kr':
-                map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
-            else:
-                map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
-        '''
-        if lonLat.y > 33.0 and lonLat.y <= 43.0 and lonLat.x > 124.0 and lonLat.x < 132.0:
+        # for 튜닝 : 한국이 확실한 경우 geolocator 를 쓰지 않고 곧바로 처리
+        if lonLat.y >= 34.0 and lonLat.y <= 39.0 and lonLat.x >= 125.0 and lonLat.x <= 130.0:
             map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
         else:
+            location = geolocator.reverse((lonLat.y, lonLat.x))
+            if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
+                if location.raw['address']['country_code'] == 'kr':
+                    map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+        if not map_url:
             map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
     return map_url
 
