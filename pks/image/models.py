@@ -28,6 +28,7 @@ class Image(Content):
     dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     timestamp = models.BigIntegerField(blank=True, null=True, default=None)
+    rf = models.OneToOneField('RawFile', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='img', db_index=True)
 
     # MUST override
     @property
@@ -135,7 +136,7 @@ class Image(Content):
             pass
         return img
 
-    def access_force(self, timeout=1):
+    def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
@@ -185,7 +186,7 @@ class RawFile(models.Model):
         # 저장
         super(RawFile, self).save(*args, **kwargs)
 
-        # 이미지인 경우 바로 캐시 처리
+        # 이미지인 경우 바로 캐시 처리 및 Image object 생성
         if self.ext in ('jpg', 'png'):
             img = Image(content=self.url)
             img.content = img.normalize_content(img.content)
@@ -193,6 +194,8 @@ class RawFile(models.Model):
                 raise ValueError('Invalid image URL')
             img.id = img._id
             img.access_local(self.file.path)
+            img.rf = self
+            img.save()
 
     @property
     def url(self):
@@ -220,7 +223,7 @@ class RawFile(models.Model):
         if sames:
             same = sames[0]
             if self != same:
-                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가
+                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
                 if self.ext == same.ext and self.file.size == same.file.size:
                     self.same = same
                     with Path(self.file.path) as f:

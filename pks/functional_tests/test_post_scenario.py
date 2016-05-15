@@ -67,7 +67,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             response = self.client.post('/rfs/', dict(file=f))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         file_url = json_loads(response.content)['url']
-        will_remove_url = file_url
+        remove_url_sample = file_url
 
         # 주소값 조회
         addr1_new = '경기도 성남시 분당구 산운로32번길 12'
@@ -134,7 +134,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "uplace_uuid": "%s",
                 "images": [{"content": "%s"}]
             }
-        ''' % (uplace_uuid, will_remove_url,)
+        ''' % (uplace_uuid, remove_url_sample,)
         response = self.client.post('/uplaces/', dict(remove=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)

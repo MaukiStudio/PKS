@@ -37,9 +37,12 @@ class ImagesImportScenarioTest(FunctionalTestAfterLoginBase):
         # File Upload & Register Image
         for file_name in glob('image/samples/*.jpg'):
             with open(file_name) as f:
+                # File Upload
                 response = self.client.post('/rfs/', dict(file=f))
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                 img_url = json_loads(response.content)['url']
+
+                # Register Image : lon/lat/local_datetime 등록을 위한 것이 아니라면 별도로 호출하지 않아도 됨 (/rfs/ 호출시 이미 처리)
                 response = self.client.post('/imgs/', dict(content=img_url, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19'))
                 self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
