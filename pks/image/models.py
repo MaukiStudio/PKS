@@ -29,6 +29,7 @@ class Image(Content):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     timestamp = models.BigIntegerField(blank=True, null=True, default=None)
     rf = models.OneToOneField('RawFile', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='img', db_index=True)
+    similar = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='similars')
 
     # MUST override
     @property
@@ -61,18 +62,29 @@ class Image(Content):
         except:
             return False
 
-        '''
-        sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
-        if sames:
-            same = sames[0]
-            if self != same:
-                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
-                if self.ext == same.ext and self.file.size == same.file.size:
-                    self.same = same
-                    with Path(self.file.path) as f:
-                        f.unlink()
-                        f.symlink_to(same.file.path)
-        '''
+        if not self.lonLat or not self.timestamp:
+            # TODO : hamming > 1 에 대해서도 처리 (hamming <= 10 정도까지)
+            hamming_0 = [self.dhash]
+            similar = Image.objects.\
+                filter(dhash__in=hamming_0).\
+                filter(similar=None).\
+                exclude(id=self.id).\
+                exclude(lonLat=None).\
+                exclude(timestamp=None).\
+                first()
+            if not similar:
+                hamming_1 = [UUID(int=int(self.dhash) ^ (1 << i)) for i in xrange(128)]
+                similar = Image.objects.\
+                    filter(dhash__in=hamming_1).\
+                    filter(similar=None).\
+                    exclude(id=self.id).\
+                    exclude(lonLat=None).\
+                    exclude(timestamp=None).\
+                    first()
+            if similar:
+                self.similar = similar
+                self.lonLat = similar.lonLat
+                self.timestamp = similar.timestamp
 
         self.save()
         return True

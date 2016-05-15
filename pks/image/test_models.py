@@ -81,6 +81,50 @@ class ImageTest(APITestBase):
         #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 2)
         self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 59
 
+    def test_task(self):
+        _rf = RawFile()
+        _rf.file = self.uploadFile('no_exif_test.jpg')
+        _rf.save()
+        img = _rf.img
+        self.assertEqual(Image.objects.count(), 1)
+        saved = Image.objects.first()
+
+        self.assertEqual(img.dhash, None)
+        img.task()
+        self.assertNotEqual(img.dhash, None)
+        self.assertEqual(img.similar, None)
+
+        self.assertEqual(saved.dhash, None)
+        saved.task()
+        self.assertEqual(saved.dhash, img.dhash)
+        self.assertEqual(saved.similar, img.similar)
+
+        _rf2 = RawFile()
+        _rf2.file = self.uploadFile('test_256.jpg')
+        _rf2.save()
+        img2 = _rf2.img
+        img2.task()
+        self.assertEqual(img.similar, None)
+        self.assertEqual(img2.similar, None)
+
+        _rf3 = RawFile()
+        _rf3.file = self.uploadFile('test_480.jpg')
+        _rf3.save()
+        img3 = _rf3.img
+        img3.lonLat = None
+        img3.timestamp = None
+        #img3.save()
+        self.assertEqual(img3.lonLat, None)
+        self.assertEqual(img3.timestamp, None)
+        img3.task()
+        self.assertEqual(img.similar, None)
+        self.assertEqual(img2.similar, None)
+        self.assertEqual(img3.similar, img2)
+        self.assertEqual(img2.similars.count(), 1)
+        self.assertEqual(img2.similars.first(), img3)
+        self.assertEqual(img3.lonLat, img2.lonLat)
+        self.assertEqual(img3.timestamp, img2.timestamp)
+
     def test_exif_gps(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
@@ -328,8 +372,8 @@ class RawFileTest(APITestBase):
 
         self.assertEqual(saved.mhash, None)
         saved.task()
-        self.assertNotEqual(saved.mhash, None)
-        self.assertEqual(saved.same, None)
+        self.assertEqual(saved.mhash, rf.mhash)
+        self.assertEqual(saved.same, rf.same)
 
         rf2 = RawFile()
         rf2.file = self.uploadFile('test.jpg')
