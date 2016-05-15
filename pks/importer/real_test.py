@@ -62,16 +62,6 @@ def register_images():
                 print('------------------------------')
                 #break
                 continue
-            img_url = json_loads(response.text)['url']
-            data = {'content': img_url}
-            response = requests_post('%s/imgs/' % SERVER_HOST, json=data)
-            if response.status_code != status.HTTP_201_CREATED:
-                print(response.text)
-                print(file_name)
-                print(img_url)
-                print('------------------------------')
-                #break
-                continue
         #break
 
 
