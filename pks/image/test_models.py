@@ -15,6 +15,7 @@ from account.models import VD
 from base.utils import get_timestamp
 from content.models import ImageNote
 from pks.settings import SERVER_HOST
+from pathlib2 import Path
 
 
 class ImageTest(APITestBase):
@@ -92,7 +93,7 @@ class ImageTest(APITestBase):
         rf.save()
 
         img = models.Image()
-        img.content = rf.file.url
+        img.content = rf.url
         img.save()
         saved = models.Image.objects.first()
 
@@ -109,7 +110,7 @@ class ImageTest(APITestBase):
         rf.save()
 
         img = models.Image()
-        img.content = rf.file.url
+        img.content = rf.url
         img.save()
         saved = models.Image.objects.first()
 
@@ -129,7 +130,7 @@ class ImageTest(APITestBase):
         rf.save()
 
         img = models.Image()
-        img.content = rf.file.url
+        img.content = rf.url
         img.save()
         saved = models.Image.objects.first()
 
@@ -148,10 +149,10 @@ class ImageTest(APITestBase):
         rf2.save()
 
         img = models.Image()
-        img.content = rf.file.url
+        img.content = rf.url
         img.save()
         img2 = models.Image()
-        img2.content = rf2.file.url
+        img2.content = rf2.url
         img2.save()
 
         self.assertNotEqual(img.dhash, None)
@@ -248,7 +249,7 @@ class RawFileTest(APITestBase):
         rf.save()
         saved = models.RawFile.objects.first()
 
-        url = rf.file.url
+        url = rf.url
         regex = re_compile(r'^.*rfs/\d{4}/\d{1,2}/\d{1,2}/.+$')
         self.assertNotEqual(regex.match(url), None)
         self.assertEqual(saved, rf)
@@ -268,25 +269,72 @@ class RawFileTest(APITestBase):
 
     def test_image_cache(self):
         rf = models.RawFile()
-        rf.file = self.uploadFile('test.jpg')
+        rf.file = self.uploadFile('test.JPEG')
+        self.assertEqual(rf.ext, 'jpg')
         rf.save()
+        self.assertEqual(rf.ext, 'jpg')
 
-        img = models.Image(content=rf.file.url)
+        img = models.Image(content=rf.url)
         img.content = img.normalize_content(img.content)
         img.id = img._id
         self.assertValidLocalFile(img.path_accessed)
         self.assertValidInternetUrl(img.url_accessed)
 
+        f = Path(img.path_accessed)
+        self.assertEqual(f.is_symlink(), True)
+
         img.save()
         self.assertValidInternetUrl(img.url_accessed)
         self.assertValidInternetUrl(img.url_summarized)
 
-    def test_url_property(self):
+    def test_url_ext_property(self):
         rf = models.RawFile()
         rf.file = self.uploadFile('test.png')
         rf.save()
         saved = models.RawFile.objects.first()
 
-        url = rf.file.url
-        self.assertEqual(rf.url, '%s%s' % (SERVER_HOST, url))
+        file_url = rf.file.url
+        self.assertEqual(rf.url, '%s%s' % (SERVER_HOST, file_url))
         self.assertEqual(rf.url, saved.url)
+        self.assertEqual(rf.ext, 'png')
+        self.assertEqual(rf.ext, saved.ext)
+
+    def test_task_mhash(self):
+        rf = models.RawFile()
+        rf.file = self.uploadFile('test.png')
+        rf.save()
+        saved = models.RawFile.objects.first()
+
+        self.assertEqual(rf.mhash, None)
+        rf.task_mhash()
+        self.assertNotEqual(rf.mhash, None)
+        self.assertEqual(rf.same, None)
+
+        self.assertEqual(saved.mhash, None)
+        saved.task_mhash()
+        self.assertNotEqual(saved.mhash, None)
+        self.assertEqual(saved.same, None)
+
+        rf2 = models.RawFile()
+        rf2.file = self.uploadFile('test.jpg')
+        rf2.save()
+        rf2.task_mhash()
+        self.assertEqual(rf.same, None)
+        self.assertEqual(rf2.same, None)
+
+        rf3 = models.RawFile()
+        rf3.file = self.uploadFile('test.png')
+        rf3.save()
+        rf3.task_mhash()
+        self.assertEqual(rf.same, None)
+        self.assertEqual(rf2.same, None)
+        self.assertEqual(rf3.same, rf)
+        self.assertEqual(rf.sames.count(), 1)
+        self.assertEqual(rf.sames.first(), rf3)
+
+        f = Path(rf.file.path)
+        f2 = Path(rf2.file.path)
+        f3 = Path(rf3.file.path)
+        self.assertEqual(f.is_symlink(), False)
+        self.assertEqual(f2.is_symlink(), False)
+        self.assertEqual(f3.is_symlink(), True)

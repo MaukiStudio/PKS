@@ -7,6 +7,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 from json import loads as json_loads
 from rest_framework import status
+from hashlib import md5
 
 from imagehash import dhash
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
@@ -154,6 +155,7 @@ class RawFile(models.Model):
     file = models.FileField(blank=True, null=True, default=None, upload_to=RAW_FILE_PATH)
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='rfs')
     mhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
+    same = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='sames')
 
     @property
     def uuid(self):
@@ -174,22 +176,18 @@ class RawFile(models.Model):
         # id/file 처리
         if not self.file:
             raise AssertionError
-        timestamp = kwargs.pop('timestamp', get_timestamp())
-        _id = self._id(timestamp)
-        if self.id and self.id != _id:
-            raise NotImplementedError
-
-        # TODO : mhash 구현. 장고 Celery 에 작업 의뢰
+        if not self.id:
+            timestamp = kwargs.pop('timestamp', get_timestamp())
+            _id = self._id(timestamp)
+            self.id = _id
+            self.file.name = '%s_%s' % (self.uuid, self.file.name)
 
         # 저장
-        self.id = _id
-        self.file.name = '%s_%s' % (self.uuid, self.file.name)
         super(RawFile, self).save(*args, **kwargs)
 
         # 이미지인 경우 바로 캐시 처리
-        ext = self.file.name.split('.')[-1]
-        if ext.lower() in ('jpg', 'jpeg'):
-            img = Image(content=self.file.url)
+        if self.ext in ('jpg', 'png'):
+            img = Image(content=self.url)
             img.content = img.normalize_content(img.content)
             if not img.content.startswith('http'):
                 raise ValueError('Invalid image URL')
@@ -199,3 +197,29 @@ class RawFile(models.Model):
     @property
     def url(self):
         return '%s%s' % (SERVER_HOST, self.file.url)
+
+    @property
+    def ext(self):
+        ext = self.file.name.split('_')[-1].split('.')[-1].lower()
+        if ext == 'jpeg':
+            ext = 'jpg'
+        return ext
+
+    def task_mhash(self):
+        m = md5()
+        self.file.open()
+        m.update(self.file.read())
+        self.mhash = UUID(m.hexdigest())
+
+        sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
+        if sames:
+            same = sames[0]
+            if self != same:
+                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가
+                if self.ext == same.ext and self.file.size == same.file.size:
+                    self.same = same
+                    f = Path(self.file.path)
+                    f.unlink()
+                    f.symlink_to(same.file.path)
+
+        self.save()

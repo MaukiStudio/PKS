@@ -169,6 +169,8 @@ class Content(models.Model):
         summary = Path(self.path_summarized)
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
+        if file.exists():
+            file.unlink()
         file.symlink_to(source)
 
     def access(self, timeout=3):
