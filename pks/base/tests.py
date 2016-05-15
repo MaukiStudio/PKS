@@ -97,10 +97,10 @@ class APITestBase(APITestCase):
         return vd_id
 
     def clear_media_files(self):
+        # ImagesImporter 개발 완료시까지 잠시 파일 삭제 안함
+        return
         if WORK_ENVIRONMENT:
-            os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'accessed'))
-            os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'summary'))
-            #os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'rfs'))
+            os_system('rm -rf %s' % (MEDIA_ROOT,))
 
     def assertValidInternetUrl(self, url):
         self.assertEqual(url.startswith('http'), True)
