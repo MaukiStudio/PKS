@@ -6,12 +6,12 @@ from __future__ import absolute_import
 from pks.celery import app
 
 from celery import Task
-from importer.tasks import ImporterTask, ProxyTask
 
 
 class ImporterTaskWrapper(Task):
 
     def run(self, imp_id):
+        from importer.tasks import ImporterTask
         task = ImporterTask()
         return task.run(imp_id)
 
@@ -19,5 +19,6 @@ class ImporterTaskWrapper(Task):
 class ProxyTaskWrapper(Task):
 
     def run(self, proxy_id):
+        from importer.tasks import ProxyTask
         task = ProxyTask()
         return task.run(proxy_id)
