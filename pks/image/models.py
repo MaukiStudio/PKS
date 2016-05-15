@@ -208,7 +208,7 @@ class RawFile(models.Model):
             ext = 'jpg'
         return ext
 
-    def task_mhash(self):
+    def task(self):
         try:
             m = md5()
             self.file.open()

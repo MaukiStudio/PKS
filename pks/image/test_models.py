@@ -313,26 +313,26 @@ class RawFileTest(APITestBase):
         self.assertEqual(rf.ext, 'png')
         self.assertEqual(rf.ext, saved.ext)
 
-    def test_task_mhash(self):
+    def test_task(self):
         rf = RawFile()
         rf.file = self.uploadFile('test.png')
         rf.save()
         saved = RawFile.objects.first()
 
         self.assertEqual(rf.mhash, None)
-        rf.task_mhash()
+        rf.task()
         self.assertNotEqual(rf.mhash, None)
         self.assertEqual(rf.same, None)
 
         self.assertEqual(saved.mhash, None)
-        saved.task_mhash()
+        saved.task()
         self.assertNotEqual(saved.mhash, None)
         self.assertEqual(saved.same, None)
 
         rf2 = RawFile()
         rf2.file = self.uploadFile('test.jpg')
         rf2.save()
-        rf2.task_mhash()
+        rf2.task()
         self.assertEqual(rf.same, None)
         self.assertEqual(rf2.same, None)
 
@@ -340,7 +340,7 @@ class RawFileTest(APITestBase):
         rf3.file = self.uploadFile('test.png')
         rf3.save()
         rf3_old_file_path = rf3.file.path
-        rf3.task_mhash()
+        rf3.task()
         self.assertEqual(rf3.file.path, rf3_old_file_path)
         self.assertEqual(rf.same, None)
         self.assertEqual(rf2.same, None)
