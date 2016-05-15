@@ -51,15 +51,31 @@ class Image(Content):
                 lonLat, timestamp = self.process_exif(pil)
                 self.lonLat = self.lonLat or lonLat
                 self.timestamp = self.timestamp or timestamp
-            if not self.dhash:
-                self.dhash = self.compute_id_from_file(pil)
             self.summarize(pil)
 
+    def task(self):
+        self.access()
+        try:
+            pil = self.content_accessed
+            self.dhash = self.compute_dhash(pil)
+        except:
+            return False
 
-    def post_save(self):
-        # TODO : file 을 바로 access 하지 못한 경우, Celery 에 작업 의뢰
-        if not self.dhash:
-            pass
+        '''
+        sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
+        if sames:
+            same = sames[0]
+            if self != same:
+                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
+                if self.ext == same.ext and self.file.size == same.file.size:
+                    self.same = same
+                    with Path(self.file.path) as f:
+                        f.unlink()
+                        f.symlink_to(same.file.path)
+        '''
+
+        self.save()
+        return True
 
     @property
     def json(self):
@@ -90,7 +106,7 @@ class Image(Content):
 
     # Image's method
     @classmethod
-    def compute_id_from_file(cls, pil):
+    def compute_dhash(cls, pil):
         d1 = dhash(pil)
         d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
         return UUID('%s%s' % (d1, d2))

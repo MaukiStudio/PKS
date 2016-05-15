@@ -68,12 +68,12 @@ class ImageTest(APITestBase):
         self.assertEqual(img3, img2)
 
     def test_id(self):
-        id_640 = Image.compute_id_from_file(PIL_Image.open('image/samples/test.jpg'))
-        id_256 = Image.compute_id_from_file(PIL_Image.open('image/samples/test_256.jpg'))
-        id_480 = Image.compute_id_from_file(PIL_Image.open('image/samples/test_480.jpg'))
-        #id_1200 = Image.compute_id_from_file(PIL_Image.open('image/samples/test_1200.jpg'))
-        #id_org = Image.compute_id_from_file(PIL_Image.open('image/samples/test_org.jpg'))
-        id2 = Image.compute_id_from_file(PIL_Image.open('image/samples/no_exif_test.jpg'))
+        id_640 = Image.compute_dhash(PIL_Image.open('image/samples/test.jpg'))
+        id_256 = Image.compute_dhash(PIL_Image.open('image/samples/test_256.jpg'))
+        id_480 = Image.compute_dhash(PIL_Image.open('image/samples/test_480.jpg'))
+        #id_1200 = Image.compute_dhash(PIL_Image.open('image/samples/test_1200.jpg'))
+        #id_org = Image.compute_dhash(PIL_Image.open('image/samples/test_org.jpg'))
+        id2 = Image.compute_dhash(PIL_Image.open('image/samples/no_exif_test.jpg'))
 
         self.assertLessEqual(Image.hamming_distance(id_640, id_256), 0)
         self.assertLessEqual(Image.hamming_distance(id_640, id_480), 1)
@@ -151,9 +151,11 @@ class ImageTest(APITestBase):
         img = Image()
         img.content = rf.url
         img.save()
+        img.task()
         img2 = Image()
         img2.content = rf2.url
         img2.save()
+        img2.task()
 
         self.assertNotEqual(img.dhash, None)
         self.assertNotEqual(img2.dhash, None)
