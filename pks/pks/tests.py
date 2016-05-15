@@ -46,7 +46,7 @@ class CeleryAsyncTest(TestCase):
     def test_basic(self):
         r = for_unit_test.delay('test ', 'async')
         self.assertEqual(r.state, 'PENDING')
-        self.assertEqual(r.get(timeout=1), 'test async')
+        self.assertEqual(r.get(timeout=3), 'test async')
 
 
 class CelerySyncTest(TestCase):
