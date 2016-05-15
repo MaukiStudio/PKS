@@ -2,7 +2,11 @@
 from __future__ import unicode_literals
 
 from django.contrib.gis import admin
-from account import models
+from account.models import VD, User, RealUser
+
+
+class VDAdmin(admin.OSMGeoAdmin):
+    pass
 
 class UserAdmin(admin.ModelAdmin):
     pass
@@ -10,6 +14,6 @@ class UserAdmin(admin.ModelAdmin):
 class RealUserAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(models.VD, admin.OSMGeoAdmin)
-admin.site.register(models.User, UserAdmin)
-admin.site.register(models.RealUser, RealUserAdmin)
+admin.site.register(VD, VDAdmin)
+admin.site.register(User, UserAdmin)
+admin.site.register(RealUser, RealUserAdmin)

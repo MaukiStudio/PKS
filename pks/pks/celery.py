@@ -11,7 +11,7 @@ app = Celery(
     backend='rpc://',
     include=[
         'pks.tasks',
-        'importer.tasks',
+        'importer.task_wrappers',
     ],
 )
 

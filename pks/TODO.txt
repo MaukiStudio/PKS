@@ -38,6 +38,9 @@ ImagesImporter
                 서로 다른 UserPlace 에 매핑된 이미지가 있다면? 시간 순서를 이용하여 Group 을 쪼개어 처리
             3차 Group 화된 단위로 PostPiece 화
 
+ImagesImporter, 보안 처리 : myself 아닌 걸로 넘어올 때의 처리, tests.py 보강
+
+
 해외 처리
     VD 의 국가/언어/타임존 활용
     어드민 맵 띄우는 부분 처리 

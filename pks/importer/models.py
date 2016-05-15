@@ -38,9 +38,9 @@ class Proxy(models.Model):
 
     # TODO : priority 처리 구현
     def start(self, high_priority=False):
-        from importer.tasks import ProxyTask
-        task = ProxyTask()
-        r = task.delay(self)
+        from importer.task_wrappers import ProxyTaskWrapper
+        task = ProxyTaskWrapper()
+        r = task.delay(self.id)
 
         # TODO : 정확한 구현인지 확인
         if r.failed():
@@ -75,9 +75,9 @@ class Importer(models.Model):
 
     # TODO : priority 처리 구현
     def start(self, high_priority=False):
-        from importer.tasks import ImporterTask
-        task = ImporterTask()
-        r = task.delay(self)
+        from importer.task_wrappers import ImporterTaskWrapper
+        task = ImporterTaskWrapper()
+        r = task.delay(self.id)
 
         # TODO : 정확한 구현인지 확인
         if r.failed():

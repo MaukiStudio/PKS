@@ -80,6 +80,8 @@ class ImporterTest(FunctionalTestAfterLoginBase):
         guide_json = '{"type": "images", "vd": "myself"}'
         self.imp.publisher.guide = guide_json
         self.imp.publisher.save()
+        self.imp.publisher.vd.parent = self.subscriber
+        self.imp.publisher.vd.save()
         ts = get_timestamp()
         r = self.imp.start()
         self.assertEqual(r.state, 'SUCCESS')

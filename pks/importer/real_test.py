@@ -7,6 +7,7 @@ PKS_PATH = '/home/gulby/PKS/pks'
 AUTH_USER_TOKEN = 'gAAAAABXN2sAlTeWvJG49cfhCyj_40EkyTc8MPz6325TKx16zqI-BrgZzA9blzDH_C2AnXtuIcw0ditCd-FSvh2eQyQzxMj5pvBocqS5boEbmU9BGePQmoqjqp5kaZBs0kZz_O3QUL7L'
 AUTH_VD_TOKEN = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk80YMZ8y-zMA8S68q7MKZcY2NLiHsua7_ZYSA=='
 VD_ID = 9
+IMP_ID = 3
 
 import sys, os, django
 sys.path.append(PKS_PATH)
@@ -18,10 +19,11 @@ from glob import glob
 from PIL import Image as PIL_Image
 from rest_framework import status
 from json import loads as json_loads
-from requests import post as requests_post
 
 from pks.settings import SERVER_HOST
-from image.models import RawFile
+from requests import post as requests_post
+from importer.models import Importer
+from importer.tasks import ImagesProxyTask
 
 
 def prepare_images():
@@ -73,16 +75,15 @@ def register_images():
         #break
 
 
-def task_step1_RawFile():
-    rfs = RawFile.objects.filter(vd=VD_ID).filter(mhash=None)
-    print(len(rfs))
-    for rf in rfs:
-        if rf.task_mhash():
-            print(rf.file)
-    rfs = RawFile.objects.filter(vd=VD_ID).exclude(mhash=None).filter(same=None)
-    print(len(rfs))
+def test_images_importer():
+    imp = Importer.objects.get(id=IMP_ID)
+    task = ImagesProxyTask()
+    task.run(imp.publisher)
 
 
+# by Client
 #prepare_images()
 #register_images()
-task_step1_RawFile()
+
+# by Server (Celery)
+test_images_importer()
