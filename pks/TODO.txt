@@ -3,13 +3,13 @@
 ImagesImporter
     Test 기반 만들기
         이미지 리사이징 : Done
-        이미지 등록
+        이미지 등록 : Done
             RawFile URL 처리 부분 리팩토링 : Done
             RawFile 쉽게 등록할 수 있도록 하기 (Token Authentication) : Done
-        RawFile 처리
-            vd 로 전체 리스트 조회
-            mhash 계산
-            중복 RawFile 배제
+        RawFile 처리 : Done
+            vd 로 전체 리스트 조회 : Done
+            mhash 계산 : Done
+            중복 RawFile 배제 : Done
         Image 처리
             RawFile 로 부터 전체 리스트 조회
             dhash 계산

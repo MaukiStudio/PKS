@@ -2,14 +2,26 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
+# Hard Coding
+PKS_PATH = '/home/gulby/PKS/pks'
+AUTH_USER_TOKEN = 'gAAAAABXN2sAlTeWvJG49cfhCyj_40EkyTc8MPz6325TKx16zqI-BrgZzA9blzDH_C2AnXtuIcw0ditCd-FSvh2eQyQzxMj5pvBocqS5boEbmU9BGePQmoqjqp5kaZBs0kZz_O3QUL7L'
+AUTH_VD_TOKEN = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk80YMZ8y-zMA8S68q7MKZcY2NLiHsua7_ZYSA=='
+VD_ID = 9
+
+import sys, os, django
+sys.path.append(PKS_PATH)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pks.settings')
+django.setup()
+
+
 from glob import glob
 from PIL import Image as PIL_Image
 from rest_framework import status
 from json import loads as json_loads
 from requests import post as requests_post
 
-#from pks.settings import SERVER_HOST
-SERVER_HOST = 'http://192.168.1.2:8000'
+from pks.settings import SERVER_HOST
+from image.models import RawFile
 
 
 def prepare_images():
@@ -37,9 +49,7 @@ def prepare_images():
 
 
 def register_images():
-    auth_user_token = 'gAAAAABXN2sAlTeWvJG49cfhCyj_40EkyTc8MPz6325TKx16zqI-BrgZzA9blzDH_C2AnXtuIcw0ditCd-FSvh2eQyQzxMj5pvBocqS5boEbmU9BGePQmoqjqp5kaZBs0kZz_O3QUL7L'
-    auth_vd_token = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk80YMZ8y-zMA8S68q7MKZcY2NLiHsua7_ZYSA=='
-    auth_token = {'auth_user_token': auth_user_token, 'auth_vd_token': auth_vd_token}
+    auth_token = {'auth_user_token': AUTH_USER_TOKEN, 'auth_vd_token': AUTH_VD_TOKEN}
     for file_name in glob('/home/gulby/PKS/temp/prepared/*.jpg'):
         with open(file_name, 'rb') as f:
             files = {'file': f}
@@ -63,5 +73,16 @@ def register_images():
         #break
 
 
+def task_step1_RawFile():
+    rfs = RawFile.objects.filter(vd=VD_ID).filter(mhash=None)
+    print(len(rfs))
+    for rf in rfs:
+        if rf.task_mhash():
+            print(rf.file)
+    rfs = RawFile.objects.filter(vd=VD_ID).exclude(mhash=None).filter(same=None)
+    print(len(rfs))
+
+
 #prepare_images()
-register_images()
+#register_images()
+task_step1_RawFile()

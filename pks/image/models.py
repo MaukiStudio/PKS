@@ -206,10 +206,15 @@ class RawFile(models.Model):
         return ext
 
     def task_mhash(self):
-        m = md5()
-        self.file.open()
-        m.update(self.file.read())
-        self.mhash = UUID(m.hexdigest())
+        try:
+            m = md5()
+            self.file.open()
+            m.update(self.file.read())
+            self.file.close()
+            self.mhash = UUID(m.hexdigest())
+        except:
+            # TODO : 파일이 삭제되거나 손상된 RawFile 을 어떻게 처리할지 결정 및 구현 필요
+            return False
 
         sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
         if sames:
@@ -218,8 +223,9 @@ class RawFile(models.Model):
                 # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가
                 if self.ext == same.ext and self.file.size == same.file.size:
                     self.same = same
-                    f = Path(self.file.path)
-                    f.unlink()
-                    f.symlink_to(same.file.path)
+                    with Path(self.file.path) as f:
+                        f.unlink()
+                        f.symlink_to(same.file.path)
 
         self.save()
+        return True

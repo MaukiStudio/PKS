@@ -325,7 +325,9 @@ class RawFileTest(APITestBase):
         rf3 = models.RawFile()
         rf3.file = self.uploadFile('test.png')
         rf3.save()
+        rf3_old_file_path = rf3.file.path
         rf3.task_mhash()
+        self.assertEqual(rf3.file.path, rf3_old_file_path)
         self.assertEqual(rf.same, None)
         self.assertEqual(rf2.same, None)
         self.assertEqual(rf3.same, rf)

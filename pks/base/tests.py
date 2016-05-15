@@ -98,7 +98,9 @@ class APITestBase(APITestCase):
 
     def clear_media_files(self):
         if WORK_ENVIRONMENT:
-            os_system('rm -rf %s' % MEDIA_ROOT)
+            os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'accessed'))
+            os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'summary'))
+            #os_system('rm -rf %s/%s' % (MEDIA_ROOT, 'rfs'))
 
     def assertValidInternetUrl(self, url):
         self.assertEqual(url.startswith('http'), True)
