@@ -18,12 +18,12 @@ django.setup()
 from glob import glob
 from PIL import Image as PIL_Image
 from rest_framework import status
-from json import loads as json_loads
 
 from pks.settings import SERVER_HOST
 from requests import post as requests_post
 from importer.models import Importer
 from importer.tasks import ImagesProxyTask
+from image.models import RawFile
 
 
 def prepare_images():
@@ -65,6 +65,13 @@ def register_images():
         #break
 
 
+def clear_rfs_smart():
+    rfs = RawFile.objects.filter(mhash=None)
+    print(len(rfs))
+    for rf in rfs:
+        rf.task()
+
+
 def test_images_importer():
     imp = Importer.objects.get(id=IMP_ID)
     task = ImagesProxyTask()
@@ -75,5 +82,10 @@ def test_images_importer():
 #prepare_images()
 #register_images()
 
+
 # by Server (Celery)
 test_images_importer()
+
+
+# for Test (disk size...)
+clear_rfs_smart()
