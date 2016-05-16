@@ -456,8 +456,8 @@ class UserPlaceViewSetTest(APITestBase):
         # 사진 추가
         uplace = UserPlace.objects.get(id=uplace.id)
         self.assertNotEqual(uplace.lonLat, None)
-        #img2_content = 'http://post.phinf.naver.net/20160503_211/1462272263200uaB94_JPEG/00%B8%DE%C0%CE%BB%E7%C1%F8.jpg?type=wb200_q20'
-        img2_content = 'http://post.phinf.naver.net/20160329_169/dark861007_14592304554657EVx4_JPEG/dark861007_1081219906630853367.jpeg?type=f120_120'
+        img2_content = 'http://post.phinf.naver.net/20160503_211/1462272263200uaB94_JPEG/00%B8%DE%C0%CE%BB%E7%C1%F8.jpg?type=w1200'
+        #img2_content = 'http://post.phinf.naver.net/20160329_169/dark861007_14592304554657EVx4_JPEG/dark861007_1081219906630853367.jpeg?type=f120_120'
         json_add = '''
             {
                 "uplace_uuid": "%s",
@@ -467,6 +467,8 @@ class UserPlaceViewSetTest(APITestBase):
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)['userPost']
+        print(result['images'][0]['content'])
+        print(img2_content)
         self.assertEqual(result['images'][0]['content'], img2_content)
 
         uplace = UserPlace.objects.get(id=uplace.id)

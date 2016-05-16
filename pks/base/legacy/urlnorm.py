@@ -88,7 +88,13 @@ def norms(urlstring):
             if line.startswith('http://') or line.startswith('https://'):
                 urlstring = line
                 break
-    urlstring = unquote_plus(urlstring.strip().encode('utf-8')).decode('utf-8')
+    try:
+        urlstring = unquote_plus(urlstring.strip().encode('utf-8')).decode('utf-8')
+    except:
+        # utf-8 이 아닌 다른 캐릭터셋으로 인코딩한 후 URL encoding 한 case
+        # 일단 URL encoding 된 형태 그대로 활용
+        # TODO : 인코딩 예측해서 풀기?
+        pass
     """given a string URL, return its normalised form"""
     result = urlunparse(norm(urlparse(urlstring)))
     if not result.startswith('http'):
@@ -116,7 +122,8 @@ def norm(urltuple):
             if last_path == path:
                 break
             last_path = path
-    path = unquote(path)
+    # 이미 unquote_plus 처리되어 넘어옴 : URL decoding 후의 문자열 인코딩이 utf-8 이 아닌 경우 문자열이 깨어지기 때문에 반드시 주석처리
+    #path = unquote(path)
     return (scheme, authority, path, parameters, query, fragment)
 
 
