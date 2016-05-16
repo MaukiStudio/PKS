@@ -272,6 +272,9 @@ class LegacyPlaceTest(APITestBase):
         url = Url(content='http://m.map.naver.com/siteview.nhn?code=31176899')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '31176899.naver')
 
+        url = Url(content='https://m.map.naver.com/viewer/map.nhn?pinType=site&pinId=21652462')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '21652462.naver')
+
 
         url = Url(content='http://place.kakao.com/places/14720610')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '14720610.kakao')

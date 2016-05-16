@@ -27,16 +27,15 @@ LP_REGEXS = (
 )
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
-    (re_compile(r'^https?://map\.naver\.com/local/siteview.nhn\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+    # 'http://m.map.naver.com/siteview.nhn?code=31176899'
+    (re_compile(r'^https?://.*map\.naver\.com/.*\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
     # 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=능이향기&dlevel=11'
-    (re_compile(r'^https?://map\.naver\.com/\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+    # 'https://m.map.naver.com/viewer/map.nhn?pinType=site&pinId=21652462'
+    (re_compile(r'^https?://.*map\.naver\.com/.*\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
     # 'http://m.store.naver.com/restaurants/detail?id=37333252'
     (re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
-
-    # 'http://m.map.naver.com/siteview.nhn?code=31176899'
-    (re_compile(r'^https?://m\.map\.naver\.com/siteview\.nhn\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
 
     # 'https://place.kakao.com/places/14720610/홍콩'
