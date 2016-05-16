@@ -109,16 +109,17 @@ class ImagesProxyTask(object):
         imgs = Image.objects.filter(rf__in=rfs1).filter(lonLat=None)
         for img in imgs:
             if img.task():
-                #print(img.content)
+                #print(img)
                 pass
         print('step_02_task_images()')
         print('len(rfs1):%d, len(imgs):%d' % (len(rfs1), len(imgs)))
 
-        '''
-        similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None)
+        #'''
+        print('similars')
+        similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None).order_by('content')
         for img in similars:
             print('%s == %s' % (img.content, img.similar.content))
-        '''
+        #'''
 
         return True
 

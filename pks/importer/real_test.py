@@ -23,7 +23,7 @@ from pks.settings import SERVER_HOST
 from requests import post as requests_post
 from importer.models import Importer
 from importer.tasks import ImagesProxyTask
-from image.models import RawFile
+from image.models import RawFile, Image
 
 
 def resize_images():
@@ -71,6 +71,20 @@ def clear_rfs_smart():
         rf.task()
 
 
+def reset_image_task():
+    imgs = Image.objects.all()
+    for img in imgs:
+        img.dhash = None
+        img.similar = None
+        img.lonLat = None
+        img.timestamp = None
+        img.save()
+        print(img)
+    for img in imgs:
+        img.task(force_similar=True)
+        print(img)
+
+
 def test_images_importer():
     imp = Importer.objects.get(id=IMP_ID)
     task = ImagesProxyTask()
@@ -81,6 +95,10 @@ def test_images_importer():
 # by Client
 #resize_images()
 #register_images()
+
+
+# For Test (Hash...)
+reset_image_task()
 
 
 # by Server (Celery)
