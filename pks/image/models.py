@@ -9,7 +9,6 @@ from json import loads as json_loads
 from rest_framework import status
 from hashlib import md5
 
-from imagehash import dhash
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
@@ -48,16 +47,17 @@ class Image(Content):
     def pre_save(self):
         if self.is_accessed:
             pil = self.content_accessed
-            if not self.lonLat or not self.timestamp:
-                lonLat, timestamp = self.process_exif(pil)
-                self.lonLat = self.lonLat or lonLat
-                self.timestamp = self.timestamp or timestamp
-            if not self.dhash:
-                self.dhash = self.compute_dhash(pil)
-            self.summarize(pil)
+            if pil:
+                if not self.lonLat or not self.timestamp:
+                    lonLat, timestamp = self.process_exif(pil)
+                    self.lonLat = self.lonLat or lonLat
+                    self.timestamp = self.timestamp or timestamp
+                if not self.dhash:
+                    self.dhash = self.compute_dhash(pil)
+                self.summarize(pil)
 
-    def task(self):
-        if not self.dhash:
+    def task(self, force_dhash=False, force_similar=False):
+        if force_dhash or not self.dhash:
             self.access()
             try:
                 pil = self.content_accessed
@@ -65,7 +65,7 @@ class Image(Content):
             except:
                 return False
 
-        if not self.lonLat or not self.timestamp:
+        if force_similar or not self.lonLat or not self.timestamp:
             # TODO : 구현 개선 (dhash32 로 index 기반으로 찾은 후 dhash64+64 로 filtering 등)
             hamming_0 = [self.dhash]
             similar = Image.objects.\
@@ -74,6 +74,7 @@ class Image(Content):
                 exclude(id=self.id).\
                 exclude(lonLat=None).\
                 exclude(timestamp=None).\
+                order_by('content').\
                 first()
             if not similar:
                 hamming_1 = [UUID(int=int(self.dhash) ^ (1 << i)) for i in xrange(128)]
@@ -83,6 +84,7 @@ class Image(Content):
                     exclude(id=self.id).\
                     exclude(lonLat=None).\
                     exclude(timestamp=None).\
+                    order_by('content').\
                     first()
             if similar:
                 self.similar = similar
@@ -122,9 +124,9 @@ class Image(Content):
     # Image's method
     @classmethod
     def compute_dhash(cls, pil):
-        d1 = dhash(pil)
-        d2 = dhash(pil.transpose(PIL_Image.ROTATE_90))
-        return UUID('%s%s' % (d1, d2))
+        from imagehash import phash
+        d = phash(pil, hash_size=11)
+        return UUID(str(d).rjust(32, b'0'))
 
     @classmethod
     def process_exif(cls, pil):

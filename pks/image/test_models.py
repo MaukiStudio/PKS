@@ -67,7 +67,7 @@ class ImageTest(APITestBase):
         img3.summarize()
         self.assertEqual(img3, img2)
 
-    def test_id(self):
+    def test_dhash_hamming_dist(self):
         id_640 = Image.compute_dhash(PIL_Image.open('image/samples/test.jpg'))
         id_256 = Image.compute_dhash(PIL_Image.open('image/samples/test_256.jpg'))
         id_480 = Image.compute_dhash(PIL_Image.open('image/samples/test_480.jpg'))
@@ -75,11 +75,11 @@ class ImageTest(APITestBase):
         #id_org = Image.compute_dhash(PIL_Image.open('image/samples/test_org.jpg'))
         id2 = Image.compute_dhash(PIL_Image.open('image/samples/no_exif_test.jpg'))
 
-        self.assertLessEqual(Image.hamming_distance(id_640, id_256), 0)
-        self.assertLessEqual(Image.hamming_distance(id_640, id_480), 1)
+        self.assertLessEqual(Image.hamming_distance(id_640, id_256), 2)
+        self.assertLessEqual(Image.hamming_distance(id_640, id_480), 0)
         #self.assertLessEqual(Image.hamming_distance(id_640, id_1200), 0)
-        #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 2)
-        self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 59
+        #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 0)
+        self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 58
 
     def test_task(self):
         _rf = RawFile()
@@ -97,7 +97,7 @@ class ImageTest(APITestBase):
         self.assertEqual(saved.similar, img.similar)
 
         _rf2 = RawFile()
-        _rf2.file = self.uploadFile('test_256.jpg')
+        _rf2.file = self.uploadFile('test.jpg')
         _rf2.save()
         img2 = _rf2.img
         img2.task()
@@ -186,7 +186,7 @@ class ImageTest(APITestBase):
         rf.file = self.uploadFile('test.jpg')
         rf.save()
         rf2 = RawFile()
-        rf2.file = self.uploadFile('test_256.jpg')
+        rf2.file = self.uploadFile('test_480.jpg')
         rf2.save()
 
         img = Image()
