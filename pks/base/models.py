@@ -110,8 +110,11 @@ class Content(models.Model):
         result = None
         if 'uuid' in json and json['uuid']:
             _id = UUID(json['uuid'].split('.')[0])
-            result = cls.objects.get(id=_id)
-        elif 'content' in json and json['content']:
+            try:
+                result = cls.objects.get(id=_id)
+            except cls.DoesNotExist:
+                pass
+        if not result and 'content' in json and json['content']:
             content = cls.normalize_content(json['content'])
             if content:
                 result, is_created = cls.objects.get_or_create(content=content)
