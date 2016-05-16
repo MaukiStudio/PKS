@@ -59,6 +59,13 @@ class UserPlaceViewset(BaseViewset):
         # TODO : 리팩토링
         qs = qs.filter(mask=F('mask').bitand(~1))
 
+        # 장소화되지 않은 uplace 조회
+        if 'placed' in params and params['placed']:
+            if params['placed'].lower() in ('true', 'yes', '1', 'ok'):
+                qs = qs.exclude(place=None)
+            else:
+                qs = qs.filter(place=None)
+
         origin = None
         if 'lon' in params and 'lat' in params:
             r = int(params.get('r', 1000))

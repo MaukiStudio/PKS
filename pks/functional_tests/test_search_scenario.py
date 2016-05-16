@@ -39,8 +39,9 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         # userPost 와 placePost 모두 조회됨
 
         # 지원 order_by : 'distance_from_origin', '-distance_from_origin', 'modified', '-modified'
+        # 장소화 여부 검색 - placed : True, False
 
-        response = self.client.get('/uplaces/?lon=127.1037430&lat=37.3997320&r=0&limit=1000&offset=0&order_by=-distance_from_origin')
+        response = self.client.get('/uplaces/?lon=127.1037430&lat=37.3997320&r=0&limit=1000&offset=0&order_by=-distance_from_origin&placed=True')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
