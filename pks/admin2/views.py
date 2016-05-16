@@ -12,6 +12,7 @@ from geopy.geocoders import Nominatim
 
 geolocator = Nominatim()
 
+
 def get_map_url(lonLat):
     map_url = None
     if lonLat:
@@ -19,13 +20,16 @@ def get_map_url(lonLat):
         if lonLat.y >= 34.0 and lonLat.y <= 39.0 and lonLat.x >= 125.0 and lonLat.x <= 130.0:
             map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
         else:
-            location = geolocator.reverse((lonLat.y, lonLat.x))
-            if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
-                if location.raw['address']['country_code'] == 'kr':
-                    map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+            try:
+                location = geolocator.reverse((lonLat.y, lonLat.x))
+                if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
+                    if location.raw['address']['country_code'] == 'kr':
+                        map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+            except:
+                print('geolocator(Nominatim) fail() : lat=%f, lon=%f' % (lonLat.y, lonLat.x))
         if not map_url:
             map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
-    return map_url
+    return map_url or 'http://map.naver.com/'
 
 
 def index(request):
@@ -39,7 +43,6 @@ def index(request):
 
 def placed(request):
     pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:100]]
-    geolocator = Nominatim()
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
