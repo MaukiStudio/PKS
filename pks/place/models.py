@@ -173,16 +173,17 @@ class UserPlace(models.Model):
         if not uplace and place:
             uplace = UserPlace.objects.filter(vd_id__in=vd.realOwner_vd_ids, place=place).order_by('id').first()
 
-        lonLat = (place and place.lonLat) or pb.lonLat
+        lonLat = (place and place.lonLat) or pb.lonLat or (uplace and uplace.lonLat)
 
         # 실시간 장소화
         if not uplace:
             uplace = cls.objects.create(vd=vd, place=place, lonLat=lonLat)
             is_uplace_created = True
         elif not uplace.place:
-            uplace.place = place
-            uplace.lonLat = lonLat
-            uplace.save()
+            if place:
+                uplace.place = place
+                uplace.lonLat = lonLat
+                uplace.save()
         else:
             if place and uplace.place != place:
                 uplace.place = place
