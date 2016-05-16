@@ -24,7 +24,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
 
 class Image(Content):
-    dhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
+    phash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     timestamp = models.BigIntegerField(blank=True, null=True, default=None)
     rf = models.OneToOneField('RawFile', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='img', db_index=True)
@@ -52,24 +52,24 @@ class Image(Content):
                     lonLat, timestamp = self.process_exif(pil)
                     self.lonLat = self.lonLat or lonLat
                     self.timestamp = self.timestamp or timestamp
-                if not self.dhash:
-                    self.dhash = self.compute_dhash(pil)
+                if not self.phash:
+                    self.phash = self.compute_phash(pil)
                 self.summarize(pil)
 
-    def task(self, force_dhash=False, force_similar=False):
-        if force_dhash or not self.dhash:
+    def task(self, force_hash=False, force_similar=False):
+        if force_hash or not self.phash:
             self.access()
             try:
                 pil = self.content_accessed
-                self.dhash = self.compute_dhash(pil)
+                self.phash = self.compute_phash(pil)
             except:
                 return False
 
         if force_similar or not self.lonLat or not self.timestamp:
-            # TODO : 구현 개선 (dhash32 로 index 기반으로 찾은 후 dhash64+64 로 filtering 등)
-            hamming_0 = [self.dhash]
+            # TODO : 구현 개선
+            hamming_0 = [self.phash]
             similar = Image.objects.\
-                filter(dhash__in=hamming_0).\
+                filter(phash__in=hamming_0).\
                 filter(similar=None).\
                 exclude(id=self.id).\
                 exclude(lonLat=None).\
@@ -77,9 +77,9 @@ class Image(Content):
                 order_by('content').\
                 first()
             if not similar:
-                hamming_1 = [UUID(int=int(self.dhash) ^ (1 << i)) for i in xrange(128)]
+                hamming_1 = [UUID(int=int(self.phash) ^ (1 << i)) for i in xrange(128)]
                 similar = Image.objects.\
-                    filter(dhash__in=hamming_1).\
+                    filter(phash__in=hamming_1).\
                     filter(similar=None).\
                     exclude(id=self.id).\
                     exclude(lonLat=None).\
@@ -123,7 +123,7 @@ class Image(Content):
 
     # Image's method
     @classmethod
-    def compute_dhash(cls, pil):
+    def compute_phash(cls, pil):
         from imagehash import phash
         d = phash(pil, hash_size=11)
         return UUID(str(d).rjust(32, b'0'))

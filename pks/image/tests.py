@@ -42,7 +42,7 @@ class ImageViewsetTest(APITestBase):
         self.assertEqual(type(result), dict)
         self.assertIn('uuid', result)
         self.assertNotIn('id', result)
-        self.assertNotIn('dhash', result)
+        self.assertNotIn('phash', result)
         self.assertEqual(result['uuid'], self.img.uuid)
 
     def test_create(self):
@@ -121,7 +121,7 @@ class RawFileViewsetTest(APITestBase):
         self.assertIn('vd', result)
         #self.assertNotIn('file', result)
         self.assertNotIn('id', result)
-        self.assertNotIn('dhash', result)
+        self.assertNotIn('phash', result)
         self.assertNotIn('mhash', result)
         self.assertEqual(result['uuid'], self.rf.uuid)
         self.assertEqual(result['vd'], self.vd.id)

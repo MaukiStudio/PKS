@@ -10,7 +10,7 @@ from base.serializers import ContentSerializer
 class ImageSerializer(ContentSerializer):
     class Meta:
         model = Image
-        exclude = ('id', 'dhash',)
+        exclude = ('id', 'phash',)
 
 
 class RawFileSerializer(ModelSerializer):

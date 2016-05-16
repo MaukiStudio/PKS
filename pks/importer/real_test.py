@@ -74,7 +74,7 @@ def clear_rfs_smart():
 def reset_image_task():
     imgs = Image.objects.all()
     for img in imgs:
-        img.dhash = None
+        img.phash = None
         img.similar = None
         img.lonLat = None
         img.timestamp = None

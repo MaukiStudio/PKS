@@ -67,13 +67,13 @@ class ImageTest(APITestBase):
         img3.summarize()
         self.assertEqual(img3, img2)
 
-    def test_dhash_hamming_dist(self):
-        id_640 = Image.compute_dhash(PIL_Image.open('image/samples/test.jpg'))
-        id_256 = Image.compute_dhash(PIL_Image.open('image/samples/test_256.jpg'))
-        id_480 = Image.compute_dhash(PIL_Image.open('image/samples/test_480.jpg'))
-        #id_1200 = Image.compute_dhash(PIL_Image.open('image/samples/test_1200.jpg'))
-        #id_org = Image.compute_dhash(PIL_Image.open('image/samples/test_org.jpg'))
-        id2 = Image.compute_dhash(PIL_Image.open('image/samples/no_exif_test.jpg'))
+    def test_phash_hamming_dist(self):
+        id_640 = Image.compute_phash(PIL_Image.open('image/samples/test.jpg'))
+        id_256 = Image.compute_phash(PIL_Image.open('image/samples/test_256.jpg'))
+        id_480 = Image.compute_phash(PIL_Image.open('image/samples/test_480.jpg'))
+        #id_1200 = Image.compute_phash(PIL_Image.open('image/samples/test_1200.jpg'))
+        #id_org = Image.compute_phash(PIL_Image.open('image/samples/test_org.jpg'))
+        id2 = Image.compute_phash(PIL_Image.open('image/samples/no_exif_test.jpg'))
 
         self.assertLessEqual(Image.hamming_distance(id_640, id_256), 2)
         self.assertLessEqual(Image.hamming_distance(id_640, id_480), 0)
@@ -93,7 +93,7 @@ class ImageTest(APITestBase):
         self.assertEqual(img.similar, None)
 
         saved.task()
-        self.assertEqual(saved.dhash, img.dhash)
+        self.assertEqual(saved.phash, img.phash)
         self.assertEqual(saved.similar, img.similar)
 
         _rf2 = RawFile()
@@ -181,7 +181,7 @@ class ImageTest(APITestBase):
         self.assertEqual(saved.lonLat, None)
         self.assertEqual(saved.timestamp, None)
 
-    def test_dhash(self):
+    def test_phash(self):
         rf = RawFile()
         rf.file = self.uploadFile('test.jpg')
         rf.save()
@@ -198,9 +198,9 @@ class ImageTest(APITestBase):
         img2.save()
         img2.task()
 
-        self.assertNotEqual(img.dhash, None)
-        self.assertNotEqual(img2.dhash, None)
-        self.assertEqual(img.dhash, img2.dhash)
+        self.assertNotEqual(img.phash, None)
+        self.assertNotEqual(img2.phash, None)
+        self.assertEqual(img.phash, img2.phash)
 
     def test_access_methods(self):
         img = Image()
