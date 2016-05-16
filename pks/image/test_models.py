@@ -81,6 +81,20 @@ class ImageTest(APITestBase):
         #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 0)
         self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 58
 
+    def test_dhash_hamming_dist(self):
+        id_640 = Image.compute_dhash(PIL_Image.open('image/samples/test.jpg'))
+        id_256 = Image.compute_dhash(PIL_Image.open('image/samples/test_256.jpg'))
+        id_480 = Image.compute_dhash(PIL_Image.open('image/samples/test_480.jpg'))
+        #id_1200 = Image.compute_dhash(PIL_Image.open('image/samples/test_1200.jpg'))
+        #id_org = Image.compute_dhash(PIL_Image.open('image/samples/test_org.jpg'))
+        id2 = Image.compute_dhash(PIL_Image.open('image/samples/no_exif_test.jpg'))
+
+        self.assertLessEqual(Image.hamming_distance(id_640, id_256), 0)
+        self.assertLessEqual(Image.hamming_distance(id_640, id_480), 0)
+        #self.assertLessEqual(Image.hamming_distance(id_640, id_1200), 0)
+        #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 0)
+        self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 23
+
     def test_task(self):
         _rf = RawFile()
         _rf.file = self.uploadFile('no_exif_test.jpg')
@@ -94,6 +108,7 @@ class ImageTest(APITestBase):
 
         saved.task()
         self.assertEqual(saved.phash, img.phash)
+        self.assertEqual(saved.dhash, img.dhash)
         self.assertEqual(saved.similar, img.similar)
 
         _rf2 = RawFile()
@@ -192,15 +207,32 @@ class ImageTest(APITestBase):
         img = Image()
         img.content = rf.url
         img.save()
-        img.task()
         img2 = Image()
         img2.content = rf2.url
         img2.save()
-        img2.task()
 
         self.assertNotEqual(img.phash, None)
         self.assertNotEqual(img2.phash, None)
         self.assertEqual(img.phash, img2.phash)
+
+    def test_dhash(self):
+        rf = RawFile()
+        rf.file = self.uploadFile('test.jpg')
+        rf.save()
+        rf2 = RawFile()
+        rf2.file = self.uploadFile('test_480.jpg')
+        rf2.save()
+
+        img = Image()
+        img.content = rf.url
+        img.save()
+        img2 = Image()
+        img2.content = rf2.url
+        img2.save()
+
+        self.assertNotEqual(img.dhash, None)
+        self.assertNotEqual(img2.dhash, None)
+        self.assertEqual(img.dhash, img2.dhash)
 
     def test_access_methods(self):
         img = Image()

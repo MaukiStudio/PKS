@@ -24,7 +24,8 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 
 
 class Image(Content):
-    phash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
+    phash = models.UUIDField(blank=True, null=True, default=None)
+    dhash = models.BigIntegerField(blank=True, null=True, default=None, db_index=True)
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     timestamp = models.BigIntegerField(blank=True, null=True, default=None)
     rf = models.OneToOneField('RawFile', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='img', db_index=True)
@@ -54,14 +55,17 @@ class Image(Content):
                     self.timestamp = self.timestamp or timestamp
                 if not self.phash:
                     self.phash = self.compute_phash(pil)
+                if not self.dhash:
+                    self.dhash = self.compute_dhash(pil)
                 self.summarize(pil)
 
     def task(self, force_hash=False, force_similar=False):
-        if force_hash or not self.phash:
+        if force_hash or not self.phash or not self.dhash:
             self.access()
             try:
                 pil = self.content_accessed
                 self.phash = self.compute_phash(pil)
+                self.dhash = self.compute_dhash(pil)
             except:
                 return False
 
@@ -129,6 +133,15 @@ class Image(Content):
         return UUID(str(d).rjust(32, b'0'))
 
     @classmethod
+    def compute_dhash(cls, pil):
+        from imagehash import dhash
+        d = dhash(pil, hash_size=6)
+        r = 0
+        for bit in d.hash.flatten():
+            r = r*2 + bit
+        return r
+
+    @classmethod
     def process_exif(cls, pil):
         result = [None, None]
         if not pil:
@@ -153,8 +166,9 @@ class Image(Content):
             thumb.save(self.path_summarized)
 
     @classmethod
-    def hamming_distance(cls, id1, id2):
-        count, z = 0, id1.int ^ id2.int
+    def hamming_distance(cls, hash1, hash2):
+        v1, v2 = int(hash1), int(hash2)
+        count, z = 0, v1 ^ v2
         while z:
             count += 1
             z &= z - 1
