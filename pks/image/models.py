@@ -66,7 +66,7 @@ class Image(Content):
                 return False
 
         if not self.lonLat or not self.timestamp:
-            # TODO : 구현 개선 (dhash32 로 index 로 찾은 후 dhash64+64 로 filtering 등)
+            # TODO : 구현 개선 (dhash32 로 index 기반으로 찾은 후 dhash64+64 로 filtering 등)
             hamming_0 = [self.dhash]
             similar = Image.objects.\
                 filter(dhash__in=hamming_0).\
