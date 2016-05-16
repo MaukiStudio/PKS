@@ -26,7 +26,7 @@ from importer.tasks import ImagesProxyTask
 from image.models import RawFile
 
 
-def prepare_images():
+def resize_images():
     for file_name in glob('/media/gulby/HDD/photo/*/*/*'):
         try:
             pil = PIL_Image.open(file_name)
@@ -67,7 +67,6 @@ def register_images():
 
 def clear_rfs_smart():
     rfs = RawFile.objects.filter(mhash=None)
-    print(len(rfs))
     for rf in rfs:
         rf.task()
 
@@ -75,11 +74,12 @@ def clear_rfs_smart():
 def test_images_importer():
     imp = Importer.objects.get(id=IMP_ID)
     task = ImagesProxyTask()
-    task.run(imp.publisher)
+    r = task.run(imp.publisher)
+    print('result: %s' % r)
 
 
 # by Client
-#prepare_images()
+#resize_images()
 #register_images()
 
 

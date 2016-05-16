@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from base.utils import get_timestamp
 from image.models import RawFile, Image
 
+
 class ImporterTask(object):
 
     def run(self, imp_id):
@@ -78,26 +79,55 @@ class ImagesProxyTask(object):
     def __init__(self, *args, **kwargs):
         super(ImagesProxyTask, self).__init__(*args, **kwargs)
         self.proxy = None
+        self.source = None
+        self.imgs = list()
 
     def run(self, proxy):
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        if not self.step01_task_rf():
+        if not self.step_01_task_rfs():
+            return False
+        if not self.step_02_task_images():
+            return False
+        if not self.step_03_take_images():
             return False
 
         return True
 
-    def step01_task_rf(self):
+    def step_01_task_rfs(self):
         rfs = RawFile.objects.filter(vd=self.source.id).filter(mhash=None)
-        print(len(rfs))
         for rf in rfs:
-            if rf.task_mhash():
+            if rf.task():
                 print(rf.file)
-
-        rfs = RawFile.objects.filter(vd=self.source.id).exclude(mhash=None).filter(same=None)
-        print(len(rfs))
-
-        print('ImagesProxyTask.step01_task_rf()')
+        print('step_01_task_rfs()')
+        print('len(rfs):%d' % (len(rfs),))
         return True
 
+    def step_02_task_images(self):
+        rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
+        imgs = Image.objects.filter(rf__in=rfs1).filter(lonLat=None)
+        for img in imgs:
+            if img.task():
+                #print(img.content)
+                pass
+        print('step_02_task_images()')
+        print('len(rfs1):%d, len(imgs):%d' % (len(rfs1), len(imgs)))
+
+        '''
+        similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None)
+        for img in similars:
+            print('%s == %s' % (img.content, img.similar.content))
+        '''
+
+        return True
+
+    def step_03_take_images(self):
+        rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
+        sames = RawFile.objects.filter(vd=self.source.id).exclude(same=None)
+        rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source.id)
+        self.imgs = list(Image.objects.filter(rf__in=rfs1 | rfs2).exclude(lonLat=None).exclude(timestamp=None))
+        print('step_03_take_images()')
+        print('len(rfs1):%d, len(sames):%d, len(rfs2):%d, len(self.imgs):%d' %
+              (len(rfs1), len(sames), len(rfs2), len(self.imgs)))
+        return True
