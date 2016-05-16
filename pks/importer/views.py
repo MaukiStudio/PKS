@@ -136,7 +136,7 @@ class ImportedPlaceViewset(BaseViewset):
     def publisher_ids(self):
         importers = Importer.objects.filter(subscriber_id__in=self.vd.realOwner_vd_ids)
         if importers:
-            return reduce(lambda a, b: a.extends(b), [importer.publisher.vd_ids for importer in importers])
+            return sum([importer.publisher.vd_ids for importer in importers], [])
         return []
 
     # TODO : 튜닝
