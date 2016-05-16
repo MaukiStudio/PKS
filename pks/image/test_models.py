@@ -89,12 +89,9 @@ class ImageTest(APITestBase):
         self.assertEqual(Image.objects.count(), 1)
         saved = Image.objects.first()
 
-        self.assertEqual(img.dhash, None)
         img.task()
-        self.assertNotEqual(img.dhash, None)
         self.assertEqual(img.similar, None)
 
-        self.assertEqual(saved.dhash, None)
         saved.task()
         self.assertEqual(saved.dhash, img.dhash)
         self.assertEqual(saved.similar, img.similar)

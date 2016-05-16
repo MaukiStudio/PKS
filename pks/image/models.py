@@ -52,18 +52,21 @@ class Image(Content):
                 lonLat, timestamp = self.process_exif(pil)
                 self.lonLat = self.lonLat or lonLat
                 self.timestamp = self.timestamp or timestamp
+            if not self.dhash:
+                self.dhash = self.compute_dhash(pil)
             self.summarize(pil)
 
     def task(self):
-        self.access()
-        try:
-            pil = self.content_accessed
-            self.dhash = self.compute_dhash(pil)
-        except:
-            return False
+        if not self.dhash:
+            self.access()
+            try:
+                pil = self.content_accessed
+                self.dhash = self.compute_dhash(pil)
+            except:
+                return False
 
         if not self.lonLat or not self.timestamp:
-            # TODO : hamming > 1 에 대해서도 처리 (hamming <= 10 정도까지)
+            # TODO : 구현 개선 (dhash32 로 index 로 찾은 후 dhash64+64 로 filtering 등)
             hamming_0 = [self.dhash]
             similar = Image.objects.\
                 filter(dhash__in=hamming_0).\
