@@ -24,6 +24,7 @@ from requests import post as requests_post
 from importer.models import Importer
 from importer.tasks import ImagesProxyTask
 from image.models import RawFile, Image
+from account.models import VD
 
 
 def resize_images():
@@ -73,16 +74,22 @@ def clear_rfs_smart():
 
 def reset_image_task():
     imgs = Image.objects.all()
+    #'''
     for img in imgs:
         img.phash = None
+        img.dhash = None
         img.similar = None
         img.lonLat = None
         img.timestamp = None
         img.save()
         print(img)
+    #'''
+    '''
+    vd = VD.objects.get(id=VD_ID)
     for img in imgs:
-        img.task(force_similar=True)
-        print(img)
+        img.task(vd=vd, force_similar=True)
+        #print(img)
+    '''
 
 
 def test_images_importer():
@@ -98,7 +105,7 @@ def test_images_importer():
 
 
 # For Test (Hash...)
-reset_image_task()
+#reset_image_task()
 
 
 # by Server (Celery)

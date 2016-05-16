@@ -108,17 +108,19 @@ class ImagesProxyTask(object):
         rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
         imgs = Image.objects.filter(rf__in=rfs1).filter(lonLat=None)
         for img in imgs:
-            if img.task():
+            if img.task(vd=self.source):
                 #print(img)
                 pass
         print('step_02_task_images()')
         print('len(rfs1):%d, len(imgs):%d' % (len(rfs1), len(imgs)))
 
         #'''
-        print('similars')
         similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None).order_by('content')
+        print('similars: %d' % len(similars))
         for img in similars:
-            print('%s == %s' % (img.content, img.similar.content))
+            print('(%02d, %02d) : %s == %s' % (Image.hamming_distance(img.phash, img.similar.phash),
+                                               Image.hamming_distance(img.dhash, img.similar.dhash),
+                                               img.content, img.similar.content))
         #'''
 
         return True

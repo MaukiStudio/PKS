@@ -59,7 +59,7 @@ class Image(Content):
                     self.dhash = self.compute_dhash(pil)
                 self.summarize(pil)
 
-    def task(self, force_hash=False, force_similar=False):
+    def task(self, vd=None, force_hash=False, force_similar=False):
         if force_hash or not self.phash or not self.dhash:
             self.access()
             try:
@@ -70,30 +70,66 @@ class Image(Content):
                 return False
 
         if force_similar or not self.lonLat or not self.timestamp:
-            # TODO : 구현 개선
-            hamming_0 = [self.phash]
-            similar = Image.objects.\
-                filter(phash__in=hamming_0).\
-                filter(similar=None).\
-                exclude(id=self.id).\
-                exclude(lonLat=None).\
-                exclude(timestamp=None).\
-                order_by('content').\
-                first()
-            if not similar:
-                hamming_1 = [UUID(int=int(self.phash) ^ (1 << i)) for i in xrange(128)]
-                similar = Image.objects.\
-                    filter(phash__in=hamming_1).\
+            hamming_0 = [self.dhash]
+            hamming_1 = [dhash ^ (1 << i) for dhash in hamming_0 for i in xrange(24)]
+            hamming_2 = [dhash ^ (1 << i) for dhash in hamming_1 for i in xrange(24) if dhash ^ (1 << i) not in hamming_0]
+            most_similar = None
+
+            # 같은 디바이스의 사진들끼리의 처리
+            if vd:
+                hamming = hamming_0 + hamming_1 + hamming_2
+                rfs = RawFile.objects.filter(vd=vd.id).filter(same=None).exclude(mhash=None)
+                similars = Image.objects.\
+                    filter(rf__in=rfs).\
+                    filter(dhash__in=hamming).\
                     filter(similar=None).\
                     exclude(id=self.id).\
                     exclude(lonLat=None).\
-                    exclude(timestamp=None).\
-                    order_by('content').\
-                    first()
-            if similar:
-                self.similar = similar
-                self.lonLat = similar.lonLat
-                self.timestamp = similar.timestamp
+                    exclude(timestamp=None)
+
+                most_similar_dist = 128+1
+                for similar in similars:
+                    dist = self.hamming_distance(self.phash, similar.phash)
+                    if dist < most_similar_dist:
+                        most_similar = similar
+                        most_similar_dist = dist
+
+                # 41 부터 완전히 다른 이미지가 등장하기 시작 (Tested)
+                if most_similar_dist > 40:
+                    most_similar = None
+                # 다른 소스 참고시... 30% 정도 수준 (36까지 동일하다 판단) 이 안전해 보임
+                if most_similar_dist > 36:
+                    most_similar = None
+
+            # 다른 디바이스도 포함하여 전체 이미지에서의 처리
+            if not most_similar:
+                # dhash diff 1 까지만 index 조회한다
+                hamming = hamming_0 + hamming_1
+                similars = Image.objects.\
+                    filter(dhash__in=hamming).\
+                    filter(similar=None).\
+                    exclude(id=self.id).\
+                    exclude(lonLat=None).\
+                    exclude(timestamp=None)
+
+                most_similar_dist = 128+1
+                for similar in similars:
+                    dist = self.hamming_distance(self.phash, similar.phash)
+                    if dist < most_similar_dist:
+                        most_similar = similar
+                        most_similar_dist = dist
+
+                # 훨씬 더 가혹한 기준이 적용되어야 안전
+                # 최소한 2까지는 포함해야 함 (Tested)
+                # 명확한 실험결과는 아니나... 일단 5%, 즉 6 으로 적용
+                if most_similar_dist > 6:
+                    most_similar = None
+
+            # 결과 처리
+            if most_similar:
+                self.similar = most_similar
+                self.lonLat = most_similar.lonLat
+                self.timestamp = most_similar.timestamp
 
         self.save()
         return True
@@ -137,7 +173,10 @@ class Image(Content):
         from imagehash import dhash
         d = dhash(pil, hash_size=6)
         r = 0
-        for bit in d.hash.flatten():
+        bitarr = d.hash.flatten()
+        use = [2, 3, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 32, 33]
+        not_use = [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35]
+        for bit in bitarr[use]:
             r = r*2 + bit
         return r
 
