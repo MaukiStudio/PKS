@@ -93,7 +93,7 @@ class ImageTest(APITestBase):
         self.assertLessEqual(Image.hamming_distance(id_640, id_480), 0)
         #self.assertLessEqual(Image.hamming_distance(id_640, id_1200), 0)
         #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 0)
-        self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 23
+        self.assertGreater(Image.hamming_distance(id_640, id2), 3)  # distance = 15
 
     def test_task(self):
         _rf = RawFile()
