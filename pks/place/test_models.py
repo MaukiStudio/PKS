@@ -37,14 +37,14 @@ class SimplePlaceTest(APITestBase):
 
     def test_lonLat_column(self):
         place = Place()
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         place.lonLat = point1
         place.save()
         saved = Place.objects.first()
         self.assertEqual(place.lonLat, point1)
         self.assertEqual(saved.lonLat, point1)
 
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         qs1 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs1), 0)
         qs2 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
@@ -72,7 +72,7 @@ class SimpleUserPlaceTest(APITestBase):
     def setUp(self):
         super(SimpleUserPlaceTest, self).setUp()
         self.place = Place()
-        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         self.place.lonLat = point
         self.place.save()
         self.vd = VD()
@@ -153,7 +153,7 @@ class SimpleUserPlaceTest(APITestBase):
     def test_lonLat_column(self):
         uplace = UserPlace(vd=self.vd, place=self.place)
         uplace.save()
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         qs1 = UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs1), 0)
         qs2 = UserPlace.objects.filter(place__lonLat__distance_lte=(point2, D(m=1000)))
@@ -202,7 +202,7 @@ class SimpleUserPlaceTest(APITestBase):
         self.assertEqual(uplace3, uplace_check)
 
     def test_origin(self):
-        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         uplace = UserPlace.objects.create(vd=self.vd, lonLat=point)
         uplace.origin = point
         self.assertEqual(uplace.origin, point)
@@ -211,17 +211,17 @@ class SimpleUserPlaceTest(APITestBase):
         self.assertEqual(uplace2.origin, None)
 
     def test_distance_from_origin(self):
-        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         uplace = UserPlace.objects.create(vd=self.vd, lonLat=point)
         self.assertEqual(uplace.distance_from_origin, None)
         uplace.origin = point
         self.assertEqual(uplace.distance_from_origin, '0m')
 
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         uplace.origin = point2
         self.assertEqual(uplace.distance_from_origin, '410m')
 
-        point3 = GEOSGeometry('POINT(127.0 37.0)')
+        point3 = GEOSGeometry('POINT(127.0 37.0)', srid=4326)
         uplace.origin = point3
         self.assertEqual(uplace.distance_from_origin, '29.2km')
 
@@ -233,7 +233,7 @@ class PostTest(APITestBase):
         vd1 = VD(); vd1.save()
         uplace1 = UserPlace(vd=vd1, place=place)
         uplace1.save()
-        point1 = GEOSGeometry('POINT(127 37)')
+        point1 = GEOSGeometry('POINT(127 37)', srid=4326)
         name1 = PlaceName(content='능라'); name1.save()
         addr1 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr1.save()
         note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
@@ -246,7 +246,7 @@ class PostTest(APITestBase):
         vd2 = VD(); vd2.save()
         uplace2 = UserPlace(vd=vd2, place=place)
         uplace2.save()
-        point2 = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point2 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         name2 = PlaceName(content='능라도'); name2.save()
         addr2 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr2.save()
         note21 = PlaceNote(content='여기 가게 바로 옆으로 이전'); note21.save()

@@ -41,8 +41,8 @@ class PlaceViewSetTest(APITestBase):
         self.assertNotIn('userPost', result['results'][0])
         self.assertIn('placePost', result['results'][0])
 
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         response = self.client.get('/places/', dict(lon=point2.x, lat=point2.y, r=1000))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 0)
@@ -63,7 +63,7 @@ class PlaceViewSetTest(APITestBase):
         self.assertEqual(len(results), 0)
 
         place2 = Place()
-        place2.lonLat = GEOSGeometry('POINT(127 37)')
+        place2.lonLat = GEOSGeometry('POINT(127 37)', srid=4326)
         place2.save()
         place3 = Place()
         place3.lonLat = point2
@@ -122,8 +122,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('vd', results[0])
         self.assertNotIn('mask', results[0])
 
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         response = self.client.get('/uplaces/', dict(lon=point2.x, lat=point2.y, r=1000))
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 0)
@@ -138,7 +138,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(len(results), 0)
 
         uplace2 = UserPlace(vd=self.vd)
-        uplace2.lonLat = GEOSGeometry('POINT(127 37)')
+        uplace2.lonLat = GEOSGeometry('POINT(127 37)', srid=4326)
         uplace2.save()
         uplace3 = UserPlace(vd=self.vd)
         uplace3.lonLat = point2
@@ -220,8 +220,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.uplace.place = self.place
         self.uplace.save()
 
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
         qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
@@ -412,7 +412,7 @@ class UserPlaceViewSetTest(APITestBase):
 
 
     def test_create_case1_current_pos_only_with_photo(self):
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img1 = Image(content=img1_content); img1.save()
         addr1_content = '경기도 성남시 분당구 산운로32번길 12'
@@ -446,7 +446,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(uplace.placePost, None)
         self.assertIsNotSubsetOf(uplace.userPost, want)
 
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)')
+        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         self.assertEqual(Place.objects.count(), 1)
         qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
@@ -483,7 +483,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(uplace.lonLat, None)
 
     def test_create_case2_current_pos_with_note_photo(self):
-        point1 = GEOSGeometry('POINT(127 37)')
+        point1 = GEOSGeometry('POINT(127 37)', srid=4326)
         note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img1 = Image(content=img1_content); img1.save()
@@ -569,7 +569,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
 
     def test_create_full_with_no_uuid_except_image(self):
-        point1 = GEOSGeometry('POINT(127 37)')
+        point1 = GEOSGeometry('POINT(127 37)', srid=4326)
         name1_content = '능라'
         addr1_content='경기도 성남시 분당구 운중동 883-3'
         note11_content='분당 냉면 최고'

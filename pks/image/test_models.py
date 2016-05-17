@@ -140,7 +140,7 @@ class ImageTest(APITestBase):
     def test_exif_gps(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
-        point = GEOSGeometry('POINT(%f %f)' % lonLat)
+        point = GEOSGeometry('POINT(%f %f)' % lonLat, srid=4326)
         self.assertEqual(point.x, 127.103744)  # lon(경도)
         self.assertEqual(point.y, 37.399731)  # lat(위도)
 

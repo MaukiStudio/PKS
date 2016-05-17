@@ -189,7 +189,7 @@ class Image(Content):
             exif = exif_lib.get_exif_data(pil)
             lonLat = exif_lib.get_lon_lat(exif)
             if lonLat and lonLat[0] and lonLat[1]:
-                result[0] = GEOSGeometry('POINT(%f %f)' % lonLat)
+                result[0] = GEOSGeometry('POINT(%f %f)' % lonLat, srid=4326)
             timestamp = exif_lib.get_timestamp(exif)
             if timestamp:
                 result[1] = timestamp

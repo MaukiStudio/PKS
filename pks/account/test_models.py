@@ -117,7 +117,7 @@ class VDTest(APITestBase):
         self.assertEqual(j, json_dumps(saved.data, encoding='utf-8'))
 
     def test_lastLonLat_property(self):
-        point = GEOSGeometry('POINT(127.1037430 37.3997320)')
+        point = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         vd = VD()
         vd.lastLonLat = point
         vd.save()

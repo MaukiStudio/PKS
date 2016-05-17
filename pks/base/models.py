@@ -18,7 +18,7 @@ from pathlib2 import Path
 
 class Point(object):
     def __init__(self, lon, lat):
-        self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat))
+        self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
         self.timestamp = None
 
     @classmethod
