@@ -1,5 +1,8 @@
 [Now]
 
+HotPatch
+    ImagesImporter 를 위한 real_test, 이미지 로테이션도 진행
+
 ImagesImporter
     Test 기반 만들기 : Done
         이미지 리사이징 : Done
@@ -16,13 +19,13 @@ ImagesImporter
         dhash 계산 : Done
         중복 Image 배제, EXIF 정보 가져오기 : Done
     이미지들 전체를 뽑아 메모리에 저장 : Done
-    1차 그룹화 : GPS 좌표만 사용
-        각 점들마다 100m 미만인 점들을 모아 Group 화 (disjoint 아님)
-            수치는 튜닝 필요
-        포함되는 (동일 포함) Group 삭제
-        여러 그룹에 속한 점들의 경우, 더 적합한 하나의 Group 에만 속하도록 처리
-            Group element 와의 min distance 로 판단
-        N*N distance matrix 만들어 구현 : 거리 함수 성질 (c >= |a - b|) 이용하여 계산량 감소 
+    1차 그룹화 : GPS 좌표만 사용 : Done
+        각 점들마다 1km 미만인 점들을 모아 Group 화 (disjoint 아님) : Done
+        포함되는 (동일 포함) Group 삭제 : Done
+        여러 그룹에 속한 점들의 경우, 더 적합한 하나의 Group 에만 속하도록 처리 : Done
+            Group element 와의 min distance 로 판단 : Done
+        N*N distance matrix 만들어 구현 : 거리 함수 성질 (c >= |a - b|) 이용하여 계산량 감소 : Done
+        
     2차 그룹화 : timestamp 만 사용.
         1차 그룹화된 그룹을 다시 분리하는 용도.
         각 점들마다 30분 미만인 점들을 모아 Group 화 (disjoint 아님)
@@ -30,14 +33,17 @@ ImagesImporter
         포함되는 (동일 포함) Group 삭제
         여러 그룹에 속한 점들의 경우, 더 적합한 하나의 Group 에만 속하도록 처리
             Group element 와의 min distance 로 판단
+            
     3차 그룹화
         2차 그룹화된 그룹들을 합치기
         4차원 시공간 상에서의 거리함수, 이미지 유사도 등을 활용
+        
     4차 UserPlace 화
         3차 Group 화된 단위로 UserPlace 화
             이미 UserPlace 에 매핑된 이미지가 있으면, 그 이미지는  빼고 PostPiece 만들어 그 UserPlace 에 연결
             서로 다른 UserPlace 에 매핑된 이미지가 있다면? 시간 순서를 이용하여 Group 을 쪼개어 처리
         2차 Group 화된 단위로 PostPiece 화
+
 
 clear_rfs_smart() 제대로 동작하지 않는 문제 수정 : 테스트로 생성된 중복된 파일들이 symbolic link 로 정리가 되지 않음...
 

@@ -6,7 +6,7 @@ import numpy as np
 from base.utils import get_timestamp
 from image.models import RawFile, Image
 
-GROUPING_DISTANCE_THRESHOLD = 500
+GROUPING_DISTANCE_THRESHOLD = 1000
 
 
 class ImporterTask(object):
