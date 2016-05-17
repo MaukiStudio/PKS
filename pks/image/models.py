@@ -175,7 +175,7 @@ class Image(Content):
         r = 0
         bitarr = d.hash.flatten()
         use = [2, 3, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 32, 33]
-        not_use = [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35]
+        #not_use = [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35]
         for bit in bitarr[use]:
             r = r*2 + bit
         return r
