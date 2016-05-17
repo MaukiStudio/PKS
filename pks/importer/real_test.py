@@ -92,11 +92,34 @@ def reset_image_task():
     '''
 
 
+def make_report_html(results):
+    with open('ImagesImporterReport.html', 'w') as f:
+        f.write('<html><body><table border="True">\n')
+        for group in results:
+            f.write('<tr>\n')
+
+            leader = group['leader']
+            map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (leader.lonLat.x, leader.lonLat.y)
+            f.write('   <td>\n')
+            f.write('       <img src="%s"/><br/>\n' % leader.url_summarized)
+            f.write('       <a href="%s" target="_blank">Lat:%0.4f, Lon:%0.4f</a>\n' % (map_url, leader.lonLat.y, leader.lonLat.x))
+            f.write('   </td>\n')
+
+            f.write('   <td>\n')
+            for member in group['members']:
+                f.write('       <img src="%s"/>\n' % member.url_summarized)
+            f.write('   </td>\n')
+
+            f.write('</tr>\n')
+        f.write('</table></body></html>\n')
+    return True
+
+
 def test_images_importer():
     imp = Importer.objects.get(id=IMP_ID)
     task = ImagesProxyTask()
     r = task.run(imp.publisher)
-    print('result: %s' % r)
+    make_report_html(task.results)
 
 
 # by Client

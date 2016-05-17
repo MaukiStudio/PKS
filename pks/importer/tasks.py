@@ -6,7 +6,7 @@ import numpy as np
 from base.utils import get_timestamp
 from image.models import RawFile, Image
 
-GROUPING_DISTANCE_THRESHOLD = 200
+GROUPING_DISTANCE_THRESHOLD = 500
 
 
 class ImporterTask(object):
@@ -102,8 +102,8 @@ class ImagesProxyTask(object):
         self.call(self.step_05_prepare_distance_matrix)
         self.call(self.step_06_merge_groups)
         self.call(self.step_07_remove_intersection)
-        self.call(self.step_08_generate_report)
-        self.call(self.step_09_make_report_html)
+
+        self.call(self.step_99_generate_report)
 
         print('complete')
         return True
@@ -138,14 +138,14 @@ class ImagesProxyTask(object):
         print('group_cnt=%d' % group_cnt)
 
         missing_cnt = 0
-        no_disjoint_cnt = 0
+        intersection_cnt = 0
         for j in xrange(self.size):
             cj = self.dmat[j, :] < GROUPING_DISTANCE_THRESHOLD
             if (~cj).all():
                 missing_cnt += 1
             if cj.sum() > 1:
-                no_disjoint_cnt += 1
-        print('missing_cnt=%d, no_disjoint_cnt=%d' % (missing_cnt, no_disjoint_cnt))
+                intersection_cnt += 1
+        print('missing_cnt=%d, intersection_cnt=%d' % (missing_cnt, intersection_cnt))
 
     def step_01_task_rfs(self):
         rfs = RawFile.objects.filter(vd=self.source.id).filter(mhash=None)
@@ -258,7 +258,7 @@ class ImagesProxyTask(object):
         self.dump_dmat()
         return True
 
-    def step_08_generate_report(self):
+    def step_99_generate_report(self):
         self.results = list()
         for i in xrange(self.size):
             ci = self.dmat[:, i]
@@ -271,26 +271,4 @@ class ImagesProxyTask(object):
                     if ci[j] < GROUPING_DISTANCE_THRESHOLD:
                         group['members'].append(self.imgs[j])
                 group['members'].sort(lambda a, b: int(a.timestamp - b.timestamp))
-        return True
-
-    def step_09_make_report_html(self):
-        with open('ImagesImporterReport.html', 'w') as f:
-            f.write('<html><body><table border="True">\n')
-            for group in self.results:
-                f.write('<tr>\n')
-
-                leader = group['leader']
-                map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (leader.lonLat.x, leader.lonLat.y)
-                f.write('   <td>\n')
-                f.write('       <img src="%s"/><br/>\n' % leader.url_summarized)
-                f.write('       <a href="%s" target="_blank">Lat:%0.4f, Lon:%0.4f</a>\n' % (map_url, leader.lonLat.y, leader.lonLat.x))
-                f.write('   </td>\n')
-
-                f.write('   <td>\n')
-                for member in group['members']:
-                    f.write('       <img src="%s"/>\n' % member.url_summarized)
-                f.write('   </td>\n')
-
-                f.write('</tr>\n')
-            f.write('</table></body></html>\n')
         return True
