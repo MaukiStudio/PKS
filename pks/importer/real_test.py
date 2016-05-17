@@ -24,7 +24,6 @@ from requests import post as requests_post
 from importer.models import Importer
 from importer.tasks import ImagesProxyTask
 from image.models import RawFile, Image
-from account.models import VD
 
 
 def resize_images():
@@ -85,6 +84,7 @@ def reset_image_task():
         print(img)
     #'''
     '''
+    from account.models import VD
     vd = VD.objects.get(id=VD_ID)
     for img in imgs:
         img.task(vd=vd, force_similar=True)

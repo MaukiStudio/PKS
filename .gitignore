@@ -69,3 +69,4 @@ target/
 /media/
 /temp/
 settings_deploy.py
+ImagesImporterReport*.html
