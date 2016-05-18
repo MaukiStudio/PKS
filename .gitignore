@@ -71,3 +71,4 @@ target/
 settings_deploy.py
 ImagesImporterReport*.html
 result.txt
+result.html
