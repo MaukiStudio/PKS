@@ -218,6 +218,7 @@ class Image(Content):
         img = None
         try:
             img = PIL_Image.open(self.path_accessed)
+            img = exif_lib.transpose_image_by_exif(img)
         except IOError:
             pass
         return img

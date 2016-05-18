@@ -88,3 +88,25 @@ def get_timestamp(exif_data):
     # TODO : VD.timezone 을 참조하여 변환
     d = Delorean(dt, timezone='Asia/Seoul')
     return int(round(d.epoch*1000))
+
+
+def transpose_image_by_exif(im):
+    from PIL.Image import FLIP_LEFT_RIGHT, ROTATE_180, FLIP_TOP_BOTTOM, ROTATE_90, ROTATE_270
+    exif_orientation_tag = 0x0112 # contains an integer, 1 through 8
+    exif_transpose_sequences = [  # corresponding to the following
+        [],
+        [FLIP_LEFT_RIGHT],
+        [ROTATE_180],
+        [FLIP_TOP_BOTTOM],
+        [FLIP_LEFT_RIGHT, ROTATE_90],
+        [ROTATE_270],
+        [FLIP_TOP_BOTTOM, ROTATE_90],
+        [ROTATE_90],
+    ]
+
+    try:
+        seq = exif_transpose_sequences[im._getexif()[exif_orientation_tag] - 1]
+    except Exception:
+        return im
+    else:
+        return reduce(lambda im, op: im.transpose(op), seq, im)
