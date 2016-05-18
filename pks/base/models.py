@@ -46,6 +46,7 @@ class Content(models.Model):
     class Meta:
         abstract = True
 
+
     # MUST override
     @property
     def contentType(self):
@@ -101,6 +102,7 @@ class Content(models.Model):
     # DO NOT override
     def __init__(self, *args, **kwargs):
         self.timestamp = None
+        self._accessed_cache = None
         super(Content, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -164,6 +166,7 @@ class Content(models.Model):
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
         file.write_text(r.text)
+        self._accessed_cache = r.text.replace('\r', '')
 
     def access_local(self, source):
         file = Path(self.path_accessed)
@@ -239,8 +242,13 @@ class Content(models.Model):
 
     @property
     def content_accessed(self):
-        file = Path(self.path_accessed)
-        return file.read_text()
+        if not self._accessed_cache:
+            file = Path(self.path_accessed)
+            self._accessed_cache = file.read_text()
+        return self._accessed_cache
+
+    def _clearCache(self):
+        self._accessed_cache = None
 
     @property
     def content_summarized(self):
