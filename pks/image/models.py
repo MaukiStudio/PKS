@@ -46,6 +46,7 @@ class Image(Content):
         return url_norms(raw_content)
 
     def pre_save(self):
+        # TODO : 구조 단순하게 리팩토링
         if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
             pil = self.content_accessed
             if pil:

@@ -130,8 +130,8 @@ def test_images_importer():
 
 
 # by Client
-prepare_images()
-register_images()
+#prepare_images()
+#register_images()
 
 
 # For Test (Hash...)
