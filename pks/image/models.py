@@ -21,6 +21,8 @@ from pathlib2 import Path
 
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
+# 41 부터 완전히 다른 이미지가 나오기 시작. 40도 한번 문제가 관측됨. So 39 까지는 괜찮아 보임
+PHASH11_THREASHOLD = 40
 
 
 class Image(Content):
@@ -95,11 +97,7 @@ class Image(Content):
                         most_similar = similar
                         most_similar_dist = dist
 
-                # 41 부터 완전히 다른 이미지가 등장하기 시작 (Tested)
-                if most_similar_dist > 40:
-                    most_similar = None
-                # 다른 소스 참고시... 30% 정도 수준 (36까지 동일하다 판단) 이 안전해 보임
-                if most_similar_dist > 36:
+                if most_similar_dist >= PHASH11_THREASHOLD:
                     most_similar = None
 
             # 다른 디바이스도 포함하여 전체 이미지에서의 처리
