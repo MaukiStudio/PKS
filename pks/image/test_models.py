@@ -234,6 +234,40 @@ class ImageTest(APITestBase):
         self.assertNotEqual(img2.dhash, None)
         self.assertEqual(img.dhash, img2.dhash)
 
+    def test_save(self):
+        rf = RawFile()
+        rf.file = self.uploadFile('test_transpose.jpg')
+        rf.save()
+        img = rf.img
+        timestamp = img.timestamp
+        lonLat = img.lonLat
+        self.assertNotEqual(timestamp, None)
+        self.assertNotEqual(lonLat, None)
+
+        img.timestamp = None
+        img.lonLat = None
+        self.assertEqual(img.timestamp, None)
+        self.assertEqual(img.lonLat, None)
+        img.save()
+        self.assertNotEqual(img.timestamp, None)
+        self.assertNotEqual(img.lonLat, None)
+        img.timestamp = 0
+        img.lonLat = None
+        img.save()
+        self.assertEqual(img.timestamp, timestamp)
+        self.assertEqual(img.lonLat, lonLat)
+
+    def test_transpose(self):
+        rf = RawFile()
+        rf.file = self.uploadFile('test_transpose.jpg')
+        rf.save()
+        img = rf.img
+        timestamp = img.timestamp
+        lonLat = img.lonLat
+
+        self.assertNotEqual(lonLat, None)
+        self.assertNotEqual(timestamp, None)
+
     def test_access_methods(self):
         img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'

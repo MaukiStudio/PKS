@@ -46,11 +46,11 @@ class Image(Content):
         return url_norms(raw_content)
 
     def pre_save(self):
-        if self.is_accessed:
+        if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
             pil = self.content_accessed
             if pil:
                 if not self.lonLat or not self.timestamp:
-                    lonLat, timestamp = self.process_exif(pil)
+                    lonLat, timestamp = self.process_exif()
                     self.lonLat = self.lonLat or lonLat
                     self.timestamp = self.timestamp or timestamp
                 if not self.phash:
@@ -180,21 +180,17 @@ class Image(Content):
             r = r*2 + bit
         return r
 
-    @classmethod
-    def process_exif(cls, pil):
+    def process_exif(self):
+        pil = self.content_accessed
+        exif = self._accessed_cache[1]
         result = [None, None]
-        if not pil:
-            return result
-        try:
-            exif = exif_lib.get_exif_data(pil)
+        if exif:
             lonLat = exif_lib.get_lon_lat(exif)
             if lonLat and lonLat[0] and lonLat[1]:
                 result[0] = GEOSGeometry('POINT(%f %f)' % lonLat, srid=4326)
             timestamp = exif_lib.get_timestamp(exif)
             if timestamp:
                 result[1] = timestamp
-        except AttributeError:
-            pass
         return result
 
     def summarize_force(self, accessed=None):
@@ -215,13 +211,19 @@ class Image(Content):
 
     @property
     def content_accessed(self):
-        img = None
-        try:
-            img = PIL_Image.open(self.path_accessed)
-            img = exif_lib.transpose_image_by_exif(img)
-        except IOError:
-            pass
-        return img
+        if not self._accessed_cache:
+            img = None
+            exif = None
+            try:
+                img = PIL_Image.open(self.path_accessed)
+                exif = exif_lib.get_exif_data(img)
+                img = exif_lib.transpose_image_by_exif(img)
+            except IOError:
+                pass
+            except AttributeError:
+                pass
+            self._accessed_cache = (img, exif)
+        return self._accessed_cache[0]
 
     def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}
