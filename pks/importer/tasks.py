@@ -91,12 +91,11 @@ class ImagesProxyTask(object):
         self.results = None
 
     def run(self, proxy):
-        from base.utils import get_timestamp
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        #self.call(self.step_01_task_rfs)
-        #self.call(self.step_02_task_images)
+        self.call(self.step_01_task_rfs)
+        self.call(self.step_02_task_images)
         self.call(self.step_03_prepare_images)
         self.call(self.step_04_prepare_variables)
         self.call(self.step_05_prepare_distance_matrix)
@@ -147,13 +146,13 @@ class ImagesProxyTask(object):
                 intersection_cnt += 1
         print('missing_cnt=%d, intersection_cnt=%d' % (missing_cnt, intersection_cnt))
 
+
     def step_01_task_rfs(self):
         rfs = RawFile.objects.filter(vd=self.source.id).filter(mhash=None)
         for rf in rfs:
             if rf.task():
                 print(rf.file)
-        print('step_01_task_rfs()')
-        print('len(rfs):%d' % (len(rfs),))
+        print('step_01_task_rfs() - len(rfs):%d' % (len(rfs),))
         return True
 
     def step_02_task_images(self):
@@ -163,17 +162,16 @@ class ImagesProxyTask(object):
             if img.task(vd=self.source):
                 #print(img)
                 pass
-        print('step_02_task_images()')
-        print('len(rfs1):%d, len(imgs):%d' % (len(rfs1), len(imgs)))
+        print('step_02_task_images() - len(rfs1):%d, len(imgs):%d' % (len(rfs1), len(imgs)))
 
-        '''
+        #'''
         similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None).order_by('content')
         print('similars: %d' % len(similars))
         for img in similars:
             print('(%02d, %02d) : %s == %s' % (Image.hamming_distance(img.phash, img.similar.phash),
                                                Image.hamming_distance(img.dhash, img.similar.dhash),
                                                img.content, img.similar.content))
-        '''
+        #'''
 
         return True
 
@@ -183,8 +181,7 @@ class ImagesProxyTask(object):
         rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source.id)
         self.imgs = list(Image.objects.filter(rf__in=rfs1 | rfs2).exclude(lonLat=None).exclude(timestamp=None))
         self.size = len(self.imgs)
-        print('step_03_take_images()')
-        print('len(rfs1):%d, len(sames):%d, len(rfs2):%d, len(self.imgs):%d' %
+        print('step_03_take_images() - len(rfs1):%d, len(sames):%d, len(rfs2):%d, len(self.imgs):%d' %
               (len(rfs1), len(sames), len(rfs2), self.size))
         return True
 
