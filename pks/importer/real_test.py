@@ -51,6 +51,7 @@ def prepare_images():
             print(e)
     print('exif_cnt : %d' % exif_cnt)
 
+
 def register_images():
     from pks.settings import SERVER_HOST
     auth_token = {'auth_user_token': AUTH_USER_TOKEN, 'auth_vd_token': AUTH_VD_TOKEN}
@@ -100,22 +101,27 @@ def reset_image_task():
 def make_report_html(result):
     with open('ImagesImporterReport.html', 'w') as f:
         f.write('<html><body><table border="True">\n')
-        for group in result:
-            f.write('<tr>\n')
+        for group1 in result:
+            for group2 in group1.members:
+                f.write('<tr>\n')
+                map_url_first = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (group2.first.first.lonLat.x, group2.first.first.lonLat.y)
+                map_url_last = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (group2.last.last.lonLat.x, group2.last.last.lonLat.y)
+                f.write('   <td>\n')
+                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_first, group2.first.first.url_summarized))
+                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_last, group2.last.last.url_summarized))
+                f.write('   </td>\n')
 
-            leader = group['leader']
-            map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (leader.lonLat.x, leader.lonLat.y)
-            f.write('   <td>\n')
-            f.write('       <img src="%s"/><br/>\n' % leader.url_summarized)
-            f.write('       <a href="%s" target="_blank">Lat:%0.4f, Lon:%0.4f</a>\n' % (map_url, leader.lonLat.y, leader.lonLat.x))
-            f.write('   </td>\n')
+                f.write('   <td><table border="True"><tr>\n')
+                for group3 in group2.members:
+                    f.write('       <tr>\n')
+                    for member in group3.members:
+                        f.write('       <td>')
+                        f.write('           <img src="%s"/>' % member.url_summarized)
+                        f.write('       </td>')
+                    f.write('       </tr>\n')
+                f.write('   </tr></table></td>\n')
 
-            f.write('   <td>\n')
-            for member in group['members']:
-                f.write('       <img src="%s"/>\n' % member.url_summarized)
-            f.write('   </td>\n')
-
-            f.write('</tr>\n')
+                f.write('</tr>\n')
         f.write('</table></body></html>\n')
     return True
 
