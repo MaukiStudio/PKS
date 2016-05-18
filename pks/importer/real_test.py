@@ -97,10 +97,10 @@ def reset_image_task():
     '''
 
 
-def make_report_html(results):
+def make_report_html(result):
     with open('ImagesImporterReport.html', 'w') as f:
         f.write('<html><body><table border="True">\n')
-        for group in results:
+        for group in result:
             f.write('<tr>\n')
 
             leader = group['leader']
@@ -126,7 +126,7 @@ def test_images_importer():
     imp = Importer.objects.get(id=IMP_ID)
     task = ImagesProxyTask()
     r = task.run(imp.publisher)
-    make_report_html(task.results)
+    make_report_html(task.result)
 
 
 # by Client
