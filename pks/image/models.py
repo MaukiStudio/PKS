@@ -19,10 +19,9 @@ from pks.settings import SERVER_HOST
 from requests import get as requests_get
 from pathlib2 import Path
 
-
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
-# 41 부터 완전히 다른 이미지가 나오기 시작. 40도 한번 문제가 관측됨. So 39 까지는 괜찮아 보임
-PHASH11_THREASHOLD = 40
+IMG_HASH_THREASHOLD = 36
+IMG_PHASH_STRICT_THREASHOLD = 11
 
 
 class Image(Content):
@@ -80,48 +79,40 @@ class Image(Content):
 
             # 같은 디바이스의 사진들끼리의 처리
             if vd:
-                hamming = hamming_0 + hamming_1 + hamming_2
                 rfs = RawFile.objects.filter(vd=vd.id).filter(same=None).exclude(mhash=None)
                 similars = Image.objects.\
                     filter(rf__in=rfs).\
-                    filter(dhash__in=hamming).\
-                    filter(similar=None).\
                     exclude(id=self.id).\
                     exclude(lonLat=None).\
                     exclude(timestamp=None)
 
-                most_similar_dist = 128+1
+                most_similar_dist = 121+24+1
                 for similar in similars:
-                    dist = self.hamming_distance(self.phash, similar.phash)
+                    dist = self.hamming_distance(self.phash, similar.phash) + self.hamming_distance(self.dhash, similar.dhash)
                     if dist < most_similar_dist:
                         most_similar = similar
                         most_similar_dist = dist
 
-                if most_similar_dist >= PHASH11_THREASHOLD:
+                if most_similar_dist >= IMG_HASH_THREASHOLD:
                     most_similar = None
 
             # 다른 디바이스도 포함하여 전체 이미지에서의 처리
             if not most_similar:
-                # dhash diff 1 까지만 index 조회한다
-                hamming = hamming_0 + hamming_1
+                hamming = hamming_0 + hamming_1 + hamming_2
                 similars = Image.objects.\
                     filter(dhash__in=hamming).\
-                    filter(similar=None).\
                     exclude(id=self.id).\
                     exclude(lonLat=None).\
                     exclude(timestamp=None)
 
-                most_similar_dist = 128+1
+                most_similar_dist = 121+1
                 for similar in similars:
                     dist = self.hamming_distance(self.phash, similar.phash)
                     if dist < most_similar_dist:
                         most_similar = similar
                         most_similar_dist = dist
 
-                # 훨씬 더 가혹한 기준이 적용되어야 안전
-                # 최소한 2까지는 포함해야 함 (Tested)
-                # 명확한 실험결과는 아니나... 일단 5%, 즉 6 으로 적용
-                if most_similar_dist > 6:
+                if most_similar_dist >= IMG_PHASH_STRICT_THREASHOLD:
                     most_similar = None
 
             # 결과 처리

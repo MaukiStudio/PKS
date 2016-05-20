@@ -16,7 +16,7 @@ AUTH_VD_TOKEN = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk8
 VD_ID = 9
 IMP_ID = 3
 IMAGE_PREPARED_PATH = '/home/gulby/PKS/temp/prepared'
-IMAGE_SOURCE_PATH = '/media/gulby/HDD/photo/*/*/*'
+IMAGE_SOURCE_PATH = '/media/gulby/HDD/photo/gulby/*/*/*'
 
 # Set django env
 sys.path.append(PKS_PATH)

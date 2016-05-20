@@ -5,7 +5,7 @@ import numpy as np
 from django.contrib.gis.geos import GEOSGeometry
 
 from base.utils import get_timestamp
-from image.models import RawFile, Image
+from image.models import RawFile, Image, IMG_HASH_THREASHOLD
 from geopy.distance import vincenty as vincenty_distance
 
 
@@ -133,11 +133,12 @@ class ImagesProxyTask(object):
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        #call(self.step_01_task_rfs_images)
+        call(self.step_01_task_rfs_images)
+        self.dump_similars()
         call(self.step_02_prepare_images)
         call(self.step_03_first_clustering_by_geography_distance)
         call(self.step_04_second_clustering_by_timedelta_distance)
-        call(self.step_05_third_merge_by_hamming_distance)
+        call(self.step_05_third_clustering_by_hamming_distance)
         call(self.step_06_fourth_clustering_by_geography_distance)
 
         print('')
@@ -149,9 +150,10 @@ class ImagesProxyTask(object):
         similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None).order_by('content')
         print('similars: %d' % len(similars))
         for img in similars:
-            print('(%02d, %02d) : %s == %s' % (Image.hamming_distance(img.phash, img.similar.phash),
-                                               Image.hamming_distance(img.dhash, img.similar.dhash),
-                                               img.content, img.similar.content))
+            d_p = Image.hamming_distance(img.phash, img.similar.phash)
+            d_d = Image.hamming_distance(img.dhash, img.similar.dhash)
+            if d_p + d_d >= IMG_HASH_THREASHOLD-1:
+                print('(%02d, %02d) : %s == %s' % (d_p, d_d, img.content, img.similar.content))
 
 
     def step_01_task_rfs_images(self):
@@ -167,7 +169,6 @@ class ImagesProxyTask(object):
                 #print(img)
                 pass
         print('step_01_task_rfs_images() - len(rfs):%d, len(rfs2):%d, len(imgs):%d' % (len(rfs), len(rfs2), len(imgs)))
-        #self.dump_similars()
         return True
 
     def step_02_prepare_images(self):
@@ -215,20 +216,24 @@ class ImagesProxyTask(object):
         print('group_cnt == %d' % group_cnt)
         return True
 
-    def step_05_third_merge_by_hamming_distance(self):
-        from image.models import PHASH11_THREASHOLD
+    def step_05_third_clustering_by_hamming_distance(self):
         from uuid import UUID
         def distance_hamming_group(g1, g2):
-            distances = [Image.hamming_distance(img1.phash, img2.phash) for img1 in g1.members for img2 in g2.members]
+            distances = [
+                Image.hamming_distance(img1.phash, img2.phash) +
+                Image.hamming_distance(img1.dhash, img2.dhash)
+                for img1 in g1.members for img2 in g2.members
+            ]
             return min(distances)
 
         group_cnt = 0
         for group1 in self.result:
             img = Image()
             img.phash = UUID(b'0'*32)
+            img.dhash = 0
             m_value = Group()
             m_value.members = [img]
-            cluster = Clustering(group1, PHASH11_THREASHOLD, distance_hamming_group, m_value, False)
+            cluster = Clustering(group1, IMG_HASH_THREASHOLD, distance_hamming_group, m_value, False)
             cluster.run()
             group1_members = list()
             for group2 in cluster.result:
@@ -269,7 +274,7 @@ class ImagesProxyTask(object):
             img.lonLat = point
             m_value = Group()
             m_value.members = [img]
-            cluster = Clustering(group1, 50, distance_geography_group, m_value, False)
+            cluster = Clustering(group1, 100, distance_geography_group, m_value, False)
             cluster.run()
             group1.members = cluster.result
             group_cnt += len(cluster.result)
