@@ -20,8 +20,8 @@ from requests import get as requests_get
 from pathlib2 import Path
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
-IMG_HASH_THREASHOLD = 36
-IMG_PHASH_STRICT_THREASHOLD = 11
+IMG_PD_HDIST_THREASHOLD = 37
+IMG_P_HDIST_STRICT_THREASHOLD = 11
 
 
 class Image(Content):
@@ -88,12 +88,12 @@ class Image(Content):
 
                 most_similar_dist = 121+24+1
                 for similar in similars:
-                    dist = self.hamming_distance(self.phash, similar.phash) + self.hamming_distance(self.dhash, similar.dhash)
+                    dist = self.pd_hamming_distance(similar)
                     if dist < most_similar_dist:
                         most_similar = similar
                         most_similar_dist = dist
 
-                if most_similar_dist >= IMG_HASH_THREASHOLD:
+                if most_similar_dist >= IMG_PD_HDIST_THREASHOLD:
                     most_similar = None
 
             # 다른 디바이스도 포함하여 전체 이미지에서의 처리
@@ -112,7 +112,7 @@ class Image(Content):
                         most_similar = similar
                         most_similar_dist = dist
 
-                if most_similar_dist >= IMG_PHASH_STRICT_THREASHOLD:
+                if most_similar_dist >= IMG_P_HDIST_STRICT_THREASHOLD:
                     most_similar = None
 
             # 결과 처리
@@ -120,6 +120,44 @@ class Image(Content):
                 self.similar = most_similar
                 self.lonLat = most_similar.lonLat
                 self.timestamp = most_similar.timestamp
+
+        # timestamp 만 있는 경우에 대한 lonLat guessing
+        if not self.lonLat and (self.timestamp and vd):
+            from importer.tasks import CLUSTERING_TIMEDELTA_THRESHOLD
+            delta = (CLUSTERING_TIMEDELTA_THRESHOLD/2)*60*1000
+            rfs = RawFile.objects.filter(vd=vd.id).filter(same=None).exclude(mhash=None)
+            imgs = Image.objects.\
+                filter(rf__in=rfs).\
+                filter(timestamp__gte=(self.timestamp-delta)).\
+                filter(timestamp__lte=(self.timestamp+delta)).\
+                exclude(id=self.id).\
+                exclude(lonLat=None).\
+                exclude(timestamp=None)
+            if imgs.count() >= 2:
+                from importer.tasks import CLUSTERING_MIN_DISTANCE_THRESHOLD, distance_geography
+                img1 = imgs.filter(timestamp__lte=self.timestamp).order_by('-timestamp').first()
+                img2 = imgs.filter(timestamp__gte=self.timestamp).order_by('timestamp').first()
+                if img1 and img2:
+                    if distance_geography(img1.lonLat, img2.lonLat) < CLUSTERING_MIN_DISTANCE_THRESHOLD:
+                        lon = (img1.lonLat.x + img2.lonLat.x) / 2
+                        lat = (img1.lonLat.y + img2.lonLat.y) / 2
+                        self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+                        '''
+                        print('')
+                        print(img1.url_summarized)
+                        print(self.url_summarized)
+                        print(img2.url_summarized)
+                        print('')
+                        #'''
+                elif not img1 and img2:
+                    if img2.timestamp - self.timestamp < delta/5:
+                        self.lonLat = img2.lonLat
+                        '''
+                        print('')
+                        print(self.url_summarized)
+                        print(img2.url_summarized)
+                        print('')
+                        #'''
 
         self.save()
         return True
@@ -198,6 +236,14 @@ class Image(Content):
             count += 1
             z &= z - 1
         return count
+
+    def pd_hamming_distance(self, other):
+        d_p = self.hamming_distance(self.phash, other.phash)
+        d_d = self.hamming_distance(self.dhash, other.dhash)
+        return d_p + d_d*2
+
+    def p_hamming_distance(self, other):
+        return self.hamming_distance(self.phash, other.phash)
 
     @property
     def content_accessed(self):

@@ -5,8 +5,11 @@ import numpy as np
 from django.contrib.gis.geos import GEOSGeometry
 
 from base.utils import get_timestamp
-from image.models import RawFile, Image, IMG_HASH_THREASHOLD
-from geopy.distance import vincenty as vincenty_distance
+from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
+
+CLUSTERING_MAX_DISTANCE_THRESHOLD = 2000    # meters
+CLUSTERING_TIMEDELTA_THRESHOLD = 15         # minutes
+CLUSTERING_MIN_DISTANCE_THRESHOLD = 4+1+1+1 # meters
 
 
 class ImporterTask(object):
@@ -93,6 +96,11 @@ class Group(object):
         self.leader = None
         self.members = list()
         self.type = None
+        self.distance = None
+
+        self._cache_flat_members = None
+        self._cache_lonLat = None
+        self._cache_radius = None
 
     @property
     def value(self):
@@ -105,10 +113,39 @@ class Group(object):
         return min([member.timestamp for member in self.members])
 
     @property
+    def flat_members(self):
+        if not self._cache_flat_members:
+            if self.members and self.members[0]:
+                if type(self.members[0]) == Group:
+                    self._cache_flat_members = sum([member.flat_members for member in self.members], [])
+                else:
+                    self._cache_flat_members = [img for img in self.members]
+            else:
+                self._cache_flat_members = []
+        return self._cache_flat_members
+
+    @property
     def lonLat(self):
-        arr_lon = np.array([e.lonLat.x for e in self.members])
-        arr_lat = np.array([e.lonLat.y for e in self.members])
-        return GEOSGeometry('POINT(%f %f)' % (np.median(arr_lon), np.median(arr_lat)), srid=4326)
+        if not self._cache_lonLat:
+            arr_lon = np.array([e.lonLat.x for e in self.flat_members])
+            arr_lat = np.array([e.lonLat.y for e in self.flat_members])
+            lon = np.median(arr_lon)
+            lat = np.median(arr_lat)
+            #lon = (arr_lon.min() + arr_lon.max())/2
+            #lat = (arr_lat.min() + arr_lat.max())/2
+            self._cache_lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+        return self._cache_lonLat
+
+    @property
+    def radius(self):
+        if not self._cache_radius:
+            lonLat = self.lonLat
+            arr_distance = np.array([self.distance(lonLat, member.lonLat) for member in self.flat_members])
+            #self._cache_radius = np.median(arr_distance)
+            self._cache_radius = arr_distance.max()
+            if self._cache_radius > CLUSTERING_MIN_DISTANCE_THRESHOLD:
+                self._cache_radius = CLUSTERING_MIN_DISTANCE_THRESHOLD
+        return self._cache_radius
 
     @property
     def first(self):
@@ -117,6 +154,19 @@ class Group(object):
     @property
     def last(self):
         return self.members[-1]
+
+
+def distance_geography(p1, p2):
+    from geopy.distance import vincenty as vincenty_distance
+    return vincenty_distance(p1, p2).meters
+
+
+def distance_geography_group(g1, g2):
+    #distances = np.array([distance_geography(e1.lonLat, e2.lonLat) for e1 in g1.members for e2 in g2.members])
+    #return distances.min()
+    g1.distance = distance_geography
+    g2.distance = distance_geography
+    return max(distance_geography(g1.lonLat, g2.lonLat) - g1.radius - g2.radius, 0)
 
 
 class ImagesProxyTask(object):
@@ -152,8 +202,9 @@ class ImagesProxyTask(object):
         for img in similars:
             d_p = Image.hamming_distance(img.phash, img.similar.phash)
             d_d = Image.hamming_distance(img.dhash, img.similar.dhash)
-            if d_p + d_d >= IMG_HASH_THREASHOLD-1:
-                print('(%02d, %02d) : %s == %s' % (d_p, d_d, img.content, img.similar.content))
+            dist = img.pd_hamming_distance(img.similar)
+            if True or dist >= IMG_PD_HDIST_THREASHOLD-1:
+                print('(%02d, %02d, %02d) : %s == %s' % (dist, d_p, d_d, img.content, img.similar.content))
 
 
     def step_01_task_rfs_images(self):
@@ -184,16 +235,11 @@ class ImagesProxyTask(object):
         return True
 
     def step_03_first_clustering_by_geography_distance(self):
-        def distance_geography(p1, p2):
-            return int(round(vincenty_distance(p1, p2).meters))
-
         group0 = Group()
         group0.members = self.imgs
-        arr_lon = np.array([e.lonLat.x for e in group0.members])
-        arr_lat = np.array([e.lonLat.y for e in group0.members])
-        m_value = GEOSGeometry('POINT(%f %f)' % (np.median(arr_lon), np.median(arr_lat)), srid=4326)
+        m_value = group0.lonLat
         print(m_value)
-        cluster = Clustering(group0, 2000, distance_geography, m_value, False)
+        cluster = Clustering(group0, CLUSTERING_MAX_DISTANCE_THRESHOLD, distance_geography, m_value, True)
         cluster.run()
         self.result = cluster.result
         print('group_cnt == %d' % len(cluster.result))
@@ -209,7 +255,7 @@ class ImagesProxyTask(object):
             m_value = arr_ts.min()
             for img2 in group1.members:
                 img2.value = img2.timestamp
-            cluster = Clustering(group1, 15, distance_timdelta, m_value, False)
+            cluster = Clustering(group1, CLUSTERING_TIMEDELTA_THRESHOLD, distance_timdelta, m_value, False)
             cluster.run()
             group1.members = cluster.result
             group_cnt += len(cluster.result)
@@ -219,11 +265,7 @@ class ImagesProxyTask(object):
     def step_05_third_clustering_by_hamming_distance(self):
         from uuid import UUID
         def distance_hamming_group(g1, g2):
-            distances = [
-                Image.hamming_distance(img1.phash, img2.phash) +
-                Image.hamming_distance(img1.dhash, img2.dhash)
-                for img1 in g1.members for img2 in g2.members
-            ]
+            distances = [img1.pd_hamming_distance(img2) for img1 in g1.members for img2 in g2.members]
             return min(distances)
 
         group_cnt = 0
@@ -233,57 +275,49 @@ class ImagesProxyTask(object):
             img.dhash = 0
             m_value = Group()
             m_value.members = [img]
-            cluster = Clustering(group1, IMG_HASH_THREASHOLD, distance_hamming_group, m_value, False)
-            cluster.run()
-            group1_members = list()
-            for group2 in cluster.result:
-                merged2 = Group()
-                merged2.members = list()
-                for group3 in group2.members:
-                    for img4 in group3.members:
-                        merged2.members.append(img4)
-                group1_members.append(merged2)
-            group1.members = group1_members
-            group_cnt += len(group1_members)
-        print('group_cnt == %d' % group_cnt)
-        '''
-        print('<br/>')
-        print('------------------<br/>')
-        for member in member1.members:
-            print('<img src="%s"/> ' % member.url_summarized)
-        print('<br/>......<br/>')
-        for member in member2.members:
-            print('<img src="%s"/> ' % member.url_summarized)
-        print('<br/>------------------')
-        print('<br/>')
-        '''
-        return True
-
-    def step_06_fourth_clustering_by_geography_distance(self):
-        def distance_geography_group(g1, g2):
-            #distances = np.array([int(round(vincenty_distance(e1.lonLat, e2.lonLat).meters)) for e1 in g1.members for e2 in g2.members])
-            #return np.median(distances)
-            return int(round(vincenty_distance(g1.lonLat, g2.lonLat).meters))
-
-        group_cnt = 0
-        for group1 in self.result:
-            arr_lon = np.array([e.lonLat.x for e in group1.members])
-            arr_lat = np.array([e.lonLat.y for e in group1.members])
-            point = GEOSGeometry('POINT(%f %f)' % (np.median(arr_lon), np.median(arr_lat)), srid=4326)
-            img = Image()
-            img.lonLat = point
-            m_value = Group()
-            m_value.members = [img]
-            cluster = Clustering(group1, 100, distance_geography_group, m_value, False)
+            cluster = Clustering(group1, IMG_PD_HDIST_THREASHOLD, distance_hamming_group, m_value, False)
             cluster.run()
             group1.members = cluster.result
             group_cnt += len(cluster.result)
         print('group_cnt == %d' % group_cnt)
         return True
 
+    def step_06_fourth_clustering_by_geography_distance(self):
+        for threshold in xrange(1, CLUSTERING_MIN_DISTANCE_THRESHOLD+1):
+            prev_group_cnt = 0
+            for iteration in xrange(10):
+                group_cnt = 0
+
+                for group1 in self.result:
+                    img = Image()
+                    img.lonLat = group1.lonLat
+                    m_value = Group()
+                    m_value.members = [Group()]
+                    m_value.members[0].members = [img]
+                    cluster = Clustering(group1, threshold, distance_geography_group, m_value, False)
+                    cluster.run()
+                    group1_members = list()
+                    for group2 in cluster.result:
+                        merged2 = Group()
+                        merged2.members = list()
+                        for group3 in group2.members:
+                            for group4 in group3.members:
+                                merged2.members.append(group4)
+                        group1_members.append(merged2)
+                    group1.members = group1_members
+                    group_cnt += len(group1_members)
+
+                print('group_cnt == %d' % group_cnt)
+                if prev_group_cnt == group_cnt:
+                    print('inc threshold')
+                    break
+                else:
+                    prev_group_cnt = group_cnt
+        return True
+
 
 class Clustering(object):
-    def __init__(self, group, threshold, distance, m_value, verbose=True):
+    def __init__(self, group, threshold, distance, m_value, verbose=False):
         self.group = group
         self.threshold = threshold
         self.distance = distance
@@ -342,7 +376,7 @@ class Clustering(object):
         return True
 
     def step_02_prepare_distance_matrix(self):
-        self.dmat = np.zeros((self.size, self.size), dtype=int)
+        self.dmat = np.zeros((self.size, self.size), dtype=float)
         cnt = 0
         for i in xrange(self.size):
             for j in xrange(i+1, self.size):
@@ -395,7 +429,7 @@ class Clustering(object):
         return True
 
     def step_99_generate_result(self):
-        #self.dump_dmat()
+        self.dump_dmat()
         self.result = list()
         for i in xrange(self.size):
             ci = self.dmat[:, i]
