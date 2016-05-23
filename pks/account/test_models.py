@@ -6,10 +6,10 @@ from json import loads as json_loads, dumps as json_dumps
 from django.contrib.gis.geos import GEOSGeometry
 from django.db import IntegrityError
 
-from base.tests import APITestBase
+from base.tests import APITestBase, FunctionalTestAfterLoginBase
 from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
-from account.models import User, RealUser, VD
+from account.models import User, RealUser, VD, Storage
 
 
 class RealUserTest(APITestBase):
@@ -196,3 +196,34 @@ class VDTest(APITestBase):
         self.assertEqual(saved.is_private, False)
         self.assertEqual(saved.is_public, True)
         self.assertEqual(saved.mask, 2 | 0)
+
+
+class TestStorage(FunctionalTestAfterLoginBase):
+
+    def test_save_and_retreive(self):
+        vd = VD.objects.get(id=self.vd_id)
+        storage = Storage()
+        storage.vd = vd
+        storage.key = 'test_key'
+        storage.value = {'test_sub_key': 'test_value'}
+        storage.save()
+
+        self.assertEqual(Storage.objects.count(), 1)
+        saved = Storage.objects.first()
+        self.assertEqual(saved, storage)
+        self.assertEqual(saved.key, 'test_key')
+        self.assertDictEqual(saved.value, {'test_sub_key': 'test_value'})
+
+        storage2 = Storage()
+        storage2.vd = vd
+        storage2.key = 'other_key'
+        storage2.value = {'test_sub_key': 'test_value'}
+        storage2.save()
+        self.assertEqual(Storage.objects.count(), 2)
+        self.assertNotEqual(storage2, storage)
+
+    def test_unique(self):
+        vd = VD.objects.get(id=self.vd_id)
+        storage = Storage.objects.create(vd=vd, key='key')
+        with self.assertRaises(IntegrityError):
+            storage2 = Storage.objects.create(vd=vd, key='key')

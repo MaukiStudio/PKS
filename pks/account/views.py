@@ -8,11 +8,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import Http404
 
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY, VD_SESSION_KEY
-from account.models import User, RealUser, VD
-from account.serializers import UserSerializer, RealUserSerializer, VDSerializer
+from account.models import User, RealUser, VD, Storage
+from account.serializers import UserSerializer, RealUserSerializer, VDSerializer, StorageSerializer
+from base.views import BaseViewset
 
 
 class UserViewset(ModelViewSet):
@@ -158,3 +160,21 @@ class RealUserViewset(ModelViewSet):
         serializer = VDSerializer(ru.vds.exclude(id=vd_id), many=True)
         return Response(serializer.data)
 
+
+class StorageViewset(BaseViewset):
+    queryset = Storage.objects.all()
+    serializer_class = StorageSerializer
+
+    def get_object(self):
+        key = self.kwargs['pk']
+        print('key == %s' % key)
+        vd = self.vd
+        if not vd:
+            raise Http404
+        try:
+            return Storage.objects.get(vd=vd, key=key)
+        except Storage.DoesNotExist:
+            raise Http404
+
+    def perform_create(self, serializer):
+        serializer.save(vd=self.vd)

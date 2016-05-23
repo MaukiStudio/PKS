@@ -117,3 +117,12 @@ class VD(models.Model):
         if not self.mask:
             self.mask = 0
         super(VD, self).save(*args, **kwargs)
+
+
+class Storage(models.Model):
+    vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='storages')
+    key = models.CharField(max_length=16, blank=True, null=True, default=None)
+    value = JSONField(blank=True, null=True, default=None, db_index=False)
+
+    class Meta:
+        unique_together = ('vd', 'key',)

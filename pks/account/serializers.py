@@ -1,10 +1,10 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from account.models import User
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, ReadOnlyField
 
-from account import models
+from account.models import User, RealUser, VD, Storage
+from base.serializers import BaseSerializer
 
 
 class UserSerializer(ModelSerializer):
@@ -21,14 +21,19 @@ class UserSerializer(ModelSerializer):
 
 
 class RealUserSerializer(ModelSerializer):
-    vds = PrimaryKeyRelatedField(many=True, queryset=models.VD.objects.all())
+    vds = PrimaryKeyRelatedField(many=True, queryset=VD.objects.all())
 
     class Meta:
-        model = models.RealUser
+        model = RealUser
 
 
 class VDSerializer(ModelSerializer):
     aid = ReadOnlyField()
 
     class Meta:
-        model = models.VD
+        model = VD
+
+
+class StorageSerializer(BaseSerializer):
+    class Meta:
+        model = Storage

@@ -3,14 +3,13 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import json
-from account.models import User
 from rest_framework import status
 
 from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY
-from account import models
-from base.tests import APITestBase
+from account.models import User, RealUser, VD, Storage
+from base.tests import APITestBase, FunctionalTestAfterLoginBase
 
 
 class UserManualRegisterLoginTest(APITestBase):
@@ -105,7 +104,7 @@ class VDRegisterTest(APITestBase):
     def test_register_with_no_info(self):
         response = self.client.post('/vds/register/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        vd = models.VD.objects.first()
+        vd = VD.objects.first()
         user = User.objects.first()
         self.assertEqual(user, vd.authOwner)
 
@@ -130,7 +129,7 @@ class VDRegisterTest(APITestBase):
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
                                          country=country, language=language, timezone=timezone, data=data))
-        vd = models.VD.objects.first()
+        vd = VD.objects.first()
         user = User.objects.first()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -163,7 +162,7 @@ class VDRegisterTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # TODO : 이메일 인증 - 발송된 메일을 읽어서, 해당 링크를 호출하는 코드를 추가하고, 하기 테스트코드의 주석을 해제
-        vd = models.VD.objects.first()
+        vd = VD.objects.first()
         #self.assertEqual(vd.realOwner, None)
 
         #이메일 인증 처리
@@ -181,7 +180,7 @@ class VDLoginTest(APITestBase):
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
-        self.vd = models.VD.objects.first()
+        self.vd = VD.objects.first()
 
     def doLogin(self, auth_vd_token):
         self.assertVdNotLogin()
@@ -235,7 +234,7 @@ class VDViewSetTest(APITestBase):
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
-        self.vd = models.VD.objects.first()
+        self.vd = VD.objects.first()
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
 
     def test_vds_list(self):
@@ -258,17 +257,17 @@ class RealUserViewSetBasicTest(APITestBase):
 
     def setUp(self):
         super(RealUserViewSetBasicTest, self).setUp()
-        self.ru = models.RealUser(email='gulby@maukistudio.com')
+        self.ru = RealUser(email='gulby@maukistudio.com')
         self.ru.save()
-        self.vd1 = models.VD(deviceName='test vd 1', realOwner=self.ru)
-        self.vd2 = models.VD(deviceName='test vd 2')
-        self.vd3 = models.VD(deviceName='test vd 3', realOwner=self.ru)
+        self.vd1 = VD(deviceName='test vd 1', realOwner=self.ru)
+        self.vd2 = VD(deviceName='test vd 2')
+        self.vd3 = VD(deviceName='test vd 3', realOwner=self.ru)
         self.vd1.save()
         self.vd2.save()
         self.vd3.save()
-        self.ru_other = models.RealUser(email='hoonja@maukistudio.com')
+        self.ru_other = RealUser(email='hoonja@maukistudio.com')
         self.ru_other.save()
-        self.vd4 = models.VD(deviceName='test vd 4', realOwner=self.ru_other)
+        self.vd4 = VD(deviceName='test vd 4', realOwner=self.ru_other)
         self.vd4.save()
 
     def test_rus_detail(self):
@@ -300,9 +299,9 @@ class RealUserViewsetTest(APITestBase):
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json.loads(response.content)['auth_vd_token']
-        self.vd = models.VD.objects.first()
+        self.vd = VD.objects.first()
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        self.ru = models.RealUser.objects.get(email='gulby@maukistudio.com')
+        self.ru = RealUser.objects.get(email='gulby@maukistudio.com')
 
     def test_rus_detail(self):
         response = self.client.get('/rus/0/')
@@ -327,3 +326,20 @@ class RealUserViewsetTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json.loads(response.content)
         self.assertEqual(len(vds), 1)
+
+
+class StorageViewsetTest(FunctionalTestAfterLoginBase):
+    def setUp(self):
+        super(StorageViewsetTest, self).setUp()
+        self.vd = VD.objects.get(id=self.vd_id)
+        self.storage = Storage()
+        self.storage.vd = self.vd
+        self.storage.key = 'test_key'
+        self.storage.value = {'test_sub_key': 'test_value'}
+        self.storage.save()
+
+    def test_storages_detail(self):
+        response = self.client.get('/storages/0/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.get('/storages/test_key/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
