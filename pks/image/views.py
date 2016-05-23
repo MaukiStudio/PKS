@@ -15,6 +15,7 @@ from delorean import Delorean
 class ImageViewset(ContentViewset):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
+    http_method_names = ['get', 'post', 'patch']
 
     def create(self, request, *args, **kwargs):
         if 'content' not in request.data or not request.data['content']:
