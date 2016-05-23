@@ -7,8 +7,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from base.utils import get_timestamp
 from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
 
-CLUSTERING_MAX_DISTANCE_THRESHOLD = 2000    # meters
-CLUSTERING_TIMEDELTA_THRESHOLD = 15         # minutes
+CLUSTERING_MAX_DISTANCE_THRESHOLD = 1300    # meters
+CLUSTERING_TIMEDELTA_THRESHOLD = 10+1       # minutes
 CLUSTERING_MIN_DISTANCE_THRESHOLD = 4+1+1+1 # meters
 
 
@@ -183,13 +183,16 @@ class ImagesProxyTask(object):
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        call(self.step_01_task_rfs_images)
+        call(self.step_01_task_rfs)
+        # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
+        for i in range(3):
+            call(self.step_02_task_images)
         self.dump_similars()
-        call(self.step_02_prepare_images)
-        call(self.step_03_first_clustering_by_geography_distance)
-        call(self.step_04_second_clustering_by_timedelta_distance)
-        call(self.step_05_third_clustering_by_hamming_distance)
-        call(self.step_06_fourth_clustering_by_geography_distance)
+        call(self.step_03_prepare_images)
+        call(self.step_04_first_clustering_by_geography_distance)
+        call(self.step_05_second_clustering_by_timedelta_distance)
+        call(self.step_06_third_clustering_by_hamming_distance)
+        call(self.step_07_fourth_clustering_by_geography_distance)
 
         print('')
         print('complete!!!')
@@ -203,26 +206,30 @@ class ImagesProxyTask(object):
             d_p = Image.hamming_distance(img.phash, img.similar.phash)
             d_d = Image.hamming_distance(img.dhash, img.similar.dhash)
             dist = img.pd_hamming_distance(img.similar)
-            if True or dist >= IMG_PD_HDIST_THREASHOLD-1:
+            if dist == IMG_PD_HDIST_THREASHOLD-1:
                 print('(%02d, %02d, %02d) : %s == %s' % (dist, d_p, d_d, img.content, img.similar.content))
 
 
-    def step_01_task_rfs_images(self):
+    def step_01_task_rfs(self):
         rfs = RawFile.objects.filter(vd=self.source.id).filter(mhash=None)
         for rf in rfs:
             if rf.task():
                 #print(rf.file)
                 pass
+        print('step_01_task_rfs() - len(rfs):%d' % (len(rfs),))
+        return True
+
+    def step_02_task_images(self):
         rfs2 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
         imgs = Image.objects.filter(rf__in=rfs2).filter(lonLat=None)
         for img in imgs:
             if img.task(vd=self.source):
                 #print(img)
                 pass
-        print('step_01_task_rfs_images() - len(rfs):%d, len(rfs2):%d, len(imgs):%d' % (len(rfs), len(rfs2), len(imgs)))
+        print('step_02_task_images() - len(rfs2):%d, len(imgs):%d' % (len(rfs2), len(imgs)))
         return True
 
-    def step_02_prepare_images(self):
+    def step_03_prepare_images(self):
         rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
         sames = RawFile.objects.filter(vd=self.source.id).exclude(same=None)
         rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source.id)
@@ -234,7 +241,7 @@ class ImagesProxyTask(object):
               (len(rfs1), len(sames), len(rfs2), self.size))
         return True
 
-    def step_03_first_clustering_by_geography_distance(self):
+    def step_04_first_clustering_by_geography_distance(self):
         group0 = Group()
         group0.members = self.imgs
         m_value = group0.lonLat
@@ -245,7 +252,7 @@ class ImagesProxyTask(object):
         print('group_cnt == %d' % len(cluster.result))
         return True
 
-    def step_04_second_clustering_by_timedelta_distance(self):
+    def step_05_second_clustering_by_timedelta_distance(self):
         def distance_timdelta(p1, p2):
             return abs(int(p1 - p2)/(1000*60))
 
@@ -262,7 +269,7 @@ class ImagesProxyTask(object):
         print('group_cnt == %d' % group_cnt)
         return True
 
-    def step_05_third_clustering_by_hamming_distance(self):
+    def step_06_third_clustering_by_hamming_distance(self):
         from uuid import UUID
         def distance_hamming_group(g1, g2):
             distances = [img1.pd_hamming_distance(img2) for img1 in g1.members for img2 in g2.members]
@@ -282,7 +289,7 @@ class ImagesProxyTask(object):
         print('group_cnt == %d' % group_cnt)
         return True
 
-    def step_06_fourth_clustering_by_geography_distance(self):
+    def step_07_fourth_clustering_by_geography_distance(self):
         for threshold in xrange(1, CLUSTERING_MIN_DISTANCE_THRESHOLD+1):
             prev_group_cnt = 0
             for iteration in xrange(10):

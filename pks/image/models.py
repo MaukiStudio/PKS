@@ -20,7 +20,7 @@ from requests import get as requests_get
 from pathlib2 import Path
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
-IMG_PD_HDIST_THREASHOLD = 37
+IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 
 
@@ -133,24 +133,27 @@ class Image(Content):
                 exclude(id=self.id).\
                 exclude(lonLat=None).\
                 exclude(timestamp=None)
-            if imgs.count() >= 2:
+            if imgs:
                 from importer.tasks import CLUSTERING_MIN_DISTANCE_THRESHOLD, distance_geography
-                img1 = imgs.filter(timestamp__lte=self.timestamp).order_by('-timestamp').first()
-                img2 = imgs.filter(timestamp__gte=self.timestamp).order_by('timestamp').first()
+                img1 = imgs.filter(timestamp__lt=self.timestamp).order_by('-timestamp').first()
+                img2 = imgs.filter(timestamp__gt=self.timestamp).order_by('timestamp').first()
                 if img1 and img2:
                     if distance_geography(img1.lonLat, img2.lonLat) < CLUSTERING_MIN_DISTANCE_THRESHOLD:
-                        lon = (img1.lonLat.x + img2.lonLat.x) / 2
-                        lat = (img1.lonLat.y + img2.lonLat.y) / 2
+                        ts1 = self.timestamp - img1.timestamp
+                        ts2 = img2.timestamp - self.timestamp
+                        lon = (img1.lonLat.x*ts2 + img2.lonLat.x*ts1) / (ts1 + ts2)
+                        lat = (img1.lonLat.y*ts2 + img2.lonLat.y*ts1) / (ts1 + ts2)
                         self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
                         '''
                         print('')
+                        print('ts1:%d, ts2:%d, lon:%0.4f, lat:%0.4f' % (ts1, ts2, self.lonLat.x, self.lonLat.y))
                         print(img1.url_summarized)
                         print(self.url_summarized)
                         print(img2.url_summarized)
                         print('')
                         #'''
                 elif not img1 and img2:
-                    if img2.timestamp - self.timestamp < delta/5:
+                    if img2.timestamp - self.timestamp < delta/4:
                         self.lonLat = img2.lonLat
                         '''
                         print('')
@@ -299,6 +302,8 @@ class RawFile(models.Model):
         return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
     def save(self, *args, **kwargs):
+        is_created = False
+
         # id/file 처리
         if not self.file:
             raise AssertionError
@@ -307,12 +312,13 @@ class RawFile(models.Model):
             _id = self._id(timestamp)
             self.id = _id
             self.file.name = '%s_%s' % (self.uuid, self.file.name)
+            is_created = True
 
         # 저장
         super(RawFile, self).save(*args, **kwargs)
 
         # 이미지인 경우 바로 캐시 처리 및 Image object 생성
-        if self.ext in ('jpg', 'png'):
+        if is_created and self.ext in ('jpg', 'png'):
             img = Image(content=self.url)
             img.content = img.normalize_content(img.content)
             if not img.content.startswith('http'):

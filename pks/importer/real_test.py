@@ -17,7 +17,7 @@ PKS_PATH = '/home/gulby/PKS/pks'
 AUTH_USER_TOKEN = 'gAAAAABXN2sAlTeWvJG49cfhCyj_40EkyTc8MPz6325TKx16zqI-BrgZzA9blzDH_C2AnXtuIcw0ditCd-FSvh2eQyQzxMj5pvBocqS5boEbmU9BGePQmoqjqp5kaZBs0kZz_O3QUL7L'
 AUTH_VD_TOKEN = 'gAAAAABXN2tkHugDm828t0Dzk_ajzj2wzjnI9Q3vn_Rw2lkiaqAuungodHChAk80YMZ8y-zMA8S68q7MKZcY2NLiHsua7_ZYSA=='
 VD_ID = 9
-IMP_ID = 3
+IMP_ID = 7
 IMAGE_PREPARED_PATH = '/home/gulby/PKS/temp/prepared_gulby'
 IMAGE_SOURCE_PATH = '/media/gulby/HDD/photo/gulby/*/*/*'
 #'''
