@@ -15,6 +15,7 @@ from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNo
 from url.models import Url
 from account.models import VD
 from place.post import PostBase
+from base.legacy.urlnorm import norms
 
 
 class PlaceViewSetTest(APITestBase):
@@ -570,13 +571,16 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
 
     def test_create_case6_complex_url(self):
-        url1 = Url(content='https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local'); url1.save()
-
         json_add = '''
             {
                 "urls": [{"content": "%s"}]
             }
         ''' % ('https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local',)
+        json_want = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % (norms('https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local',))
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
@@ -587,7 +591,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         uplace_uuid = json_loads(response.content)['uplace_uuid']
         self.uplace = UserPlace.objects.get(id=uplace_uuid.split('.')[0])
-        want = json_loads(json_add)
+        want = json_loads(json_want)
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertNotEqual(self.uplace.placePost, None)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
