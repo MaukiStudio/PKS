@@ -139,6 +139,7 @@ class UrlTest(APITestBase):
         url2 = Url.get_from_json('{"content": "%s"}' % test_data2)
         self.assertEqual(Url.objects.count(), 1)
         self.assertEqual(url1, url2)
+        self.assertEqual(url1.content, url2.content)
 
     def test_encoded_url2(self):
         test_data2 = 'https://place.kakao.com/places/10972091/%ED%99%8D%EB%AA%85'
@@ -150,3 +151,28 @@ class UrlTest(APITestBase):
         url2 = Url.get_from_json('{"content": "%s"}' % test_data2)
         self.assertEqual(Url.objects.count(), 1)
         self.assertEqual(url1, url2)
+        self.assertEqual(url1.content, url2.content)
+
+    def test_encoded_url3(self):
+        test_data1 = 'https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local'
+        test_data2 = 'https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https://m.search.naver.com/search.naver?where=m&query=위담한방병원&sm=msv_nex#m_local'
+
+        self.assertEqual(Url.objects.count(), 0)
+        url1 = Url.get_from_json('{"content": "%s"}' % test_data1)
+        self.assertEqual(Url.objects.count(), 1)
+        url2 = Url.get_from_json('{"content": "%s"}' % test_data2)
+        self.assertEqual(Url.objects.count(), 1)
+        self.assertEqual(url1, url2)
+        self.assertEqual(url1.content, url2.content)
+
+    def test_encoded_url4(self):
+        test_data2 = 'https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local'
+        test_data1 = 'https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https://m.search.naver.com/search.naver?where=m&query=위담한방병원&sm=msv_nex#m_local'
+
+        self.assertEqual(Url.objects.count(), 0)
+        url1 = Url.get_from_json('{"content": "%s"}' % test_data1)
+        self.assertEqual(Url.objects.count(), 1)
+        url2 = Url.get_from_json('{"content": "%s"}' % test_data2)
+        self.assertEqual(Url.objects.count(), 1)
+        self.assertEqual(url1, url2)
+        self.assertEqual(url1.content, url2.content)

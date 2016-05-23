@@ -89,7 +89,12 @@ def norms(urlstring):
                 urlstring = line
                 break
     try:
-        urlstring = unquote_plus(urlstring.strip().encode('utf-8')).decode('utf-8')
+        encoded = None
+        for i in range(10):
+            encoded = unquote_plus(urlstring.strip().encode('utf-8')).decode('utf-8')
+            if encoded == urlstring:
+                break
+            urlstring = encoded
     except:
         # utf-8 이 아닌 다른 캐릭터셋으로 인코딩한 후 URL encoding 한 case
         # 일단 URL encoding 된 형태 그대로 활용

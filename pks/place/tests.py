@@ -520,12 +520,13 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
-        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
+        response = self.client.post('/uplaces/', dict(add=json_add,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(UserPlace.objects.count(), 2)
         self.assertEqual(Place.objects.count(), 1)
 
-        self.uplace = UserPlace.objects.first()
+        uplace_uuid = json_loads(response.content)['uplace_uuid']
+        self.uplace = UserPlace.objects.get(id=uplace_uuid.split('.')[0])
         want = json_loads(json_add)
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertEqual(self.uplace.placePost, None)
@@ -567,6 +568,36 @@ class UserPlaceViewSetTest(APITestBase):
             response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
+
+    def test_create_case6_complex_url(self):
+        url1 = Url(content='https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local'); url1.save()
+
+        json_add = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % ('https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local',)
+
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 2)
+        self.assertEqual(Place.objects.count(), 2)
+
+        uplace_uuid = json_loads(response.content)['uplace_uuid']
+        self.uplace = UserPlace.objects.get(id=uplace_uuid.split('.')[0])
+        want = json_loads(json_add)
+        self.assertIsSubsetOf(want, self.uplace.userPost)
+        self.assertNotEqual(self.uplace.placePost, None)
+        self.assertIsNotSubsetOf(self.uplace.userPost, want)
+
+        # again
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 3)
+        self.assertEqual(Place.objects.count(), 2)
+
 
     def test_create_full_with_no_uuid_except_image(self):
         point1 = GEOSGeometry('POINT(127 37)', srid=4326)
