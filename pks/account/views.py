@@ -167,14 +167,11 @@ class StorageViewset(BaseViewset):
 
     def get_object(self):
         key = self.kwargs['pk']
-        print('key == %s' % key)
         vd = self.vd
         if not vd:
             raise Http404
-        try:
-            return Storage.objects.get(vd=vd, key=key)
-        except Storage.DoesNotExist:
-            raise Http404
+        result, is_created = Storage.objects.get_or_create(vd=vd, key=key)
+        return result
 
     def perform_create(self, serializer):
         serializer.save(vd=self.vd)

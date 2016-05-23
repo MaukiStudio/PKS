@@ -339,7 +339,7 @@ class StorageViewsetTest(FunctionalTestAfterLoginBase):
         self.storage.save()
 
     def test_storages_detail(self):
-        response = self.client.get('/storages/0/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/storages/test_key/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/storages/new_key/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
