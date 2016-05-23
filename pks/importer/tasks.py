@@ -183,10 +183,10 @@ class ImagesProxyTask(object):
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        #call(self.step_01_task_rfs)
-        #for i in range(3):     # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
-        #    call(self.step_02_task_images)
-        #self.dump_similars()
+        call(self.step_01_task_rfs)
+        for i in range(3):     # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
+            call(self.step_02_task_images)
+        self.dump_similars()
         call(self.step_03_prepare_images)
         call(self.step_04_first_clustering_by_geography_distance)
         call(self.step_05_second_clustering_by_timedelta_distance)
