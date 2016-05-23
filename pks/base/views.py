@@ -35,8 +35,14 @@ class BaseViewset(ModelViewSet):
                 from cryptography.fernet import Fernet
                 from pks.settings import USER_ENC_KEY
                 from django.contrib.auth import authenticate
-                auth_user_token = self.request.data['auth_user_token']
-                auth_vd_token = self.request.data['auth_vd_token']
+                if 'auth_user_token' in self.request.data:
+                    auth_user_token = self.request.data['auth_user_token']
+                    auth_vd_token = self.request.data['auth_vd_token']
+                elif 'auth_user_token' in self.request.query_params:
+                    auth_user_token = self.request.query_params['auth_user_token']
+                    auth_vd_token = self.request.query_params['auth_vd_token']
+                else:
+                    return None
 
                 # user auth
                 decrypter = Fernet(USER_ENC_KEY)
