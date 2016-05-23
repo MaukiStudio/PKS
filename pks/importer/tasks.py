@@ -7,7 +7,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from base.utils import get_timestamp
 from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
 
-CLUSTERING_MAX_DISTANCE_THRESHOLD = 1300    # meters
+CLUSTERING_MAX_DISTANCE_THRESHOLD = 1414+1  # meters
 CLUSTERING_TIMEDELTA_THRESHOLD = 10+1       # minutes
 CLUSTERING_MIN_DISTANCE_THRESHOLD = 4+1+1+1 # meters
 
@@ -183,11 +183,10 @@ class ImagesProxyTask(object):
         self.proxy = proxy
         self.source = self.proxy.vd.parent
 
-        call(self.step_01_task_rfs)
-        # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
-        for i in range(3):
-            call(self.step_02_task_images)
-        self.dump_similars()
+        #call(self.step_01_task_rfs)
+        #for i in range(3):     # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
+        #    call(self.step_02_task_images)
+        #self.dump_similars()
         call(self.step_03_prepare_images)
         call(self.step_04_first_clustering_by_geography_distance)
         call(self.step_05_second_clustering_by_timedelta_distance)
