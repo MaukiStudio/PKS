@@ -161,8 +161,6 @@ class ImportedPlaceViewset(BaseViewset):
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         iplace = self.get_object()
-        # 일단 take 시점의 iplace.userPost 를 복사함
-        # TODO : 향후 iplace.userPost 변경 사항을 반영하는 최신화가 필요할 수도...
         pb = PostBase()
         pb.iplace_uuid = iplace.uuid
         pb.place_id = iplace.place_id

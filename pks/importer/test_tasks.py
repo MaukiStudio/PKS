@@ -90,6 +90,3 @@ class ImporterTest(FunctionalTestAfterLoginBase):
         self.assertAlmostEqual(self.imp.started, ts, delta=1000)
         self.assertAlmostEqual(self.imp.ended, ts, delta=1000)
         self.assertGreater(self.imp.ended, self.imp.started)
-
-        # proxy task test
-        self.fail()
