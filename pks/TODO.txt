@@ -1,16 +1,8 @@
 [Now]
 
-VD key-value storage 만들기
-
 ImagesImporter
 
-    4차 UserPlace 화
-        3차 Group 화된 단위로 UserPlace 화
-            이미 UserPlace 에 매핑된 이미지가 있으면, 그 이미지는  빼고 PostPiece 만들어 그 UserPlace 에 연결
-            서로 다른 UserPlace 에 매핑된 이미지가 있다면? 시간 순서를 이용하여 Group 을 쪼개어 처리
-        2차 Group 화된 단위로 PostPiece 화
-
-
+    임포트하고, 또 임포트하는 경우에 대한 처리
 
 
 clear_rfs_smart() 제대로 동작하지 않는 문제 수정 : 테스트로 생성된 중복된 파일들이 symbolic link 로 정리가 되지 않음...
@@ -41,6 +33,8 @@ Tag 기능 뼈대 잡기
     기본은 Place, 상속받아 UserPlace 에서 Override
     Place 레벨에서는 관측 확률, UserPlace 레벨에서는 유저가 붙였다면 100%
     관측되지 않은 Tag 확률 계산은 다른 Tag 들을 활용한 간접 계산
+
+블로그 임포트 등
 
 
 퍼미션 처리

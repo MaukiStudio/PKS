@@ -6,10 +6,12 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from base.utils import get_timestamp
 from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
+from place.models import UserPlace, PostPiece, PostBase
+from account.models import VD
 
-CLUSTERING_MAX_DISTANCE_THRESHOLD = 1414+1  # meters
-CLUSTERING_TIMEDELTA_THRESHOLD = 10+1       # minutes
-CLUSTERING_MIN_DISTANCE_THRESHOLD = 4+1+1+1 # meters
+CLUSTERING_MAX_DISTANCE_THRESHOLD = 1414+1      # meters
+CLUSTERING_TIMEDELTA_THRESHOLD = 10+1           # minutes
+CLUSTERING_MIN_DISTANCE_THRESHOLD = (4+1+1)+1   # meters
 
 
 class ImporterTask(object):
@@ -177,7 +179,6 @@ class ImagesProxyTask(object):
         self.imgs = None
         self.size = None
         self.result = list()
-        self.result2 = list()
 
     def run(self, proxy):
         self.proxy = proxy
@@ -192,6 +193,7 @@ class ImagesProxyTask(object):
         call(self.step_05_second_clustering_by_timedelta_distance)
         call(self.step_06_third_clustering_by_hamming_distance)
         call(self.step_07_fourth_clustering_by_geography_distance)
+        call(self.step_99_generate_uplaces)
 
         print('')
         print('complete!!!')
@@ -319,6 +321,33 @@ class ImagesProxyTask(object):
                     break
                 else:
                     prev_group_cnt = group_cnt
+        return True
+
+    def step_99_generate_uplaces(self):
+        # vd
+        vd = self.proxy.vd
+        if UserPlace.objects.filter(vd=vd).first():
+            vd_new_publisher = VD.objects.create(parent=vd, is_private=True, is_public=False)
+            self.proxy.vd = vd_new_publisher
+            if not 'old_vds' in self.proxy.guide or not self.proxy.guide['old_vds']:
+                self.proxy.guide['old_vds'] = list()
+            self.proxy.guide['old_vds'].append(vd.id)
+            vd = vd_new_publisher
+
+        uplace_cnt = 0
+        pp_cnt = 0
+        for group1 in self.result:
+            for group2 in group1.members:
+                uplace = UserPlace.objects.create(vd=vd, lonLat=group2.lonLat)
+                uplace_cnt += 1
+                for group3 in group2.members:
+                    pb = PostBase()
+                    pb.uplace_uuid = uplace.uuid
+                    pb.lonLat = group3.lonLat
+                    pb.images = group3.members
+                    pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, pb=pb)
+                    pp_cnt += 1
+        print('uplace_cnt:%d, pp_cnt:%d' % (uplace_cnt, pp_cnt))
         return True
 
 

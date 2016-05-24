@@ -19,27 +19,26 @@
                         {% else %}
                             &nbsp;
                         {% endif %}
-                    </td>
-                    <td>
-                        도로명주소: {{ pb.addr1 }}<br/>
-                        지번 주소 : {{ pb.addr2 }}<br/>
-                        범위 주소 : {{ pb.addr3 }}<br/>
+                        <br/>
+                        {% if pb.addr1 or pb.addr2 or pb.addr3 %}
+                            도로명주소: {{ pb.addr1 }}<br/>
+                            지번 주소 : {{ pb.addr2 }}<br/>
+                            범위 주소 : {{ pb.addr3 }}<br/>
+                        {% endif %}
+                        <br/>
+                        {% for url in pb.urls %}
+                            <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
+                        {% endfor %}
+                        <br/>
+                        {% for note in pb.notes %}
+                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+                        {% endfor %}
                     </td>
                     <td>
                         {% for image in pb.images %}
                             <a href="{{ image.content }}" target="_blank">
                                 <img src="{{ image.url_summarized }}"/>
-                            </a><br/>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for url in pb.urls %}
-                            <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% for note in pb.notes %}
-                            <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+                            </a>
                         {% endfor %}
                     </td>
                 </tr>
