@@ -17,16 +17,17 @@ from pathlib2 import Path
 
 
 class Point(object):
-    def __init__(self, lon, lat):
-        self.lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+    def __init__(self, lonLat):
+        self.lonLat = lonLat
         self.timestamp = None
 
     @classmethod
     def get_from_json(cls, json):
         if type(json) is unicode or type(json) is str:
             json =json_loads(json)
-        result = cls(json['lon'], json['lat'])
-        result.timestamp = 'timestamp' in json and json['timestamp']
+        lonLat = GEOSGeometry('POINT(%f %f)' % (json['lon'], json['lat']), srid=4326)
+        result = cls(lonLat)
+        result.timestamp = 'timestamp' in json and json['timestamp'] or None
         return result
 
     @property

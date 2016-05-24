@@ -84,10 +84,12 @@ class PostBase(object):
     def addr3(self, v):
         self.addrs3.insert(0, v)
 
-
     @property
     def lonLat(self):
         return (self.points and self.points[0] and self.points[0].lonLat) or None
+    @lonLat.setter
+    def lonLat(self, v):
+        self.point = Point(v)
 
 
     # TODO : iplace_uuid 가 세팅된 경우 원본 소스의 최신 데이터를 가져오는 처리

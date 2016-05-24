@@ -119,7 +119,7 @@ class Place(models.Model):
         # Placed by placeName/lonLat
         if placeName and lonLat:
             if not pb.lonLat:
-                pb.point = Point(lonLat.x, lonLat.y)
+                pb.point = Point(lonLat)
             _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
             PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
             return _place, True
@@ -133,7 +133,7 @@ class Place(models.Model):
 
     @property
     def lonLat_json(self):
-        return Point(self.lonLat.x, self.lonLat.y).json
+        return Point(self.lonLat).json
 
 
 class UserPlace(models.Model):
@@ -245,7 +245,7 @@ class UserPlace(models.Model):
 
     @property
     def lonLat_json(self):
-        return Point(self.lonLat.x, self.lonLat.y).json
+        return Point(self.lonLat).json
 
     @property
     def is_drop(self):
