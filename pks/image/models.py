@@ -167,16 +167,10 @@ class Image(Content):
 
     @property
     def json(self):
-        if self.timestamp:
-            if self.note:
-                return dict(uuid=self.uuid, content=self.content, note=self.note.json, timestamp=self.timestamp, summary=self.url_summarized)
-            else:
-                return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp, summary=self.url_summarized)
+        if self.note:
+            return dict(uuid=self.uuid, content=self.content, note=self.note.json, summary=self.url_summarized)
         else:
-            if self.note:
-                return dict(uuid=self.uuid, content=self.content, note=self.note.json, summary=self.url_summarized)
-            else:
-                return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
+            return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)

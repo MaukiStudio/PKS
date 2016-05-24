@@ -183,7 +183,6 @@ class PostBase(object):
             for img_json in json['images']:
                 img = Image.get_from_json(img_json)
                 if img:
-                    img.timestamp = timestamp
                     if 'note' in img_json and img_json['note']:
                         note = ImageNote.get_from_json(img_json['note'])
                         if note:

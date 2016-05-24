@@ -319,7 +319,7 @@ class ImageTest(APITestBase):
         self.assertIn('uuid', img.json)
         self.assertIn('content', img.json)
         self.assertIn('note', img.json)
-        self.assertIn('timestamp', img.json)
+        #self.assertIn('timestamp', img.json)
         self.assertIn('summary', img.json)
 
         self.assertIn('uuid', img.json['note'])
