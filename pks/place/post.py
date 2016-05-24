@@ -215,6 +215,21 @@ class PostBase(object):
         if self.images: json['images'] = [img.json for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         return json
+    @property
+    def sjson(self):
+        json = dict()
+        if self.names: json['name'] = self.names[0].sjson
+        if self.points: json['lonLat'] = self.points[0].sjson
+        if self.phones: json['phone'] = self.phones[0].sjson
+        if self.addrs1: json['addr1'] = self.addrs1[0].sjson
+        if self.addrs2: json['addr2'] = self.addrs2[0].sjson
+        if self.addrs3: json['addr3'] = self.addrs3[0].sjson
+        if self.lps: json['lps'] = [lp.sjson for lp in self.lps]
+        if self.urls: json['urls'] = [url.sjson for url in self.urls]
+        if self.notes: json['notes'] = [note.sjson for note in self.notes]
+        if self.images: json['images'] = [img.sjson for img in self.images]
+        if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
+        return json
 
     def add_lps_from_urls(self):
         if self.urls:

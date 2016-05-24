@@ -34,6 +34,9 @@ class Point(object):
         if self.timestamp:
             return dict(lon=self.lonLat.x, lat=self.lonLat.y, timestamp=self.timestamp)
         return dict(lon=self.lonLat.x, lat=self.lonLat.y)
+    @property
+    def sjson(self):
+        return self.json
 
     def __eq__(self, other):
         return self.lonLat.__eq__(other.lonLat)
@@ -80,6 +83,9 @@ class Content(models.Model):
         if self.timestamp:
             return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp)
         return dict(uuid=self.uuid, content=self.content)
+    @property
+    def sjson(self):
+        return dict(uuid=self.uuid)
 
     @property
     def url_for_access(self):

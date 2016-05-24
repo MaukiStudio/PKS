@@ -303,10 +303,10 @@ class PostTest(APITestBase):
         pb1 = PostBase(json_userPost)
         pb2 = PostBase(json_placePost)
         self.assertEqual(PostPiece.objects.count(), 0)
-        pp1 = PostPiece.objects.create(place=None, uplace=uplace1, vd=vd1, data=pb1.json)
+        pp1 = PostPiece.objects.create(place=None, uplace=uplace1, vd=vd1, pb=pb1)
         self.assertEqual(PostPiece.objects.count(), 1)
-        pp2 = PostPiece.objects.create(place=None, uplace=uplace2, vd=vd2, data=pb2.json)
-        pp3 = PostPiece.objects.create(by_MAMMA=True, place=place, uplace=None, vd=vd1, data=pb2.json)
+        pp2 = PostPiece.objects.create(place=None, uplace=uplace2, vd=vd2, pb=pb2)
+        pp3 = PostPiece.objects.create(by_MAMMA=True, place=place, uplace=None, vd=vd1, pb=pb2)
         self.assertEqual(PostPiece.objects.count(), 3)
 
         want_userPost = json_loads(json_userPost)
@@ -555,7 +555,7 @@ class PostPieceTest(APITestBase):
     def test_data_property(self):
         # TODO : json 에 대한 query 테스트 추가
         pp = PostPiece()
-        json_add = '''
+        json_add = json_loads('''
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
@@ -564,12 +564,23 @@ class PostPieceTest(APITestBase):
                 "addr3": {"content": "경기도 성남시 분당구 삼평동"},
                 "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
             }
-        '''
+        ''')
         pp.data = json_add
         pp.save()
         saved = PostPiece.objects.first()
         self.assertEqual(json_add, pp.data)
         self.assertEqual(json_add, saved.data)
+
+        pp2 = PostPiece()
+        pb = PostBase(json_add)
+        pp2.pb = pb
+        pp2.save()
+        saved = PostPiece.objects.order_by('-id').first()
+        self.assertEqual(pp2, saved)
+        self.assertDictEqual(pp2.pb.json, saved.pb.json)
+        self.assertDictEqual(pp2.pb.sjson, saved.pb.sjson)
+        self.assertDictEqual(pb.json, saved.pb.json)
+        self.assertDictEqual(pb.sjson, saved.pb.sjson)
 
     def test_mask(self):
         pp = PostPiece()

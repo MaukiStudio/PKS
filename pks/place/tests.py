@@ -215,7 +215,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(PostPiece.objects.count(), 1)
         pp = PostPiece.objects.first()
         self.assertEqual(pp.uplace, self.uplace)
-        self.assertEqual(pp.data['notes'][0]['content'], 'delete')
+        self.assertEqual(pp.pb.notes[0].content, 'delete')
 
     def test_create_full(self):
         self.uplace.place = self.place

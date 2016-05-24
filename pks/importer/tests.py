@@ -152,7 +152,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.place2 = Place.objects.create()
         self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
         pb = PostBase('{"notes": [{"content": "test note"}]}')
-        self.pp = PostPiece.objects.create(place=None, uplace=self.iplace, vd=self.vd_publisher, data=pb.json)
+        self.pp = PostPiece.objects.create(place=None, uplace=self.iplace, vd=self.vd_publisher, pb=pb)
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
         self.iplace3 = ImportedPlace.objects.create(vd=self.vd_publisher, place=None)
         self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)

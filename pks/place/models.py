@@ -100,7 +100,7 @@ class Place(models.Model):
                 if lp:
                     lp.place = _place
                     lp.save()
-                    PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
+                    PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
                 return _place, False
 
 
@@ -113,7 +113,7 @@ class Place(models.Model):
             _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
             lp.place = _place
             lp.save()
-            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
+            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
             return _place, True
 
         # Placed by placeName/lonLat
@@ -121,7 +121,7 @@ class Place(models.Model):
             if not pb.lonLat:
                 pb.point = Point(lonLat.x, lonLat.y)
             _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
-            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, data=pb.json)
+            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
             return _place, True
 
         # last : old_place
@@ -356,3 +356,6 @@ class PostPiece(models.Model):
             if iplace:
                 pb1.update(iplace.userPost)
         return pb1
+    @pb.setter
+    def pb(self, value):
+        self.data = value.sjson

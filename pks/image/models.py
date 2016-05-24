@@ -171,6 +171,12 @@ class Image(Content):
             return dict(uuid=self.uuid, content=self.content, note=self.note.json, summary=self.url_summarized)
         else:
             return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
+    @property
+    def sjson(self):
+        if self.note:
+            return dict(uuid=self.uuid, note=self.note.sjson)
+        else:
+            return dict(uuid=self.uuid)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
