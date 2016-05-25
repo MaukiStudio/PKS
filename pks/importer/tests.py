@@ -181,6 +181,14 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(results[0]['iplace_uuid'], self.iplace4.uuid)
         self.assertEqual(results[1]['iplace_uuid'], self.iplace.uuid)
 
+        # remove duplicate
+        self.iplace4.place = self.iplace.place
+        self.iplace4.save()
+        response = self.client.get('/iplaces/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+
     def test_detail(self):
         response = self.client.get('/iplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

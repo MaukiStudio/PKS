@@ -6,6 +6,7 @@ from base64 import urlsafe_b64encode
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db.models import Count
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
@@ -75,6 +76,8 @@ class VD(models.Model):
     def __init__(self, *args, **kwargs):
         self._cache_realOwner_publisher_ids = None
         self._cache_realOwner_places = None
+        self._cache_realOwner_duplicated_uplace_ids = None
+        self._cache_realOwner_duplicated_iplace_ids = None
         super(VD, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -117,6 +120,38 @@ class VD(models.Model):
             from place.models import Place
             self._cache_realOwner_places = Place.objects.filter(uplaces__vd_id__in=self.realOwner_vd_ids)
         return self._cache_realOwner_places
+
+    # TODO : 튜닝!!!
+    @property
+    def realOwner_duplicated_uplace_ids(self):
+        if not self._cache_realOwner_duplicated_uplace_ids:
+            from place.models import UserPlace
+            base = UserPlace.objects.all().exclude(place_id=None).filter(vd_id__in=self.realOwner_vd_ids)
+            group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
+            result = list()
+            before = None
+            for uplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', 'id'):
+                if uplace.place_id == (before and before.place_id):
+                    result.append(uplace.id)
+                before = uplace
+            self._cache_realOwner_duplicated_uplace_ids = result
+        return self._cache_realOwner_duplicated_uplace_ids
+
+    # TODO : 튜닝!!!
+    @property
+    def realOwner_duplicated_iplace_ids(self):
+        if not self._cache_realOwner_duplicated_iplace_ids:
+            from importer.models import ImportedPlace
+            base = ImportedPlace.objects.all().exclude(place_id=None).filter(vd_id__in=self.realOwner_publisher_ids)
+            group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
+            result = list()
+            before = None
+            for iplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', 'id'):
+                if iplace.place_id == (before and before.place_id):
+                    result.append(iplace.id)
+                before = iplace
+            self._cache_realOwner_duplicated_iplace_ids = result
+        return self._cache_realOwner_duplicated_iplace_ids
 
     @property
     def is_private(self):

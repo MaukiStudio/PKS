@@ -178,6 +178,27 @@ class UserPlaceViewSetTest(APITestBase):
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
 
+        # remove duplicated
+        self.uplace.place = self.place
+        self.uplace.save()
+        uplace2.place = self.place
+        uplace2.save()
+        response = self.client.get('/uplaces/')
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 2)
+        place2 = Place.objects.create()
+        uplace3.place = place2
+        uplace3.save()
+        response = self.client.get('/uplaces/')
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 2)
+        uplace3.place = self.place
+        uplace3.save()
+        response = self.client.get('/uplaces/')
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+
+
     def test_detail(self):
         response = self.client.get('/uplaces/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

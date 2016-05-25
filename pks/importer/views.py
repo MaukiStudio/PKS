@@ -100,10 +100,9 @@ class ImportedPlaceViewset(BaseViewset):
             elif params['order_by'] in ('distance_from_origin', '-distance_from_origin'):
                 order_by = params['order_by'].split('_')[0]
 
-        # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
         vd_ids = self.vd.realOwner_publisher_ids
         qs = self.queryset.filter(vd_id__in=vd_ids)
-        # TODO : 리팩토링
+        qs = qs.exclude(id__in=self.vd.realOwner_duplicated_iplace_ids)
         qs = qs.filter(mask=F('mask').bitand(~1))
 
         # iplace filtering
