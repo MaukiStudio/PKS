@@ -48,8 +48,10 @@ class Place(models.Model):
             pb = PostBase()
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
                 if pp.is_drop:
-                    # TODO : 이 부분이 테스트되는 테스트 추가
-                    pb = PostBase()
+                    # TODO : 정책 잡고 구현...
+                    # 일단 현재는 UserPlace 에도 is_drop 이 있고 거기서 처리한다는 전제하에 여기에선 무시
+                    #pb = PostBase()
+                    pass
                 else:
                     pb.update(pp.pb, pp.is_add)
             pb.place_id = self.id
