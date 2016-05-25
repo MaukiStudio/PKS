@@ -130,7 +130,7 @@ class VD(models.Model):
             group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
             result = list()
             before = None
-            for uplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', 'id'):
+            for uplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', '-id'):
                 if uplace.place_id == (before and before.place_id):
                     result.append(uplace.id)
                 before = uplace
@@ -146,7 +146,7 @@ class VD(models.Model):
             group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
             result = list()
             before = None
-            for iplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', 'id'):
+            for iplace in base.filter(place_id__in=[row['place_id'] for row in group_by]).order_by('place_id', '-id'):
                 if iplace.place_id == (before and before.place_id):
                     result.append(iplace.id)
                 before = iplace
