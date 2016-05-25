@@ -61,7 +61,7 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
-        self.assertNotIn('userPost', results[0])
+        self.assertIn('userPost', results[0])
         self.assertIn('placePost', results[0])
         self.assertIn('place_id', results[0])
 

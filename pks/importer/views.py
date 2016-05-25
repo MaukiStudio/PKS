@@ -101,14 +101,14 @@ class ImportedPlaceViewset(BaseViewset):
                 order_by = params['order_by'].split('_')[0]
 
         # TODO : 2개의 VD 에 같은 place 에 매핑되는 uplace 가 있는 경우 처리
-        vd_ids = self.publisher_ids
+        vd_ids = self.vd.realOwner_publisher_ids
         qs = self.queryset.filter(vd_id__in=vd_ids)
         # TODO : 리팩토링
         qs = qs.filter(mask=F('mask').bitand(~1))
 
         # iplace filtering
         qs = qs.exclude(place_id=None)
-        qs = qs.exclude(place_id__in=self.subscriber_places)
+        qs = qs.exclude(place_id__in=self.vd.realOwner_places)
 
         origin = None
         if 'lon' in params and 'lat' in params:
@@ -131,20 +131,6 @@ class ImportedPlaceViewset(BaseViewset):
             qs = qs.annotate(distance=Distance('lonLat', origin))
         return qs.order_by(order_by)
 
-
-    # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
-    @property
-    def publisher_ids(self):
-        importers = Importer.objects.filter(subscriber_id__in=self.vd.realOwner_vd_ids)
-        if importers:
-            return sum([importer.publisher.vd_ids for importer in importers], [])
-        return []
-
-    # TODO : 튜닝
-    @property
-    def subscriber_places(self):
-        places = Place.objects.filter(uplaces__vd_id__in=self.vd.realOwner_vd_ids)
-        return places
 
     # ImportedPlace 는 직접 생성할 수 없음. Publisher 에서 생성된 것이 Import 되면서 생성
     def create(self, request, *args, **kwargs):

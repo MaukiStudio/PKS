@@ -72,6 +72,11 @@ class VD(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='childs')
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
+    def __init__(self, *args, **kwargs):
+        self._cache_realOwner_publisher_ids = None
+        self._cache_realOwner_places = None
+        super(VD, self).__init__(*args, **kwargs)
+
     def __unicode__(self):
         email = (self.realOwner and self.realOwner.email) or (self.authOwner and self.authOwner.email) or 'unknown@email'
         deviceTypeName = self.deviceTypeName or 'unknown device'
@@ -92,6 +97,26 @@ class VD(models.Model):
         if self.realOwner:
             return self.realOwner.vd_ids
         return [self.id]
+
+    # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
+    @property
+    def realOwner_publisher_ids(self):
+        if not self._cache_realOwner_publisher_ids:
+            from importer.models import Importer
+            importers = Importer.objects.filter(subscriber_id__in=self.realOwner_vd_ids)
+            if importers:
+                self._cache_realOwner_publisher_ids = sum([importer.publisher.vd_ids for importer in importers], [])
+            else:
+                self._cache_realOwner_publisher_ids = []
+        return self._cache_realOwner_publisher_ids
+
+    # TODO : 튜닝
+    @property
+    def realOwner_places(self):
+        if not self._cache_realOwner_places:
+            from place.models import Place
+            self._cache_realOwner_places = Place.objects.filter(uplaces__vd_id__in=self.realOwner_vd_ids)
+        return self._cache_realOwner_places
 
     @property
     def is_private(self):
