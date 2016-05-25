@@ -74,8 +74,7 @@ class Place(models.Model):
     def _totalPost(self):
         pb = PostBase()
         for pp in self.pps.all().order_by('id'):
-            pb_new = pp.pb
-            pb.update(pb_new, pp.is_add)
+            pb.update(pp.pb, pp.is_add)
         pb.place_id = self.id
         pb.normalize()
         return pb

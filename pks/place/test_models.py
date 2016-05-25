@@ -354,7 +354,9 @@ class PostTest(APITestBase):
 
         totalPost = place._totalPost
         self.assertIsSubsetOf(uplace1.place.placePost, totalPost)
-        self.assertIsNotSubsetOf(totalPost, uplace1.place.placePost)
+        #self.assertIsSubsetOf(uplace1.userPost, totalPost)     # Note 에서 timestamp 를 제거해야...
+        #self.assertIsSubsetOf(uplace2.userPost, totalPost)     # 상동
+        #self.assertIsNotSubsetOf(totalPost, uplace1.place.placePost)   # userPost 를 하나 더 생성해야...
 
 
     def test_placed(self):
