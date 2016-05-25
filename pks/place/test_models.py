@@ -535,6 +535,7 @@ class PostPieceTest(APITestBase):
         saved = self.uplace.pps.first()
         self.assertEqual(saved, pp)
         self.assertEqual(saved.uplace, pp.uplace)
+        self.assertEqual(saved.place, None)
 
     def test_place_property(self):
         pp = PostPiece()
@@ -543,6 +544,14 @@ class PostPieceTest(APITestBase):
         saved = self.place.pps.first()
         self.assertEqual(saved, pp)
         self.assertEqual(saved.place, pp.place)
+
+        self.uplace.place = self.place
+        self.uplace.save()
+        pp2 = PostPiece()
+        pp2.uplace = self.uplace
+        self.assertEqual(pp2.place, None)
+        pp2.save()
+        self.assertEqual(pp2.place, self.place)
 
     def test_vd_property(self):
         pp = PostPiece()

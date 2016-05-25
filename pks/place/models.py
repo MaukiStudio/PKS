@@ -36,7 +36,7 @@ class Place(models.Model):
     def computePost(self, vd_ids=None):
         # placePost
         pb = PostBase()
-        for pp in self.pps.all().order_by('id'):
+        for pp in self.pps.all().filter(uplace=None).order_by('id'):
             pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
@@ -180,6 +180,14 @@ class UserPlace(models.Model):
         _id = UUID(splits[0])
         return cls.objects.get(id=_id)
 
+    def placed(self, place, lonLat=None):
+        self.place = place
+        self.lonLat = lonLat or place.lonLat or self.lonLat
+        self.save()
+        for pp in self.pps.all():
+            pp.place = place
+            pp.save()
+
     @classmethod
     def get_or_create_smart(cls, pb, vd):
         place, is_place_created = Place.get_or_create_smart(pb, vd)
@@ -200,14 +208,10 @@ class UserPlace(models.Model):
             is_uplace_created = True
         elif not uplace.place:
             if place:
-                uplace.place = place
-                uplace.lonLat = lonLat
-                uplace.save()
+                uplace.placed(place, lonLat)
         else:
             if place and uplace.place != place:
-                uplace.place = place
-                uplace.lonLat = lonLat
-                uplace.save()
+                uplace.placed(place, lonLat)
                 # TODO : 로그 남겨서 Place Merge 시 우선순위 높여 참고하기
 
         # 결과 처리
@@ -323,6 +327,8 @@ class PostPiece(models.Model):
             self.id = self._id(timestamp)
         if not self.mask:
             self.mask = 0
+        if not self.place and (self.uplace and self.uplace.place):
+            self.place = self.uplace.place
 
         # Machine 이 포스팅한 경우 vd를 None 으로. 단, vd값이 넘어온 경우 id값 계산시엔 활용 (위에서 이미 id 계산)
         if self.by_MAMMA:
