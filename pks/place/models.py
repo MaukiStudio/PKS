@@ -44,16 +44,17 @@ class Place(models.Model):
         self._placePost_cache = pb
 
         # userPost
-        '''
         if vd_ids:
             pb = PostBase()
-            for pp in self.pps.all().order_by('id'):
-                pb_new = pp.pb
-                pb.update(pb_new, pp.is_add)
+            for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
+                if pp.is_drop:
+                    # TODO : 이 부분이 테스트되는 테스트 추가
+                    pb = PostBase()
+                else:
+                    pb.update(pp.pb, pp.is_add)
             pb.place_id = self.id
             pb.normalize()
             self._userPost_cache = pb
-        '''
 
     def _clearCache(self):
         self._placePost_cache = None
@@ -72,10 +73,11 @@ class Place(models.Model):
     @property
     def _totalPost(self):
         pb = PostBase()
-        for pp in (self.pps.all() | PostPiece.objects.filter(uplace__place_id=self.id)).order_by('id'):
+        for pp in self.pps.all().order_by('id'):
             pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
+        pb.normalize()
         return pb
 
 
@@ -222,12 +224,11 @@ class UserPlace(models.Model):
     def computePost(self):
         pb = PostBase()
         for pp in self.pps.all().order_by('id'):
-            pb_new = pp.pb
             if pp.is_drop:
                 # TODO : 이 부분이 테스트되는 테스트 추가
                 pb = PostBase()
             else:
-                pb.update(pb_new, pp.is_add)
+                pb.update(pp.pb, pp.is_add)
         pb.uplace_uuid = self.uuid
         pb.place_id = self.place_id
         pb.normalize()
