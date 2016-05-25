@@ -97,8 +97,8 @@ class APITestBase(APITestCase):
         return vd_id
 
     def clear_media_files(self):
-        # ImagesImporter 개발 완료시까지 잠시 파일 삭제 안함
-        return
+        # ImagesImporter 테스트 시엔 파일 삭제 안하도록 해야 함
+        # return
         if WORK_ENVIRONMENT:
             os_system('rm -rf %s' % (MEDIA_ROOT,))
 

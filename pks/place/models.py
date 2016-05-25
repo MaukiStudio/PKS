@@ -24,8 +24,8 @@ class Place(models.Model):
     placeName = models.ForeignKey(PlaceName, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='places')
 
     def __init__(self, *args, **kwargs):
-        self._placePost_cache = None
-        self._userPost_cache = None
+        self._cache_placePost = None
+        self._cache_userPost = None
         super(Place, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -41,7 +41,7 @@ class Place(models.Model):
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
         pb.normalize()
-        self._placePost_cache = pb
+        self._cache_placePost = pb
 
         # userPost
         if vd_ids:
@@ -56,21 +56,21 @@ class Place(models.Model):
                     pb.update(pp.pb, pp.is_add)
             pb.place_id = self.id
             pb.normalize()
-            self._userPost_cache = pb
+            self._cache_userPost = pb
 
     def _clearCache(self):
-        self._placePost_cache = None
-        self._userPost_cache = None
+        self._cache_placePost = None
+        self._cache_userPost = None
 
     @property
     def placePost(self):
-        if not self._placePost_cache:
+        if not self._cache_placePost:
             self.computePost()
-        return self._placePost_cache
+        return self._cache_placePost
 
     @property
     def userPost(self):
-        return self._userPost_cache
+        return self._cache_userPost
 
     @property
     def _totalPost(self):
@@ -167,7 +167,7 @@ class UserPlace(models.Model):
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def __init__(self, *args, **kwargs):
-        self._pb_cache = None
+        self._cache_pb = None
         self._origin = None
         super(UserPlace, self).__init__(*args, **kwargs)
 
@@ -233,18 +233,22 @@ class UserPlace(models.Model):
         pb.uplace_uuid = self.uuid
         pb.place_id = self.place_id
         pb.normalize()
-        self._pb_cache = pb
+        self._cache_pb = pb
 
     def _clearCache(self):
-        self._pb_cache = None
+        self._cache_pb = None
         if self.place:
             self.place._clearCache()
 
     @property
     def userPost(self):
-        if not self._pb_cache:
+        if self.place:
+            # TODO : 이 부분을 테스트하는 코드 추가
+            self.place.computePost(self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids)
+            return self.place.userPost
+        if not self._cache_pb:
             self.computePost()
-        return self._pb_cache
+        return self._cache_pb
 
     @property
     def placePost(self):
@@ -378,10 +382,12 @@ class PostPiece(models.Model):
     @property
     def pb(self):
         pb1 = PostBase(self.data, self.timestamp)
+        '''
         if pb1.iplace_uuid:
             iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)
             if iplace:
                 pb1.update(iplace.userPost)
+        '''
         return pb1
     @pb.setter
     def pb(self, value):

@@ -90,3 +90,13 @@ class Importer(models.Model):
 class ImportedPlace(UserPlace):
     class Meta:
         proxy = True
+
+    @property
+    def userPost(self):
+        if self.place:
+            # TODO : 이 부분을 테스트하는 코드 추가
+            self.place.computePost(self.vd.realOwner_publisher_ids)
+            return self.place.userPost
+        if not self._cache_pb:
+            self.computePost()
+        return self._cache_pb
