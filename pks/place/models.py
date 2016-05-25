@@ -24,7 +24,8 @@ class Place(models.Model):
     placeName = models.ForeignKey(PlaceName, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='places')
 
     def __init__(self, *args, **kwargs):
-        self._pb_cache = None
+        self._placePost_cache = None
+        self._userPost_cache = None
         super(Place, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -32,23 +33,41 @@ class Place(models.Model):
             return self.placeName.content
         return 'No named place object'
 
-    def computePost(self):
+    def computePost(self, vd_ids=None):
+        # placePost
         pb = PostBase()
         for pp in self.pps.all().order_by('id'):
             pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
         pb.normalize()
-        self._pb_cache = pb
+        self._placePost_cache = pb
+
+        # userPost
+        '''
+        if vd_ids:
+            pb = PostBase()
+            for pp in self.pps.all().order_by('id'):
+                pb_new = pp.pb
+                pb.update(pb_new, pp.is_add)
+            pb.place_id = self.id
+            pb.normalize()
+            self._userPost_cache = pb
+        '''
 
     def _clearCache(self):
-        self._pb_cache = None
+        self._placePost_cache = None
+        self._userPost_cache = None
 
     @property
     def placePost(self):
-        if not self._pb_cache:
+        if not self._placePost_cache:
             self.computePost()
-        return self._pb_cache
+        return self._placePost_cache
+
+    @property
+    def userPost(self):
+        return self._userPost_cache
 
     @property
     def _totalPost(self):
