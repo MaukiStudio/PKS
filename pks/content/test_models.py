@@ -291,6 +291,12 @@ class LegacyPlaceTest(APITestBase):
         url = Url(content='http://foursquare.com/v/4ccffc63f6378cfaace1b1d6')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
 
+        url = Url(content='https://ko.foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
+
+        url = Url(content='http://ko.foursquare.com/v/4ccffc63f6378cfaace1b1d6')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
+
     def test_access_methods(self):
         lp = LegacyPlace()
         test_data = '4ccffc63f6378cfaace1b1d6.4square'

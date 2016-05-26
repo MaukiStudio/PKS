@@ -48,10 +48,10 @@ LP_REGEXS_URL = (
     (re_compile(r'^https?://(m\.)?map\.daum\.net/actions/detailInfoView\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'kakao'),
 
     # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
-    (re_compile(r'^https?://foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
+    (re_compile(r'^https?://.*foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
 
     # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
-    (re_compile(r'^https?://foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
+    (re_compile(r'^https?://.*foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
 )
 
 LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4,}
