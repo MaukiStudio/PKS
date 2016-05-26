@@ -11,12 +11,6 @@ clear_rfs_smart() 제대로 동작하지 않는 문제 수정 : 테스트로 생
 ImagesImporter, 보안 처리 : myself 아닌 걸로 넘어올 때의 처리, tests.py 보강
 
 
-Place List 구현 방식 수정
-    /places/ : userPost 도 함께 조회해서 볼 수 있는 기능 추가
-        --> 장소 Merge 기능 구현을 잠깐 늦출 수 있음 ㅋ
-    그보단 /iplaces/, /uplaces/ 내부 구현을 Place 를 사용하는게 어떨까...
-
-
 해외 처리
     VD 의 국가/언어/타임존 활용
     어드민 맵 띄우는 부분 처리 
@@ -24,7 +18,6 @@ Place List 구현 방식 수정
 구글 장소화 구현
 
 
-/places/ API 확장
 같은 장소 Merge
 
 

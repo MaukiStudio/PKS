@@ -186,7 +186,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000015493954'))
 
-    def __skip__test_access_by_4square(self):
+    def test_access_by_4square(self):
         lp = LegacyPlace()
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
@@ -293,7 +293,7 @@ class LegacyPlaceTest(APITestBase):
 
     def test_access_methods(self):
         lp = LegacyPlace()
-        test_data = '31130096.naver'
+        test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp.content = test_data
         lp.save()
 
@@ -337,6 +337,34 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.name.content, '홍콩')
         self.assertEqual(pb.images[0].content, unquote_plus(
             'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg'
+        ))
+
+    def test_content_summarized_by_4square(self):
+        lp = LegacyPlace()
+        test_data = '4ccffc63f6378cfaace1b1d6.4square'
+        lp.content = test_data
+        lp.save()
+        lp.summarize()
+        pb = lp.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '방아깐')
+        self.assertEqual(pb.images[0].content, unquote_plus(
+            'https://irs0.4sqi.net/img/general/720x537/13818664_F1SNp5hPhsRBn4qksbkmBCIXv7gsSbOuTXbb3tX8ZG4.jpg'
+        ))
+
+    def test_content_summarized_by_4square2(self):
+        lp = LegacyPlace()
+        test_data = '40a55d80f964a52020f31ee3.4square'
+        lp.content = test_data
+        lp.save()
+        lp.summarize()
+        pb = lp.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, 'Clinton St. Baking Co. & Restaurant')
+        self.assertEqual(pb.images[0].content, unquote_plus(
+            'https://irs2.4sqi.net/img/general/612x612/690170_HnduV5yM9RLNUHQseOOvDi3OCm4AoYmMld79iVTxrPg.jpg'
         ))
 
 

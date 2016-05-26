@@ -247,10 +247,6 @@ class PostBase(object):
         # TODO : lps 가 2개 이상인 경우 UserPlace 쪼개는 처리
         if self.lps and self.lps[0]:
             lp = self.lps[0]
-            # TODO : 포스퀘어 요약 구현한 후 제거
-            if lp.lp_type == 1:
-                return None
-
             lp.summarize()
             result = lp.content_summarized
             result.uplace_uuid = self.uplace_uuid

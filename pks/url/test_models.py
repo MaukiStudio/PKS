@@ -129,6 +129,32 @@ class UrlTest(APITestBase):
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
 
+    def test_4square_shortener_url4(self):
+        url = Url()
+        test_value = 'http://4sq.com/MVWRaG'
+        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        url.content = test_value
+        self.assertEqual(Url.objects.count(), 0)
+        url.save()
+        self.assertEqual(Url.objects.count(), 1)
+        saved = Url.objects.first()
+        self.assertEqual(url.content, normalized_value)
+        self.assertEqual(saved, url)
+        self.assertEqual(saved.content, normalized_value)
+
+    def test_4square_shortener_url_with_garbage(self):
+        url = Url()
+        test_value = 'DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG'
+        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        url.content = test_value
+        self.assertEqual(Url.objects.count(), 0)
+        url.save()
+        self.assertEqual(Url.objects.count(), 1)
+        saved = Url.objects.first()
+        self.assertEqual(url.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(saved, url)
+        self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+
     def test_encoded_url1(self):
         test_data1 = 'https://place.kakao.com/places/10972091/%ED%99%8D%EB%AA%85'
         test_data2 = 'https://place.kakao.com/places/10972091/홍명'

@@ -4,12 +4,15 @@ from __future__ import unicode_literals
 from uuid import UUID
 from re import compile as re_compile
 from django.contrib.gis.db import models
-from json import loads as json_loads
+from json import loads as json_loads, dumps as json_dumps
 
 from base.models import Content
 from phonenumbers import parse, format_number, PhoneNumberFormat
 from pyquery import PyQuery
 from pathlib2 import Path
+
+FOURSQUARE_CLIENT_ID = 'QEA4FRXVQNHKUQYFZ3IZEU0EI0FDR0MCZL0HEZKW11HUNCTW'
+FOURSQUARE_CLIENT_SECRET = '4VU0FLFOORV13ETKHN5UNYKGBNPZBAJ3OGGKC5E2NILYA2VD'
 
 
 LP_REGEXS = (
@@ -70,7 +73,7 @@ class LegacyPlace(Content):
     @property
     def accessedType(self):
         splits = self.content.split('.')
-        if splits[1] == 'google':
+        if splits[1] in ('4square', 'google'):
             return 'json'
         else:
             return 'html'
@@ -105,10 +108,35 @@ class LegacyPlace(Content):
         elif splits[1] == 'kakao':
             return 'http://place.kakao.com/places/%s/' % splits[0]
         elif splits[1] == '4square':
-            return 'https://foursquare.com/v/%s' % splits[0]
+            #return 'https://foursquare.com/v/%s' % splits[0]
+            return '4square://%s' % splits[0]
         else:
             # TODO : 구글도 땡겨올 수 있게끔 수정
             raise NotImplementedError
+
+    def access_force(self, timeout=3):
+        url = self.url_for_access
+        if url.startswith('http'):
+            super(LegacyPlace, self).access_force(timeout=timeout)
+            return
+
+        result = None
+        if url.startswith('4square'):
+            from foursquare import Foursquare
+            client = Foursquare(client_id=FOURSQUARE_CLIENT_ID, client_secret=FOURSQUARE_CLIENT_SECRET)
+            result = json_dumps(client.venues(url.split('//')[1]), ensure_ascii=False)
+        else:
+            raise NotImplementedError
+
+        if result:
+            file = Path(self.path_accessed)
+            if not file.parent.exists():
+                file.parent.mkdir(parents=True)
+            summary = Path(self.path_summarized)
+            if not Path(self.path_summarized).parent.exists():
+                summary.parent.mkdir(parents=True)
+            file.write_text(result)
+            self._accessed_cache = result.replace('\r', '')
 
     @classmethod
     def get_from_url(cls, url):
@@ -131,6 +159,8 @@ class LegacyPlace(Content):
                 self.summarize_force_naver(accessed)
             elif self.contentType == 'kakao':
                 self.summarize_force_kakao(accessed)
+            elif self.contentType == '4square':
+                self.summarize_force_4square(accessed)
             else:
                 raise NotImplementedError
 
@@ -205,6 +235,36 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, addr, img_url, self.content,)
+
+        f = Path(self.path_summarized)
+        f.write_text(json)
+
+    def summarize_force_4square(self, accessed):
+        # 파싱
+        d = json_loads(accessed)['venue']
+
+        # 주요 정보
+        lon = float(d['location']['lng'])
+        lat = float(d['location']['lat'])
+        name = d['name']
+        phone = d['contact']['phone']
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr_new = d['location']['formattedAddress'][0]
+        bp = d['bestPhoto']
+        img_url = '%s%dx%d%s' % (bp['prefix'], bp['width'], bp['height'], bp['suffix'])
+
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "images": [{"content": "%s"}],
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (lon, lat, name, phone, addr_new, img_url, self.content,)
 
         f = Path(self.path_summarized)
         f.write_text(json)

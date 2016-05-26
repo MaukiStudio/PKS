@@ -61,6 +61,14 @@ class PlacedDetailTest1(AdminTestCase):
         self.uplace = UserPlace.objects.first()
         self.assertNotEqual(self.uplace.place, None)
 
+    def test_placed_by_lp_url2(self):
+        self.assertEqual(self.uplace.place, None)
+        lp_url = 'https://foursquare.com/v/%EB%B0%A9%EC%95%84%EA%B9%90/4ccffc63f6378cfaace1b1d6'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertNotEqual(self.uplace.place, None)
+
     def test_placed_by_placeName(self):
         self.assertEqual(self.uplace.place, None)
         placeName = '능이향기'

@@ -81,13 +81,17 @@ _server_authority_schemes = [   'http',
 
 
 def norms(urlstring):
+    urlstring = urlstring.strip()
     lines = urlstring.split('\n')
     if len(lines) > 1:
         for line in lines:
             line = line.strip()
-            if line.startswith('http://') or line.startswith('https://'):
+            if line.startswith('http'):
                 urlstring = line
                 break
+    if not urlstring.startswith('http'):
+        urlstring = 'http%s' % urlstring.split('http')[1]
+
     try:
         encoded = None
         for i in range(10):
