@@ -623,6 +623,38 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(UserPlace.objects.count(), 3)
         self.assertEqual(Place.objects.count(), 2)
 
+    def test_create_case7_4square_url(self):
+        json_add = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % ('DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG',)
+        json_want = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % (norms('https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714',))
+
+        self.assertEqual(UserPlace.objects.count(), 1)
+        self.assertEqual(Place.objects.count(), 1)
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 2)
+        self.assertEqual(Place.objects.count(), 2)
+
+        uplace_uuid = json_loads(response.content)['uplace_uuid']
+        self.uplace = UserPlace.objects.get(id=uplace_uuid.split('.')[0])
+        want = json_loads(json_want)
+        self.assertIsSubsetOf(want, self.uplace.userPost)
+        self.assertNotEqual(self.uplace.placePost, None)
+        self.assertIsNotSubsetOf(self.uplace.userPost, want)
+
+        # again
+        response = self.client.post('/uplaces/', dict(add=json_add,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserPlace.objects.count(), 3)
+        self.assertEqual(Place.objects.count(), 2)
+
 
     def test_create_full_with_no_uuid_except_image(self):
         point1 = GEOSGeometry('POINT(127 37)', srid=4326)
