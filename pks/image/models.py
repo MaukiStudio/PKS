@@ -213,7 +213,7 @@ class Image(Content):
 
     def process_exif(self):
         pil = self.content_accessed
-        exif = self._accessed_cache[1]
+        exif = self._cache_accessed[1]
         result = [None, None]
         if exif:
             lonLat = exif_lib.get_lon_lat(exif)
@@ -250,7 +250,7 @@ class Image(Content):
 
     @property
     def content_accessed(self):
-        if not self._accessed_cache:
+        if not self._cache_accessed:
             img = None
             exif = None
             try:
@@ -261,8 +261,8 @@ class Image(Content):
                 pass
             except AttributeError:
                 pass
-            self._accessed_cache = (img, exif)
-        return self._accessed_cache[0]
+            self._cache_accessed = (img, exif)
+        return self._cache_accessed[0]
 
     def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}

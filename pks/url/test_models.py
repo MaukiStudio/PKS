@@ -129,10 +129,10 @@ class UrlTest(APITestBase):
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
 
-    def test_4square_shortener_url4(self):
+    def test_4square_shortener_url(self):
         url = Url()
         test_value = 'http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        normalized_value = 'https://foursquare.com/v/도레도레/500d3737e4b03e92379f2714'
         url.content = test_value
         self.assertEqual(Url.objects.count(), 0)
         url.save()
@@ -145,7 +145,7 @@ class UrlTest(APITestBase):
     def test_4square_shortener_url_with_garbage(self):
         url = Url()
         test_value = 'DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        normalized_value = 'https://foursquare.com/v/도레도레/500d3737e4b03e92379f2714'
         url.content = test_value
         self.assertEqual(Url.objects.count(), 0)
         url.save()

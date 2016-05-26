@@ -61,6 +61,7 @@ class Content(models.Model):
         raise NotImplementedError
 
     # CAN override
+    # TODO : object method 로 전환하고 튜닝 (캐싱 등)
     @classmethod
     def normalize_content(cls, raw_content):
         return raw_content.strip()
@@ -109,7 +110,8 @@ class Content(models.Model):
     # DO NOT override
     def __init__(self, *args, **kwargs):
         self.timestamp = None
-        self._accessed_cache = None
+        self._cache_accessed = None
+        self._cache_normalized_content = None
         super(Content, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -173,7 +175,7 @@ class Content(models.Model):
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
         file.write_text(r.text)
-        self._accessed_cache = r.text.replace('\r', '')
+        self._cache_accessed = r.text.replace('\r', '')
 
     def access_local(self, source):
         file = Path(self.path_accessed)
@@ -249,13 +251,13 @@ class Content(models.Model):
 
     @property
     def content_accessed(self):
-        if not self._accessed_cache:
+        if not self._cache_accessed:
             file = Path(self.path_accessed)
-            self._accessed_cache = file.read_text()
-        return self._accessed_cache
+            self._cache_accessed = file.read_text()
+        return self._cache_accessed
 
     def _clearCache(self):
-        self._accessed_cache = None
+        self._cache_accessed = None
 
     @property
     def content_summarized(self):

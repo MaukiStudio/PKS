@@ -136,7 +136,7 @@ class LegacyPlace(Content):
             if not Path(self.path_summarized).parent.exists():
                 summary.parent.mkdir(parents=True)
             file.write_text(result)
-            self._accessed_cache = result.replace('\r', '')
+            self._cache_accessed = result.replace('\r', '')
 
     @classmethod
     def get_from_url(cls, url):

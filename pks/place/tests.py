@@ -639,8 +639,8 @@ class UserPlaceViewSetTest(APITestBase):
         img2 = Image(content=img2_content); img2.save()
         img3 = Image(content=img3_content); img3.save()
         url11_content='http://www.naver.com/'
-        url12_content='http://www.naver.com?2'
-        url13_content='http://www.naver.com?3'
+        url12_content='http://www.naver.com/?2'
+        url13_content='http://www.naver.com/?3'
         lp1 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp1.save()
 
         json_add = '''
