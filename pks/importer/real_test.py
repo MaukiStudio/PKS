@@ -134,6 +134,7 @@ def reset_image_task():
 
 
 def make_report_html(result):
+    from importer.tasks import distance_geography
     with open('ImagesImporterReport.html', 'w') as f:
         f.write('<html><body><table border="True">\n')
         for group1 in result:
@@ -144,11 +145,15 @@ def make_report_html(result):
                 f.write('   <td>\n')
                 f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_first, group2.first.first.url_summarized))
                 f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_last, group2.last.last.url_summarized))
+                group2.distance = distance_geography
+                f.write('       %0.1f' % group2.radius)
                 f.write('   </td>\n')
 
                 f.write('   <td><table border="True"><tr>\n')
                 for group3 in group2.members:
                     f.write('       <tr>\n')
+                    group3.distance = distance_geography
+                    f.write('       <td>%0.1f</td>' % group3.radius)
                     for img4 in group3.members:
                         f.write('       <td>')
                         f.write('           <img src="%s"/>' % img4.url_summarized)
