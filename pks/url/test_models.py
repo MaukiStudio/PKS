@@ -8,6 +8,7 @@ from urllib import unquote_plus
 
 from base.tests import APITestBase
 from url.models import Url
+from pks.settings import WORK_ENVIRONMENT
 
 
 class UrlTest(APITestBase):
@@ -130,6 +131,7 @@ class UrlTest(APITestBase):
         self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
 
     def test_4square_shortener_url(self):
+        if WORK_ENVIRONMENT: return
         url = Url()
         test_value = 'http://4sq.com/MVWRaG'
         normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
@@ -143,6 +145,7 @@ class UrlTest(APITestBase):
         self.assertEqual(saved.content, normalized_value)
 
     def test_4square_shortener_url_with_garbage(self):
+        if WORK_ENVIRONMENT: return
         url = Url()
         test_value = 'DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG'
         normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'

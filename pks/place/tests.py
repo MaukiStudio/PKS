@@ -16,6 +16,7 @@ from url.models import Url
 from account.models import VD
 from place.post import PostBase
 from base.legacy.urlnorm import norms
+from pks.settings import WORK_ENVIRONMENT
 
 
 class PlaceViewSetTest(APITestBase):
@@ -624,6 +625,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 2)
 
     def test_create_case7_4square_url(self):
+        if WORK_ENVIRONMENT: return
         json_add = '''
             {
                 "urls": [{"content": "%s"}]

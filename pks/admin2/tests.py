@@ -6,6 +6,7 @@ from rest_framework import status
 
 from base.tests import AdminTestCase, FunctionalTestBase
 from place.models import UserPlace
+from pks.settings import WORK_ENVIRONMENT
 
 
 class IndexTest(AdminTestCase):
@@ -62,6 +63,7 @@ class PlacedDetailTest1(AdminTestCase):
         self.assertNotEqual(self.uplace.place, None)
 
     def test_placed_by_lp_url2(self):
+        if WORK_ENVIRONMENT: return
         self.assertEqual(self.uplace.place, None)
         lp_url = 'https://foursquare.com/v/%EB%B0%A9%EC%95%84%EA%B9%90/4ccffc63f6378cfaace1b1d6'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
