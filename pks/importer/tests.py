@@ -151,8 +151,8 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.place = Place.objects.create()
         self.place2 = Place.objects.create()
         self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
-        pb = PostBase('{"notes": [{"content": "test note"}]}')
-        self.pp = PostPiece.objects.create(place=None, uplace=self.iplace, vd=self.vd_publisher, pb=pb)
+        self.pb = PostBase('{"notes": [{"content": "test note"}]}')
+        self.pp = PostPiece.objects.create(uplace=self.iplace, vd=self.vd_publisher, pb=self.pb)
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
         self.iplace3 = ImportedPlace.objects.create(vd=self.vd_publisher, place=None)
         self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
@@ -180,6 +180,11 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertNotIn('mask', results[0])
         self.assertEqual(results[0]['iplace_uuid'], self.iplace4.uuid)
         self.assertEqual(results[1]['iplace_uuid'], self.iplace.uuid)
+        self.iplace.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.assertNotEqual(self.iplace.userPost, None)
+        self.assertIsSubsetOf(self.pb, self.iplace.userPost)
+        self.assertNotEqual(results[1]['userPost'], None)
+        self.assertDictEqual(results[1]['userPost'], self.iplace.userPost.json)
 
         # remove duplicate
         self.iplace4.place = self.iplace.place

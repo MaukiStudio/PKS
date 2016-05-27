@@ -6,8 +6,10 @@ from django.db import IntegrityError
 from json import loads as json_loads
 
 from base.tests import APITestBase
-from importer.models import Proxy, Importer
+from importer.models import Proxy, Importer, ImportedPlace
 from account.models import VD
+from place.models import Place, UserPlace, PostPiece
+from place.post import PostBase
 
 
 class ProxyTest(APITestBase):
@@ -89,3 +91,40 @@ class ImporterTest(APITestBase):
         imp2 = imp2.reload()
         self.assertEqual(imp2, self.imp)
         self.assertEqual(imp2.started, self.imp.started)
+
+
+class ImportedPlaceTest(APITestBase):
+
+    def setUp(self):
+        super(ImportedPlaceTest, self).setUp()
+        self.vd_subscriber = VD.objects.create()
+        self.vd_publisher = VD.objects.create()
+        self.proxy = Proxy.objects.create(vd=self.vd_publisher)
+        self.vd_publisher2 = VD.objects.create()
+        self.proxy2 = Proxy.objects.create(vd=self.vd_publisher2)
+        self.imp = Importer.objects.create(publisher=self.proxy, subscriber=self.vd_subscriber)
+        self.imp2 = Importer.objects.create(publisher=self.proxy2, subscriber=self.vd_subscriber)
+        self.place = Place.objects.create()
+        self.place2 = Place.objects.create()
+        self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
+        self.pb = PostBase('{"notes": [{"content": "test note"}]}')
+        self.pp = PostPiece.objects.create(uplace=self.iplace, vd=self.vd_publisher, pb=self.pb)
+        self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
+        self.iplace3 = ImportedPlace.objects.create(vd=self.vd_publisher, place=None)
+        self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
+        self.vd_other = VD.objects.create()
+        self.uplace_other = UserPlace.objects.create(vd=self.vd_other, place=self.place)
+        self.place3 = Place.objects.create()
+        self.iplace4 = UserPlace.objects.create(vd=self.vd_publisher2, place=self.place3)
+        self.iplace5 = ImportedPlace.objects.create(vd=self.vd_publisher2)
+        self.pb5 = PostBase('{"notes": [{"content": "test note 5"}]}')
+        self.pp5 = PostPiece.objects.create(uplace=self.iplace5, vd=self.vd_publisher2, pb=self.pb5)
+
+    def test_userPost(self):
+        self.iplace.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.assertNotEqual(self.iplace.userPost, None)
+        self.assertIsSubsetOf(self.pb, self.iplace.userPost)
+
+        self.iplace5.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.assertNotEqual(self.iplace5.userPost, None)
+        self.assertIsSubsetOf(self.pb5, self.iplace5.userPost)

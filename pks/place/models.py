@@ -222,7 +222,7 @@ class UserPlace(models.Model):
         pb.uplace_uuid = uplace.uuid
         return uplace, is_uplace_created
 
-    def computePost(self):
+    def computePost(self, vd_ids=None):
         pb = PostBase()
         for pp in self.pps.all().order_by('id'):
             if pp.is_drop:

@@ -21,3 +21,9 @@ class ImportedPlaceSerializer(UserPlaceSerializer):
     class Meta:
         model = ImportedPlace
         exclude = ('id', 'place', 'vd', 'mask', 'uplace_uuid',)
+
+    def to_representation(self, instance):
+        vd = self.vd
+        if vd:
+            instance.computePost(vd_ids=vd.realOwner_publisher_ids)
+        return super(ImportedPlaceSerializer, self).to_representation(instance)
