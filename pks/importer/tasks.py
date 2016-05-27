@@ -229,16 +229,8 @@ class ImagesProxyTask(object):
                     m_value.members[0].members = [img]
                     cluster = Clustering(group1, threshold, distance_geography_group, m_value, False)
                     cluster.run()
-                    group1_members = list()
-                    for group2 in cluster.result:
-                        merged2 = Group()
-                        merged2.members = list()
-                        for group3 in group2.members:
-                            for group4 in group3.members:
-                                merged2.members.append(group4)
-                        group1_members.append(merged2)
-                    group1.members = group1_members
-                    group_cnt += len(group1_members)
+                    group1.members = [Group(sum([group3.members for group3 in group2.members], [])) for group2 in cluster.result]
+                    group_cnt += len(group1.members)
 
                 print('step_07:group_cnt == %d' % group_cnt)
                 if prev_group_cnt == group_cnt:
