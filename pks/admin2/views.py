@@ -28,7 +28,7 @@ def get_map_url(lonLat):
             except:
                 print('geolocator(Nominatim) fail() : lat=%f, lon=%f' % (lonLat.y, lonLat.x))
         if not map_url:
-            map_url = 'http://maps.google.com/?q=%f,%f&z=15' % (lonLat.y, lonLat.x)
+            map_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
     return map_url or 'http://map.naver.com/'
 
 
