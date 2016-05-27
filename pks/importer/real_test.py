@@ -143,21 +143,21 @@ def make_report_html(result):
                 map_url_first = 'http://maps.google.com/?q=%f,%f&z=15' % (group2.lonLat.y, group2.lonLat.x)
                 map_url_last = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (group2.lonLat.x, group2.lonLat.y)
                 f.write('   <td>\n')
-                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_first, group2.first.first.url_summarized))
-                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>' % (map_url_last, group2.last.last.url_summarized))
+                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>\n' % (map_url_first, group2.first.first.url_summarized))
+                f.write('       <a href="%s" target="_blank"><img src="%s"/></a>\n' % (map_url_last, group2.last.last.url_summarized))
                 group2.distance = distance_geography
-                f.write('       %0.1f' % group2.radius)
+                f.write('       %0.1f\n' % group2.radius)
                 f.write('   </td>\n')
 
                 f.write('   <td><table border="True"><tr>\n')
                 for group3 in group2.members:
                     f.write('       <tr>\n')
                     group3.distance = distance_geography
-                    f.write('       <td>%0.1f</td>' % group3.radius)
+                    f.write('       <td>%0.1f</td>\n' % group3.radius)
                     for img4 in group3.members:
-                        f.write('       <td>')
-                        f.write('           <img src="%s"/>' % img4.url_summarized)
-                        f.write('       </td>')
+                        f.write('       <td>\n')
+                        f.write('           <img src="%s"/>\n' % img4.url_summarized)
+                        f.write('       </td>\n')
                     f.write('       </tr>\n')
                 f.write('   </tr></table></td>\n')
 
