@@ -8,9 +8,11 @@ from base.utils import call
 
 
 class Group(object):
-    def __init__(self):
+    def __init__(self, members=None):
         self.leader = None
-        self.members = list()
+        if not members:
+            members = list()
+        self.members = members
         self.type = None
         self.distance = None
 
@@ -45,10 +47,23 @@ class Group(object):
         if not self._cache_lonLat:
             arr_lon = np.array([e.lonLat.x for e in self.members])
             arr_lat = np.array([e.lonLat.y for e in self.members])
+
+            '''
+            def helper(arr):
+                m = np.median(arr)
+                std = arr.std()
+                min = arr[arr >= m-std*1.64].min()
+                max = arr[arr <= m+std*1.64].max()
+                return (min+max)/2.0
+            lon = helper(arr_lon)
+            lat = helper(arr_lat)
+            #'''
+
             lon = np.median(arr_lon)
             lat = np.median(arr_lat)
             #lon = (arr_lon.min() + arr_lon.max())/2
             #lat = (arr_lat.min() + arr_lat.max())/2
+
             self._cache_lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
         return self._cache_lonLat
 
@@ -57,6 +72,7 @@ class Group(object):
         if not self._cache_radius:
             lonLat = self.lonLat
             arr_distance = np.array([self.distance(lonLat, member.lonLat) for member in self.members])
+            '''
             arr_distance_positive = arr_distance[arr_distance > 0]
             m = 0
             if len(arr_distance_positive) > 0:
@@ -64,6 +80,8 @@ class Group(object):
             if len(arr_distance[arr_distance < m]) > 0:
                 arr_distance[arr_distance < m][0] = m
             self._cache_radius = np.median(arr_distance[arr_distance >= m])
+            #'''
+            self._cache_radius = arr_distance.max()
         return self._cache_radius
 
     @property
@@ -73,6 +91,10 @@ class Group(object):
     @property
     def last(self):
         return self.members[-1]
+
+    @property
+    def count(self):
+        return len(self.flat_members)
 
 
 class Clustering(object):
