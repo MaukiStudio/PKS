@@ -243,11 +243,12 @@ class ImagesProxyTask(object):
         # vd
         vd = self.proxy.vd
         if UserPlace.objects.filter(vd=vd).first():
-            vd_new_publisher = VD.objects.create(parent=vd, is_private=True, is_public=False)
-            self.proxy.vd = vd_new_publisher
+            vd_new_publisher = VD.objects.create(parent=vd.parent, is_private=True, is_public=False)
             if not 'old_vds' in self.proxy.guide or not self.proxy.guide['old_vds']:
                 self.proxy.guide['old_vds'] = list()
             self.proxy.guide['old_vds'].append(vd.id)
+            self.proxy.vd = vd_new_publisher
+            self.proxy.save()
             vd = vd_new_publisher
 
         uplace_cnt = 0

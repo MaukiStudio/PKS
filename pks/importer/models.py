@@ -28,6 +28,7 @@ class Proxy(models.Model):
         if not self.vd:
             raise IntegrityError('Proxy.vd must not be None')
         if not self.id:
+            # 나중에 vd 가 바뀔 수 있으며, 이때부터 proxy.id != proxy.vd.id
             self.id = self.vd.id
         if self.guide and type(self.guide) is not dict:
             self.guide = json_loads(self.guide)
@@ -52,7 +53,7 @@ class Proxy(models.Model):
         if self.guide and 'type' in self.guide and self.guide['type'] == 'user':
             ru = RealUser.objects.get(email=self.guide['email'])
             return ru.vd_ids
-        return [self.id]
+        return [self.vd_id]
 
 
 class Importer(models.Model):
