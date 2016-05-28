@@ -201,5 +201,7 @@ class UserPlaceViewset(BaseViewset):
         json = list()
         for r in result:
             lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
-            json.append(dict(lonLat=lonLat, count=r.count, radius=r.radius))
+            radius = int(round(r.radius + 0.5))
+            for_debug_url = 'http://map.naver.com/?dlevel=10&x=%f&y=%f' % (r.lonLat.x, r.lonLat.y)
+            json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
