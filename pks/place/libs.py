@@ -52,5 +52,9 @@ def compute_regions(vd):
     result.sort(lambda a, b: int(a.count - b.count), reverse=True)
     for g in result:
         g.distance = distance_geography
+
+    #'''
+    for g in result[:5]:
         print('http://map.naver.com/?dlevel=10&x=%f&y=%f : %d, %0.1f' % (g.lonLat.x, g.lonLat.y, g.count, g.radius))
+    #'''
     return result

@@ -59,8 +59,12 @@ class Group(object):
             lat = helper(arr_lat)
             #'''
 
-            lon = np.median(arr_lon)
-            lat = np.median(arr_lat)
+            if self.members and self.members[0] and type(self.members[0]) == Group:
+                lon = arr_lon.mean()
+                lat = arr_lat.mean()
+            else:
+                lon = np.median(arr_lon)
+                lat = np.median(arr_lat)
             #lon = (arr_lon.min() + arr_lon.max())/2
             #lat = (arr_lat.min() + arr_lat.max())/2
 
