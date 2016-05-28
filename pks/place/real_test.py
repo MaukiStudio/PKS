@@ -55,12 +55,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pks.settings')
 django.setup()
 
 
-def test_compute_hot_regions():
-    from place.libs import compute_hot_regions
+def test_compute_regions():
+    from place.libs import compute_regions
     from importer.models import Importer
     imp = Importer.objects.get(id=IMP_ID)
     vd = imp.publisher.vd
-    result = compute_hot_regions(vd)
+    result = compute_regions(vd)
 
 
-test_compute_hot_regions()
+test_compute_regions()

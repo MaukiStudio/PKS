@@ -9,7 +9,7 @@ from importer.tasks import distance_geography
 from importer.tasks import CLUSTERING_MAX_DISTANCE_THRESHOLD, CLUSTERING_MIN_DISTANCE_THRESHOLD
 
 
-def compute_hot_regions(vd):
+def compute_regions(vd):
     uplaces = list(UserPlace.objects.filter(vd__in=vd.realOwner_vd_ids).filter(mask=F('mask').bitand(~1)).exclude(lonLat=None))
     print(len(uplaces))
     for uplace in uplaces:
