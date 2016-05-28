@@ -107,6 +107,17 @@ class UserPlaceViewSetTest(APITestBase):
         self.uplace = UserPlace(vd=self.vd)
         self.uplace.save()
 
+    def test_regions(self):
+        self.uplace.lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        self.uplace.save()
+        response = self.client.get('/uplaces/regions/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)
+        self.assertEqual(len(results), 1)
+        self.assertIn('lonLat', results[0])
+        self.assertIn('count', results[0])
+        self.assertIn('radius', results[0])
+
     def test_list(self):
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -7,6 +7,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
+from rest_framework.decorators import list_route
 
 from place.models import Place, UserPlace, PostPiece
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
@@ -192,3 +193,13 @@ class UserPlaceViewset(BaseViewset):
             instance.save()
             pb = PostBase('{"notes": [{"content": "delete"}]}')
             pp = PostPiece.objects.create(is_drop=True, uplace=instance, vd=vd, pb=pb)
+
+    @list_route(methods=['get'])
+    def regions(self, request):
+        from place.libs import compute_regions
+        result = compute_regions(self.vd)
+        json = list()
+        for r in result:
+            lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
+            json.append(dict(lonLat=lonLat, count=r.count, radius=r.radius))
+        return Response(json, status=status.HTTP_200_OK)
