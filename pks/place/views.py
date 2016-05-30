@@ -199,7 +199,7 @@ class UserPlaceViewset(BaseViewset):
         from place.libs import compute_regions
         result = compute_regions(vd=self.vd)
         json = list()
-        for r in result:
+        for r in result[:5]:
             lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
             radius = int(round(r.radius + 0.49))
             for_debug_url = 'http://map.naver.com/?dlevel=10&x=%f&y=%f' % (r.lonLat.x, r.lonLat.y)
