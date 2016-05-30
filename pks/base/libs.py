@@ -17,7 +17,8 @@ class Group(object):
         self.distance = None
 
         self._cache_flat_members = None
-        self._cache_lonLat = None
+        self._cache_lonLat_median = None
+        self._cache_lonLat_min_max = None
         self._cache_radius = None
 
     @property
@@ -44,32 +45,27 @@ class Group(object):
 
     @property
     def lonLat(self):
-        if not self._cache_lonLat:
+        return self.lonLat_median
+
+    @property
+    def lonLat_median(self):
+        if not self._cache_lonLat_median:
             arr_lon = np.array([e.lonLat.x for e in self.members])
             arr_lat = np.array([e.lonLat.y for e in self.members])
+            lon = np.median(arr_lon)
+            lat = np.median(arr_lat)
+            self._cache_lonLat_median = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+        return self._cache_lonLat_median
 
-            '''
-            def helper(arr):
-                m = np.median(arr)
-                std = arr.std()
-                min = arr[arr >= m-std*1.64].min()
-                max = arr[arr <= m+std*1.64].max()
-                return (min+max)/2.0
-            lon = helper(arr_lon)
-            lat = helper(arr_lat)
-            #'''
-
-            if self.members and self.members[0] and type(self.members[0]) == Group:
-                lon = arr_lon.mean()
-                lat = arr_lat.mean()
-            else:
-                lon = np.median(arr_lon)
-                lat = np.median(arr_lat)
-            #lon = (arr_lon.min() + arr_lon.max())/2
-            #lat = (arr_lat.min() + arr_lat.max())/2
-
-            self._cache_lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
-        return self._cache_lonLat
+    @property
+    def lonLat_min_max(self):
+        if not self._cache_lonLat_min_max:
+            arr_lon = np.array([e.lonLat.x for e in self.members])
+            arr_lat = np.array([e.lonLat.y for e in self.members])
+            lon = (arr_lon.min() + arr_lon.max())/2.0
+            lat = (arr_lat.min() + arr_lat.max())/2.0
+            self._cache_lonLat_min_max = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+        return self._cache_lonLat_min_max
 
     @property
     def radius(self):
@@ -87,6 +83,12 @@ class Group(object):
             #'''
             self._cache_radius = arr_distance.max()
         return self._cache_radius
+
+    @property
+    def radius_min_max(self):
+        lonLat = self.lonLat_min_max
+        arr_distance = np.array([self.distance(lonLat, member.lonLat) for member in self.members])
+        return arr_distance.max()
 
     @property
     def first(self):

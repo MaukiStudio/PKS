@@ -60,7 +60,7 @@ def test_compute_regions():
     from importer.models import Importer
     imp = Importer.objects.get(id=IMP_ID)
     vd = imp.publisher.vd
-    result = compute_regions(vd)
+    result = compute_regions(vd=vd)
 
 
 test_compute_regions()

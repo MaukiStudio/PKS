@@ -6,54 +6,67 @@ from django.db.models import F
 from place.models import UserPlace
 from base.libs import Group, Clustering
 from importer.tasks import distance_geography
-from importer.tasks import CLUSTERING_MAX_DISTANCE_THRESHOLD, CLUSTERING_MIN_DISTANCE_THRESHOLD
 
 
-def compute_regions(vd):
-    uplaces = list(UserPlace.objects.filter(vd__in=vd.realOwner_vd_ids).filter(mask=F('mask').bitand(~1)).exclude(lonLat=None))
+class RegionClustering(Clustering):
+    def step_04_remove_intersection(self):
+        for i in xrange(self.size):
+            gcs = [(n, (self.dmat[:, n] < self.threshold).sum()) for n in xrange(self.size)]
+            gcs.sort(key=lambda g: g[1], reverse=True)
+            gi = self.dmat[:, gcs[i][0]]
+            for j in xrange(i+1, self.size):
+                gj = self.dmat[:, gcs[j][0]]
+                gj[gi < self.threshold] = self.threshold
+
+        #'''
+        for i in xrange(self.size):
+            ri = self.dmat[i, :]
+            i_group_cnt = (ri < self.threshold).sum()
+            if i_group_cnt != 1:
+                raise NotImplementedError
+        #'''
+
+        return True
+
+
+def compute_regions(uplaces=None, vd=None):
+    if not uplaces:
+        uplaces = list(UserPlace.objects.filter(vd__in=vd.realOwner_vd_ids).filter(mask=F('mask').bitand(~1)).exclude(lonLat=None))
+        for uplace in uplaces:
+            uplace.value = uplace.lonLat
+            uplace.timestamp = uplace.modified
     print(len(uplaces))
-    for uplace in uplaces:
-        uplace.value = uplace.lonLat
-        uplace.timestamp = uplace.modified
 
     group0 = Group()
     group0.members = uplaces
     m_value = group0.lonLat
-    cluster = Clustering(group0, CLUSTERING_MIN_DISTANCE_THRESHOLD*2, distance_geography, m_value, True)
+    cluster = RegionClustering(group0, 100, distance_geography, m_value, True)
     cluster.run()
+    elements = cluster.result
+    for e in elements:
+        e.type = 'lonLat'
 
-    '''
-    group0 = Group()
-    group0.members = cluster.result
-    for group1 in group0.members:
-        group1.type = 'lonLat'
-    m_value = group0.lonLat
-    cluster = Clustering(group0, CLUSTERING_MIN_DISTANCE_THRESHOLD, distance_geography, m_value, True)
-    cluster.run()
-    #'''
+    for i in [6, 5, 4, 3]:
+        group0 = Group()
+        group0.members = elements
+        m_value = group0.lonLat
+        cluster = RegionClustering(group0, i*1000, distance_geography, m_value, True)
+        cluster.run()
+        cluster.result.sort(key=lambda g: g.count, reverse=True)
+        for r in cluster.result[:5]:
+            uplace = UserPlace(lonLat=r.lonLat)
+            uplace.value = uplace.lonLat
+            uplace.timestamp = 1
+            g = Group([uplace])
+            g.type = 'lonLat'
+            elements.append(g)
 
     result = cluster.result
-    prev_group_cnt = 0
-    for i in xrange(10):
-        group0.members = result
-        m_value = group0.lonLat
-        for group1 in group0.members:
-            group1.type = 'lonLat'
-        cluster = Clustering(group0, CLUSTERING_MAX_DISTANCE_THRESHOLD, distance_geography, m_value, False)
-        cluster.run()
-        result = [Group(sum([group2.members for group2 in group1.members], [])) for group1 in cluster.result]
-
-        if prev_group_cnt == len(result):
-            break
-        else:
-            prev_group_cnt = len(result)
-            print('again...')
-
-    result.sort(lambda a, b: int(a.count - b.count), reverse=True)
+    result.sort(key=lambda g: g.count, reverse=True)
     for g in result:
         g.distance = distance_geography
 
-    #'''
+    '''
     for g in result[:5]:
         print('http://map.naver.com/?dlevel=10&x=%f&y=%f : %d, %0.1f' % (g.lonLat.x, g.lonLat.y, g.count, g.radius))
     #'''

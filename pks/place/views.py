@@ -197,11 +197,11 @@ class UserPlaceViewset(BaseViewset):
     @list_route(methods=['get'])
     def regions(self, request):
         from place.libs import compute_regions
-        result = compute_regions(self.vd)
+        result = compute_regions(vd=self.vd)
         json = list()
         for r in result:
             lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
-            radius = int(round(r.radius + 0.5))
+            radius = int(round(r.radius + 0.49))
             for_debug_url = 'http://map.naver.com/?dlevel=10&x=%f&y=%f' % (r.lonLat.x, r.lonLat.y)
             json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)

@@ -1,5 +1,12 @@
 [Now]
 
+Tag 기능 뼈대 잡기
+    확률 기반
+    기본은 Place, 상속받아 UserPlace 에서 Override
+    Place 레벨에서는 관측 확률, UserPlace 레벨에서는 유저가 붙였다면 100%
+    관측되지 않은 Tag 확률 계산은 다른 Tag 들을 활용한 간접 계산
+
+
 ImagesImporter
 
     임포트하고, 또 임포트하는 경우에 대한 처리
@@ -21,14 +28,9 @@ ImagesImporter, 보안 처리 : myself 아닌 걸로 넘어올 때의 처리, te
 같은 장소 Merge
 
 
-Tag 기능 뼈대 잡기
-    확률 기반
-    기본은 Place, 상속받아 UserPlace 에서 Override
-    Place 레벨에서는 관측 확률, UserPlace 레벨에서는 유저가 붙였다면 100%
-    관측되지 않은 Tag 확률 계산은 다른 Tag 들을 활용한 간접 계산
-
 블로그 임포트 등
 
+Clustering 관련 모듈들 리팩토링
 
 퍼미션 처리
 허용 HTTP Request 만 처리
