@@ -115,7 +115,7 @@ class UserPlaceViewSetTest(APITestBase):
         results = json_loads(response.content)
         self.assertEqual(len(results), 1)
         self.assertIn('lonLat', results[0])
-        #self.assertIn('count', results[0])
+        self.assertIn('count', results[0])
         self.assertIn('radius', results[0])
 
     def test_list(self):
