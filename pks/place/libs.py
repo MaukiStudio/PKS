@@ -46,7 +46,7 @@ def compute_regions(uplaces=None, vd=None):
     for e in elements:
         e.type = 'lonLat'
 
-    for i in [6, 5, 4, 3]:
+    for i in [6, 5, 4]:
         group0 = Group()
         group0.members = elements
         m_value = group0.lonLat
@@ -65,9 +65,4 @@ def compute_regions(uplaces=None, vd=None):
     result.sort(key=lambda g: g.count, reverse=True)
     for g in result:
         g.distance = distance_geography
-
-    '''
-    for g in result[:5]:
-        print('http://map.naver.com/?dlevel=10&x=%f&y=%f : %d, %0.1f' % (g.lonLat.x, g.lonLat.y, g.count, g.radius))
-    #'''
     return result
