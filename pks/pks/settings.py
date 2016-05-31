@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'content',
     'place',
     'importer',
+    'tag',
 
     'admin2',
 ]

@@ -14,6 +14,7 @@ from url import views as url_views
 from place import views as place_views
 from content import views as content_views
 from importer import views as importer_views
+from tag import views as tag_views
 
 
 router = DefaultRouter()
@@ -38,6 +39,10 @@ router.register(r'uplaces', place_views.UserPlaceViewset)
 router.register(r'proxies', importer_views.ProxyViewset)
 router.register(r'importers', importer_views.ImporterViewset)
 router.register(r'iplaces', importer_views.ImportedPlaceViewset)
+
+router.register(r'tags', tag_views.TagViewset)
+router.register(r'uptags', tag_views.UserPlaceTagViewset)
+router.register(r'ptags', tag_views.PlaceTagViewset)
 
 
 urlpatterns = [
