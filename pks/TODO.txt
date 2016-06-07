@@ -1,5 +1,7 @@
 [Now]
 
+UserPlace.prob 구현 추가 : tags_others
+
 Tag 기능 뼈대 잡기
     확률 기반
     기본은 Place, 상속받아 UserPlace 에서 Override

@@ -216,4 +216,4 @@ class UserPlaceProbTest(APITestBase):
 
     def test_case2_place_tag(self):
         uplace2 = UserPlace.objects.create(place=self.place)
-        self.assertAlmostEqual(uplace2.prob([self.tag]), 0.9, delta=0.000001)
+        self.assertAlmostEqual(uplace2.prob([self.tag]), 0.833333, delta=0.000001)

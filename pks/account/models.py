@@ -180,8 +180,9 @@ class VD(models.Model):
 
     # TODO : 제대로 구현하기
     @property
-    def reliability(self):
-        return 0.9
+    def error_tagging_ratio(self):
+        # P(D|~H) / P(D|H)
+        return 0.2
 
 
 class Storage(models.Model):

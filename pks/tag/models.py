@@ -155,11 +155,10 @@ class UserPlaceTag(models.Model):
                 if len(tags) == 1:
                     TagMatrix.inc_places_count()
             if self.uplace and self.uplace.vd:
-                prob = self.uplace.vd.reliability
-                # TODO : 확률 이론 제대로 이해하고 정확하게 구현하기
-                if ptag.prob < prob:
-                    ptag.prob = prob
-                    ptag.save()
+                error = self.uplace.vd.error_tagging_ratio
+                H = ptag.prob
+                ptag.prob = H / (H + error*(1-H))
+                ptag.save()
 
 
 class PlaceTag(models.Model):
