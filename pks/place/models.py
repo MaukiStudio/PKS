@@ -304,6 +304,29 @@ class UserPlace(models.Model):
         k = int(round(m/100.0))/10.0
         return '%.1fkm' % k
 
+    # Test in tag/test_models.py
+    # TODO : 튜닝
+    def prob(self, tags):
+        tags_in_utags = [tag for tag in tags if tag in self.tags.all()]
+        ptags = []
+        tags_in_ptags = []
+        if self.place:
+            ptags = [ptag for ptag in self.place.ptags.all() if ptag.tag in tags and ptag.tag not in tags_in_utags]
+            tags_in_ptags = [ptag.tag for ptag in ptags]
+        tags_others = [tag for tag in tags if tag not in tags_in_utags and tag not in tags_in_ptags]
+
+        # utags 는 모두 prob = 1.0
+        result = 1.0
+
+        # ptags
+        for ptag in ptags:
+            result *= ptag.prob
+
+        # tags_others
+        # TODO : 구현~ 구현~
+
+        return result
+
 
 class PostPiece(models.Model):
     # id

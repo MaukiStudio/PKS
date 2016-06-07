@@ -8,7 +8,7 @@ from base.tests import APITestBase
 from tag.models import Tag, TagMatrix, UserPlaceTag, PlaceTag
 from place.models import UserPlace, Place
 from content.models import TagName
-
+from account.models import VD
 
 class TagTest(APITestBase):
 
@@ -199,3 +199,21 @@ class PlaceTagTest(APITestBase):
         ptag2.place = self.place
         with self.assertRaises(IntegrityError):
             ptag2.save()
+
+
+class UserPlaceProbTest(APITestBase):
+
+    def setUp(self):
+        super(UserPlaceProbTest, self).setUp()
+        self.place = Place.objects.create()
+        self.vd = VD.objects.create()
+        self.uplace = UserPlace.objects.create(place=self.place, vd=self.vd)
+        self.tag = Tag.objects.create(tagName=TagName.get_from_json({'content': 'test tag'}))
+        self.utag = UserPlaceTag.objects.create(tag=self.tag, uplace=self.uplace)
+
+    def test_case1_user_tag(self):
+        self.assertAlmostEqual(self.uplace.prob([self.tag]), 1.0)
+
+    def test_case2_place_tag(self):
+        uplace2 = UserPlace.objects.create(place=self.place)
+        self.assertAlmostEqual(uplace2.prob([self.tag]), 0.9, delta=0.000001)
