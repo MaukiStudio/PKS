@@ -25,6 +25,31 @@ class Tag(models.Model):
     def prior(self):
         return TagMatrix.prior(self)
 
+    def likelyhood(self, D):
+        return TagMatrix.likelyhood(D, self)
+
+    def likelyhood_negation(self, D):
+        return TagMatrix.likelyhood_negation(D, self)
+
+    def posterior(self, Ds):
+        positive = self.prior
+        negative = 1 - positive
+        for D in Ds:
+            if D == self:
+                raise NotImplementedError
+            positive *= self.likelyhood(D)
+            negative *= self.likelyhood_negation(D)
+        result = positive / (positive + negative)
+
+        '''
+        print(Ds)
+        print(positive)
+        print(negative)
+        print(result)
+        print('')
+        #'''
+        return result
+
 
 # TODO : 튜닝, 부동소수점 연산 정확성 향상
 class TagMatrix(models.Model):

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from django.db import IntegrityError
+from math import log
 
 from base.tests import APITestBase
 from tag.models import Tag, TagMatrix, UserPlaceTag, PlaceTag
@@ -201,10 +202,10 @@ class PlaceTagTest(APITestBase):
             ptag2.save()
 
 
-class UserPlaceProbTest(APITestBase):
+class UserPlaceNLLTest(APITestBase):
 
     def setUp(self):
-        super(UserPlaceProbTest, self).setUp()
+        super(UserPlaceNLLTest, self).setUp()
         self.place = Place.objects.create()
         self.vd = VD.objects.create()
         self.uplace = UserPlace.objects.create(place=self.place, vd=self.vd)
@@ -212,8 +213,31 @@ class UserPlaceProbTest(APITestBase):
         self.utag = UserPlaceTag.objects.create(tag=self.tag, uplace=self.uplace)
 
     def test_case1_user_tag(self):
-        self.assertAlmostEqual(self.uplace.prob([self.tag]), 1.0)
+        self.assertAlmostEqual(self.uplace.NLL([self.tag]), 0.0)
 
     def test_case2_place_tag(self):
         uplace2 = UserPlace.objects.create(place=self.place)
-        self.assertAlmostEqual(uplace2.prob([self.tag]), 0.833333, delta=0.000001)
+        self.assertAlmostEqual(uplace2.NLL([self.tag]), -log(0.833333), delta=0.000001)
+
+    def test_case3_other_tag(self):
+        place2 = Place.objects.create()
+        uplace2 = UserPlace.objects.create(place=place2)
+        tag2 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other tag'}))
+        utag2 = UserPlaceTag.objects.create(tag=tag2, uplace=uplace2)
+        self.assertAlmostEqual(uplace2.NLL([self.tag]), -log(0.25), delta=0.000001)
+
+        place3 = Place.objects.create()
+        uplace3 = UserPlace.objects.create(place=place3)
+        tag3 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other3 tag'}))
+        utag3 = UserPlaceTag.objects.create(tag=tag3, uplace=uplace3)
+        self.assertAlmostEqual(uplace3.NLL([self.tag]), uplace2.NLL([self.tag]), delta=0.000001)
+
+    def test_case4_mix(self):
+        uplace12 = UserPlace.objects.create(place=self.place)
+        tag12 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other tag'}))
+        utag12 = UserPlaceTag.objects.create(tag=tag12, uplace=uplace12)
+        tag3 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other3 tag'}))
+        tag4 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other4 tag'}))
+        self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]), 4.102643, delta=0.000001)
+        self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]),
+                               self.uplace.NLL([self.tag, tag12, tag3, tag4, tag4, self.tag, tag12]), delta=0.000001)

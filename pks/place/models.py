@@ -304,27 +304,50 @@ class UserPlace(models.Model):
         k = int(round(m/100.0))/10.0
         return '%.1fkm' % k
 
+    # Negative Log Likelyhood
     # Test in tag/test_models.py
     # TODO : 튜닝
-    def prob(self, tags):
-        tags_in_utags = [tag for tag in tags if tag in self.tags.all()]
+    # P(t1,t2,...,tn | place) = P(t1|place)P(t2|t1,place)...P(tn|t1,t2,...,place)
+    def NLL(self, tags):
+        from math import log
+        uplace_tags = list(self.tags.all())
+        tags_in_utags = [tag for tag in tags if tag in uplace_tags]
+
+        place_tags = []
         ptags = []
         tags_in_ptags = []
         if self.place:
-            ptags = [ptag for ptag in self.place.ptags.all() if ptag.tag in tags and ptag.tag not in tags_in_utags]
+            place_ptags = list(self.place.ptags.all())
+            place_tags = [ptag.tag for ptag in place_ptags]
+            ptags = [ptag for ptag in place_ptags if ptag.tag in tags and ptag.tag not in tags_in_utags]
             tags_in_ptags = [ptag.tag for ptag in ptags]
-        tags_others = [tag for tag in tags if tag not in tags_in_utags and tag not in tags_in_ptags]
+        tags_others = list(set([tag for tag in tags if tag not in tags_in_utags and tag not in tags_in_ptags]))
 
-        # utags 는 모두 prob = 1.0
-        result = 1.0
+        # utags 는 모두 prob = 1.0 --> NLL = 0.0
+        result = 0.0
 
         # ptags
         for ptag in ptags:
-            result *= ptag.prob
+            # place 가 결정되어 있으면 ti, tj (i != j) 는 서로 조건부 독립
+            # So P(ti|t1,t2,...,t(i-1),place) = P(ti|place)
+            result -= log(ptag.prob)
 
         # tags_others
-        # TODO : 구현~ 구현~
+        # place 에 해당 tag 들에 대한 정보가 전혀 없다면, place 와 ti 는 서로 독립으로 볼 수 있다???
+        # TODO : 맞는지 확인. 왠지 아닌 것 같긴 한데 Naive Bayse 의 조건부독립 근사처럼 근사가 가능할 듯...
+        # So P(ti|t1,t2,...,t(i-1),place) = P(ti|t1,t2,...,t(i-1)) if place do not have t1, t2, ..., ti
+        for tag in tags_others:
+            Ds = list(set(uplace_tags+place_tags))
+            # 조건부 독립으로 가정하고 tags_others 의 있는 tag 들을 쪼개어 곱함
+            prob = tag.posterior(Ds)
+            result -= log(prob)
 
+        '''
+        print(tags)
+        print(tags_in_utags)
+        print(tags_in_ptags)
+        print(tags_others)
+        #'''
         return result
 
 
@@ -410,7 +433,7 @@ class PostPiece(models.Model):
             iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)
             if iplace:
                 pb1.update(iplace.userPost)
-        '''
+        #'''
         return pb1
     @pb.setter
     def pb(self, value):
