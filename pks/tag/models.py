@@ -95,13 +95,33 @@ class TagMatrix(models.Model):
     @classmethod
     def likelyhood(cls, D, H):
         if D == H:
-            return 1.0
+            #return 1.0
+            raise NotImplementedError
         H_total = TagMatrix.get(H, H)
         prior_D = TagMatrix.prior(D)
         if H_total <= 0:
             return prior_D
         intersection = TagMatrix.get(D, H)
         result = (float(intersection)+prior_D) / (float(H_total)+1.0)
+        return result
+
+    @classmethod
+    def likelyhood_negation(cls, D, H):
+        if D == H:
+            #return 0.0
+            raise NotImplementedError
+        D_total = TagMatrix.get(D, D)
+        likelyhood = cls.likelyhood(H, D)
+        prior_H = cls.prior(H)
+        prior_D = cls.prior(D)
+        result = (1.0-likelyhood) * prior_D / (1-prior_H)
+        '''
+        print('')
+        print('likelyhood(H, D) = %f' % likelyhood)
+        print('prior(H) = %f' % prior_H)
+        print('prior(D) = %f' % prior_D)
+        print('result = %f' % result)
+        #'''
         return result
 
 
