@@ -89,7 +89,7 @@ class TagMatrix(models.Model):
         if total <= 0:
             return 0.5
         T_total = TagMatrix.get(T, T)
-        result = (float(T_total)+0.5) / (float(total)+1.0)
+        result = (float(T_total)+1.0) / (float(total)+2.0)
         return result
 
     @classmethod
@@ -98,11 +98,12 @@ class TagMatrix(models.Model):
             #return 1.0
             raise NotImplementedError
         H_total = TagMatrix.get(H, H)
-        prior_D = TagMatrix.prior(D)
         if H_total <= 0:
-            return prior_D
+            #return TagMatrix.prior(D)
+            #raise NotImplementedError
+            return 0.5
         intersection = TagMatrix.get(D, H)
-        result = (float(intersection)+prior_D) / (float(H_total)+1.0)
+        result = (float(intersection)+0.5) / (float(H_total)+1.0)
         return result
 
     @classmethod
@@ -110,7 +111,6 @@ class TagMatrix(models.Model):
         if D == H:
             #return 0.0
             raise NotImplementedError
-        D_total = TagMatrix.get(D, D)
         likelyhood = cls.likelyhood(H, D)
         prior_H = cls.prior(H)
         prior_D = cls.prior(D)
