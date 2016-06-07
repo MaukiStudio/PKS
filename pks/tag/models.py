@@ -154,6 +154,12 @@ class UserPlaceTag(models.Model):
                     TagMatrix.inc(self.tag, tag)
                 if len(tags) == 1:
                     TagMatrix.inc_places_count()
+            if self.uplace and self.uplace.vd:
+                prob = self.uplace.vd.reliability
+                # TODO : 확률 이론 제대로 이해하고 정확하게 구현하기
+                if ptag.prob < prob:
+                    ptag.prob = prob
+                    ptag.save()
 
 
 class PlaceTag(models.Model):
@@ -171,3 +177,8 @@ class PlaceTag(models.Model):
     def delete(self, using=None, keep_parents=False):
         # 삭제하지 말고 prob 을 조정할 것
         raise NotImplementedError
+
+    def save(self, *args, **kwargs):
+        if not self.prob:
+            self.prob = 0.5
+        super(PlaceTag, self).save(*args, **kwargs)

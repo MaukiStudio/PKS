@@ -178,6 +178,11 @@ class VD(models.Model):
             self.mask = 0
         super(VD, self).save(*args, **kwargs)
 
+    # TODO : 제대로 구현하기
+    @property
+    def reliability(self):
+        return 0.9
+
 
 class Storage(models.Model):
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='storages')
