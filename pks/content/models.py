@@ -364,3 +364,13 @@ class ImageNote(Content):
     def accessedType(self):
         return 'html'
 
+
+class TagName(Content):
+    # MUST override
+    @property
+    def contentType(self):
+        return 'tname'
+
+    @property
+    def accessedType(self):
+        return 'html'
