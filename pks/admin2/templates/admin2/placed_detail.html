@@ -5,70 +5,6 @@
 {% block table %}
     <table class="table">
         <tr>
-            <td>
-                {% if userPost.map_url %}
-                    <a href="{{ userPost.map_url }}" target="_blank">
-                        위도: {{ userPost.lonLat.y }}<br/>
-                        경도: {{ userPost.lonLat.x }}
-                    </a>
-                {% else %}
-                    &nbsp;
-                {% endif %}
-            </td>
-            <td>
-                도로명주소: {{ userPost.addr1 }}<br/>
-                지번 주소 : {{ userPost.addr2 }}<br/>
-                범위 주소 : {{ userPost.addr3 }}<br/>
-            </td>
-            <td>
-                {% for image in userPost.images %}
-                    <a href="{{ image.content }}" target="_blank">
-                        <img src="{{ image.url_summarized }}"/>
-                    </a>
-                {% endfor %}
-            </td>
-            <td>
-                {% for url in userPost.urls %}
-                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                {% endfor %}
-            </td>
-            <td>
-                {% for note in userPost.notes %}
-                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
-                {% endfor %}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {% if placePost.map_url %}
-                    <a href="{{ placePost.map_url }}" target="_blank">
-                        위도: {{ placePost.lonLat.y }}<br/>
-                        경도: {{ placePost.lonLat.x }}
-                    </a>
-                {% else %}
-                    &nbsp;
-                {% endif %}
-            </td>
-            <td>
-                도로명주소: {{ placePost.addr1 }}<br/>
-                지번 주소 : {{ placePost.addr2 }}<br/>
-                범위 주소 : {{ placePost.addr3 }}<br/>
-            </td>
-            <td>
-                이름 : {{ placePost.name }}
-            </td>
-            <td>
-                {% for url in placePost.urls %}
-                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                {% endfor %}
-            </td>
-            <td>
-                전화번호 : {{ placePost.phone }}
-            </td>
-        </tr>
-    </table>
-    <table class="table">
-        <tr>
         <tr>
             <td colspan="2">
                 <div class="jumbotron">
@@ -96,4 +32,65 @@
             </td>
         </tr>
     </table>
+    <table class="table">
+        <tr>
+            <td>
+                <a href="{{ userPost.map_url_naver }}" target="_blank">
+                    위도: {{ userPost.lonLat.y }}<br/>
+                </a>
+                <a href="{{ userPost.map_url_google }}" target="_blank">
+                    경도: {{ userPost.lonLat.x }}<br/>
+                </a>
+                <br/>
+                도로명주소: {{ userPost.addr1 }}<br/>
+                지번 주소 : {{ userPost.addr2 }}<br/>
+                범위 주소 : {{ userPost.addr3 }}<br/>
+                <br/>
+                {% for url in userPost.urls %}
+                    <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
+                {% endfor %}
+                <br/>
+                {% for note in userPost.notes %}
+                    <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+                {% endfor %}
+            </td>
+            <td>
+                {% for image in userPost.images %}
+                    <a href="{{ image.content }}" target="_blank">
+                        <img src="{{ image.url_summarized }}"/>
+                    </a>
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+    {% if placePost %}
+        <table class="table">
+            <tr>
+                <td>
+                    <a href="{{ placePost.map_url_naver }}" target="_blank">
+                        위도: {{ placePost.lonLat.y }}<br/>
+                    </a>
+                    <a href="{{ placePost.map_url_google }}" target="_blank">
+                        경도: {{ placePost.lonLat.x }}<br/>
+                    </a>
+                </td>
+                <td>
+                    도로명주소: {{ placePost.addr1 }}<br/>
+                    지번 주소 : {{ placePost.addr2 }}<br/>
+                    범위 주소 : {{ placePost.addr3 }}<br/>
+                </td>
+                <td>
+                    이름 : {{ placePost.name }}
+                </td>
+                <td>
+                    {% for url in placePost.urls %}
+                        <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    전화번호 : {{ placePost.phone }}
+                </td>
+            </tr>
+        </table>
+    {% endif %}
 {% endblock %}

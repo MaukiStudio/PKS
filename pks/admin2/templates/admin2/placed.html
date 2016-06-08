@@ -11,14 +11,12 @@
                         <input type=checkbox onClick="window.open('{{ pb.uplace_uuid }}/'); return true;"/>
                     </td>
                     <td>
-                        {% if pb.map_url %}
-                            <a href="{{ pb.map_url }}" target="_blank">
-                                위도: {{ pb.lonLat.y }}<br/>
-                                경도: {{ pb.lonLat.x }}<br/>
-                            </a>
-                        {% else %}
-                            &nbsp;
-                        {% endif %}
+                        <a href="{{ pb.map_url_naver }}" target="_blank">
+                            위도: {{ pb.lonLat.y }}<br/>
+                        </a>
+                        <a href="{{ pb.map_url_google }}" target="_blank">
+                            경도: {{ pb.lonLat.x }}<br/>
+                        </a>
                         <br/>
                         {% if pb.addr1 or pb.addr2 or pb.addr3 %}
                             도로명주소: {{ pb.addr1 }}<br/>

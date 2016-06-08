@@ -35,6 +35,18 @@ def get_map_url(lonLat):
     return map_url or 'http://map.naver.com/'
 
 
+def get_map_url_naver(lonLat):
+    if lonLat:
+        return 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+    return 'http://map.naver.com/'
+
+
+def get_map_url_google(lonLat):
+    if lonLat:
+        return 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
+    return 'https://www.google.co.kr/maps/'
+
+
 def index(request):
     user = request.user
     if user.is_authenticated and user.is_active and user.is_staff:
@@ -50,7 +62,9 @@ def placed(request):
         if pb and pb.images:
             for image in pb.images:
                 image.summarize()
-        pb.map_url = get_map_url(pb.lonLat)
+        #pb.map_url = get_map_url(pb.lonLat)
+        pb.map_url_naver = get_map_url_naver(pb.lonLat)
+        pb.map_url_google = get_map_url_google(pb.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/placed.html', context)
 
@@ -64,6 +78,8 @@ def places(request):
         if pb and pb.points:
             for point in pb.points:
                 pb.point.map_url = get_map_url(pb.point.lonLat)
+                #pb.map_url_naver = get_map_url_naver(pb.point.lonLat)
+                #pb.map_url_google = get_map_url_google(pb.point.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/places.html', context)
 
@@ -152,8 +168,12 @@ def placed_detail(request, uplace_id):
     default_lonLat = 'LonLat Required'
     if uplace.lonLat:
         default_lonLat = 'lon=%f&lat=%f' % (uplace.lonLat.x, uplace.lonLat.y)
-    uplace.userPost.map_url = get_map_url(uplace.lonLat)
+    #uplace.userPost.map_url = get_map_url(uplace.lonLat)
+    uplace.userPost.map_url_naver = get_map_url_naver(uplace.lonLat)
+    uplace.userPost.map_url_google = get_map_url_google(uplace.lonLat)
     if uplace.placePost:
-        uplace.placePost.map_url = get_map_url(uplace.placePost.lonLat)
+        #uplace.placePost.map_url = get_map_url(uplace.placePost.lonLat)
+        uplace.placePost.map_url_naver = get_map_url_naver(uplace.placePost.lonLat)
+        uplace.placePost.map_url_google = get_map_url_google(uplace.placePost.lonLat)
     context = dict(userPost=uplace.userPost, placePost=uplace.placePost, default_lonLat=default_lonLat)
     return render(request, 'admin2/placed_detail.html', context)
