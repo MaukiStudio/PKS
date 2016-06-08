@@ -19,6 +19,9 @@ def get_map_url(lonLat):
         # for 튜닝 : 한국이 확실한 경우 geolocator 를 쓰지 않고 곧바로 처리
         if lonLat.y >= 34.0 and lonLat.y <= 39.0 and lonLat.x >= 125.0 and lonLat.x <= 130.0:
             map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+        # for 튜닝 : 한국이 확실히 아닌 경우 geolocator 를 쓰지 않고 곧바로 처리
+        elif lonLat.y <= 33.0 or lonLat.y > 43.0 or lonLat.x <= 124.0 or lonLat.x >= 132.0:
+            map_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
         else:
             try:
                 location = geolocator.reverse((lonLat.y, lonLat.x))
