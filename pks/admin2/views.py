@@ -45,7 +45,7 @@ def index(request):
 
 
 def placed(request):
-    pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:50]]
+    pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:1000]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
@@ -56,7 +56,7 @@ def placed(request):
 
 
 def places(request):
-    pbs = [place._totalPost for place in Place.objects.order_by('-id')[:50]]
+    pbs = [place._totalPost for place in Place.objects.order_by('-id')[:1000]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:

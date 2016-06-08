@@ -1,12 +1,6 @@
 [Now]
 
-UserPlace.prob 구현 추가 : tags_others
-
-Tag 기능 뼈대 잡기
-    확률 기반
-    기본은 Place, 상속받아 UserPlace 에서 Override
-    Place 레벨에서는 관측 확률, UserPlace 레벨에서는 유저가 붙였다면 100%
-    관측되지 않은 Tag 확률 계산은 다른 Tag 들을 활용한 간접 계산
+Tag 소팅 기능 구현
 
 
 ImagesImporter
