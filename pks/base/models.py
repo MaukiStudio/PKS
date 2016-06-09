@@ -127,7 +127,7 @@ class Content(models.Model):
             raise HashCollisionError
         if is_created:
             cls.on_create(result)
-        return result
+        return result, is_created
 
     @classmethod
     def get_from_json(cls, json):
@@ -141,7 +141,7 @@ class Content(models.Model):
             except cls.DoesNotExist:
                 pass
         if not result and 'content' in json and json['content']:
-            result = cls.get_or_create_smart(json['content'])
+            result, is_created = cls.get_or_create_smart(json['content'])
         if result and 'timestamp' in json:
             result.timestamp = json['timestamp']
         return result
@@ -156,7 +156,6 @@ class Content(models.Model):
         # id/content 처리
         if not self.content:
             raise AssertionError
-        self.content = self.normalize_content(self.content)
         _id = self._id
         if self.id and self.id != _id:
             raise NotImplementedError

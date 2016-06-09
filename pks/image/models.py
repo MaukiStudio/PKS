@@ -319,11 +319,7 @@ class RawFile(models.Model):
 
         # 이미지인 경우 바로 캐시 처리 및 Image object 생성
         if is_created and self.ext in ('jpg', 'png'):
-            img = Image(content=self.url)
-            img.content = img.normalize_content(img.content)
-            if not img.content.startswith('http'):
-                raise ValueError('Invalid image URL')
-            img.id = img._id
+            img, is_img_created = Image.get_or_create_smart(self.url)
             img.access_local(self.file.path)
             img.rf = self
             img.save()

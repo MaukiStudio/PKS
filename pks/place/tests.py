@@ -269,27 +269,27 @@ class UserPlaceViewSetTest(APITestBase):
         qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs5), 0)
 
-        name1 = PlaceName(content='능라'); name1.save()
-        addr11 = Address(content='경기도 성남시 분당구 산운로32번길 12'); addr11.save()
-        addr12 = Address(content='경기도 성남시 분당구 운중동 883-3'); addr12.save()
-        addr13 = Address(content='경기도 성남시 분당구 운중동'); addr13.save()
-        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
-        note12 = PlaceNote(content='을밀대가 좀 더 낫나? ㅋ'); note12.save()
-        note13 = PlaceNote(content='평양냉면'); note13.save()
-        imgNote1 = ImageNote(content='냉면 사진'); imgNote1.save()
+        name1, is_created = PlaceName.get_or_create_smart('능라')
+        addr11, is_created = Address.get_or_create_smart('경기도 성남시 분당구 산운로32번길 12')
+        addr12, is_created = Address.get_or_create_smart('경기도 성남시 분당구 운중동 883-3')
+        addr13, is_created = Address.get_or_create_smart('경기도 성남시 분당구 운중동')
+        note11, is_created = PlaceNote.get_or_create_smart('분당 냉면 최고')
+        note12, is_created = PlaceNote.get_or_create_smart('을밀대가 좀 더 낫나? ㅋ')
+        note13, is_created = PlaceNote.get_or_create_smart('평양냉면')
+        imgNote1, is_created = ImageNote.get_or_create_smart('냉면 사진')
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
         img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
-        img1 = Image(content=img1_content); img1.save()
-        img2 = Image(content=img2_content); img2.save()
-        img3 = Image(content=img3_content); img3.save()
-        url11 = Url(content='http://www.naver.com/'); url11.save()
-        url12 = Url(content='http://www.naver.com/?2'); url12.save()
-        url13 = Url(content='http://www.naver.com/?3'); url13.save()
-        lp11 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp11.save()
-        lp12 = LegacyPlace(content='http://map.naver.com/local/siteview.nhn?code=21149144'); lp12.save()
-        lp13 = LegacyPlace(content='ChIJrTLr-GyuEmsRBfy61i59si0.google'); lp13.save()
-        phone1 = PhoneNumber(content='010-5597-9245'); phone1.save()
+        img1, is_created = Image.get_or_create_smart(img1_content)
+        img2, is_created = Image.get_or_create_smart(img2_content)
+        img3, is_created = Image.get_or_create_smart(img3_content)
+        url11, is_created = Url.get_or_create_smart('http://www.naver.com/')
+        url12, is_created = Url.get_or_create_smart('http://www.naver.com/?2')
+        url13, is_created = Url.get_or_create_smart('http://www.naver.com/?3')
+        lp11, is_created = LegacyPlace.get_or_create_smart('4ccffc63f6378cfaace1b1d6.4square')
+        lp12, is_created = LegacyPlace.get_or_create_smart('http://map.naver.com/local/siteview.nhn?code=21149144')
+        lp13, is_created = LegacyPlace.get_or_create_smart('ChIJrTLr-GyuEmsRBfy61i59si0.google')
+        phone1, is_created = PhoneNumber.get_or_create_smart('010-5597-9245')
 
         json_full = '''
             {
@@ -448,7 +448,7 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_case1_current_pos_only_with_photo(self):
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img1 = Image(content=img1_content); img1.save()
+        img1, is_created = Image.get_or_create_smart(img1_content)
         addr1_content = '경기도 성남시 분당구 산운로32번길 12'
         addr2_content = '경기도 성남시 분당구 운중동 883-3'
 
@@ -518,9 +518,9 @@ class UserPlaceViewSetTest(APITestBase):
 
     def test_create_case2_current_pos_with_note_photo(self):
         point1 = GEOSGeometry('POINT(127 37)', srid=4326)
-        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
+        note11, is_created = PlaceNote.get_or_create_smart('분당 냉면 최고')
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img1 = Image(content=img1_content); img1.save()
+        img1, is_created = Image.get_or_create_smart(img1_content)
 
         json_add = '''
             {
@@ -544,7 +544,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
 
     def test_create_case3_only_url(self):
-        url1 = Url(content='http://m.blog.naver.com/mardukas/220671562152'); url1.save()
+        url1, is_created = Url.get_or_create_smart('http://m.blog.naver.com/mardukas/220671562152')
 
         json_add = '''
             {
@@ -567,8 +567,8 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIsNotSubsetOf(self.uplace.userPost, want)
 
     def test_create_case4_only_url_and_note(self):
-        note11 = PlaceNote(content='분당 냉면 최고'); note11.save()
-        url1 = Url(content='http://www.naver.com/'); url1.save()
+        note11, is_created = PlaceNote.get_or_create_smart('분당 냉면 최고')
+        url1, is_created = Url.get_or_create_smart('http://www.naver.com/')
 
         json_add = '''
             {
@@ -680,13 +680,13 @@ class UserPlaceViewSetTest(APITestBase):
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
         img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
-        img1 = Image(content=img1_content); img1.save()
-        img2 = Image(content=img2_content); img2.save()
-        img3 = Image(content=img3_content); img3.save()
+        img1, is_created = Image.get_or_create_smart(img1_content)
+        img2, is_created = Image.get_or_create_smart(img2_content)
+        img3, is_created = Image.get_or_create_smart(img3_content)
         url11_content='http://www.naver.com/'
         url12_content='http://www.naver.com/?2'
         url13_content='http://www.naver.com/?3'
-        lp1 = LegacyPlace(content='4ccffc63f6378cfaace1b1d6.4square'); lp1.save()
+        lp1, is_created = LegacyPlace.get_or_create_smart('4ccffc63f6378cfaace1b1d6.4square')
 
         json_add = '''
             {
@@ -737,10 +737,8 @@ class UserPlaceViewSetTest(APITestBase):
     def test_create_by_naver_map_url(self):
         self.uplace.place = self.place
         self.uplace.save()
-        lp = LegacyPlace()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
-        lp.content = test_data
-        lp.save()
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         lp.summarize()
         want = lp.content_summarized.json
 

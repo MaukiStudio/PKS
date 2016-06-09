@@ -90,11 +90,7 @@ class ContentViewset(ModelViewSet):
     # CAN overrided
     def create(self, request, *args, **kwargs):
         ModelClass = self.serializer_class.Meta.model
-        raw_content = request.data['content']
-        content = ModelClass.normalize_content(raw_content)
-        model, is_created = ModelClass.objects.get_or_create(content=content)
-        if model.content != content:
-            raise HashCollisionError
-        serializer = self.get_serializer(model)
+        instance, is_created = ModelClass.get_or_create_smart(request.data['content'])
+        serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

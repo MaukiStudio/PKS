@@ -387,9 +387,7 @@ class RawFileTest(APITestBase):
         self.assertEqual(RawFile.objects.count(), 1)
         self.assertEqual(Image.objects.count(), 1)
 
-        img, is_created = Image.objects.get_or_create(content=rf.url)
-        img.content = img.normalize_content(img.content)
-        img.id = img._id
+        img, is_created = Image.get_or_create_smart(rf.url)
         self.assertValidLocalFile(img.path_accessed)
         self.assertValidInternetUrl(img.url_accessed)
 

@@ -101,7 +101,6 @@ class LegacyPlace(Content):
 
     @property
     def url_for_access(self):
-        self.content = self.normalize_content(self.content)
         splits = self.content.split('.')
         if splits[1] == 'naver':
             return 'http://map.naver.com/local/siteview.nhn?code=%s' % splits[0]
@@ -310,7 +309,6 @@ class PhoneNumber(Content):
     def url_for_access(self):
         # 구글 검색 땡겨올 수 있도록 수정
         raise NotImplementedError
-        self.content = self.normalize_content(self.content)
         # TODO : 국가 처리
         p = parse(self.content, 'KR')
         r = format_number(p, PhoneNumberFormat.NATIONAL)
