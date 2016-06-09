@@ -254,8 +254,10 @@ class UserPlaceViewSetTest(APITestBase):
         self.uplace.place = self.place
         self.uplace.save()
 
-        point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
-        point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
+        #point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        #point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
+        point1 = GEOSGeometry('POINT(127.092557 37.390271)', srid=4326)
+        point2 = GEOSGeometry('POINT(127.093557 37.391271)', srid=4326)
         qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)
         qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))

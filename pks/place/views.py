@@ -151,7 +151,7 @@ class UserPlaceViewset(BaseViewset):
 
             # Place.lonLat 관련 예외 처리
             lonLat = (pb_MAMMA and pb_MAMMA.lonLat) or pb.lonLat
-            if lonLat and uplace.place and not uplace.place.lonLat:
+            if lonLat and uplace.place and (not uplace.place.lonLat or (pb_MAMMA and pb_MAMMA.lonLat)):
                 uplace.place.lonLat = lonLat
                 uplace.place.save()
 
@@ -163,7 +163,7 @@ class UserPlaceViewset(BaseViewset):
                 img.save()
 
             # 최종 저장
-            uplace.lonLat = uplace.lonLat or lonLat
+            uplace.lonLat = (uplace.place and uplace.place.lonLat) or lonLat or uplace.lonLat
             uplace.modified = get_timestamp()
             # TODO : 아래 코드가 테스트되는 테스트 추가
             uplace.is_drop = False
