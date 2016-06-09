@@ -115,6 +115,21 @@ class Content(models.Model):
         super(Content, self).__init__(*args, **kwargs)
 
     @classmethod
+    def get_or_create_smart(cls, raw_content):
+        content = cls.normalize_content(raw_content)
+        if not content:
+            raise NotImplementedError
+        result, is_created = cls.objects.get_or_create(content=content)
+        if result.content != content:
+            print(raw_content)
+            print(content)
+            print(result.content)
+            raise HashCollisionError
+        if is_created:
+            cls.on_create(result)
+        return result
+
+    @classmethod
     def get_from_json(cls, json):
         if type(json) is unicode or type(json) is str:
             json =json_loads(json)
@@ -126,16 +141,7 @@ class Content(models.Model):
             except cls.DoesNotExist:
                 pass
         if not result and 'content' in json and json['content']:
-            content = cls.normalize_content(json['content'])
-            if content:
-                result, is_created = cls.objects.get_or_create(content=content)
-                if result.content != content:
-                    print(json['content'])
-                    print(content)
-                    print(result.content)
-                    raise HashCollisionError
-                if is_created:
-                    cls.on_create(result)
+            result = cls.get_or_create_smart(json['content'])
         if result and 'timestamp' in json:
             result.timestamp = json['timestamp']
         return result
