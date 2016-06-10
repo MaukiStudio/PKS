@@ -168,6 +168,8 @@ class UserPlace(models.Model):
 
     def __init__(self, *args, **kwargs):
         self._cache_pb = None
+        self._cache_prev_tags = None
+        self._cache_prev_NLL = None
         self._origin = None
         self._search_tags = None
         super(UserPlace, self).__init__(*args, **kwargs)
@@ -356,7 +358,11 @@ class UserPlace(models.Model):
     @property
     def NLL(self):
         if self.search_tags:
-            return self.getNLL(self.search_tags)
+            if self._cache_prev_tags == self.search_tags and self._cache_prev_NLL:
+                return self._cache_prev_NLL
+            self._cache_prev_tags = self.search_tags
+            self._cache_prev_NLL = self.getNLL(self.search_tags)
+            return self._cache_prev_NLL
         return None
 
 
