@@ -14,6 +14,8 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
             {
                 "uplace_uuid": "%s",
                 "lonLat": {"lon": %f, "lat": %f},
+                "visit": {"content": true},
+                "rating": {"content": 3},
                 "name": {"uuid": "%s", "content": "%s"},
                 "phone": {"uuid": "%s", "content": "%s"},
                 "addr1": {"uuid": "%s", "content": "%s"},
