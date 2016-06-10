@@ -242,6 +242,7 @@ class UserPlaceNLLTest(APITestBase):
 
         place3 = Place.objects.create()
         uplace3 = UserPlace.objects.create(place=place3)
+        self.assertAlmostEqual(uplace3.getNLL([self.tag]), uplace2.getNLL([self.tag]), delta=0.000001)
         tag3 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other3 tag'}))
         utag3 = UserPlaceTag.objects.create(tag=tag3, uplace=uplace3)
         self.assertAlmostEqual(uplace3.getNLL([self.tag]), uplace2.getNLL([self.tag]), delta=0.000001)
