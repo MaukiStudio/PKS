@@ -83,7 +83,7 @@ class LegacyPlace(Content):
         return 'json'
 
     @classmethod
-    def normalize_content(self, raw_content):
+    def normalize_content(cls, raw_content):
         for regex in LP_REGEXS+LP_REGEXS_URL:
             searcher = regex[0].search(raw_content)
             if searcher:
@@ -354,12 +354,9 @@ class PlaceNote(Content):
     # 관련 test 는 tag/test_models.py 에
     def process_tag_realtime(self):
         from tag.models import Tag, PlaceNoteTag
-        for str in self.content.split(' '):
-            if str.startswith('#'):
-                for rawTagName in str.split('#'):
-                    if rawTagName:
-                        tag, is_created = Tag.get_or_create_smart(rawTagName)
-                        PlaceNoteTag.objects.get_or_create(tag=tag, placeNote=self)
+        tags = Tag.tags_from_note(self)
+        for tag in tags:
+            PlaceNoteTag.objects.get_or_create(tag=tag, placeNote=self)
 
     @classmethod
     def get_or_create_smart(cls, raw_content):
@@ -388,3 +385,7 @@ class TagName(Content):
     @property
     def accessedType(self):
         return 'html'
+
+    @classmethod
+    def normalize_content(cls, raw_content):
+        return raw_content.strip().replace(' ', '').replace('#', '').replace(',', '')

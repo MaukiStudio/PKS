@@ -49,6 +49,29 @@ class Tag(models.Model):
         result = positive / (positive + negative)
         return result
 
+    @classmethod
+    def tags_from_note(cls, note):
+        tags = list()
+        str = note.content.replace(',', ' ')
+        for splitted in str.split(' '):
+            if splitted.startswith('#'):
+                for rawTagName in splitted.split('#'):
+                    if rawTagName:
+                        tag, is_created = Tag.get_or_create_smart(rawTagName)
+                        tags.append(tag)
+        return tags
+
+    @classmethod
+    def tags_from_param(cls, param):
+        tags = list()
+        str = param.replace('#', ',')
+        for splitted in str.split(','):
+            rawTagName = splitted.replace(' ', '')   # 의도한 것
+            if rawTagName:
+                tag, is_created = Tag.get_or_create_smart(rawTagName)
+                tags.append(tag)
+        return tags
+
 
 # TODO : 튜닝, 부동소수점 연산 정확성 향상
 class TagMatrix(models.Model):
