@@ -6,6 +6,9 @@ from django.contrib.gis.db import models
 from place.models import UserPlace, Place
 from content.models import TagName, PlaceNote
 
+# For Laplace Smoothing
+ALPHA = 0.5
+
 
 # TODO : 튜닝 (캐싱 등)
 class Tag(models.Model):
@@ -74,6 +77,7 @@ class Tag(models.Model):
 
 
 # TODO : 튜닝, 부동소수점 연산 정확성 향상
+# TODO : prior, likelyhood 계산방식, 베이지안 업데이트 방식으로 변경 (unknown 이 너무 많아 이게 더 낫다고 판단)
 class TagMatrix(models.Model):
     row = models.IntegerField(blank=True, null=True, default=None)
     col = models.IntegerField(blank=True, null=True, default=None)
@@ -136,7 +140,8 @@ class TagMatrix(models.Model):
         if total <= 0:
             return 0.5
         T_total = TagMatrix.get(T, T)
-        result = (float(T_total)+1.0) / (float(total)+2.0)
+        T_total += (total-T_total)*0.5
+        result = (T_total+ALPHA*2) / (total+ALPHA*4)
         return result
 
     @classmethod
@@ -150,7 +155,8 @@ class TagMatrix(models.Model):
             #raise NotImplementedError
             return 0.5
         intersection = TagMatrix.get(D, H)
-        result = (float(intersection)+0.5) / (float(H_total)+1.0)
+        intersection += (H_total-intersection)*0.5
+        result = (intersection+ALPHA) / (H_total+ALPHA*2)
         return result
 
     @classmethod
