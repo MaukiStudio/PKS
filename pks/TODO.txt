@@ -1,10 +1,5 @@
 [Now]
 
-admin2/placed/detail UI 개선
-admin2/placed 구글맵, 네이버맵 둘다 나오도록 수정
-
-Note.save() 시 Tag 입력 기능 구현
-    --> 반복 가능하도록 구현. 기존 Note 에 대해서도 몽땅 돌리기
 Tag 소팅 기능 구현
 
 UserPlace 쪼개기 - 포함관계 구성
@@ -12,7 +7,8 @@ UserPlace 하나에 여러개의 Place
 
 블로그 import 및 타겟 크롤링
 
-
+summarize 관련 리팩토링
+    네이버, 카카오 요약 json 만들때 PostBase 이용하기
 
 ImagesImporter
 

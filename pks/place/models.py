@@ -374,10 +374,19 @@ class PostPiece(models.Model):
         vd_id = self.vd_id or 0
         return get_uuid_from_ts_vd(timestamp, vd_id)
 
+    def process_tag(self):
+        if self.uplace:
+            from tag.models import UserPlaceTag
+            pb = self.pb
+            for placeNote in pb.notes:
+                for tag in placeNote.tags.all():
+                    uptag, is_created = UserPlaceTag.objects.get_or_create(tag=tag, uplace=self.uplace)
+
     def save(self, *args, **kwargs):
         if not self.id:
             timestamp = kwargs.pop('timestamp', get_timestamp())
             self.id = self._id(timestamp)
+            self.process_tag()
         if not self.mask:
             self.mask = 0
         if not self.place and (self.uplace and self.uplace.place):

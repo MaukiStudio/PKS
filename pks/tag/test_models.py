@@ -6,10 +6,11 @@ from django.db import IntegrityError
 from math import log
 
 from base.tests import APITestBase
-from tag.models import Tag, TagMatrix, UserPlaceTag, PlaceTag
-from place.models import UserPlace, Place
-from content.models import TagName
+from tag.models import Tag, TagMatrix, UserPlaceTag, PlaceTag, PlaceNoteTag
+from place.models import UserPlace, Place, PostPiece
+from content.models import TagName, PlaceNote
 from account.models import VD
+
 
 class TagTest(APITestBase):
 
@@ -21,7 +22,7 @@ class TagTest(APITestBase):
 
     def test_save_and_retreive(self):
         tag = Tag()
-        tagName = TagName.get_from_json({'content': 'test tag'})
+        tagName, is_created = TagName.get_or_create_smart('test tag')
         tag.tagName = tagName
         self.assertEqual(Tag.objects.count(), 0)
         tag.save()
@@ -47,7 +48,7 @@ class TagTest(APITestBase):
         place1 = Place.objects.create()
         uplace1 = UserPlace.objects.create(place=place1)
         self.assertEqual(Place.objects.count(), 1)
-        tag = Tag.objects.create(tagName=TagName.get_from_json({'content': 'test tag'}))
+        tag, is_created = Tag.get_or_create_smart('test tag')
         self.assertAlmostEqual(tag.prior, (0+1.0)/(0+2.0), delta=0.000001)
         place2 = Place.objects.create()
         uplace2 = UserPlace.objects.create(place=place2)
@@ -61,7 +62,6 @@ class TagTest(APITestBase):
         uptag2 = UserPlaceTag.objects.create(tag=tag, uplace=uplace2)
         self.assertEqual(tag.ptags.count(), 2)
         self.assertAlmostEqual(tag.prior, (2+1.0)/(2+2.0), delta=0.000001)
-
 
 
 class TagMatrixTest(APITestBase):
@@ -241,3 +241,54 @@ class UserPlaceNLLTest(APITestBase):
         self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]), 4.102643, delta=0.000001)
         self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]),
                                self.uplace.NLL([self.tag, tag12, tag3, tag4, tag4, self.tag, tag12]), delta=0.000001)
+
+
+class PlaceNoteTagTest(APITestBase):
+
+    def setUp(self):
+        super(PlaceNoteTagTest, self).setUp()
+        self.tag, is_created = Tag.get_or_create_smart('test tag')
+        self.placeNote, is_created = PlaceNote.get_or_create_smart('test note')
+
+    def test_string_representation(self):
+        ctag = PlaceNoteTag()
+        ctag.tag = self.tag
+        ctag.placeNote = self.placeNote
+        self.assertEqual(unicode(ctag), unicode(self.tag))
+
+    def test_save_and_retreive(self):
+        ctag = PlaceNoteTag()
+        ctag.tag = self.tag
+        ctag.placeNote = self.placeNote
+        self.assertEqual(PlaceNoteTag.objects.count(), 0)
+        ctag.save()
+        self.assertEqual(PlaceNoteTag.objects.count(), 1)
+        saved = PlaceNoteTag.objects.first()
+        self.assertEqual(saved, ctag)
+
+        ctag = PlaceNoteTag()
+        ctag.tag = self.tag
+        ctag.placeNote = self.placeNote
+        with self.assertRaises(IntegrityError):
+            ctag.save()
+
+    def test_realtime_extract_tag_from_placeNote(self):
+        self.assertEqual(Tag.objects.count(), 1+0)
+        test_data = 'tag1 #tag2# tag3# #tag4 #tag5#tag6 tag7'
+        placeNote2, is_created = PlaceNote.get_or_create_smart(test_data)
+        self.assertEqual(Tag.objects.count(), 1+4)
+
+    def test_realtime_tagging_from_placeNote(self):
+        place = Place.objects.create()
+        uplace = UserPlace.objects.create(place=place)
+
+        self.assertEqual(Tag.objects.count(), 1+0)
+        # PostPiece 생성 구현...
+        json = '''
+            {
+                "notes": [{"content": "tag1 #tag2# tag3# #tag4 #tag5#tag6 tag7"}]
+            }
+        '''
+        pp = PostPiece.objects.create(uplace=uplace, data=json)
+        self.assertEqual(Tag.objects.count(), 1+4)
+

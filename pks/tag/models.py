@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.contrib.gis.db import models
 
 from place.models import UserPlace, Place
-from content.models import TagName
+from content.models import TagName, PlaceNote
 
 
 # TODO : 튜닝 (캐싱 등)
@@ -12,6 +12,7 @@ class Tag(models.Model):
     tagName = models.OneToOneField(TagName, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='tag')
     uplaces = models.ManyToManyField(UserPlace, through='UserPlaceTag', related_name='tags')
     places = models.ManyToManyField(Place, through='PlaceTag', related_name='tags')
+    placeNotes = models.ManyToManyField(PlaceNote, through='PlaceNoteTag', related_name='tags')
 
     def __unicode__(self):
         return unicode(self.tagName)
@@ -20,6 +21,12 @@ class Tag(models.Model):
         if self.id and self.id <= 0:
             raise NotImplementedError
         super(Tag, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_or_create_smart(cls, rawTagName):
+        tagName, is_tagName_created = TagName.get_or_create_smart(rawTagName)
+        instance, is_created = cls.objects.get_or_create(tagName=tagName)
+        return instance, is_created
 
     @property
     def prior(self):
@@ -40,14 +47,6 @@ class Tag(models.Model):
             positive *= self.likelyhood(D)
             negative *= self.likelyhood_negation(D)
         result = positive / (positive + negative)
-
-        '''
-        print(Ds)
-        print(positive)
-        print(negative)
-        print(result)
-        print('')
-        #'''
         return result
 
 
@@ -140,13 +139,6 @@ class TagMatrix(models.Model):
         prior_H = cls.prior(H)
         prior_D = cls.prior(D)
         result = (1.0-likelyhood) * prior_D / (1-prior_H)
-        '''
-        print('')
-        print('likelyhood(H, D) = %f' % likelyhood)
-        print('prior(H) = %f' % prior_H)
-        print('prior(D) = %f' % prior_D)
-        print('result = %f' % result)
-        #'''
         return result
 
 
@@ -180,9 +172,9 @@ class UserPlaceTag(models.Model):
                 if len(tags) == 1:
                     TagMatrix.inc_places_count()
             if self.uplace and self.uplace.vd:
-                error = self.uplace.vd.error_tagging_ratio
+                error_tagging_ratio = self.uplace.vd.error_tagging_ratio
                 H = ptag.prob
-                ptag.prob = H / (H + error*(1-H))
+                ptag.prob = H / (H + error_tagging_ratio*(1-H))
                 ptag.save()
 
 
@@ -206,3 +198,14 @@ class PlaceTag(models.Model):
         if not self.prob:
             self.prob = 0.5
         super(PlaceTag, self).save(*args, **kwargs)
+
+
+class PlaceNoteTag(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='ctags')
+    placeNote = models.ForeignKey(PlaceNote, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='ctags')
+
+    class Meta:
+        unique_together = ('tag', 'placeNote')
+
+    def __unicode__(self):
+        return self.tag and unicode(self.tag) or None

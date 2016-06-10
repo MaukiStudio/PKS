@@ -351,6 +351,22 @@ class PlaceNote(Content):
     def content_for_search(self):
         return self.content.replace('#', '')
 
+    # 관련 test 는 tag/test_models.py 에
+    def process_tag_realtime(self):
+        from tag.models import Tag, PlaceNoteTag
+        for str in self.content.split(' '):
+            if str.startswith('#'):
+                for rawTagName in str.split('#'):
+                    if rawTagName:
+                        tag, is_created = Tag.get_or_create_smart(rawTagName)
+                        PlaceNoteTag.objects.get_or_create(tag=tag, placeNote=self)
+
+    @classmethod
+    def get_or_create_smart(cls, raw_content):
+        instance, is_created = super(PlaceNote, cls).get_or_create_smart(raw_content)
+        instance.process_tag_realtime()
+        return instance, is_created
+
 
 class ImageNote(Content):
     # MUST override
