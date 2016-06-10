@@ -43,6 +43,60 @@ class Point(object):
         return self.lonLat.__eq__(other.lonLat)
 
 
+class Visit(object):
+    def __init__(self, content):
+        self.content = content
+        self.timestamp = None
+
+    @classmethod
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        content = json['content']
+        result = cls(content)
+        result.timestamp = 'timestamp' in json and json['timestamp'] or None
+        return result
+
+    @property
+    def json(self):
+        if self.timestamp:
+            return dict(content=self.content, timestamp=self.timestamp)
+        return dict(content=self.content)
+    @property
+    def sjson(self):
+        return self.json
+
+    def __eq__(self, other):
+        return self.content == other.content
+
+
+class Rating(object):
+    def __init__(self, content):
+        self.content = content
+        self.timestamp = None
+
+    @classmethod
+    def get_from_json(cls, json):
+        if type(json) is unicode or type(json) is str:
+            json =json_loads(json)
+        content = json['content']
+        result = cls(content)
+        result.timestamp = 'timestamp' in json and json['timestamp'] or None
+        return result
+
+    @property
+    def json(self):
+        if self.timestamp:
+            return dict(content=self.content, timestamp=self.timestamp)
+        return dict(content=self.content)
+    @property
+    def sjson(self):
+        return self.json
+
+    def __eq__(self, other):
+        return self.content == other.content
+
+
 class Content(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
     content = models.CharField(max_length=254, blank=True, null=True, default=None)

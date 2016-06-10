@@ -297,6 +297,8 @@ class UserPlaceViewSetTest(APITestBase):
             {
                 "uplace_uuid": "%s",
                 "lonLat": {"lon": %f, "lat": %f},
+                "visit": {"content": true},
+                "rating": {"content": 3},
                 "name": {"uuid": "%s", "content": "%s"},
                 "phone": {"uuid": "%s", "content": "%s"},
                 "addr1": {"uuid": "%s", "content": "%s"},
@@ -333,6 +335,8 @@ class UserPlaceViewSetTest(APITestBase):
                url11.uuid, url11.content, url12.uuid, url12.content, url13.uuid, url13.content,
                lp11.uuid, lp11.content, lp12.uuid, lp12.content, lp13.uuid, lp13.content,)
         want = PostBase(json_full)
+        self.assertIn('visit', want.json)
+        self.assertIn('rating', want.json)
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
@@ -361,6 +365,8 @@ class UserPlaceViewSetTest(APITestBase):
         result_placePost = result['placePost']
         self.assertDictEqual(result_userPost, self.uplace.userPost.json)
         self.assertDictEqual(result_placePost, self.uplace.placePost.json)
+        self.assertIn('visit', self.uplace.userPost.json)
+        self.assertIn('rating', self.uplace.userPost.json)
 
         # 한번 더...
         response = self.client.post('/uplaces/', dict(add=json_full))

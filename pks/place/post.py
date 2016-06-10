@@ -5,7 +5,7 @@ from json import loads as json_loads
 
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from image.models import Image
-from base.models import Point
+from base.models import Point, Visit, Rating
 from pyquery import PyQuery
 from requests import Timeout
 from base.utils import remove_list, is_valid_json_item, remove_duplicates
@@ -15,6 +15,8 @@ class PostBase(object):
 
     def __init__(self, json=None, timestamp=None):
         self.names = list()
+        self.visits = list()
+        self.ratings = list()
         self.points = list()
         self.phones = list()
         self.addrs1 = list()
@@ -48,6 +50,20 @@ class PostBase(object):
     @name.setter
     def name(self, v):
         self.names.insert(0, v)
+
+    @property
+    def visit(self):
+        return (self.visits and self.visits[0]) or None
+    @visit.setter
+    def visit(self, v):
+        self.visits.insert(0, v)
+
+    @property
+    def rating(self):
+        return (self.ratings and self.ratings[0]) or None
+    @rating.setter
+    def rating(self, v):
+        self.ratings.insert(0, v)
 
     @property
     def point(self):
@@ -96,6 +112,8 @@ class PostBase(object):
     def update(self, other, add=True):
         if add:
             self.names = other.names + self.names
+            self.visits = other.visits + self.visits
+            self.ratings = other.ratings + self.ratings
             self.points = other.points + self.points
             self.phones = other.phones + self.phones
             self.addrs1 = other.addrs1 + self.addrs1
@@ -108,6 +126,8 @@ class PostBase(object):
             self.iplace_uuid = self.iplace_uuid or other.iplace_uuid
         else:
             self.names = remove_list(self.names, other.names)
+            self.visits = remove_list(self.visits, other.visits)
+            self.ratings = remove_list(self.ratings, other.ratings)
             self.points = remove_list(self.points, other.points)
             self.phones = remove_list(self.phones, other.phones)
             self.addrs1 = remove_list(self.addrs1, other.addrs1)
@@ -126,6 +146,18 @@ class PostBase(object):
             name = PlaceName.get_from_json(json['name'])
             if name:
                 self.names.append(name)
+
+        # visit 조회
+        if is_valid_json_item('visit', json):
+            visit = Visit.get_from_json(json['visit'])
+            if visit:
+                self.visits.append(visit)
+
+        # rating 조회
+        if is_valid_json_item('rating', json):
+            rating = Rating.get_from_json(json['rating'])
+            if rating:
+                self.ratings.append(rating)
 
         # lonLat 조회
         if is_valid_json_item('lonLat', json):
@@ -205,12 +237,14 @@ class PostBase(object):
     @property
     def json(self):
         json = dict()
-        if self.names: json['name'] = self.names[0].json
-        if self.points: json['lonLat'] = self.points[0].json
-        if self.phones: json['phone'] = self.phones[0].json
-        if self.addrs1: json['addr1'] = self.addrs1[0].json
-        if self.addrs2: json['addr2'] = self.addrs2[0].json
-        if self.addrs3: json['addr3'] = self.addrs3[0].json
+        if self.names: json['name'] = self.name.json
+        if self.visits: json['visit'] = self.visit.json
+        if self.ratings: json['rating'] = self.rating.json
+        if self.points: json['lonLat'] = self.point.json
+        if self.phones: json['phone'] = self.phone.json
+        if self.addrs1: json['addr1'] = self.addr1.json
+        if self.addrs2: json['addr2'] = self.addr2.json
+        if self.addrs3: json['addr3'] = self.addr3.json
         if self.lps: json['lps'] = [lp.json for lp in self.lps]
         if self.urls: json['urls'] = [url.json for url in self.urls]
         if self.notes: json['notes'] = [note.json for note in self.notes]
@@ -220,12 +254,14 @@ class PostBase(object):
     @property
     def sjson(self):
         json = dict()
-        if self.names: json['name'] = self.names[0].sjson
-        if self.points: json['lonLat'] = self.points[0].sjson
-        if self.phones: json['phone'] = self.phones[0].sjson
-        if self.addrs1: json['addr1'] = self.addrs1[0].sjson
-        if self.addrs2: json['addr2'] = self.addrs2[0].sjson
-        if self.addrs3: json['addr3'] = self.addrs3[0].sjson
+        if self.names: json['name'] = self.name.sjson
+        if self.visits: json['visit'] = self.visit.sjson
+        if self.ratings: json['rating'] = self.rating.sjson
+        if self.points: json['lonLat'] = self.point.sjson
+        if self.phones: json['phone'] = self.phone.sjson
+        if self.addrs1: json['addr1'] = self.addr1.sjson
+        if self.addrs2: json['addr2'] = self.addr2.sjson
+        if self.addrs3: json['addr3'] = self.addr3.sjson
         if self.lps: json['lps'] = [lp.sjson for lp in self.lps]
         if self.urls: json['urls'] = [url.sjson for url in self.urls]
         if self.notes: json['notes'] = [note.sjson for note in self.notes]
@@ -269,6 +305,8 @@ class PostBase(object):
         self.add_lps_from_urls()
 
         self.names = remove_duplicates(self.names)
+        self.visits = remove_duplicates(self.visits)
+        self.ratings = remove_duplicates(self.ratings)
         self.points = remove_duplicates(self.points)
         self.phones = remove_duplicates(self.phones)
         self.addrs1 = remove_duplicates(self.addrs1)
