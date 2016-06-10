@@ -169,6 +169,7 @@ class UserPlace(models.Model):
     def __init__(self, *args, **kwargs):
         self._cache_pb = None
         self._origin = None
+        self._search_tags = None
         super(UserPlace, self).__init__(*args, **kwargs)
 
     @property
@@ -309,7 +310,7 @@ class UserPlace(models.Model):
     # Test in tag/test_models.py
     # TODO : 튜닝
     # P(t1,t2,...,tn | place) = P(t1|place)P(t2|t1,place)...P(tn|t1,t2,...,place)
-    def NLL(self, tags):
+    def getNLL(self, tags):
         from math import log
         uplace_tags = list(self.tags.all())
         tags_in_utags = [tag for tag in tags if tag in uplace_tags]
@@ -343,13 +344,20 @@ class UserPlace(models.Model):
             prob = tag.posterior(Ds)
             result -= log(prob)
 
-        '''
-        print(tags)
-        print(tags_in_utags)
-        print(tags_in_ptags)
-        print(tags_others)
-        #'''
         return result
+
+    @property
+    def search_tags(self):
+        return self._search_tags
+    @search_tags.setter
+    def search_tags(self, value):
+        self._search_tags = value
+
+    @property
+    def NLL(self):
+        if self.search_tags:
+            return self.getNLL(self.search_tags)
+        return None
 
 
 class PostPiece(models.Model):

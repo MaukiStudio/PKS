@@ -63,6 +63,20 @@ class TagTest(APITestBase):
         self.assertEqual(tag.ptags.count(), 2)
         self.assertAlmostEqual(tag.prior, (2+1.0)/(2+2.0), delta=0.000001)
 
+    def test_tags_from_param(self):
+        test_data = 'tag1 #tag2,tag3# #tag4, tag5#tag6 tag7'
+        self.assertEqual(Tag.objects.count(), 0)
+        tags = [tag.tagName.content for tag in Tag.tags_from_param(test_data)]
+        self.assertIn('tag1', tags)
+        self.assertIn('tag2', tags)
+        self.assertIn('tag3', tags)
+        self.assertIn('tag4', tags)
+        self.assertIn('tag5', tags)
+        self.assertNotIn('tag6', tags)
+        self.assertNotIn('tag7', tags)
+        self.assertIn('tag6tag7', tags)
+        self.assertEqual(Tag.objects.count(), 6)
+
 
 class TagMatrixTest(APITestBase):
 
@@ -213,24 +227,24 @@ class UserPlaceNLLTest(APITestBase):
         self.utag = UserPlaceTag.objects.create(tag=self.tag, uplace=self.uplace)
 
     def test_case1_user_tag(self):
-        self.assertAlmostEqual(self.uplace.NLL([self.tag]), 0.0)
+        self.assertAlmostEqual(self.uplace.getNLL([self.tag]), 0.0)
 
     def test_case2_place_tag(self):
         uplace2 = UserPlace.objects.create(place=self.place)
-        self.assertAlmostEqual(uplace2.NLL([self.tag]), -log(0.833333), delta=0.000001)
+        self.assertAlmostEqual(uplace2.getNLL([self.tag]), -log(0.833333), delta=0.000001)
 
     def test_case3_other_tag(self):
         place2 = Place.objects.create()
         uplace2 = UserPlace.objects.create(place=place2)
         tag2 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other tag'}))
         utag2 = UserPlaceTag.objects.create(tag=tag2, uplace=uplace2)
-        self.assertAlmostEqual(uplace2.NLL([self.tag]), -log(0.25), delta=0.000001)
+        self.assertAlmostEqual(uplace2.getNLL([self.tag]), -log(0.25), delta=0.000001)
 
         place3 = Place.objects.create()
         uplace3 = UserPlace.objects.create(place=place3)
         tag3 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other3 tag'}))
         utag3 = UserPlaceTag.objects.create(tag=tag3, uplace=uplace3)
-        self.assertAlmostEqual(uplace3.NLL([self.tag]), uplace2.NLL([self.tag]), delta=0.000001)
+        self.assertAlmostEqual(uplace3.getNLL([self.tag]), uplace2.getNLL([self.tag]), delta=0.000001)
 
     def test_case4_mix(self):
         uplace12 = UserPlace.objects.create(place=self.place)
@@ -238,9 +252,9 @@ class UserPlaceNLLTest(APITestBase):
         utag12 = UserPlaceTag.objects.create(tag=tag12, uplace=uplace12)
         tag3 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other3 tag'}))
         tag4 = Tag.objects.create(tagName=TagName.get_from_json({'content': 'other4 tag'}))
-        self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]), 4.102643, delta=0.000001)
-        self.assertAlmostEqual(self.uplace.NLL([self.tag, tag12, tag3, tag4]),
-                               self.uplace.NLL([self.tag, tag12, tag3, tag4, tag4, self.tag, tag12]), delta=0.000001)
+        self.assertAlmostEqual(self.uplace.getNLL([self.tag, tag12, tag3, tag4]), 4.102643, delta=0.000001)
+        self.assertAlmostEqual(self.uplace.getNLL([self.tag, tag12, tag3, tag4]),
+                               self.uplace.getNLL([self.tag, tag12, tag3, tag4, tag4, self.tag, tag12]), delta=0.000001)
 
 
 class PlaceNoteTagTest(APITestBase):
@@ -274,9 +288,17 @@ class PlaceNoteTagTest(APITestBase):
 
     def test_realtime_extract_tag_from_placeNote(self):
         self.assertEqual(Tag.objects.count(), 1+0)
-        test_data = 'tag1 #tag2# tag3# #tag4 #tag5#tag6 tag7'
+        test_data = 'tag1 #tag2,tag3# #tag4 #tag5#tag6 tag7'
         placeNote2, is_created = PlaceNote.get_or_create_smart(test_data)
         self.assertEqual(Tag.objects.count(), 1+4)
+        tags = [tag.tagName.content for tag in Tag.objects.all()]
+        self.assertNotIn('tag1', tags)
+        self.assertIn('tag2', tags)
+        self.assertNotIn('tag3', tags)
+        self.assertIn('tag4', tags)
+        self.assertIn('tag5', tags)
+        self.assertIn('tag6', tags)
+        self.assertNotIn('tag7', tags)
 
     def test_realtime_tagging_from_placeNote(self):
         place = Place.objects.create()

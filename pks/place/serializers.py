@@ -38,6 +38,7 @@ class UserPlaceSerializer(BaseSerializer):
     place_id = ReadOnlyField()
     created = ReadOnlyField()
     distance_from_origin = ReadOnlyField()
+    NLL = ReadOnlyField()
 
     class Meta:
         model = UserPlace
@@ -51,4 +52,8 @@ class UserPlaceSerializer(BaseSerializer):
                 lat = float(params['lat'])
                 p = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
                 instance.origin = p
+            if 'tags' in params and params['tags']:
+                from tag.models import Tag
+                tags = Tag.tags_from_param(params['tags'])
+                instance.search_tags = tags
         return super(UserPlaceSerializer, self).to_representation(instance)
