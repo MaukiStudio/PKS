@@ -29,7 +29,6 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_uplaces_only_my_places(self):
-
         # 내 장소 목록 조회
         # ru : myself 만 허용됨 (default=myself)
         # limit : 목록 조회시 넘어가는 결과의 개수. default=100
@@ -52,7 +51,6 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertIn('place_id', results[0])
 
     def test_places_all_places(self):
-
         # 전체 장소 목록 조회
         # placePost 만 조회됨. 내 장소의 userPost 는 /uplaces/ 로 얻어오면 됨 (동일 장소 여부는 place_id 로)
         # 하기 샘플의 lon/lat/r 인터페이스는 /uplaces/ 에도 동일하게 적용됨
@@ -66,7 +64,6 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         self.assertIn('place_id', results[0])
 
     def test_uplaces_delete(self):
-
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
@@ -85,3 +82,12 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
         results = json_loads(response.content)['results']
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 0)
+
+    def test_uplaces_regions(self):
+        response = self.client.get('/uplaces/regions/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)
+        self.assertEqual(len(results), 1)
+        self.assertIn('lonLat', results[0])
+        self.assertIn('count', results[0])
+        self.assertIn('radius', results[0])

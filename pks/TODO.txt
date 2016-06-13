@@ -1,15 +1,14 @@
 [Now]
 
-Tag 소팅 기능 구현
+블로그 import 및 타겟 크롤링
 
 UserPlace 쪼개기 - 포함관계 구성
 UserPlace 하나에 여러개의 Place
 
-블로그 import 및 타겟 크롤링
-
 유저 검색 기록 저장
 유저 위치 트래킹 
 
+NLL 개선 : prior, likelyhood 계산방식 개선
 
 summarize 관련 리팩토링
     네이버, 카카오 요약 json 만들때 PostBase 이용하기
