@@ -7,6 +7,34 @@
         <table class="table">
             <tr>
                 <td>
+                    <a href="{{ placePost.map_url_naver }}" target="_blank">
+                        위도: {{ placePost.lonLat.y }}<br/>
+                    </a>
+                    <a href="{{ placePost.map_url_google }}" target="_blank">
+                        경도: {{ placePost.lonLat.x }}<br/>
+                    </a>
+                </td>
+                <td>
+                    도로명주소: {{ placePost.addr1 }}<br/>
+                    지번 주소 : {{ placePost.addr2 }}<br/>
+                    범위 주소 : {{ placePost.addr3 }}<br/>
+                </td>
+                <td>
+                    이름 : {{ placePost.name }}
+                </td>
+                <td>
+                    {% for url in placePost.urls %}
+                        <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    전화번호 : {{ placePost.phone }}
+                </td>
+            </tr>
+        </table>
+        <table class="table">
+            <tr>
+                <td>
                     <a href="{{ userPost.map_url_naver }}" target="_blank">
                         위도: {{ userPost.lonLat.y }}<br/>
                     </a>
@@ -32,34 +60,6 @@
                             <img src="{{ image.url_summarized }}"/>
                         </a>
                     {% endfor %}
-                </td>
-            </tr>
-        </table>
-        <table class="table">
-            <tr>
-                <td>
-                    <a href="{{ placePost.map_url_naver }}" target="_blank">
-                        위도: {{ placePost.lonLat.y }}<br/>
-                    </a>
-                    <a href="{{ placePost.map_url_google }}" target="_blank">
-                        경도: {{ placePost.lonLat.x }}<br/>
-                    </a>
-                </td>
-                <td>
-                    도로명주소: {{ placePost.addr1 }}<br/>
-                    지번 주소 : {{ placePost.addr2 }}<br/>
-                    범위 주소 : {{ placePost.addr3 }}<br/>
-                </td>
-                <td>
-                    이름 : {{ placePost.name }}
-                </td>
-                <td>
-                    {% for url in placePost.urls %}
-                        <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                    {% endfor %}
-                </td>
-                <td>
-                    전화번호 : {{ placePost.phone }}
                 </td>
             </tr>
         </table>
