@@ -149,7 +149,7 @@ class PlacedDetailTest2(AdminTestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.uplace = UserPlace.objects.first()
         self.assertNotEqual(self.uplace.place, None)
-        self.assertAlmostEqual(self.uplace.place.lonLat.x, 139.7589115, delta=0.0001)
+        self.assertAlmostEqual(self.uplace.place.lonLat.x, 139.7611002, delta=0.0001)
         self.assertAlmostEqual(self.uplace.place.lonLat.y, 35.6951861, delta=0.0001)
 
 
