@@ -254,8 +254,11 @@ class LegacyPlaceTest(APITestBase):
         url, is_created = Url.get_or_create_smart('http://m.map.daum.net/actions/detailInfoView?id=15493954')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '15493954.kakao')
 
-        url, is_created = Url.get_or_create_smart('https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6')
-        self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
+        url, is_created = Url.get_or_create_smart('http://m.map.daum.net/actions/detailInfoView?id=15493954')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '15493954.kakao')
+
+        url, is_created = Url.get_or_create_smart('http://place.map.daum.net/26799590')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, '26799590.kakao')
 
         url, is_created = Url.get_or_create_smart('http://foursquare.com/v/4ccffc63f6378cfaace1b1d6')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')

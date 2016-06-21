@@ -47,6 +47,9 @@ LP_REGEXS_URL = (
     # 'http://m.map.daum.net/actions/detailInfoView?id=15493954'
     (re_compile(r'^https?://(m\.)?map\.daum\.net/actions/detailInfoView\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'kakao'),
 
+    # http://place.map.daum.net/26799590
+    (re_compile(r'^https?://place\.map\.daum\.net/(?P<PlaceId>[0-9]+)&?.*$'), 'kakao'),
+
     # 'https://foursquare.com/v/방아깐/4ccffc63f6378cfaace1b1d6'
     (re_compile(r'^https?://.*foursquare\.com/v/.+/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
 
