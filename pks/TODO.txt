@@ -1,9 +1,28 @@
 [Now]
 
+Post.tags 중복 제거
+GPS Tracking 기록 API 만들기
+
+사진 import 3차 클러스터링 기준, 좀 더 키우기
+장소화 timeout 늘리기 : 3 --> 5
+장소화 패스 기능 만들기
+자체 DB 를 활용한 장소화 기능 만들기
+장소화가 되지 않은 장소 주변의 장소 정보 크롤링
+
+UserPlace 쪼개기, 파생시키기 - 포함관계 구성
+UserPlace 하나에 여러개의 Place
+100m 이상의 큰 장소
+장소화된 Content
+
+ImagesImporter
+    임포트하고, 또 임포트하는 경우에 대한 처리
+
+구글 장소화
+네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
+
+
 블로그 import 및 타겟 크롤링
 
-UserPlace 쪼개기 - 포함관계 구성
-UserPlace 하나에 여러개의 Place
 
 유저 검색 기록 저장
 유저 위치 트래킹 
@@ -13,9 +32,6 @@ NLL 개선 : prior, likelyhood 계산방식 개선
 summarize 관련 리팩토링
     네이버, 카카오 요약 json 만들때 PostBase 이용하기
 
-ImagesImporter
-
-    임포트하고, 또 임포트하는 경우에 대한 처리
 
 
 clear_rfs_smart() 제대로 동작하지 않는 문제 수정 : 테스트로 생성된 중복된 파일들이 symbolic link 로 정리가 되지 않음...

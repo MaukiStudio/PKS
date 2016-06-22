@@ -32,6 +32,8 @@ class PostBase(object):
         self.by_MAMMA = False
         self.iplace_uuid = None
 
+        self._cache_tags = None
+
         t = type(json)
         if json is None:
             pass
@@ -250,8 +252,7 @@ class PostBase(object):
         if self.notes: json['notes'] = [note.json for note in self.notes]
         if self.images: json['images'] = [img.json for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
-        tags = self.tags
-        if tags: json['tags'] = [tag.json for tag in tags]
+        if self.tags: json['tags'] = [tag.sjson for tag in self.tags]
         return json
 
     @property
@@ -270,22 +271,22 @@ class PostBase(object):
         if self.notes: json['notes'] = [note.sjson for note in self.notes]
         if self.images: json['images'] = [img.sjson for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
-        tags = self.tags
-        if tags: json['tags'] = [tag.sjson for tag in tags]
+        if self.tags: json['tags'] = [tag.sjson for tag in self.tags]
         return json
 
     @property
+    # TODO : cache expire logic 구현
     def tags(self):
-        if not self.notes:
-            return None
-        all_tags = sum([list(note.tags.all()) for note in reversed(self.notes)], [])
-        result = list()
-        for tag in all_tags:
-            if tag.is_remove:
-                result = remove_list(result, [tag.remove_target])
-            else:
-                result.append(tag)
-        return result
+        if self._cache_tags is None and self.notes:
+            all_tags = sum([list(note.tags.all()) for note in reversed(self.notes)], [])
+            result = list()
+            for tag in all_tags:
+                if tag.is_remove:
+                    result = remove_list(result, [tag.remove_target])
+                else:
+                    result.append(tag)
+            self._cache_tags = remove_duplicates(result)
+        return self._cache_tags
 
     def add_lps_from_urls(self):
         if self.urls:
