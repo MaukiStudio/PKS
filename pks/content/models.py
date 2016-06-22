@@ -393,3 +393,15 @@ class TagName(Content):
     @classmethod
     def normalize_content(cls, raw_content):
         return raw_content.strip().replace(' ', '').replace('#', '').replace(',', '').replace('"', '').replace("'", "")
+
+    @property
+    def is_remove(self):
+        return self.content.startswith('-')
+
+    @property
+    def remove_target(self):
+        if not self.is_remove:
+            return None
+        target_content = self.content[1:]
+        target, is_created = self.get_or_create_smart(target_content)
+        return target

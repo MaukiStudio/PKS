@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from urllib import unquote_plus
 
 from base.tests import APITestBase
-from content.models import LegacyPlace, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote
+from content.models import LegacyPlace, PhoneNumber, LP_TYPE, PlaceName, Address, PlaceNote, ImageNote, TagName
 from pathlib2 import Path
 from place.models import Place
 from url.models import Url
@@ -551,3 +551,55 @@ class ImageNoteTest(APITestBase):
         inote.access_force()
         self.assertEqual(path.exists(), True)
 
+
+class TagNameTest(APITestBase):
+
+    def test_string_representation(self):
+        test_data = '관심'
+        tname, is_created = TagName.get_or_create_smart(test_data)
+        self.assertEqual(unicode(tname), test_data)
+
+    def test_save_and_retreive(self):
+        test_data = '관심'
+        tname, is_created = TagName.get_or_create_smart(test_data)
+        saved = TagName.objects.first()
+        self.assertEqual(tname.uuid, '%s.tname' % b16encode(tname.id.bytes))
+        self.assertEqual(saved, tname)
+        self.assertEqual(saved.id, tname.id)
+        saved2 = TagName.get_from_json('{"uuid": "%s", "content": null}' % tname.uuid)
+        self.assertEqual(saved2, tname)
+        saved3 = TagName.get_from_json('{"uuid": null, "content": "%s"}' % tname.content)
+        self.assertEqual(saved3, tname)
+
+    def test_content_property(self):
+        test_data = '관심'
+        tname, is_created = TagName.get_or_create_smart(test_data)
+        saved = TagName.objects.first()
+        self.assertEqual(tname.content, test_data)
+        self.assertEqual(saved, tname)
+        self.assertEqual(saved.id, tname.id)
+        self.assertEqual(saved.content, tname.content)
+
+    def test_remove_tag_name(self):
+        test_data = '관심'
+        tname, is_created = TagName.get_or_create_smart(test_data)
+        test_data2 = '-관심'
+        tname2, is_created2 = TagName.get_or_create_smart(test_data2)
+        self.assertEqual(tname.is_remove, False)
+        self.assertEqual(tname2.is_remove, True)
+        self.assertEqual(tname.remove_target, None)
+        self.assertEqual(tname2.remove_target, tname)
+
+
+    # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
+    def __skip__test_access_methods(self):
+        test_data = '관심'
+        tname, is_created = TagName.get_or_create_smart(test_data)
+
+        path = Path(tname.path_accessed)
+        if path.exists():
+            path.unlink()
+
+        self.assertEqual(path.exists(), False)
+        tname.access_force()
+        self.assertEqual(path.exists(), True)
