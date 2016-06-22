@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from json import loads as json_loads
 from django.contrib.gis.db import models
 
 from place.models import UserPlace, Place
@@ -55,13 +56,20 @@ class Tag(models.Model):
     @classmethod
     def tags_from_note(cls, note):
         tags = list()
-        str = note.content.replace(',', ' ')
-        for splitted in str.split(' '):
-            if splitted.startswith('#'):
-                for rawTagName in splitted.split('#'):
-                    if rawTagName:
-                        tag, is_created = Tag.get_or_create_smart(rawTagName)
-                        tags.append(tag)
+        note_content = note.content
+        if note_content.startswith('[NOTE_TAGS]#'):
+            json = json_loads(note_content.split('#')[1])
+            for rawTagName in json:
+                tag, is_created = Tag.get_or_create_smart(rawTagName)
+                tags.append(tag)
+        else:
+            str = note_content.replace(',', ' ')
+            for splitted in str.split(' '):
+                if splitted.startswith('#'):
+                    for rawTagName in splitted.split('#'):
+                        if rawTagName:
+                            tag, is_created = Tag.get_or_create_smart(rawTagName)
+                            tags.append(tag)
         return tags
 
     @classmethod

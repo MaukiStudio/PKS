@@ -392,4 +392,4 @@ class TagName(Content):
 
     @classmethod
     def normalize_content(cls, raw_content):
-        return raw_content.strip().replace(' ', '').replace('#', '').replace(',', '')
+        return raw_content.strip().replace(' ', '').replace('#', '').replace(',', '').replace('"', '').replace("'", "")

@@ -301,6 +301,16 @@ class PlaceNoteTagTest(APITestBase):
         self.assertIn('tag6', tags)
         self.assertNotIn('tag7', tags)
 
+    def test_realtime_extract_tag_from_placeNote2(self):
+        self.assertEqual(Tag.objects.count(), 1+0)
+        test_data = '[NOTE_TAGS]#["시골밥상","나물반찬","산사랑"]'
+        placeNote2, is_created = PlaceNote.get_or_create_smart(test_data)
+        self.assertEqual(Tag.objects.count(), 1+3)
+        tags = [tag.tagName.content for tag in Tag.objects.all()]
+        self.assertIn('시골밥상', tags)
+        self.assertIn('나물반찬', tags)
+        self.assertIn('산사랑', tags)
+
     def test_realtime_tagging_from_placeNote(self):
         place = Place.objects.create()
         uplace = UserPlace.objects.create(place=place)
