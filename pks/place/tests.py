@@ -363,10 +363,10 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('lat', result['lonLat'])
         result_userPost = result['userPost']
         result_placePost = result['placePost']
-        self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
-        self.assertIn('visit', self.uplace.userPost.json)
-        self.assertIn('rating', self.uplace.userPost.json)
+        self.assertDictEqual(result_userPost, self.uplace.userPost.sjson)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.sjson)
+        self.assertIn('visit', self.uplace.userPost.sjson)
+        self.assertIn('rating', self.uplace.userPost.sjson)
 
         # 한번 더...
         response = self.client.post('/uplaces/', dict(add=json_full))
@@ -395,8 +395,8 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.printJson(result_userPost)
         self.printJson(self.uplace.userPost)
-        self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
+        self.assertDictEqual(result_userPost, self.uplace.userPost.sjson)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.sjson)
 
         self.assertGreater(t2, t1)
         self.assertAlmostEqual(t2, t1, delta=1000)
@@ -434,8 +434,8 @@ class UserPlaceViewSetTest(APITestBase):
         result_placePost = results[0]['placePost']
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
-        self.assertDictEqual(result_userPost, self.uplace.userPost.json)
-        self.assertDictEqual(result_placePost, self.uplace.placePost.json)
+        self.assertDictEqual(result_userPost, self.uplace.userPost.sjson)
+        self.assertDictEqual(result_placePost, self.uplace.placePost.sjson)
 
         qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs11), 0)

@@ -9,8 +9,8 @@ from base.serializers import BaseSerializer
 
 
 class PlaceSerializer(BaseSerializer):
-    placePost = ReadOnlyField(source='placePost.json')
-    userPost = ReadOnlyField(source='userPost.json')
+    placePost = ReadOnlyField(source='placePost.sjson')
+    userPost = ReadOnlyField(source='userPost.sjson')
     place_id = ReadOnlyField(source='id')
     lonLat = ReadOnlyField(source='lonLat_json')
 
@@ -31,8 +31,8 @@ class PostPieceSerializer(BaseSerializer):
 
 
 class UserPlaceSerializer(BaseSerializer):
-    userPost = ReadOnlyField(source='userPost.json')
-    placePost = ReadOnlyField(source='placePost.json')
+    userPost = ReadOnlyField(source='userPost.sjson')
+    placePost = ReadOnlyField(source='placePost.sjson')
     uplace_uuid = ReadOnlyField(source='uuid')
     lonLat = ReadOnlyField(source='lonLat_json')
     place_id = ReadOnlyField()

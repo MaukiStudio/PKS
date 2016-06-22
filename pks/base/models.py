@@ -141,7 +141,7 @@ class Content(models.Model):
         return dict(uuid=self.uuid, content=self.content)
     @property
     def sjson(self):
-        return dict(uuid=self.uuid)
+        return dict(content=self.content)
 
     @property
     def url_for_access(self):
