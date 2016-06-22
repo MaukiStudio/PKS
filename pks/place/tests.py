@@ -925,6 +925,11 @@ class UserPlaceViewSetTest(APITestBase):
         result = json_loads(response.content)['userPost']['images'][0]['content']
         self.assertEqual(result, 'http://blogthumb2.naver.net/20160401_292/mardukas_1459496453119PGXjg_JPEG/DSC03071.JPG?type=w2')
 
+    def test_only_rating(self):
+        json_add = '{"rating": {"content": 3}}'
+        response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class PostPieceViewSetTest(APITestBase):
 

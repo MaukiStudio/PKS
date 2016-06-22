@@ -311,11 +311,13 @@ class PostBase(object):
 
     def is_valid(self, uplace=None):
         if not uplace:
+            uplace = self.uplace_uuid
+        if not uplace:
             if (self.point and self.images) or self.urls or self.lps:
                 return True
         else:
             if self.urls or self.point or self.phone or self.lps or self.name or self.notes or self.images or \
-                self.addr1 or self.addr2 or self.addr3:
+                self.addr1 or self.addr2 or self.addr3 or self.rating or self.visit:
                 return True
         return False
 
