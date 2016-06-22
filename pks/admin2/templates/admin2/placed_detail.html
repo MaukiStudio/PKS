@@ -53,6 +53,10 @@
                     {% for note in userPost.notes %}
                         <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
                     {% endfor %}
+                    <br/>
+                    {% for tag in userPost.tags %}
+                        {{ tag.content }},
+                    {% endfor %}
                 </td>
                 <td>
                     {% for image in userPost.images %}
@@ -116,6 +120,10 @@
                 <br/>
                 {% for note in userPost.notes %}
                     <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+                {% endfor %}
+                <br/>
+                {% for tag in userPost.tags %}
+                    {{ tag.content }},
                 {% endfor %}
             </td>
             <td>

@@ -102,6 +102,10 @@ class Tag(models.Model):
         result, is_created = self.get_or_create_smart(tagName.content)
         return result
 
+    @property
+    def content(self):
+        return self.tagName.content
+
 
 # TODO : 튜닝, 부동소수점 연산 정확성 향상
 # TODO : prior, likelyhood 계산방식, 베이지안 업데이트 방식으로 변경 (unknown 이 너무 많아 이게 더 낫다고 판단)
