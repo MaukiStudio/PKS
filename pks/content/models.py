@@ -364,7 +364,8 @@ class PlaceNote(Content):
     @classmethod
     def get_or_create_smart(cls, raw_content):
         instance, is_created = super(PlaceNote, cls).get_or_create_smart(raw_content)
-        instance.process_tag_realtime()
+        if is_created:
+            instance.process_tag_realtime()
         return instance, is_created
 
 
