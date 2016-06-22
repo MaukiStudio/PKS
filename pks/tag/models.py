@@ -83,6 +83,25 @@ class Tag(models.Model):
                 tags.append(tag)
         return tags
 
+    @property
+    def json(self):
+        return self.tagName.json
+    @property
+    def sjson(self):
+        return self.tagName.sjson
+
+    @property
+    def is_remove(self):
+        return self.tagName.is_remove
+
+    @property
+    def remove_target(self):
+        tagName = self.tagName.remove_target
+        if not tagName or not tagName.content:
+            return None
+        result, is_created = self.get_or_create_smart(tagName.content)
+        return result
+
 
 # TODO : 튜닝, 부동소수점 연산 정확성 향상
 # TODO : prior, likelyhood 계산방식, 베이지안 업데이트 방식으로 변경 (unknown 이 너무 많아 이게 더 낫다고 판단)
