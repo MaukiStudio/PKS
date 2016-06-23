@@ -9,7 +9,7 @@ from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
 
 from account.models import VD
-from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
+from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd, BIT_ON_6_BYTE
 from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
@@ -462,3 +462,36 @@ class PostPiece(models.Model):
     @pb.setter
     def pb(self, value):
         self.data = value.sjson
+
+
+class Tracking(models.Model):
+    id = models.UUIDField(primary_key=True, default=None)
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
+
+    def __unicode__(self):
+        return "VD(id=%d)'s Tracking(lat=%0.6f, lon=%0.6f)" % (self.vd_id, self.lonLat.y, self.lonLat.x)
+
+    @classmethod
+    def create(cls, vd_id, lonLat, timestamp=None):
+        from uuid import UUID
+        if not vd_id:
+            raise ValueError
+        if not timestamp:
+            timestamp = get_timestamp()
+        # TODO : 남은 하위 2byte 활용
+        hstr = hex((vd_id << 10*8) | (timestamp << 2*8) | 0)[2:-1]     # 끝에 붙는 L 을 떼내기 위해 -1
+        _id = UUID(hstr.rjust(32, b'0'))
+        instance = Tracking.objects.create(id=_id, lonLat=lonLat)
+        return instance
+
+    @property
+    def created(self):
+        return self.id and (int(self.id) >> 2*8) & BIT_ON_8_BYTE
+
+    @property
+    def vd_id(self):
+        return self.id and (int(self.id) >> 10*8) & BIT_ON_6_BYTE
+
+    @property
+    def vd(self):
+        return VD.objects.get(id=self.vd_id)
