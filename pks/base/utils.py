@@ -48,6 +48,7 @@ def get_uuid_from_ts_vd(timestamp, vd_id):
     hstr = hex((timestamp << 8*8) | (vd_id << 2*8) | randrange(0, 65536))[2:-1]     # 끝에 붙는 L 을 떼내기 위해 -1
     return UUID(hstr.rjust(32, b'0'))
 
+
 def call(func):
     ts_start = get_timestamp()
     if not func():
