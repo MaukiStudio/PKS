@@ -44,6 +44,8 @@ router.register(r'tags', tag_views.TagViewset)
 router.register(r'uptags', tag_views.UserPlaceTagViewset)
 router.register(r'ptags', tag_views.PlaceTagViewset)
 
+router.register(r'trackings', place_views.TrackingViewset)
+
 
 urlpatterns = [
     url(r'^', include(router.urls)),

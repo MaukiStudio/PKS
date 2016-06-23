@@ -8,8 +8,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from urllib import unquote_plus
 
-from base.tests import APITestBase
-from place.models import UserPlace, Place, PostPiece
+from base.tests import APITestBase, FunctionalTestAfterLoginBase
+from place.models import UserPlace, Place, PostPiece, Tracking
 from image.models import Image
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from url.models import Url
@@ -964,3 +964,25 @@ class PostPieceViewSetTest(APITestBase):
         self.assertIn('data', result)
         response = self.client.get('/pps/null/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TrackingViewSetTest(FunctionalTestAfterLoginBase):
+
+    def setUp(self):
+        super(TrackingViewSetTest, self).setUp()
+        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        self.tracking = Tracking.create(self.vd_id, lonLat)
+
+    def test_list(self):
+        response = self.client.get('/trackings/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+        self.assertIn('vd_id', results[0])
+        self.assertIn('created', results[0])
+
+    def test_detail(self):
+        self.assertEqual(Tracking.objects.count(), 1)
+        response = self.client.post('/trackings/', dict(lon=127.1037430, lat=37.3997320))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Tracking.objects.count(), 2)

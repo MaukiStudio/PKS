@@ -9,8 +9,8 @@ from django.contrib.gis.db.models.functions import Distance
 from django.db.models import F
 from rest_framework.decorators import list_route
 
-from place.models import Place, UserPlace, PostPiece
-from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
+from place.models import Place, UserPlace, PostPiece, Tracking
+from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer, TrackingSerializer
 from base.views import BaseViewset
 from place.post import PostBase
 from base.utils import get_timestamp
@@ -205,3 +205,19 @@ class UserPlaceViewset(BaseViewset):
             for_debug_url = 'http://maps.google.com/?q=%f,%f' % (r.lonLat.y, r.lonLat.x)
             json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
+
+
+class TrackingViewset(BaseViewset):
+    queryset = Tracking.objects.all()
+    serializer_class = TrackingSerializer
+
+    def create(self, request, *args, **kwargs):
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+        lon = float(request.data['lon'])
+        lat = float(request.data['lat'])
+        lonLat = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
+        timestamp = request.data.get('timestamp', get_timestamp())
+        instance = Tracking.create(vd.id, lonLat, timestamp)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
