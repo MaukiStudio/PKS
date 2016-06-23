@@ -216,7 +216,7 @@ class Clustering(object):
         return True
 
     def step_99_generate_result(self):
-        self.dump_dmat()
+        #self.dump_dmat()
         self.result = list()
         for i in xrange(self.size):
             ci = self.dmat[:, i]
