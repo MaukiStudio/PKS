@@ -9,12 +9,15 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from django.contrib.gis.geos import GEOSGeometry
+from json import loads as json_loads
 
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY, VD_SESSION_KEY
-from account.models import User, RealUser, VD, Storage
-from account.serializers import UserSerializer, RealUserSerializer, VDSerializer, StorageSerializer
+from account.models import User, RealUser, VD, Storage, Tracking
+from account.serializers import UserSerializer, RealUserSerializer, VDSerializer, StorageSerializer, TrackingSerializer
 from base.views import BaseViewset
+from base.utils import get_timestamp
 
 
 class UserViewset(ModelViewSet):
@@ -175,3 +178,18 @@ class StorageViewset(BaseViewset):
 
     def perform_create(self, serializer):
         serializer.save(vd=self.vd)
+
+
+class TrackingViewset(BaseViewset):
+    queryset = Tracking.objects.all()
+    serializer_class = TrackingSerializer
+
+    def create(self, request, *args, **kwargs):
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+        v = json_loads(request.data['value'])
+        lonLat = GEOSGeometry('POINT(%f %f)' % (v['lon'], v['lat']), srid=4326)
+        timestamp = request.data.get('timestamp', get_timestamp())
+        instance = Tracking.create(vd.id, lonLat, timestamp)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

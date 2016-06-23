@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, ReadOnlyField
 
-from account.models import User, RealUser, VD, Storage
+from account.models import User, RealUser, VD, Storage, Tracking
 from base.serializers import BaseSerializer
 
 
@@ -37,3 +37,12 @@ class VDSerializer(ModelSerializer):
 class StorageSerializer(BaseSerializer):
     class Meta:
         model = Storage
+
+
+class TrackingSerializer(BaseSerializer):
+    vd_id = ReadOnlyField()
+    created = ReadOnlyField()
+
+    class Meta:
+        model = Tracking
+

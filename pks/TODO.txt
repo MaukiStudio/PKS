@@ -1,6 +1,5 @@
 [Now]
 
-Post.tags 중복 제거
 GPS Tracking 기록 API 만들기
 
 사진 import 3차 클러스터링 기준, 좀 더 키우기

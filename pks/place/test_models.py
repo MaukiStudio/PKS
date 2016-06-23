@@ -8,7 +8,7 @@ from json import loads as json_loads
 from urllib import unquote_plus
 
 from base.tests import APITestBase, FunctionalTestAfterLoginBase
-from place.models import Place, UserPlace, PostPiece, Tracking
+from place.models import Place, UserPlace, PostPiece
 from account.models import VD, RealUser
 from image.models import Image
 from url.models import Url
@@ -654,30 +654,3 @@ class PostBaseTest(APITestBase):
         self.assertIsSubsetOf(json_loads(json_add), json)
         self.printJson(pb.pb_MAMMA)
 
-
-class TrackingTest(FunctionalTestAfterLoginBase):
-
-    def test_save_and_retreive(self):
-        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
-        timestamp = get_timestamp()
-        vd_id = self.vd_id
-        vd = VD.objects.get(id=vd_id)
-        self.assertEqual(Tracking.objects.count(), 0)
-        tracking = Tracking.create(vd_id, lonLat, timestamp)
-        self.assertEqual(Tracking.objects.count(), 1)
-        self.assertEqual(tracking.vd_id, vd_id)
-        self.assertEqual(tracking.created, timestamp)
-        self.assertEqual(tracking.vd, vd)
-
-        saved = Tracking.objects.first()
-        self.assertEqual(saved, tracking)
-        self.assertEqual(saved.vd_id, vd_id)
-        self.assertEqual(saved.created, timestamp)
-        self.assertEqual(saved.vd, vd)
-
-    def test_string_representation(self):
-        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
-        timestamp = get_timestamp()
-        vd_id = self.vd_id
-        tracking = Tracking.create(vd_id, lonLat, timestamp)
-        self.assertEqual(unicode(tracking), "VD(id=%d)'s Tracking(lat=%0.6f, lon=%0.6f)" % (vd_id, lonLat.y, lonLat.x))

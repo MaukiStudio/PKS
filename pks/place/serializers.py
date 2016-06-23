@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework.serializers import ReadOnlyField
 from django.contrib.gis.geos import GEOSGeometry
 
-from place.models import Place, UserPlace, PostPiece, Tracking
+from place.models import Place, UserPlace, PostPiece
 from base.serializers import BaseSerializer
 
 
@@ -57,12 +57,4 @@ class UserPlaceSerializer(BaseSerializer):
                 tags = Tag.tags_from_param(params['tags'])
                 instance.search_tags = tags
         return super(UserPlaceSerializer, self).to_representation(instance)
-
-
-class TrackingSerializer(BaseSerializer):
-    vd_id = ReadOnlyField()
-    created = ReadOnlyField()
-
-    class Meta:
-        model = Tracking
 

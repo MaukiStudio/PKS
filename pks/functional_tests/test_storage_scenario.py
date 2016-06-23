@@ -22,3 +22,12 @@ class StorageScenarioTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
         self.assertEqual(result['value'], json)
+
+
+class TrackingScenarioTest(FunctionalTestAfterLoginBase):
+
+    def test_write_tracking(self):
+        json = '{"lat": 37.3997320, "lon": 127.1037430}'
+        response = self.client.post('/trackings/', dict(value=json))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+

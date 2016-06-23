@@ -10,6 +10,7 @@ from django.db.models import Count
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
+from base.utils import get_timestamp, BIT_ON_6_BYTE, BIT_ON_8_BYTE
 
 
 class User(AbstractUser):
@@ -192,3 +193,36 @@ class Storage(models.Model):
 
     class Meta:
         unique_together = ('vd', 'key',)
+
+
+class Tracking(models.Model):
+    id = models.UUIDField(primary_key=True, default=None)
+    lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
+
+    def __unicode__(self):
+        return "VD(id=%d)'s Tracking(lat=%0.6f, lon=%0.6f)" % (self.vd_id, self.lonLat.y, self.lonLat.x)
+
+    @classmethod
+    def create(cls, vd_id, lonLat, timestamp=None):
+        from uuid import UUID
+        if not vd_id:
+            raise ValueError
+        if not timestamp:
+            timestamp = get_timestamp()
+        # TODO : 남은 하위 2byte 활용
+        hstr = hex((vd_id << 10*8) | (timestamp << 2*8) | 0)[2:-1]     # 끝에 붙는 L 을 떼내기 위해 -1
+        _id = UUID(hstr.rjust(32, b'0'))
+        instance = Tracking.objects.create(id=_id, lonLat=lonLat)
+        return instance
+
+    @property
+    def created(self):
+        return self.id and (int(self.id) >> 2*8) & BIT_ON_8_BYTE
+
+    @property
+    def vd_id(self):
+        return self.id and (int(self.id) >> 10*8) & BIT_ON_6_BYTE
+
+    @property
+    def vd(self):
+        return VD.objects.get(id=self.vd_id)

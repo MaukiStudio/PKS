@@ -9,7 +9,8 @@ from django.db import IntegrityError
 from base.tests import APITestBase, FunctionalTestAfterLoginBase
 from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
-from account.models import User, RealUser, VD, Storage
+from account.models import User, RealUser, VD, Storage, Tracking
+from base.utils import get_timestamp
 
 
 class RealUserTest(APITestBase):
@@ -227,3 +228,31 @@ class TestStorage(FunctionalTestAfterLoginBase):
         storage = Storage.objects.create(vd=vd, key='key')
         with self.assertRaises(IntegrityError):
             storage2 = Storage.objects.create(vd=vd, key='key')
+
+
+class TrackingTest(FunctionalTestAfterLoginBase):
+
+    def test_save_and_retreive(self):
+        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        timestamp = get_timestamp()
+        vd_id = self.vd_id
+        vd = VD.objects.get(id=vd_id)
+        self.assertEqual(Tracking.objects.count(), 0)
+        tracking = Tracking.create(vd_id, lonLat, timestamp)
+        self.assertEqual(Tracking.objects.count(), 1)
+        self.assertEqual(tracking.vd_id, vd_id)
+        self.assertEqual(tracking.created, timestamp)
+        self.assertEqual(tracking.vd, vd)
+
+        saved = Tracking.objects.first()
+        self.assertEqual(saved, tracking)
+        self.assertEqual(saved.vd_id, vd_id)
+        self.assertEqual(saved.created, timestamp)
+        self.assertEqual(saved.vd, vd)
+
+    def test_string_representation(self):
+        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        timestamp = get_timestamp()
+        vd_id = self.vd_id
+        tracking = Tracking.create(vd_id, lonLat, timestamp)
+        self.assertEqual(unicode(tracking), "VD(id=%d)'s Tracking(lat=%0.6f, lon=%0.6f)" % (vd_id, lonLat.y, lonLat.x))

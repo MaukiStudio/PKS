@@ -2,13 +2,14 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import json
+from json import loads as json_loads
 from rest_framework import status
+from django.contrib.gis.geos import GEOSGeometry
 
 from strgen import StringGenerator as SG
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY
-from account.models import User, RealUser, VD, Storage
+from account.models import User, RealUser, VD, Storage, Tracking
 from base.tests import APITestBase, FunctionalTestAfterLoginBase
 
 
@@ -60,7 +61,7 @@ class UserAutoRegisterLoginTest(APITestBase):
     def test_register(self):
         response = self.client.post('/users/register/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertIn('auth_user_token', result)
         decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(result['auth_user_token'].encode(encoding='utf-8'))
@@ -75,7 +76,7 @@ class UserAutoRegisterLoginTest(APITestBase):
 
     def test_login(self):
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         user = User.objects.first()
         self.assertNotLogin()
 
@@ -85,7 +86,7 @@ class UserAutoRegisterLoginTest(APITestBase):
 
     def test_login_fail(self):
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         user = User.objects.first()
         user.delete()
         response = self.client.post('/users/login/', {'auth_user_token': auth_user_token})
@@ -98,7 +99,7 @@ class VDRegisterTest(APITestBase):
     def setUp(self):
         super(VDRegisterTest, self).setUp()
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
 
     def test_register_with_no_info(self):
@@ -108,7 +109,7 @@ class VDRegisterTest(APITestBase):
         user = User.objects.first()
         self.assertEqual(user, vd.authOwner)
 
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertIn('auth_vd_token', result)
         decrypter = Fernet(user.crypto_key)
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
@@ -142,7 +143,7 @@ class VDRegisterTest(APITestBase):
         self.assertEqual(user, vd.authOwner)
         self.assertEqual(user.email, email)
 
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertIn('auth_vd_token', result)
         decrypter = Fernet(user.crypto_key)
         raw_token = decrypter.decrypt(result['auth_vd_token'].encode(encoding='utf-8'))
@@ -176,10 +177,10 @@ class VDLoginTest(APITestBase):
     def setUp(self):
         super(VDLoginTest, self).setUp()
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.vd = VD.objects.first()
 
     def doLogin(self, auth_vd_token):
@@ -187,7 +188,7 @@ class VDLoginTest(APITestBase):
         response = self.client.post('/vds/login/', {'auth_vd_token': auth_vd_token})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertVdLogin(self.vd)
-        return json.loads(response.content)['auth_vd_token']
+        return json_loads(response.content)['auth_vd_token']
 
     def doLogout(self):
         response = self.client.post('/vds/logout/')
@@ -230,17 +231,17 @@ class VDViewSetTest(APITestBase):
     def setUp(self):
         super(VDViewSetTest, self).setUp()
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.vd = VD.objects.first()
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
 
     def test_vds_list(self):
         response = self.client.get('/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertIn('results', result)
         self.assertEqual(len(result['results']), 1)
 
@@ -248,7 +249,7 @@ class VDViewSetTest(APITestBase):
         aid = self.vd.aid
         response = self.client.get('/vds/%s/' % aid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertEqual(result['id'], self.vd.id)
 
@@ -274,7 +275,7 @@ class RealUserViewSetBasicTest(APITestBase):
         response = self.client.get('/rus/%s/' % self.ru.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        result = json.loads(response.content)
+        result = json_loads(response.content)
         self.assertEqual(type(result), dict)
         self.assertEqual(result['email'], 'gulby@maukistudio.com')
         self.assertEqual(type(result['vds']), list)
@@ -295,10 +296,10 @@ class RealUserViewsetTest(APITestBase):
     def setUp(self):
         super(RealUserViewsetTest, self).setUp()
         response = self.client.post('/users/register/')
-        auth_user_token = json.loads(response.content)['auth_user_token']
+        auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        self.auth_vd_token = json.loads(response.content)['auth_vd_token']
+        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.vd = VD.objects.first()
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.ru = RealUser.objects.get(email='gulby@maukistudio.com')
@@ -312,19 +313,19 @@ class RealUserViewsetTest(APITestBase):
     def test_rus_myself_vds(self):
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        vds = json.loads(response.content)
+        vds = json_loads(response.content)
         self.assertEqual(len(vds), 0)   # Login VD 는 포함되지 않음
 
         self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        vds = json.loads(response.content)
+        vds = json_loads(response.content)
         self.assertEqual(len(vds), 1)
 
         self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com'))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        vds = json.loads(response.content)
+        vds = json_loads(response.content)
         self.assertEqual(len(vds), 1)
 
 
@@ -343,3 +344,26 @@ class StorageViewsetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get('/storages/new_key/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TrackingViewSetTest(FunctionalTestAfterLoginBase):
+
+    def setUp(self):
+        super(TrackingViewSetTest, self).setUp()
+        lonLat = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
+        self.tracking = Tracking.create(self.vd_id, lonLat)
+
+    def test_list(self):
+        response = self.client.get('/trackings/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = json_loads(response.content)['results']
+        self.assertEqual(len(results), 1)
+        self.assertIn('vd_id', results[0])
+        self.assertIn('created', results[0])
+
+    def test_create(self):
+        self.assertEqual(Tracking.objects.count(), 1)
+        json = '{"lat": 37.3997320, "lon": 127.1037430}'
+        response = self.client.post('/trackings/', dict(value=json))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Tracking.objects.count(), 2)
