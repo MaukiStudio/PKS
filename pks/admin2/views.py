@@ -70,7 +70,7 @@ def placed(request):
 
 
 def places(request):
-    pbs = [place._totalPost for place in Place.objects.order_by('-id')[:1000]]
+    pbs = [place._totalPost for place in Place.objects.order_by('-id')[:100]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
