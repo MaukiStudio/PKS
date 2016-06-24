@@ -305,7 +305,8 @@ class PostBase(object):
             lp.summarize()
             result = lp.content_summarized
             result.uplace_uuid = self.uplace_uuid
-            result.place_id = self.place_id
+            # 하기 사항은 상속받으면 안됨 : 장소화가 된 장소를 다른 장소로 장소화가 불가능해짐
+            #result.place_id = self.place_id
             result.by_MAMMA = True
             return result
         return None

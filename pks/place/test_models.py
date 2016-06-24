@@ -375,6 +375,7 @@ class PostTest(APITestBase):
         place1 = uplace.place
 
         pb_place2.uplace_uuid = uplace.uuid
+        pb_place2.place_id = place1.id
         uplace, is_created = UserPlace.get_or_create_smart(pb_place2.pb_MAMMA, vd)
         self.assertNotEqual(uplace.place, None)
         self.assertEqual(uplace.lonLat, uplace.place.lonLat)
