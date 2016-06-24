@@ -496,6 +496,12 @@ class PlaceNoteTest(APITestBase):
         pnote, is_created = PlaceNote.get_or_create_smart(test_data)
         self.assertEqual(pnote.content_for_search, '여의도 중소기업중앙회 블로터미디어 콘텐츠마케팅 컨퍼런스 72초티비 피키캐스트  메이크어스 ㅍㅍㅅㅅ')
 
+    def test_sjson(self):
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote, is_created = PlaceNote.get_or_create_smart(test_data)
+        pnote.timestamp = 1
+        self.assertIn('timestamp', pnote.sjson)
+
     # TODO : 구글검색도 땡겨올 수 있도록 수정 후 부활
     def __skip__test_access_methods(self):
         test_data = '능이백숙 국물 죽이네~ ㅎㅎ'

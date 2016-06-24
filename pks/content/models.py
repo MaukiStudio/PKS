@@ -351,6 +351,12 @@ class PlaceNote(Content):
         return 'html'
 
     @property
+    def sjson(self):
+        if self.timestamp:
+            return dict(content=self.content, timestamp=self.timestamp)
+        return dict(content=self.content)
+
+    @property
     def content_for_search(self):
         return self.content.replace('#', '')
 
