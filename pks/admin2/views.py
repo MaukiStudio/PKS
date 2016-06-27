@@ -57,7 +57,16 @@ def index(request):
 
 
 def placed(request):
-    pbs = [uplace.userPost for uplace in UserPlace.objects.filter(place=None).order_by('-id')[:1000]]
+    uplaces = [uplace for uplace in UserPlace.objects.filter(place=None).order_by('-id')]
+    def sort_key(uplace):
+        if uplace.is_hurry2placed:
+            return -1
+        if uplace.is_hard2placed:
+            return 1
+        return 0
+    uplaces.sort(key=sort_key)
+
+    pbs = [uplace.userPost for uplace in uplaces[:100]]
     for pb in pbs:
         if pb and pb.images:
             for image in pb.images:
@@ -92,9 +101,18 @@ def placed_detail(request, uplace_id):
         # LegacyPlace URL 로 장소화
         if 'url' in request.POST and request.POST['url']:
             url = request.POST['url']
-            if url in ('삭제', '제거', 'delete','remove'):
+
+            # 삭제
+            if url in ('삭제', '제거', 'delete', 'remove'):
                 uplace = UserPlace.objects.get(id=uplace_id)
                 uplace.delete()
+                return redirect('/admin2/placed/%s.uplace/' % uplace_id)
+
+            # 나중에
+            if url in ('나중에', '나중', 'later', 'delay'):
+                uplace = UserPlace.objects.get(id=uplace_id)
+                uplace.is_hard2placed = True
+                uplace.save()
                 return redirect('/admin2/placed/%s.uplace/' % uplace_id)
 
             # PostBase instance 생성

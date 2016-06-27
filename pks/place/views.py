@@ -162,6 +162,10 @@ class UserPlaceViewset(BaseViewset):
                 img.timestamp = uplace.created - 1000
                 img.save()
 
+            # 빠른 장소화를 위한 flag 세팅
+            if is_created and not uplace.place:
+                uplace.is_hurry2placed = True
+
             # 최종 저장
             uplace.lonLat = (uplace.place and uplace.place.lonLat) or lonLat or uplace.lonLat
             uplace.modified = get_timestamp()

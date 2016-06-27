@@ -177,11 +177,32 @@ class SimpleUserPlaceTest(APITestBase):
         saved = UserPlace.objects.first()
         self.assertEqual(saved.is_drop, True)
         self.assertEqual(saved.mask, 0 | 1)
-
         uplace.is_drop = False
         uplace.save()
         saved = UserPlace.objects.first()
         self.assertEqual(saved.is_drop, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
+        uplace.is_hard2placed = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_hard2placed, True)
+        self.assertEqual(saved.mask, 0 | 2)
+        uplace.is_hard2placed = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_hard2placed, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
+        uplace.is_hurry2placed = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_hurry2placed, True)
+        self.assertEqual(saved.mask, 0 | 4)
+        uplace.is_hurry2placed = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_hurry2placed, False)
         self.assertEqual(saved.mask, 0 | 0)
 
     def test_get_from_post(self):

@@ -291,6 +291,26 @@ class UserPlace(models.Model):
             self.mask = (self.mask or 0) & (~1)
 
     @property
+    def is_hard2placed(self):
+        return (self.mask or 0) & 2 != 0
+    @is_hard2placed.setter
+    def is_hard2placed(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 2
+        else:
+            self.mask = (self.mask or 0) & (~2)
+
+    @property
+    def is_hurry2placed(self):
+        return (self.mask or 0) & 4 != 0
+    @is_hurry2placed.setter
+    def is_hurry2placed(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 4
+        else:
+            self.mask = (self.mask or 0) & (~4)
+
+    @property
     def origin(self):
         return self._origin
     @origin.setter
