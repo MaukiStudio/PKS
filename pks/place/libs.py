@@ -62,7 +62,7 @@ def compute_regions(uplaces=None, vd=None):
             g.type = 'lonLat'
             elements.append(g)
 
-    result = cluster.result
+    result = [member for member in cluster.result if member.count > 0]
     result.sort(key=lambda g: g.count, reverse=True)
     for g in result:
         g.distance = distance_geography
