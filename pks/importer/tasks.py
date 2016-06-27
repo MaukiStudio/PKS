@@ -158,7 +158,7 @@ class ImagesProxyTask(object):
     def step_03_prepare_images(self):
         rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
         sames = RawFile.objects.filter(vd=self.source.id).exclude(same=None)
-        rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source.id)
+        rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source)
         self.imgs = list(Image.objects.filter(rf__in=rfs1 | rfs2).exclude(lonLat=None).exclude(timestamp=None))
         for img in self.imgs:
             img.value = img.lonLat
