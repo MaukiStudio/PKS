@@ -100,7 +100,7 @@ class Group(object):
 
     @property
     def count(self):
-        return len(self.flat_members)
+        return len([member for member in self.flat_members if member.timestamp])
 
 
 class Clustering(object):

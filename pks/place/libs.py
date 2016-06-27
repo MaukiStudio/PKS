@@ -40,7 +40,8 @@ def compute_regions(uplaces=None, vd=None):
     group0 = Group()
     group0.members = uplaces
     m_value = group0.lonLat
-    cluster = RegionClustering(group0, 100, distance_geography, m_value, True)
+    from place.models import RADIUS_LOCAL_RANGE
+    cluster = RegionClustering(group0, RADIUS_LOCAL_RANGE, distance_geography, m_value, True)
     cluster.run()
     elements = cluster.result
     for e in elements:
@@ -53,10 +54,10 @@ def compute_regions(uplaces=None, vd=None):
         cluster = RegionClustering(group0, i*1000, distance_geography, m_value, True)
         cluster.run()
         cluster.result.sort(key=lambda g: g.count, reverse=True)
-        for r in cluster.result[:5]:
+        for r in cluster.result:
             uplace = UserPlace(lonLat=r.lonLat)
             uplace.value = uplace.lonLat
-            uplace.timestamp = 1
+            uplace.timestamp = 0
             g = Group([uplace])
             g.type = 'lonLat'
             elements.append(g)
