@@ -15,7 +15,7 @@ from base.models import Point
 from content.models import PlaceName
 from geopy.distance import vincenty as vincenty_distance
 
-RADIUS_LOCAL_RANGE = 100
+RADIUS_LOCAL_RANGE = 150
 
 
 class Place(models.Model):

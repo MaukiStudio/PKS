@@ -7,9 +7,9 @@ from place.models import UserPlace, PostPiece, PostBase
 from account.models import VD
 from base.libs import Group, Clustering
 
-CLUSTERING_MAX_DISTANCE_THRESHOLD = 1414+1      # meters
-CLUSTERING_TIMEDELTA_THRESHOLD = 11+1           # minutes
-CLUSTERING_MIN_DISTANCE_THRESHOLD = 11+1        # meters
+CLUSTERING_MAX_DISTANCE_THRESHOLD = 1500+1      # meters
+CLUSTERING_TIMEDELTA_THRESHOLD = 20+1           # minutes
+CLUSTERING_MIN_DISTANCE_THRESHOLD = 15+1        # meters
 
 
 class ImporterTask(object):
