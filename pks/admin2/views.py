@@ -59,10 +59,10 @@ def index(request):
 def placed(request):
     uplaces = [uplace for uplace in UserPlace.objects.filter(place=None).order_by('-id')]
     def sort_key(uplace):
-        if uplace.is_hurry2placed:
-            return -1
         if uplace.is_hard2placed:
             return 1
+        if uplace.is_hurry2placed:
+            return -1
         return 0
     uplaces.sort(key=sort_key)
 
