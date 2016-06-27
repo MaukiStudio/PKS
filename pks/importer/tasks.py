@@ -111,7 +111,7 @@ class ImagesProxyTask(object):
         call(self.step_01_task_rfs)
         for i in range(3):     # TODO : 한번만 돌려도 동일한 결과가 나오는 알고리즘으로 변경
             call(self.step_02_task_images)
-        self.dump_similars()
+        #self.dump_similars()
         #'''
         call(self.step_03_prepare_images)
         call(self.step_04_first_clustering_by_geography_distance)
@@ -216,7 +216,7 @@ class ImagesProxyTask(object):
 
     def step_07_fourth_clustering_by_geography_distance(self):
         for threshold in xrange(1, CLUSTERING_MIN_DISTANCE_THRESHOLD+1):
-            print('threshold = %d' % threshold)
+            #print('threshold = %d' % threshold)
             prev_group_cnt = 0
             for iteration in xrange(10):
                 group_cnt = 0
@@ -232,7 +232,7 @@ class ImagesProxyTask(object):
                     group1.members = [Group(sum([group3.members for group3 in group2.members], [])) for group2 in cluster.result]
                     group_cnt += len(group1.members)
 
-                print('step_07:group_cnt == %d' % group_cnt)
+                #print('step_07:group_cnt == %d' % group_cnt)
                 if prev_group_cnt == group_cnt:
                     break
                 else:
