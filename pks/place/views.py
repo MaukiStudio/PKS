@@ -202,7 +202,7 @@ class UserPlaceViewset(BaseViewset):
         json = list()
         for r in result[:120]:
             lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
-            radius = int(round(r.radius + RADIUS_LOCAL_RANGE + 0.499))
+            radius = int(round(r.radius_min_max + RADIUS_LOCAL_RANGE + 0.499))
             for_debug_url = 'http://maps.google.com/?q=%f,%f' % (r.lonLat.y, r.lonLat.x)
             json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
