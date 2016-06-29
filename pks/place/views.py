@@ -201,9 +201,9 @@ class UserPlaceViewset(BaseViewset):
         result = compute_regions(vd=self.vd)
         json = list()
         for r in result[:120]:
-            lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
+            lonLat = dict(lon=r.lonLat_min_max.x, lat=r.lonLat_min_max.y)
             radius = int(round(r.radius_min_max + RADIUS_LOCAL_RANGE + 0.499))
-            for_debug_url = 'http://maps.google.com/?q=%f,%f' % (r.lonLat.y, r.lonLat.x)
+            for_debug_url = 'http://maps.google.com/?q=%f,%f' % (lonLat['lat'], lonLat['lon'])
             json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
 
