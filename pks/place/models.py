@@ -174,6 +174,11 @@ class UserPlace(models.Model):
         self._search_tags = None
         super(UserPlace, self).__init__(*args, **kwargs)
 
+    def __unicode__(self):
+        if self.place and self.place.placeName:
+            return self.place.placeName.content
+        return 'No named uplace object'
+
     @property
     def uuid(self):
         return '%s.%s' % (b16encode(self.id.bytes), 'uplace',)
