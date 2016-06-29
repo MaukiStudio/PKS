@@ -6,10 +6,9 @@ from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
-from django.db.models import F
 from rest_framework.decorators import list_route
 
-from place.models import Place, UserPlace, PostPiece
+from place.models import Place, UserPlace, PostPiece, RADIUS_LOCAL_RANGE
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
 from base.views import BaseViewset
 from place.post import PostBase
@@ -203,7 +202,7 @@ class UserPlaceViewset(BaseViewset):
         json = list()
         for r in result[:120]:
             lonLat = dict(lon=r.lonLat.x, lat=r.lonLat.y)
-            radius = int(round(r.radius + 0.49))
+            radius = int(round(r.radius + RADIUS_LOCAL_RANGE + 0.499))
             for_debug_url = 'http://maps.google.com/?q=%f,%f' % (r.lonLat.y, r.lonLat.x)
             json.append(dict(lonLat=lonLat, count=r.count, radius=radius, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
