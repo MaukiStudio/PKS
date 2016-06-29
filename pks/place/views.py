@@ -54,10 +54,8 @@ class UserPlaceViewset(BaseViewset):
             elif params['order_by'] in ('distance_from_origin', '-distance_from_origin'):
                 order_by = params['order_by'].split('_')[0]
 
-        vd_ids = self.vd.realOwner_vd_ids
-        qs = self.queryset.filter(vd_id__in=vd_ids)
-        qs = qs.exclude(id__in=self.vd.realOwner_duplicated_uplace_ids)
-        qs = qs.filter(mask=F('mask').bitand(~1))
+        from place.libs import get_proper_uplaces_qs
+        qs = get_proper_uplaces_qs(self.vd)
 
         # 장소화되지 않은 uplace 조회
         if 'placed' in params and params['placed']:

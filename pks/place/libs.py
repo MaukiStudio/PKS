@@ -29,11 +29,18 @@ class RegionClustering(Clustering):
         return True
 
 
-def compute_regions(uplaces=None, vd=None):
+def get_proper_uplaces_qs(vd, qs=None):
+    if not qs:
+        qs = UserPlace.objects.all()
+    qs = UserPlace.objects.filter(vd_id__in=vd.realOwner_vd_ids)
+    qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
+    qs = qs.filter(mask=F('mask').bitand(~1))
+    return qs
+
+
+def compute_regions(vd, uplaces=None):
     if not uplaces:
-        qs = UserPlace.objects.filter(vd__in=vd.realOwner_vd_ids).filter(mask=F('mask').bitand(~1)).exclude(lonLat=None)
-        qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
-        uplaces = list(qs)
+        uplaces = list(get_proper_uplaces_qs(vd))
         for uplace in uplaces:
             uplace.value = uplace.lonLat
             uplace.timestamp = uplace.modified
