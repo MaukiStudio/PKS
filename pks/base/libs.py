@@ -16,6 +16,7 @@ def distance_geography(p1, p2):
 
 
 # TODO : 느낌만으로 만든 휴리스틱. 개선 필요
+# 특히 distance 함수에 버그가 있던 시절에 실험을 통한 느낌으로 만든 것이라 더더욱...
 def distance_geography_group(g1, g2):
     d1 = distance_geography(g1.lonLat, g2.lonLat)
     g1.distance = distance_geography

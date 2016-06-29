@@ -1,9 +1,5 @@
 [Now]
 
-regions API 에서의 count 버그 찾아 수정
-ImagesImporter
-    임포트하고, 또 임포트하는 경우에 대한 처리
-
 장소화된 Content
 
 UserPlace 쪼개기, 파생시키기 - 포함관계 구성
@@ -12,19 +8,23 @@ UserPlace 하나에 여러개의 Place
     --> UserPlace 관계 중 same 관계를 활용
 
 장소화 어드민 개선
-    공간/시간 거리 기준 가까운 관련 정보들 추가 출력 : Placed UserPlace, 사진. 
+    공간/시간 거리 기준 가까운 관련 정보들 추가 출력 : Placed UserPlace, 사진.
     자체 DB 를 활용한 장소화 기능 만들기
     위치 트래킹 정보 보여주기
 
 Celery 안되는 문제 해결
 
+regions API 개선
+    개수가 30 개 미만인 경우 더 뭉쳐서 크게...
+    알고리즘을 바꾸는 것도 검토 : k-means 등
+
+ImagesImporter
+    임포트하고, 또 임포트하는 경우에 대한 처리
+
 장소화가 되지 않은 장소 주변의 장소 정보 크롤링
-
-
 
 구글 장소화
 네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
-
 
 블로그 import 및 타겟 크롤링
 
