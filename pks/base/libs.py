@@ -62,6 +62,7 @@ class Group(object):
         if not self._cache_lonLat_min_max:
             arr_lon = np.array([e.lonLat.x for e in self.members])
             arr_lat = np.array([e.lonLat.y for e in self.members])
+            # TODO : 근사임. 문제가 있다면 정확한 구현으로 변경
             lon = (arr_lon.min() + arr_lon.max())/2.0
             lat = (arr_lat.min() + arr_lat.max())/2.0
             self._cache_lonLat_min_max = GEOSGeometry('POINT(%f %f)' % (lon, lat), srid=4326)
