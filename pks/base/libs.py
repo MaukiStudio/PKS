@@ -38,7 +38,7 @@ class Group(object):
                 if type(self.members[0]) == Group:
                     self._cache_flat_members = sum([member.flat_members for member in self.members], [])
                 else:
-                    self._cache_flat_members = [img for img in self.members]
+                    self._cache_flat_members = [member for member in self.members]
             else:
                 self._cache_flat_members = []
         return self._cache_flat_members
