@@ -13,7 +13,7 @@ from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
 from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
-from geopy.distance import vincenty as vincenty_distance
+from base.libs import distance_geography
 
 RADIUS_LOCAL_RANGE = 150
 
@@ -326,7 +326,7 @@ class UserPlace(models.Model):
     def distance_from_origin(self):
         if not self.origin or not self.lonLat:
             return None
-        m = vincenty_distance(self.origin, self.lonLat).meters
+        m = distance_geography(self.origin, self.lonLat)
         m = int(round(m/10.0))*10.0
         if m < 1000.0:
             return '%dm' % m

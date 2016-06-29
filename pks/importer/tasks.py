@@ -5,7 +5,7 @@ from base.utils import get_timestamp, call
 from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
 from place.models import UserPlace, PostPiece, PostBase
 from account.models import VD
-from base.libs import Group, Clustering
+from base.libs import Group, Clustering, distance_geography_group, distance_geography
 
 CLUSTERING_MAX_DISTANCE_THRESHOLD = 1500+1      # meters
 CLUSTERING_TIMEDELTA_THRESHOLD = 20+1           # minutes
@@ -79,19 +79,6 @@ class ProxyTask(object):
         proxy.ended = get_timestamp()
         proxy.save()
         return result
-
-
-def distance_geography(p1, p2):
-    from geopy.distance import vincenty as vincenty_distance
-    return vincenty_distance(p1, p2).meters
-
-
-def distance_geography_group(g1, g2):
-    d1 = distance_geography(g1.lonLat, g2.lonLat)
-    g1.distance = distance_geography
-    g2.distance = distance_geography
-    d2 = max(d1 - g1.radius - g2.radius, 0)
-    return (d1+d2)/2.0
 
 
 class ImagesProxyTask(object):

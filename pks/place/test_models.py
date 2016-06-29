@@ -240,11 +240,11 @@ class SimpleUserPlaceTest(APITestBase):
 
         point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
         uplace.origin = point2
-        self.assertEqual(uplace.distance_from_origin, '410m')
+        self.assertEqual(uplace.distance_from_origin, '350m')
 
         point3 = GEOSGeometry('POINT(127.0 37.0)', srid=4326)
         uplace.origin = point3
-        self.assertEqual(uplace.distance_from_origin, '29.2km')
+        self.assertEqual(uplace.distance_from_origin, '45.3km')
 
 
 class PostTest(APITestBase):

@@ -7,6 +7,23 @@ from django.contrib.gis.geos import GEOSGeometry
 from base.utils import call
 
 
+def distance_geography(p1, p2):
+    from geopy.distance import vincenty as vincenty_distance
+    from geopy import Point
+    geopy_p1 = Point(p1.y, p1.x)
+    geopy_p2 = Point(p2.y, p2.x)
+    return vincenty_distance(geopy_p1, geopy_p2).meters
+
+
+# TODO : 느낌만으로 만든 휴리스틱. 개선 필요
+def distance_geography_group(g1, g2):
+    d1 = distance_geography(g1.lonLat, g2.lonLat)
+    g1.distance = distance_geography
+    g2.distance = distance_geography
+    d2 = max(d1 - g1.radius - g2.radius, 0)
+    return (d1+d2)/2.0
+
+
 class Group(object):
     def __init__(self, members=None):
         self.leader = None
