@@ -3,16 +3,21 @@ from __future__ import unicode_literals
 
 from re import compile as re_compile
 from rest_framework import status
+from django.contrib.gis.db import models
 
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
 from requests import get as requests_get
+from place.models import Place
 
 URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$')
 URL_REGEX_4SQUARE_SHORTENER_URL = re_compile(r'^https?://4sq\.com/[A-za-z0-9_\-]+$')
 
 
 class Url(Content):
+
+    places = models.ManyToManyField(Place, through='UrlPlaceRelation', related_name='urls')
+
     # MUST override
     @property
     def contentType(self):
@@ -51,3 +56,8 @@ class Url(Content):
                 url = url_norms(url_redirected)
 
         return url
+
+
+class UrlPlaceRelation(models.Model):
+    url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='+')
+    place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='+')
