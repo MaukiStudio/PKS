@@ -1,11 +1,11 @@
 [Now]
 
 장소화된 Content
-
 UserPlace 쪼개기, 파생시키기 - 포함관계 구성
 UserPlace 하나에 여러개의 Place
+
 100m 이상의 큰 장소
-    --> UserPlace 관계 중 same 관계를 활용
+    --> Place 를 활용하자...
 
 장소화 어드민 개선
     공간/시간 거리 기준 가까운 관련 정보들 추가 출력 : Placed UserPlace, 사진.
@@ -15,6 +15,9 @@ UserPlace 하나에 여러개의 Place
 Celery 안되는 문제 해결
 
 regions API 개선
+    1차 : 국가별 Clustering
+    2차 : 현재 알고리즘 - 1차 Clustering 이후 30개 넘는 Region 에 대해서만
+    3차 : 2차 이후 30개 미만인 Region 들끼리 뭉치기. 뭉친 결과로 인해 30개 이상인 Region 과의 intersection 이 생기지 않도록
     개수가 30 개 미만인 경우 더 뭉쳐서 크게...
     알고리즘을 바꾸는 것도 검토 : k-means 등
 

@@ -166,6 +166,8 @@ class UserPlace(models.Model):
     lonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
+    parent = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='childs')
+
     def __init__(self, *args, **kwargs):
         self._cache_pb = None
         self._cache_prev_tags = None
