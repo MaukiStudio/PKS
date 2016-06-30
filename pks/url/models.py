@@ -61,3 +61,6 @@ class Url(Content):
 class UrlPlaceRelation(models.Model):
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='+')
     place = models.ForeignKey(Place, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='+')
+
+    class Meta:
+        unique_together = ('url', 'place',)

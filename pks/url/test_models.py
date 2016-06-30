@@ -7,8 +7,9 @@ from base64 import b16encode
 from urllib import unquote_plus
 
 from base.tests import APITestBase
-from url.models import Url
+from url.models import Url, UrlPlaceRelation
 from pks.settings import WORK_ENVIRONMENT
+from place.models import Place
 
 
 class UrlTest(APITestBase):
@@ -182,3 +183,27 @@ class UrlTest(APITestBase):
         self.assertEqual(Url.objects.count(), 1)
         self.assertEqual(url1, url2)
         self.assertEqual(url1.content, url2.content)
+
+
+class UrlPlaceRelationTest(APITestBase):
+
+    def setUp(self):
+        super(UrlPlaceRelationTest, self).setUp()
+        self.url = Url.objects.create(content='http://www.naver.com/')
+        self.place = Place.objects.create()
+        self.upr = UrlPlaceRelation(url=self.url, place=self.place)
+
+    def test_save_and_retrieve(self):
+        self.assertEqual(UrlPlaceRelation.objects.count(), 0)
+        self.upr.save()
+        self.assertEqual(UrlPlaceRelation.objects.count(), 1)
+        saved = UrlPlaceRelation.objects.first()
+        self.assertEqual(saved, self.upr)
+        self.assertEqual(saved.url, self.url)
+        self.assertEqual(saved.place, self.place)
+
+    def test_unique(self):
+        self.upr.save()
+        other = UrlPlaceRelation(url=self.url, place=self.place)
+        with self.assertRaises(IntegrityError):
+            other.save()
