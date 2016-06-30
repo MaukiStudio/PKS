@@ -184,6 +184,20 @@ class UrlTest(APITestBase):
         self.assertEqual(url1, url2)
         self.assertEqual(url1.content, url2.content)
 
+    def add_remove_place_test(self):
+        url1, is_created = Url.get_or_create_smart('http://www.naver.com/')
+        url2, is_created = Url.get_or_create_smart('http://www.daum.net/')
+        place1 = Place.objects.create()
+        place2 = Place.objects.create()
+        self.assertEqual(url1.places.count(), 0)
+        url1.add_place(place1)
+        self.assertEqual(url1.places.count(), 1)
+        url1.add_place(place2)
+        self.assertEqual(url1.places.count(), 2)
+        url1.remove_place(place1)
+        self.assertEqual(url1.places.count(), 1)
+        self.assertEqual(url2.places.count(), 0)
+
 
 class UrlPlaceRelationTest(APITestBase):
 

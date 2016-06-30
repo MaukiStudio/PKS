@@ -57,6 +57,14 @@ class Url(Content):
 
         return url
 
+    def add_place(self, place):
+        upr = UrlPlaceRelation.objects.get_or_create(url=self, place=place)
+        return upr
+
+    def remove_place(self, place):
+        upr = UrlPlaceRelation.objects.get(url=self, place=place)
+        upr.delete()
+
 
 class UrlPlaceRelation(models.Model):
     url = models.ForeignKey(Url, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='+')
