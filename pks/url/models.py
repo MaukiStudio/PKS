@@ -8,7 +8,7 @@ from django.contrib.gis.db import models
 from base.models import Content
 from base.legacy.urlnorm import norms as url_norms
 from requests import get as requests_get
-from place.models import Place
+from place.models import Place, PostPiece
 
 URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$')
 URL_REGEX_4SQUARE_SHORTENER_URL = re_compile(r'^https?://4sq\.com/[A-za-z0-9_\-]+$')
@@ -59,6 +59,18 @@ class Url(Content):
 
     def add_place(self, place):
         upr, is_created = UrlPlaceRelation.objects.get_or_create(url=self, place=place)
+        if is_created:
+            pps = PostPiece.objects.filter(data__urls__contains=[self.sjson])
+            for pp in pps:
+                uplace = pp.uplace
+                if uplace.is_parent:
+                    uplace.get_or_create_child(place)
+                else:
+                    if uplace.place:
+                        uplace.get_or_create_child(uplace.place)    # 기존 매핑 Place 로도 별도 child 생성
+                        uplace.get_or_create_child(place)
+                    else:
+                        uplace.placed(place)
         return upr
 
     def remove_place(self, place):

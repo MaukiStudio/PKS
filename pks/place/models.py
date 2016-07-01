@@ -232,6 +232,22 @@ class UserPlace(models.Model):
         pb.uplace_uuid = uplace.uuid
         return uplace, is_uplace_created
 
+    # TODO : DB 저장 회수 많음. 튜닝 필요
+    def get_or_create_child(self, place=None):
+        # child 가 또 child 를 가지는 부분은 미구현. 영원히 미구현일지도...
+        if self.parent:
+            raise NotImplementedError
+        self.is_parent = True
+        self.place = None
+        self.save()
+
+        pb = PostBase()
+        pb.place_id = place and place.id or None
+        child, is_created = UserPlace.get_or_create_smart(pb, self.vd)
+        child.parent = self
+        child.save()
+        return child, is_created
+
     def computePost(self, vd_ids=None, base_post=None):
         if self.place:
             self.place.computePost(vd_ids, base_post)
@@ -497,6 +513,7 @@ class PostPiece(models.Model):
     @property
     def pb(self):
         pb1 = PostBase(self.data, self.timestamp)
+        # 하기 기능은 computePost() 시 vd_ids 에 realOwner_publisher_ids 를 넘기는 방식으로 구현 변경
         '''
         if pb1.iplace_uuid:
             iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)

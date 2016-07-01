@@ -9,7 +9,8 @@ from urllib import unquote_plus
 from base.tests import APITestBase
 from url.models import Url, UrlPlaceRelation
 from pks.settings import WORK_ENVIRONMENT
-from place.models import Place
+from place.models import Place, UserPlace, PostPiece, PostBase
+from account.models import VD
 
 
 class UrlTest(APITestBase):
@@ -184,7 +185,7 @@ class UrlTest(APITestBase):
         self.assertEqual(url1, url2)
         self.assertEqual(url1.content, url2.content)
 
-    def add_remove_place_test(self):
+    def test_add_remove_place(self):
         url1, is_created = Url.get_or_create_smart('http://www.naver.com/')
         url2, is_created = Url.get_or_create_smart('http://www.daum.net/')
         place1 = Place.objects.create()
@@ -197,6 +198,37 @@ class UrlTest(APITestBase):
         url1.remove_place(place1)
         self.assertEqual(url1.places.count(), 1)
         self.assertEqual(url2.places.count(), 0)
+
+    def test_placed(self):
+        test_data = 'http://www.mangoplate.com/top_lists/1073_2016_secondhalf_busan'
+        pb = PostBase('{"urls": [{"content": "%s"}]}' % test_data)
+        vd = VD.objects.create()
+        parent, is_created = UserPlace.get_or_create_smart(pb, vd)
+        self.assertEqual(parent.place, None)
+        url, is_created = Url.get_or_create_smart(test_data)
+        pp = PostPiece.objects.create(place=None, uplace=parent, vd=vd, pb=pb)
+        self.assertIn(url, parent.userPost.urls)
+
+        self.assertEqual(UserPlace.objects.count(), 1)
+        place1 = Place.objects.create()
+        url.add_place(place1)
+        self.assertEqual(UserPlace.objects.count(), 1)
+        parent = UserPlace.objects.get(id=parent.id)
+        self.assertEqual(parent.place, place1)
+
+        place2 = Place.objects.create()
+        url.add_place(place2)
+        self.assertEqual(UserPlace.objects.count(), 3)
+        parent = UserPlace.objects.get(id=parent.id)
+        self.assertEqual(parent.place, None)
+        self.assertEqual(UserPlace.objects.exclude(place=None).count(), 2)
+
+        place3 = Place.objects.create()
+        url.add_place(place3)
+        self.assertEqual(UserPlace.objects.count(), 4)
+        parent = UserPlace.objects.get(id=parent.id)
+        self.assertEqual(parent.place, None)
+        self.assertEqual(UserPlace.objects.exclude(place=None).count(), 3)
 
 
 class UrlPlaceRelationTest(APITestBase):
