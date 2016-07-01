@@ -34,7 +34,7 @@ def get_proper_uplaces_qs(vd, qs=None):
         qs = UserPlace.objects.all()
     qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
     qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
-    qs = qs.filter(mask=F('mask').bitand(~1))
+    qs = qs.filter(mask=F('mask').bitand(~1))   # is_drop == True 인것 제외
     return qs
 
 
