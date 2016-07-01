@@ -196,3 +196,7 @@ def placed_detail(request, uplace_id):
         uplace.placePost.map_url_google = get_map_url_google(uplace.placePost.lonLat)
     context = dict(userPost=uplace.userPost, placePost=uplace.placePost, default_lonLat=default_lonLat)
     return render(request, 'admin2/placed_detail.html', context)
+
+
+def url_placed(request):
+    return render(request, 'admin2/url_placed.html')
