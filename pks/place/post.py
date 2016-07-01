@@ -46,6 +46,29 @@ class PostBase(object):
             print(json)
             raise NotImplementedError
 
+    def copy(self):
+        result = PostBase()
+        result.names = self.names[:]
+        result.visits = self.visits[:]
+        result.ratings = self.ratings[:]
+        result.points = self.points[:]
+        result.phones = self.phones[:]
+        result.addrs1 = self.addrs1[:]
+        result.addrs2 = self.addrs2[:]
+        result.addrs3 = self.addrs3[:]
+        result.lps = self.lps[:]
+        result.urls = self.urls[:]
+        result.notes = self.notes[:]
+        result.images = self.images[:]
+
+        result.place_id = self.place_id
+        result.uplace_uuid = self.uplace_uuid
+        result.by_MAMMA = self.by_MAMMA
+        result.iplace_uuid = self.iplace_uuid
+
+        result._cache_tags = self._cache_tags and self._cache_tags[:]
+        return result
+
     @property
     def name(self):
         return (self.names and self.names[0]) or None

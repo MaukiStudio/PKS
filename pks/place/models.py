@@ -45,6 +45,7 @@ class Place(models.Model):
 
         # userPost
         if vd_ids:
+            base_post = base_post and base_post.copy()
             pb = base_post or PostBase()
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
                 if pp.is_drop:
@@ -236,6 +237,7 @@ class UserPlace(models.Model):
             self.place.computePost(vd_ids, base_post)
             self._cache_pb = self.place.userPost
         else:
+            base_post = base_post and base_post.copy()
             pb = base_post or PostBase()
             for pp in self.pps.all().order_by('id'):
                 if pp.is_drop:

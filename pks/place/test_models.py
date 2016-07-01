@@ -347,7 +347,7 @@ class PostTest(APITestBase):
         self.assertNotIn('timestamp', uplace1.userPost.json['lonLat'])
         self.assertNotIn('timestamp', uplace1.userPost.json['name'])
         self.assertIn('timestamp', uplace1.userPost.json['notes'][0])
-        #self.assertIn('timestamp', uplace1.userPost.json['images'][0])
+        self.assertNotIn('timestamp', uplace1.userPost.json['images'][0])
         self.assertIn('timestamp', uplace1.userPost.json['images'][0]['note'])
 
         self.assertNotIn('timestamp', uplace2.userPost.json['urls'][0])
@@ -389,6 +389,18 @@ class PostTest(APITestBase):
         #self.assertIsSubsetOf(uplace1.userPost, totalPost)     # Note 에서 timestamp 를 제거해야...
         #self.assertIsSubsetOf(uplace2.userPost, totalPost)     # 상동
         #self.assertIsNotSubsetOf(totalPost, uplace1.place.placePost)   # userPost 를 하나 더 생성해야...
+
+        # child/parent test
+        uplace3 = UserPlace.objects.create(parent=uplace1, vd=vd1)
+        self.assertEqual(uplace3.parent, uplace1)
+        self.assertNotEqual(uplace3.userPost, uplace1.userPost)
+        self.assertEqual(uplace3.userPost.json, uplace1.userPost.json)
+        uplace1._clearCache()
+        uplace3._clearCache()
+        pb3 = PostBase('{"notes": [{"content": "child"}]}')
+        pp3 = PostPiece.objects.create(place=None, uplace=uplace3, vd=vd1, pb=pb3)
+        self.assertNotEqual(uplace3.userPost, uplace1.userPost)
+        self.assertNotEqual(uplace3.userPost.json, uplace1.userPost.json)
 
 
     def test_placed(self):
