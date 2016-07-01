@@ -9,6 +9,8 @@ from account.models import VD
 from pks.settings import VD_SESSION_KEY
 from place.post import PostBase
 from geopy.geocoders import Nominatim
+from url.models import Url
+from content.models import LegacyPlace
 
 geolocator = Nominatim()
 
@@ -199,4 +201,40 @@ def placed_detail(request, uplace_id):
 
 
 def url_placed(request):
-    return render(request, 'admin2/url_placed.html')
+    url = None
+    places = None
+    vd_id = request.session[VD_SESSION_KEY]
+    vd = VD.objects.get(id=vd_id)
+    if not vd:
+        raise ValueError('Admin Login Required')
+
+    if request.method == 'POST':
+        raw_url = request.POST['url']
+        url, is_created = Url.get_or_create_smart(raw_url)
+        if not url:
+            raise ValueError('Invalid URL')
+        raw_places = request.POST['places']
+
+        for raw_place in raw_places.split('\n'):
+            raw_place = raw_place.strip()
+            is_remove = False
+            if raw_place.startswith('-'):
+                is_remove = True
+                raw_place = raw_place[1:]
+            if not raw_place:
+                continue
+            lp_content = LegacyPlace.normalize_content(raw_place)
+            if lp_content:
+                lp, is_created = LegacyPlace.get_or_create_smart(lp_content)
+                pb = PostBase()
+                pb.lps.append(lp)
+                place, is_created = Place.get_or_create_smart(pb.pb_MAMMA, vd)
+                if is_remove:
+                    url.remove_place(place)
+                else:
+                    url.add_place(place)
+            else:
+                raise NotImplementedError
+        places = [place for place in url.places.all()]
+
+    return render(request, 'admin2/url_placed.html', dict(url=url, places=places))

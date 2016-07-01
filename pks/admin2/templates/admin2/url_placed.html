@@ -3,12 +3,30 @@
 {% block header_text %}PlaceKoob Custom Admin - Placed Detail{% endblock %}
 
 {% block table %}
+    {% if url %}
+    <table class="table">
+        <tr>
+            <td>
+                URL : {{  url  }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {% for place in places %}
+                    {{ place }}<br/>
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+    <br/>
+    {% endif %}
+
     <table class="table">
         <tr>
         <tr>
             <td>
                 <div class="jumbotron">
-                    URL : <input type="text" id="id_url" name="url" class="form-control input-lg"/>
+                    URL : <input type="text" id="id_url" name="url" class="form-control input-lg" value="{{  url  }}"/>
                 </div>
             </td>
         </tr>
