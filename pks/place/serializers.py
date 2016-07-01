@@ -21,7 +21,7 @@ class PlaceSerializer(BaseSerializer):
     def to_representation(self, instance):
         vd = self.vd
         if vd:
-            instance.computePost(vd_ids=vd.realOwner_vd_ids)
+            instance.computePost(vd.realOwner_vd_ids)
         return super(PlaceSerializer, self).to_representation(instance)
 
 

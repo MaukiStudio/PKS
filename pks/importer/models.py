@@ -92,11 +92,6 @@ class ImportedPlace(UserPlace):
     class Meta:
         proxy = True
 
-    def computePost(self, vd_ids=None):
-        if self.place:
-            self.place.computePost(vd_ids)
-        super(ImportedPlace, self).computePost(None)
-
     @property
     def userPost(self):
         if self.place:

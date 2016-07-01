@@ -33,7 +33,7 @@ class Place(models.Model):
             return self.placeName.content
         return 'No named place object'
 
-    def computePost(self, vd_ids=None):
+    def computePost(self, vd_ids=None, base_post=None):
         # placePost
         pb = PostBase()
         for pp in self.pps.all().filter(uplace=None).order_by('id'):
@@ -45,11 +45,11 @@ class Place(models.Model):
 
         # userPost
         if vd_ids:
-            pb = PostBase()
+            pb = base_post or PostBase()
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
                 if pp.is_drop:
-                    # TODO : 정책 잡고 구현...
-                    # 일단 현재는 UserPlace 에도 is_drop 이 있고, 리스트 조회 시 is_drop 인건 빼고 있으므로 이 구현이 적절
+                    # TODO : 이 부분이 테스트되는 테스트 추가
+                    pb = base_post or PostBase()
                     pass
                 else:
                     pb.update(pp.pb, pp.is_add)
@@ -231,18 +231,22 @@ class UserPlace(models.Model):
         pb.uplace_uuid = uplace.uuid
         return uplace, is_uplace_created
 
-    def computePost(self, vd_ids=None):
-        pb = PostBase()
-        for pp in self.pps.all().order_by('id'):
-            if pp.is_drop:
-                # TODO : 이 부분이 테스트되는 테스트 추가
-                pb = PostBase()
-            else:
-                pb.update(pp.pb, pp.is_add)
-        pb.uplace_uuid = self.uuid
-        pb.place_id = self.place_id
-        pb.normalize()
-        self._cache_pb = pb
+    def computePost(self, vd_ids=None, base_post=None):
+        if self.place:
+            self.place.computePost(vd_ids, base_post)
+            self._cache_pb = self.place.userPost
+        else:
+            pb = base_post or PostBase()
+            for pp in self.pps.all().order_by('id'):
+                if pp.is_drop:
+                    # TODO : 이 부분이 테스트되는 테스트 추가
+                    pb = base_post or PostBase()
+                else:
+                    pb.update(pp.pb, pp.is_add)
+            pb.uplace_uuid = self.uuid
+            pb.place_id = self.place_id
+            pb.normalize()
+            self._cache_pb = pb
 
     def _clearCache(self):
         self._cache_pb = None
@@ -252,11 +256,11 @@ class UserPlace(models.Model):
     @property
     def userPost(self):
         if not self._cache_pb:
-            if self.place:
-                self.place.computePost(self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids)
-                self._cache_pb = self.place.userPost
-            else:
-                self.computePost()
+            base_post = self.parent and self.parent.userPost or None
+            vd_ids = None
+            if self.vd and self.place:
+                vd_ids = self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids
+            self.computePost(vd_ids, base_post)
         return self._cache_pb
 
     @property

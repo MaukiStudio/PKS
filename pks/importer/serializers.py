@@ -25,5 +25,6 @@ class ImportedPlaceSerializer(UserPlaceSerializer):
     def to_representation(self, instance):
         vd = self.vd
         if vd:
-            instance.computePost(vd_ids=vd.realOwner_publisher_ids)
+            base_post = instance.parent and instance.parent.userPost or None
+            instance.computePost(vd.realOwner_publisher_ids, base_post)
         return super(ImportedPlaceSerializer, self).to_representation(instance)
