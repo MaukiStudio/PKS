@@ -391,16 +391,28 @@ class PostTest(APITestBase):
         #self.assertIsNotSubsetOf(totalPost, uplace1.place.placePost)   # userPost 를 하나 더 생성해야...
 
         # child/parent test
-        uplace3 = UserPlace.objects.create(parent=uplace1, vd=vd1)
+        uplace3 = UserPlace.objects.create(parent=uplace1)
         self.assertEqual(uplace3.parent, uplace1)
         self.assertNotEqual(uplace3.userPost, uplace1.userPost)
         self.assertEqual(uplace3.userPost.json, uplace1.userPost.json)
         uplace1._clearCache()
         uplace3._clearCache()
         pb3 = PostBase('{"notes": [{"content": "child"}]}')
-        pp3 = PostPiece.objects.create(place=None, uplace=uplace3, vd=vd1, pb=pb3)
+        pp3 = PostPiece.objects.create(place=None, uplace=uplace3, pb=pb3)
         self.assertNotEqual(uplace3.userPost, uplace1.userPost)
         self.assertNotEqual(uplace3.userPost.json, uplace1.userPost.json)
+
+        place4 = Place.objects.create()
+        uplace4 = UserPlace.objects.create(parent=uplace1, vd=vd1, place=place4)
+        self.assertEqual(uplace4.parent, uplace1)
+        self.assertNotEqual(uplace4.userPost, uplace1.userPost)
+        self.assertEqual(uplace4.userPost.json, uplace1.userPost.json)
+        uplace1._clearCache()
+        uplace4._clearCache()
+        pb3 = PostBase('{"notes": [{"content": "child"}]}')
+        pp3 = PostPiece.objects.create(place=None, uplace=uplace4, vd=vd1, pb=pb3)
+        self.assertNotEqual(uplace4.userPost, uplace1.userPost)
+        self.assertNotEqual(uplace4.userPost.json, uplace1.userPost.json)
 
 
     def test_placed(self):
