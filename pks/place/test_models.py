@@ -7,7 +7,7 @@ from django.contrib.gis.measure import D
 from json import loads as json_loads
 from urllib import unquote_plus
 
-from base.tests import APITestBase, FunctionalTestAfterLoginBase
+from base.tests import APITestBase
 from place.models import Place, UserPlace, PostPiece
 from account.models import VD, RealUser
 from image.models import Image
@@ -65,6 +65,17 @@ class SimplePlaceTest(APITestBase):
         self.assertEqual(saved.placeName.content, test_data)
         self.assertEqual(placeName.places.first(), saved)
         self.assertEqual(Place.objects.filter(placeName=placeName).first(), saved)
+
+    def test_get_or_create_smart(self):
+        vd = VD.objects.create()
+        test_data = 'http://map.naver.com/local/siteview.nhn?code=36229742'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        pb = PostBase()
+        pb.lps.append(lp)
+        place, is_created = Place.get_or_create_smart(pb.pb_MAMMA, vd)
+        placePost = place.placePost
+        self.assertDictEqual(pb.pb_MAMMA.json, placePost.json)
+        self.assertEqual(unicode(place), '바이키 문정점')
 
 
 class SimpleUserPlaceTest(APITestBase):
