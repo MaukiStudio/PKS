@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 
-from base.utils import HashCollisionError
 from pks.settings import VD_SESSION_KEY
 from account.models import VD
 
