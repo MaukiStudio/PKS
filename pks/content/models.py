@@ -91,6 +91,7 @@ class LegacyPlace(Content):
             searcher = regex[0].search(raw_content)
             if searcher:
                 return '%s.%s' % (searcher.group('PlaceId'), regex[1])
+        return None
 
     @property
     def _id(self):
@@ -145,9 +146,8 @@ class LegacyPlace(Content):
         for regex in LP_REGEXS_URL:
             searcher = regex[0].search(url.content)
             if searcher:
-                PlaceId = searcher.group('PlaceId')
-                json = '{"content": "%s.%s"}' % (PlaceId, regex[1])
-                return cls.get_from_json(json)
+                url, is_created = cls.get_or_create_smart('%s.%s' % (searcher.group('PlaceId'), regex[1]))
+                return url
         return None
 
 
