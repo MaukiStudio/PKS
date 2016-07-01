@@ -95,6 +95,17 @@ class UrlTest(APITestBase):
         self.assertEqual(saved, url)
         self.assertEqual(saved.content, normalized_value)
 
+    def test_naver_shortener_url5(self):
+        test_value = 'http://naver.me/GjM8YqPC'
+        normalized_value = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=36229742&pinType=site&lat=37.4893023&lng=127.1350392&title=%EB%B0%94%EC%9D%B4%ED%82%A4%20%EB%AC%B8%EC%A0%95%EC%A0%90&dlevel=11'
+        self.assertEqual(Url.objects.count(), 0)
+        url, is_created = Url.get_or_create_smart(test_value)
+        self.assertEqual(Url.objects.count(), 1)
+        saved = Url.objects.first()
+        self.assertEqual(url.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(saved, url)
+        self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+
     def test_naver_shortener_url_with_garbage(self):
         test_value = '''
             [네이버 지도]

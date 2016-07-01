@@ -91,6 +91,19 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
 
+    def test_content_property_naver_case2(self):
+        test_data = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=36229742&pinType=site&lat=37.4893023&lng=127.1350392&title=%EB%B0%94%EC%9D%B4%ED%82%A4%20%EB%AC%B8%EC%A0%95%EC%A0%90&dlevel=11'
+        normalized_test_data = '36229742.naver'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        self.assertEqual(lp.uuid.split('.')[1], 'naver')
+        saved = LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000036229742'))
+
     def test_content_property_google_case1(self):
         test_data = 'ChIJN1t_tDeuEmsRUsoyG83frY4.google'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)

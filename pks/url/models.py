@@ -10,7 +10,10 @@ from base.legacy.urlnorm import norms as url_norms
 from requests import get as requests_get
 from place.models import Place, PostPiece
 
-URL_REGEX_NAVER_SHORTENER_URL = re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$')
+URL_REGEX_NAVER_SHORTENER_URLS = [
+    re_compile(r'^https?://me2\.do/[A-za-z0-9_\-]+$'),
+    re_compile(r'^https?://naver\.me/[A-za-z0-9_\-]+$'),
+]
 URL_REGEX_4SQUARE_SHORTENER_URL = re_compile(r'^https?://4sq\.com/[A-za-z0-9_\-]+$')
 
 
@@ -33,7 +36,7 @@ class Url(Content):
         url = url_norms(raw_content)
 
         # javascript 로 동작해서 body 를 받아야만 하는 단축 URL 처리 : 현재는 네이버 단축 URL 만 확인됨
-        if URL_REGEX_NAVER_SHORTENER_URL.match(url):
+        if URL_REGEX_NAVER_SHORTENER_URLS[0].match(url) or URL_REGEX_NAVER_SHORTENER_URLS[1].match(url):
             headers = {'user-agent': 'Chrome'}
             r = requests_get(url, headers=headers)
             content_type = r.headers.get('content-type')
