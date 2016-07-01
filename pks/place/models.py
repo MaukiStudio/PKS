@@ -523,5 +523,5 @@ class PostPiece(models.Model):
         return pb1
     @pb.setter
     def pb(self, value):
-        self.data = value.cjson
+        self.data = value.ujson
 

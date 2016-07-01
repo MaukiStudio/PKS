@@ -89,6 +89,9 @@ class Tag(models.Model):
     @property
     def cjson(self):
         return self.tagName.cjson
+    @property
+    def ujson(self):
+        return self.tagName.ujson
 
     @property
     def is_remove(self):

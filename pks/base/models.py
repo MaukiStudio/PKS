@@ -38,6 +38,9 @@ class Point(object):
     @property
     def cjson(self):
         return self.json
+    @property
+    def ujson(self):
+        return self.json
 
     def __eq__(self, other):
         return self.lonLat.__eq__(other.lonLat)
@@ -64,6 +67,9 @@ class Visit(object):
         return dict(content=self.content)
     @property
     def cjson(self):
+        return self.json
+    @property
+    def ujson(self):
         return self.json
 
     def __eq__(self, other):
@@ -92,6 +98,9 @@ class Rating(object):
     @property
     def cjson(self):
         return self.json
+    @property
+    def ujson(self):
+        return self.json
 
     def __eq__(self, other):
         return self.content == other.content
@@ -103,7 +112,6 @@ class Content(models.Model):
 
     class Meta:
         abstract = True
-
 
     # MUST override
     @property
@@ -142,6 +150,9 @@ class Content(models.Model):
     @property
     def cjson(self):
         return dict(content=self.content)
+    @property
+    def ujson(self):
+        return dict(uuid=self.uuid)
 
     @property
     def url_for_access(self):

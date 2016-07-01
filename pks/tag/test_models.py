@@ -7,7 +7,7 @@ from math import log
 
 from base.tests import APITestBase
 from tag.models import Tag, TagMatrix, UserPlaceTag, PlaceTag, PlaceNoteTag, ALPHA
-from place.models import UserPlace, Place, PostPiece
+from place.models import UserPlace, Place, PostPiece, PostBase
 from content.models import TagName, PlaceNote
 from account.models import VD
 
@@ -322,6 +322,7 @@ class PlaceNoteTagTest(APITestBase):
                 "notes": [{"content": "tag1 #tag2# tag3# #tag4 #tag5#tag6 tag7"}]
             }
         '''
-        pp = PostPiece.objects.create(uplace=uplace, data=json)
+        pb = PostBase(json)
+        pp = PostPiece.objects.create(uplace=uplace, pb=pb)
         self.assertEqual(Tag.objects.count(), 1+4)
 

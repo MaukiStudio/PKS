@@ -275,7 +275,7 @@ class PostBase(object):
         if self.notes: json['notes'] = [note.json for note in self.notes]
         if self.images: json['images'] = [img.json for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
-        if self.tags: json['tags'] = [tag.cjson for tag in self.tags]
+        if self.tags: json['tags'] = [tag.json for tag in self.tags]
         return json
 
     @property
@@ -295,6 +295,25 @@ class PostBase(object):
         if self.images: json['images'] = [img.cjson for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         if self.tags: json['tags'] = [tag.cjson for tag in self.tags]
+        return json
+
+    @property
+    def ujson(self):
+        json = dict()
+        if self.names: json['name'] = self.name.ujson
+        if self.visits: json['visit'] = self.visit.ujson
+        if self.ratings: json['rating'] = self.rating.ujson
+        if self.points: json['lonLat'] = self.point.ujson
+        if self.phones: json['phone'] = self.phone.ujson
+        if self.addrs1: json['addr1'] = self.addr1.ujson
+        if self.addrs2: json['addr2'] = self.addr2.ujson
+        if self.addrs3: json['addr3'] = self.addr3.ujson
+        if self.lps: json['lps'] = [lp.ujson for lp in self.lps]
+        if self.urls: json['urls'] = [url.ujson for url in self.urls]
+        if self.notes: json['notes'] = [note.ujson for note in self.notes]
+        if self.images: json['images'] = [img.ujson for img in self.images]
+        if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
+        if self.tags: json['tags'] = [tag.ujson for tag in self.tags]
         return json
 
     @property
