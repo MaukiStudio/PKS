@@ -172,9 +172,9 @@ class Image(Content):
         else:
             return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
     @property
-    def sjson(self):
+    def cjson(self):
         if self.note:
-            return dict(content=self.content, summary=self.url_summarized, note=self.note.sjson)
+            return dict(content=self.content, summary=self.url_summarized, note=self.note.cjson)
         else:
             return dict(content=self.content, summary=self.url_summarized)
 

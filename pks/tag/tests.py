@@ -58,8 +58,8 @@ class PostWithTagsTest(FunctionalTestAfterLoginBase):
         response = self.client.post('/uplaces/', dict(add=json_add, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         want = json_loads(json_add)
-        self.assertIsSubsetOf(want, self.uplace.userPost.sjson)
-        self.assertIsNotSubsetOf(self.uplace.userPost.sjson, want)
+        self.assertIsSubsetOf(want, self.uplace.userPost.cjson)
+        self.assertIsNotSubsetOf(self.uplace.userPost.cjson, want)
         result_userPost = json_loads(response.content)['userPost']
         self.assertIn(dict(content='A'), result_userPost['tags'])
         self.assertNotIn(dict(content='B'), result_userPost['tags'])
@@ -69,7 +69,7 @@ class PostWithTagsTest(FunctionalTestAfterLoginBase):
         response = self.client.post('/uplaces/', dict(add=json_add2, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.uplace = UserPlace.objects.first()
-        self.printJson(self.uplace.userPost.sjson)
+        self.printJson(self.uplace.userPost.cjson)
         result_userPost = json_loads(response.content)['userPost']
         self.assertIn(dict(content='A'), result_userPost['tags'])
         self.assertIn(dict(content='B'), result_userPost['tags'])

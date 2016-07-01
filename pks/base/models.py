@@ -36,7 +36,7 @@ class Point(object):
             return dict(lon=self.lonLat.x, lat=self.lonLat.y, timestamp=self.timestamp)
         return dict(lon=self.lonLat.x, lat=self.lonLat.y)
     @property
-    def sjson(self):
+    def cjson(self):
         return self.json
 
     def __eq__(self, other):
@@ -63,7 +63,7 @@ class Visit(object):
             return dict(content=self.content, timestamp=self.timestamp)
         return dict(content=self.content)
     @property
-    def sjson(self):
+    def cjson(self):
         return self.json
 
     def __eq__(self, other):
@@ -90,7 +90,7 @@ class Rating(object):
             return dict(content=self.content, timestamp=self.timestamp)
         return dict(content=self.content)
     @property
-    def sjson(self):
+    def cjson(self):
         return self.json
 
     def __eq__(self, other):
@@ -140,7 +140,7 @@ class Content(models.Model):
             return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp)
         return dict(uuid=self.uuid, content=self.content)
     @property
-    def sjson(self):
+    def cjson(self):
         return dict(content=self.content)
 
     @property

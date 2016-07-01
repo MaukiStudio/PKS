@@ -275,26 +275,26 @@ class PostBase(object):
         if self.notes: json['notes'] = [note.json for note in self.notes]
         if self.images: json['images'] = [img.json for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
-        if self.tags: json['tags'] = [tag.sjson for tag in self.tags]
+        if self.tags: json['tags'] = [tag.cjson for tag in self.tags]
         return json
 
     @property
-    def sjson(self):
+    def cjson(self):
         json = dict()
-        if self.names: json['name'] = self.name.sjson
-        if self.visits: json['visit'] = self.visit.sjson
-        if self.ratings: json['rating'] = self.rating.sjson
-        if self.points: json['lonLat'] = self.point.sjson
-        if self.phones: json['phone'] = self.phone.sjson
-        if self.addrs1: json['addr1'] = self.addr1.sjson
-        if self.addrs2: json['addr2'] = self.addr2.sjson
-        if self.addrs3: json['addr3'] = self.addr3.sjson
-        if self.lps: json['lps'] = [lp.sjson for lp in self.lps]
-        if self.urls: json['urls'] = [url.sjson for url in self.urls]
-        if self.notes: json['notes'] = [note.sjson for note in self.notes]
-        if self.images: json['images'] = [img.sjson for img in self.images]
+        if self.names: json['name'] = self.name.cjson
+        if self.visits: json['visit'] = self.visit.cjson
+        if self.ratings: json['rating'] = self.rating.cjson
+        if self.points: json['lonLat'] = self.point.cjson
+        if self.phones: json['phone'] = self.phone.cjson
+        if self.addrs1: json['addr1'] = self.addr1.cjson
+        if self.addrs2: json['addr2'] = self.addr2.cjson
+        if self.addrs3: json['addr3'] = self.addr3.cjson
+        if self.lps: json['lps'] = [lp.cjson for lp in self.lps]
+        if self.urls: json['urls'] = [url.cjson for url in self.urls]
+        if self.notes: json['notes'] = [note.cjson for note in self.notes]
+        if self.images: json['images'] = [img.cjson for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
-        if self.tags: json['tags'] = [tag.sjson for tag in self.tags]
+        if self.tags: json['tags'] = [tag.cjson for tag in self.tags]
         return json
 
     @property

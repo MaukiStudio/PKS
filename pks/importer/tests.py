@@ -184,7 +184,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertNotEqual(self.iplace.userPost, None)
         self.assertIsSubsetOf(self.pb, self.iplace.userPost)
         self.assertNotEqual(results[1]['userPost'], None)
-        self.assertDictEqual(results[1]['userPost'], self.iplace.userPost.sjson)
+        self.assertDictEqual(results[1]['userPost'], self.iplace.userPost.cjson)
 
         # remove duplicate
         self.iplace4.place = self.iplace.place

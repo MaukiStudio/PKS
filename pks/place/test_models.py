@@ -639,9 +639,9 @@ class PostPieceTest(APITestBase):
         saved = PostPiece.objects.order_by('-id').first()
         self.assertEqual(pp2, saved)
         self.assertDictEqual(pp2.pb.json, saved.pb.json)
-        self.assertDictEqual(pp2.pb.sjson, saved.pb.sjson)
+        self.assertDictEqual(pp2.pb.cjson, saved.pb.cjson)
         self.assertDictEqual(pb.json, saved.pb.json)
-        self.assertDictEqual(pb.sjson, saved.pb.sjson)
+        self.assertDictEqual(pb.cjson, saved.pb.cjson)
 
     def test_mask(self):
         pp = PostPiece()

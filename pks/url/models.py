@@ -60,7 +60,7 @@ class Url(Content):
     def add_place(self, place):
         upr, is_created = UrlPlaceRelation.objects.get_or_create(url=self, place=place)
         if is_created:
-            pps = PostPiece.objects.filter(data__urls__contains=[self.sjson])
+            pps = PostPiece.objects.filter(data__urls__contains=[self.cjson])
             for pp in pps:
                 uplace = pp.uplace
                 if uplace.is_parent:

@@ -87,8 +87,8 @@ class Tag(models.Model):
     def json(self):
         return self.tagName.json
     @property
-    def sjson(self):
-        return self.tagName.sjson
+    def cjson(self):
+        return self.tagName.cjson
 
     @property
     def is_remove(self):
