@@ -49,8 +49,7 @@ class Place(models.Model):
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
                 if pp.is_drop:
                     # TODO : 정책 잡고 구현...
-                    # 일단 현재는 UserPlace 에도 is_drop 이 있고 거기서 처리한다는 전제하에 여기에선 무시
-                    #pb = PostBase()
+                    # 일단 현재는 UserPlace 에도 is_drop 이 있고, 리스트 조회 시 is_drop 인건 빼고 있으므로 이 구현이 적절
                     pass
                 else:
                     pb.update(pp.pb, pp.is_add)
@@ -254,7 +253,6 @@ class UserPlace(models.Model):
     def userPost(self):
         if not self._cache_pb:
             if self.place:
-                # TODO : 이 부분을 테스트하는 코드 추가
                 self.place.computePost(self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids)
                 self._cache_pb = self.place.userPost
             else:
