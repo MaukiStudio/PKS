@@ -50,7 +50,11 @@ class Place(models.Model):
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
                 if pp.is_drop:
                     # TODO : 이 부분이 테스트되는 테스트 추가
-                    pb = base_post or PostBase()
+                    if pp.vd in vd_ids:
+                        pb = base_post or PostBase()
+                    else:
+                        # TODO : 친구는 이 장소를 drop 했으므로... 이를 어떠한 형태로든 userPost 에 반영하기
+                        pass
                     pass
                 else:
                     pb.update(pp.pb, pp.is_add)
