@@ -1,9 +1,13 @@
 [Now]
 
+긴급 : Post DB 저장시 처리
+
 장소화된 Content
     [완] Url class 에 관련 기능 구현하기
     [완] UserPlace 를 상속한 child UserPlace 관련 기능 구현
-    Content 가 장소화되면, 해당 Content 를 참조하는 모든 UserPlace 를 바로 장소화
+    [ing] Content 가 장소화되면, 해당 Content 를 참조하는 모든 UserPlace 를 바로 장소화
+        [완] Url.add_place()
+        [ing] Url.remove_place()
     실시간 장소화 시, 장소화된 Content 가 있으면 이걸로 곧바로 장소화 하도록 수정
     URL 1개만 있는 UserPlace 장소화시, UserPlace 뿐만 아니라 URL 도 장소화하기
 
