@@ -281,6 +281,10 @@ class UserPlace(models.Model):
             self.lonLat = (self.place and self.place.lonLat) or None
         if not self.mask:
             self.mask = 0
+        if self.parent:
+            if not self.parent.is_parent:
+                self.parent.is_parent = True
+                self.parent.save()
         super(UserPlace, self).save(*args, **kwargs)
 
     @property
@@ -320,6 +324,16 @@ class UserPlace(models.Model):
             self.mask = (self.mask or 0) | 4
         else:
             self.mask = (self.mask or 0) & (~4)
+
+    @property
+    def is_parent(self):
+        return (self.mask or 0) & 8 != 0
+    @is_parent.setter
+    def is_parent(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 8
+        else:
+            self.mask = (self.mask or 0) & (~8)
 
     @property
     def origin(self):
