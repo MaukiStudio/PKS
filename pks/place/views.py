@@ -130,7 +130,6 @@ class UserPlaceViewset(BaseViewset):
 
             # UserPlace/Place 찾기
             uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
-            pb.uplace_uuid = uplace.uuid
 
             # valid check
             if not pb.is_valid(uplace):
