@@ -207,7 +207,7 @@ class UserPlace(models.Model):
 
     @classmethod
     def get_or_create_smart(cls, pb, vd):
-        place, is_place_created = Place.get_or_create_smart(pb, vd)
+        place, is_created = Place.get_or_create_smart(pb, vd)
         uplace = None
         is_uplace_created = False
 
