@@ -164,7 +164,11 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
         self.normalStorage['auth_vd_token'] = json_loads(response.content)['auth_vd_token']
         self.assertLogin()
         self.assertVdLogin()
-
+        from account.models import VD
+        self.vd = None
+        vd_id = self.vd_id
+        if vd_id:
+            self.vd = VD.objects.get(id=vd_id)
 
 def isSubsetOf(self, other):
 
