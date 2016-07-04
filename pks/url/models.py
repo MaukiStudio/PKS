@@ -76,6 +76,7 @@ class Url(Content):
                         uplace.placed(place)
         return upr
 
+    # TODO : add_place() 에 의해 생성된 UserPlace 에 대해, remove_place() 가 호출되면 어떻게 처리하는 것이 좋을지 고민 후 구현
     def remove_place(self, place):
         upr = UrlPlaceRelation.objects.get(url=self, place=place)
         upr.delete()
