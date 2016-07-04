@@ -17,7 +17,7 @@ from base.utils import get_timestamp, BIT_ON_8_BYTE, BIT_ON_6_BYTE
 from place.post import PostBase
 
 
-class SimplePlaceTest(APITestBase):
+class PlaceTest(APITestBase):
 
     def test_save_and_retreive(self):
         place = Place()
@@ -78,10 +78,10 @@ class SimplePlaceTest(APITestBase):
         self.assertEqual(unicode(place), '바이키 문정점')
 
 
-class SimpleUserPlaceTest(APITestBase):
+class UserPlaceTest(APITestBase):
 
     def setUp(self):
-        super(SimpleUserPlaceTest, self).setUp()
+        super(UserPlaceTest, self).setUp()
         self.place = Place()
         point = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         self.place.lonLat = point
