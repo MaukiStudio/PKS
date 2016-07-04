@@ -29,10 +29,9 @@ class PlaceViewSetTest(APITestBase):
         response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        self.place = Place(); self.place.save()
+        self.place = Place.objects.create()
         self.vd = VD.objects.first()
-        self.uplace = UserPlace(vd=self.vd, place=self.place)
-        self.uplace.save()
+        self.uplace = UserPlace.objects.create(vd=self.vd, place=self.place)
 
     def test_list(self):
         response = self.client.get('/places/')
