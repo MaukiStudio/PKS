@@ -412,3 +412,24 @@ class PostBase(object):
                         self.images.append(img)
             except Timeout:
                 pass
+
+    def reset_except_region_property(self):
+        #self.names = list()
+        #self.visits = list()
+        #self.ratings = list()
+        self.points = list()
+        #self.phones = list()
+        self.addrs1 = list()
+        self.addrs2 = list()
+        self.addrs3 = list()
+        #self.lps = list()
+        self.urls = list()
+        self.notes = list()
+        #self.images = list()
+
+        #self.place_id = None
+        #self.uplace_uuid = None
+        #self.by_MAMMA = False
+        #self.iplace_uuid = None
+
+        #self._cache_tags = None

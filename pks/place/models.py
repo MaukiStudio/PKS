@@ -297,7 +297,8 @@ class UserPlace(models.Model):
     @property
     def userPost(self):
         if not self._cache_pb:
-            base_post = self.parent and self.parent.userPost or None
+            base_post = self.parent and self.parent.userPost or PostBase()
+            base_post.reset_except_region_property()
             vd_ids = None
             if self.vd and self.place:
                 vd_ids = self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids
