@@ -169,6 +169,14 @@ class UserPlaceViewset(BaseViewset):
             uplace.is_drop = False
             uplace.save()
 
+            # Placed by Contents
+            if pb.urls:
+                placesets = [set(url.places.all()) for url in pb.urls if url.places]
+                if placesets:
+                    places = list(reduce(lambda a, b: a & b, placesets))
+                    for place in places:
+                        uplace.process_child(place)
+
 
         #######################################
         # 결과 처리

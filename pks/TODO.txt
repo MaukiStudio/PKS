@@ -6,7 +6,7 @@
     [완] Content 가 장소화되면, 해당 Content 를 참조하는 모든 UserPlace 를 바로 장소화
         [완] Url.add_place()
         [완] Url.remove_place()
-    실시간 장소화 시, 장소화된 Content 가 있으면 이걸로 곧바로 장소화 하도록 수정
+    [ing] 실시간 장소화 시, 장소화된 Content 가 있으면 이걸로 곧바로 장소화 하도록 수정
     URL 1개만 있는 UserPlace 장소화시, UserPlace 뿐만 아니라 URL 도 장소화하기
 
 UserPlace 쪼개기, 파생시키기 - 포함관계 구성

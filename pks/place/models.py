@@ -238,8 +238,13 @@ class UserPlace(models.Model):
 
     # TODO : DB 저장 회수 많음. 튜닝 필요
     def get_or_create_child(self, place=None):
-        # child 가 또 child 를 가지는 부분은 미구현. 영원히 미구현일지도...
         if self.parent:
+            print('[Child cannot created from other Child]')
+            print('[Child info]')
+            self.dump()
+            print('[Parent info]')
+            self.parent.dump()
+            print('------------------------------')
             raise NotImplementedError
         self.is_parent = True
         self.place = None
@@ -248,9 +253,23 @@ class UserPlace(models.Model):
         pb = PostBase()
         pb.place_id = place and place.id or None
         child, is_created = UserPlace.get_or_create_smart(pb, self.vd)
-        child.parent = self
-        child.save()
+        # 하기 is_created 에 의한 if 처리는 반드시 해야 함
+        # 이를 하지 않으면 생성(U1) --> URL장소화(P1) --> 생성(U2) --> URL장소(P2) 에서 문제 발생
+        # 위 문제가 아니더라도 성능상 유리
+        if is_created:
+            child.parent = self
+            child.save()
         return child, is_created
+
+    def process_child(self, place=None):
+        if self.is_parent:
+            self.get_or_create_child(place)
+        else:
+            if self.place:
+                self.get_or_create_child(self.place)    # 기존 매핑 Place 로도 별도 child 생성
+                self.get_or_create_child(place)
+            else:
+                self.placed(place)
 
     def computePost(self, vd_ids=None, base_post=None):
         if self.place:
@@ -429,6 +448,28 @@ class UserPlace(models.Model):
             self._cache_prev_NLL = self.getNLL(self.search_tags)
             return self._cache_prev_NLL
         return None
+
+    def dump(self):
+        reloaded = self.reload()
+        print('----- UserPlace Dump -----')
+        print('uuid = %s' % (reloaded.uuid,))
+        print('place_id = %s' % (reloaded.place_id,))
+        print('is_parent = %s' % reloaded.is_parent)
+        print('parent = %s' % (reloaded.parent and reloaded.parent.uuid,))
+        print('pps.count() = %s' % (reloaded.pps.count(),))
+        print('pps.first().data = %s' % (reloaded.pps.first() and reloaded.pps.first().data,))
+        print('')
+
+    def reload(self):
+        return UserPlace.objects.get(id=self.id)
+
+    @classmethod
+    def dump_all(cls):
+        print('[DUMP ALL START]')
+        for uplace in cls.objects.all():
+            uplace.dump()
+        print('[DUMP ALL END]')
+        print('')
 
 
 class PostPiece(models.Model):

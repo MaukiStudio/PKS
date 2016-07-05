@@ -66,14 +66,7 @@ class Url(Content):
             pps = PostPiece.objects.filter(data__urls__contains=[self.ujson])
             for pp in pps:
                 uplace = pp.uplace
-                if uplace.is_parent:
-                    uplace.get_or_create_child(place)
-                else:
-                    if uplace.place:
-                        uplace.get_or_create_child(uplace.place)    # 기존 매핑 Place 로도 별도 child 생성
-                        uplace.get_or_create_child(place)
-                    else:
-                        uplace.placed(place)
+                uplace.process_child(place)
         return upr
 
     # TODO : add_place() 에 의해 생성된 UserPlace 에 대해, remove_place() 가 호출되면 어떻게 처리하는 것이 좋을지 고민 후 구현
