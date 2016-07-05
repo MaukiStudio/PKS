@@ -1,45 +1,43 @@
 [Now]
 
-장소화된 Content
+[Bug Fix]
+    다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
+    Celery 안되는 문제 해결
+    ImagesImporter
+        임포트하고, 또 임포트하는 경우에 대한 처리
+    구글 장소화
+    네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
+
+
+[크롤링]
+    장소화가 되지 않은 장소 주변의 장소 정보 크롤링
+    블로그 import 및 타겟 크롤링
+
+[장소화된 Content]
     [완] Url class 에 관련 기능 구현하기
     [완] UserPlace 를 상속한 child UserPlace 관련 기능 구현
     [완] Content 가 장소화되면, 해당 Content 를 참조하는 모든 UserPlace 를 바로 장소화
         [완] Url.add_place()
         [완] Url.remove_place()
-    [ing] 실시간 장소화 시, 장소화된 Content 가 있으면 이걸로 곧바로 장소화 하도록 수정
-    URL 1개만 있는 UserPlace 장소화시, UserPlace 뿐만 아니라 URL 도 장소화하기
+    [완] 실시간 장소화 시, 장소화된 Content 가 있으면 이걸로 곧바로 장소화 하도록 수정
+    [보류] URL 1개만 있는 UserPlace 장소화시, UserPlace 뿐만 아니라 URL 도 장소화하기
+        이건 나중에 task 에서 처리...
 
-UserPlace 쪼개기, 파생시키기 - 포함관계 구성
-UserPlace 하나에 여러개의 Place
+[Task]
+    Content 장소화
+    Place Merge
 
-100m 이상의 큰 장소
-    --> Place 를 활용하자...
-
-장소화 어드민 개선
+[장소화 어드민 개선]
     공간/시간 거리 기준 가까운 관련 정보들 추가 출력 : Placed UserPlace, 사진.
     자체 DB 를 활용한 장소화 기능 만들기
     위치 트래킹 정보 보여주기
 
-Celery 안되는 문제 해결
-
-regions API 개선
+[regions API 개선]
     1차 : 국가별 Clustering
     2차 : 현재 알고리즘 - 1차 Clustering 이후 30개 넘는 Region 에 대해서만
     3차 : 2차 이후 30개 미만인 Region 들끼리 뭉치기. 뭉친 결과로 인해 30개 이상인 Region 과의 intersection 이 생기지 않도록
     개수가 30 개 미만인 경우 더 뭉쳐서 크게...
     알고리즘을 바꾸는 것도 검토 : k-means 등
-
-ImagesImporter
-    임포트하고, 또 임포트하는 경우에 대한 처리
-
-장소화가 되지 않은 장소 주변의 장소 정보 크롤링
-
-구글 장소화
-네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
-
-블로그 import 및 타겟 크롤링
-
-다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
 
 
 NLL 개선 : prior, likelyhood 계산방식 개선
@@ -51,7 +49,6 @@ summarize 관련 리팩토링
 
 clear_rfs_smart() 제대로 동작하지 않는 문제 수정 : 테스트로 생성된 중복된 파일들이 symbolic link 로 정리가 되지 않음...
 
-장고 셀러리 연결 : 현재 계속 에러나는 중...
 ImagesImporter, 보안 처리 : myself 아닌 걸로 넘어올 때의 처리, tests.py 보강
 
 

@@ -145,13 +145,13 @@ def placed_detail(request, uplace_id):
             if 'lonLat' in request.POST and request.POST['lonLat']:
                 raw_lonLat = request.POST['lonLat']
                 regexs = [
-                    re_compile(r'^.*[&\?]?lat=(?P<lat>[0-9\.]+)&lng=(?P<lon>[0-9\.]+)&?.*$'),
-                    re_compile(r'^.*[&\?]?lng=(?P<lon>[0-9\.]+)&lat=(?P<lat>[0-9\.]+)&?.*$'),
-                    re_compile(r'^.*[&\?]?lat=(?P<lat>[0-9\.]+)&lon=(?P<lon>[0-9\.]+)&?.*$'),
-                    re_compile(r'^.*[&\?]?lon=(?P<lon>[0-9\.]+)&lat=(?P<lat>[0-9\.]+)&?.*$'),
-                    re_compile(r'^.*[&\?]?x=(?P<lon>[0-9\.]+)&y=(?P<lat>[0-9\.]+)&?.*$'),
-                    re_compile(r'^.*/data=.*!3d(?P<lat>[0-9\.]+)!4d(?P<lon>[0-9\.]+).*$'),
-                    re_compile(r'^.*/@(?P<lat>[0-9\.]+),(?P<lon>[0-9\.]+).*$'),
+                    re_compile(r'^.*[&\?]?lat=(?P<lat>-?[0-9\.]+)&lng=(?P<lon>-?[0-9\.]+)&?.*$'),
+                    re_compile(r'^.*[&\?]?lng=(?P<lon>-?[0-9\.]+)&lat=(?P<lat>-?[0-9\.]+)&?.*$'),
+                    re_compile(r'^.*[&\?]?lat=(?P<lat>-?[0-9\.]+)&lon=(?P<lon>-?[0-9\.]+)&?.*$'),
+                    re_compile(r'^.*[&\?]?lon=(?P<lon>-?[0-9\.]+)&lat=(?P<lat>-?[0-9\.]+)&?.*$'),
+                    re_compile(r'^.*[&\?]?x=(?P<lon>-?[0-9\.]+)&y=(?P<lat>-?[0-9\.]+)&?.*$'),
+                    re_compile(r'^.*/data=.*!3d(?P<lat>-?[0-9\.]+)!4d(?P<lon>-?[0-9\.]+).*$'),
+                    re_compile(r'^.*/@(?P<lat>-?[0-9\.]+),(?P<lon>-?[0-9\.]+).*$'),
                 ]
                 for regex in regexs:
                     searcher = regex.search(raw_lonLat)
