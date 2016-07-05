@@ -335,6 +335,8 @@ class LegacyPlaceTest(APITestBase):
             unquote_plus('https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.092557%2C37.390271&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.092557%2C37.390271&baselayer=default'),
             'http://ldb.phinf.naver.net/20150901_174/1441078320814Nj4Fe_JPEG/146466556151173_0.jpeg',
         ])
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
 
     def test_content_summarized_by_kakao(self):
         test_data = '14720610.kakao'
@@ -347,6 +349,8 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.images[0].content, unquote_plus(
             'http://img1.daumcdn.net/thumb/C300x300/?fname=http%3A%2F%2Fdn-rp-place.kakao.co.kr%2Fplace%2FoWaiTZmpy7%2FviOeK5KRQK7mEsAHlckFgK%2FapreqCwxgnM_l.jpg'
         ))
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
 
     def test_content_summarized_by_4square(self):
         if WORK_ENVIRONMENT: return
@@ -360,6 +364,8 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.images[0].content, unquote_plus(
             'https://irs0.4sqi.net/img/general/720x537/13818664_F1SNp5hPhsRBn4qksbkmBCIXv7gsSbOuTXbb3tX8ZG4.jpg'
         ))
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
 
     def test_content_summarized_by_4square2(self):
         if WORK_ENVIRONMENT: return
@@ -373,6 +379,8 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.images[0].content, unquote_plus(
             'https://irs2.4sqi.net/img/general/612x612/690170_HnduV5yM9RLNUHQseOOvDi3OCm4AoYmMld79iVTxrPg.jpg'
         ))
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
 
     def test_content_summarized_by_mango(self):
         test_data = 'f-YvkBx8IemC.mango'
@@ -385,6 +393,8 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.images[0].content, unquote_plus(
             'https://mp-seoul-image-production-s3.mangoplate.com/259736/xverhn9edfxp5w.jpg'
         ))
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
 
 
 class PhoneNumberTest(APITestBase):

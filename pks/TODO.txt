@@ -4,8 +4,9 @@
     [완] 음수 좌표로 장소화가 안되는 버그 수정
     [완] timestamp 가 없는 이미지를 어드민에서 표시할 때의 버그 수정
     [완] 망고플레이트 direct 장소화
-    [ing] parent post 상속 받을 때 region 속성만 받기
+    [완] parent post 상속 받을 때 region 속성만 받기
         for 장소화된 URL 에 의해 자동 장소화된 UserPlace.userPost 의 images, 현실적으로 수정
+    [ing] 망고플레이트 장소화 시 대표이미지 썸네일 생성이 제대로 되지 않는 문제 수정
     
     다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
     Celery 안되는 문제 해결

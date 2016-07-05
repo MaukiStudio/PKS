@@ -167,17 +167,24 @@ class LegacyPlace(Content):
         if not accessed:
             accessed = self.content_accessed
 
+        json = None
         if accessed:
             if self.contentType == 'naver':
-                self.summarize_force_naver(accessed)
+                json = self.summarize_force_naver(accessed)
             elif self.contentType == 'kakao':
-                self.summarize_force_kakao(accessed)
+                json = self.summarize_force_kakao(accessed)
             elif self.contentType == '4square':
-                self.summarize_force_4square(accessed)
+                json = self.summarize_force_4square(accessed)
             elif self.contentType == 'mango':
-                self.summarize_force_mango(accessed)
+                json = self.summarize_force_mango(accessed)
             else:
                 raise NotImplementedError
+
+        if json:
+            from place.post import PostBase
+            pb = PostBase(json)
+            for img in pb.images:
+                img.summarize()
 
     def summarize_force_naver(self, accessed):
         # 파싱
@@ -218,6 +225,7 @@ class LegacyPlace(Content):
 
         f = Path(self.path_summarized)
         f.write_text(json)
+        return json
 
     def summarize_force_kakao(self, accessed):
         # 파싱
@@ -253,6 +261,7 @@ class LegacyPlace(Content):
 
         f = Path(self.path_summarized)
         f.write_text(json)
+        return json
 
     def summarize_force_4square(self, accessed):
         # 파싱
@@ -283,6 +292,7 @@ class LegacyPlace(Content):
 
         f = Path(self.path_summarized)
         f.write_text(json)
+        return json
 
     def summarize_force_mango(self, accessed):
         # 파싱
@@ -313,6 +323,7 @@ class LegacyPlace(Content):
 
         f = Path(self.path_summarized)
         f.write_text(json)
+        return json
 
     def pre_save(self):
         if self.is_accessed:
