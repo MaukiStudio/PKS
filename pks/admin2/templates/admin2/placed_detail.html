@@ -60,9 +60,11 @@
                 </td>
                 <td>
                     {% for image in userPost.images %}
-                        <a href="{{ image.content }}?{{ image.timestamp }}" target="_blank">
-                            <img src="{{ image.url_summarized }}"/>
-                        </a>
+                        {% if image.timestamp %}
+                            <a href="{{ image.content }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                        {% else %}
+                            <a href="{{ image.content }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                        {% endif %}
                     {% endfor %}
                 </td>
             </tr>
@@ -128,9 +130,11 @@
             </td>
             <td>
                 {% for image in userPost.images %}
-                    <a href="{{ image.content }}?{{ image.timestamp }}" target="_blank">
-                        <img src="{{ image.url_summarized }}"/>
-                    </a>
+                    {% if image.timestamp %}
+                        <a href="{{ image.content }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                    {% else %}
+                        <a href="{{ image.content }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                    {% endif %}
                 {% endfor %}
             </td>
         </tr>
