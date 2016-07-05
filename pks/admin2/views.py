@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render, redirect, HttpResponse
 from re import compile as re_compile
+from django.db.models import F
 
 from place.models import UserPlace, Place
 from account.models import VD
@@ -59,7 +60,9 @@ def index(request):
 
 
 def placed(request):
-    uplaces = [uplace for uplace in UserPlace.objects.filter(place=None).order_by('-id')]
+    qs = UserPlace.objects.filter(place=None)
+    qs = qs.filter(mask=F('mask').bitand(~9))   # 9 = 1(drop) | 8(parent)
+    uplaces = [uplace for uplace in qs.order_by('-id')]
     def sort_key(uplace):
         if uplace.is_hard2placed:
             return 1
