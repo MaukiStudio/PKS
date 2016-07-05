@@ -27,6 +27,9 @@ LP_REGEXS = (
 
     # 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
     (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.google$'), 'google'),
+
+    # 'f-YvkBx8IemC.mango'
+    (re_compile(r'^(?P<PlaceId>[A-za-z0-9_\-]+)\.mango$'), 'mango'),
 )
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
@@ -55,9 +58,12 @@ LP_REGEXS_URL = (
 
     # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
     (re_compile(r'^https?://.*foursquare\.com/v/(?P<PlaceId>[a-z0-9]+)&?.*$'), '4square'),
+
+    # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
+    (re_compile(r'^https?://www\.mangoplate\.com/restaurants/(?P<PlaceId>[A-za-z0-9_\-]+)$'), 'mango'),
 )
 
-LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4,}
+LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4, 'mango': 5,}
 
 
 class LegacyPlace(Content):
@@ -100,8 +106,11 @@ class LegacyPlace(Content):
             h = self.get_md5_hash(splits[0])
             h0 = hex(int(h[0], 16) | 8)[2:]
             return UUID('%s%s' % (h0, h[1:]))
+        elif splits[1] == 'mango':
+            h = ''.join([hex(ord(c))[2:] for c in splits[0]])
+            return UUID(b'0000000%d%s' % (LP_TYPE[self.contentType], h.rjust(24, b'0')))
         else:
-            return UUID(b'0000000%d%s' % (LP_TYPE[self.contentType], splits[0].rjust(24, b'0')),)
+            return UUID(b'0000000%d%s' % (LP_TYPE[self.contentType], splits[0].rjust(24, b'0')))
 
     @property
     def url_for_access(self):
@@ -113,6 +122,8 @@ class LegacyPlace(Content):
         elif splits[1] == '4square':
             #return 'https://foursquare.com/v/%s' % splits[0]
             return '4square://%s' % splits[0]
+        elif splits[1] == 'mango':
+            return 'http://www.mangoplate.com/restaurants/%s' % splits[0]
         else:
             # TODO : 구글도 땡겨올 수 있게끔 수정
             raise NotImplementedError
@@ -163,6 +174,8 @@ class LegacyPlace(Content):
                 self.summarize_force_kakao(accessed)
             elif self.contentType == '4square':
                 self.summarize_force_4square(accessed)
+            elif self.contentType == 'mango':
+                self.summarize_force_mango(accessed)
             else:
                 raise NotImplementedError
 
@@ -267,6 +280,36 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, img_url, self.content,)
+
+        f = Path(self.path_summarized)
+        f.write_text(json)
+
+    def summarize_force_mango(self, accessed):
+        # 파싱
+        pq = PyQuery(accessed)
+        d = json_loads(pq('script[id="restaurant_info_json"]').html().strip().replace('&quot;', '"'))
+
+        # 주요 정보
+        lon = float(d['longitude'])
+        lat = float(d['latitude'])
+        name = d['name']
+        phone = d['phone_number']
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr = d['address']
+        img_url = pq('meta[property="og:image"]').attr('content')
+
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "images": [{"content": "%s"}],
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (lon, lat, name, phone, addr, img_url, self.content,)
 
         f = Path(self.path_summarized)
         f.write_text(json)

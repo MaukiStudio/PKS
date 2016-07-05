@@ -180,6 +180,19 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000004-0000-0000-0000-000015493954'))
 
+    def test_content_property_mango_case1(self):
+        test_data = 'https://www.mangoplate.com/restaurants/f-YvkBx8IemC'
+        normalized_test_data = 'f-YvkBx8IemC.mango'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        self.assertEqual(lp.uuid.split('.')[1], 'mango')
+        saved = LegacyPlace.objects.first()
+        self.assertNotEqual(lp.content, test_data)
+        self.assertEqual(lp.content, normalized_test_data)
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('00000005-662d-5976-6b42-783849656d43'))
+
     def test_access_by_4square(self):
         if WORK_ENVIRONMENT: return
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
@@ -203,6 +216,16 @@ class LegacyPlaceTest(APITestBase):
 
     def test_access_by_kakao(self):
         test_data = '14720610.kakao'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        path = Path(lp.path_accessed)
+        if path.exists():
+            path.unlink()
+        self.assertEqual(path.exists(), False)
+        lp.access()
+        self.assertEqual(path.exists(), True)
+
+    def test_access_by_mango(self):
+        test_data = 'f-YvkBx8IemC.mango'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         path = Path(lp.path_accessed)
         if path.exists():
@@ -282,6 +305,9 @@ class LegacyPlaceTest(APITestBase):
         url, is_created = Url.get_or_create_smart('http://ko.foursquare.com/v/4ccffc63f6378cfaace1b1d6')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '4ccffc63f6378cfaace1b1d6.4square')
 
+        url, is_created = Url.get_or_create_smart('https://www.mangoplate.com/restaurants/f-YvkBx8IemC')
+        self.assertEqual(LegacyPlace.get_from_url(url).content, 'f-YvkBx8IemC.mango')
+
     def test_access_methods(self):
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
@@ -346,6 +372,18 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.name.content, 'Clinton St. Baking Co. & Restaurant')
         self.assertEqual(pb.images[0].content, unquote_plus(
             'https://irs2.4sqi.net/img/general/612x612/690170_HnduV5yM9RLNUHQseOOvDi3OCm4AoYmMld79iVTxrPg.jpg'
+        ))
+
+    def test_content_summarized_by_mango(self):
+        test_data = 'f-YvkBx8IemC.mango'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        lp.summarize()
+        pb = lp.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, '제로투나인')
+        self.assertEqual(pb.images[0].content, unquote_plus(
+            'https://mp-seoul-image-production-s3.mangoplate.com/259736/xverhn9edfxp5w.jpg'
         ))
 
 

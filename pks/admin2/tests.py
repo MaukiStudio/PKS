@@ -113,6 +113,14 @@ class PlacedDetailTest2(AdminTestCase):
         self.uplace = UserPlace.objects.first()
         self.assertNotEqual(self.uplace.place, None)
 
+    def test_placed_by_lp_url2(self):
+        self.assertEqual(self.uplace.place, None)
+        lp_url = 'https://www.mangoplate.com/restaurants/f-YvkBx8IemC'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertNotEqual(self.uplace.place, None)
+
     def test_placed_by_placeName(self):
         self.assertEqual(self.uplace.place, None)
         placeName = '능이향기'
