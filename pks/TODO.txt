@@ -7,12 +7,13 @@
     [완] parent post 상속 받을 때 region 속성만 받기
         for 장소화된 URL 에 의해 자동 장소화된 UserPlace.userPost 의 images, 현실적으로 수정
     [완] 망고플레이트 장소화 시 대표이미지 썸네일 생성이 제대로 되지 않는 문제 수정
-    [ing] 개발환경에서는 문제가 없는데 실환경에서는 에러나는 문제 해결 (content 쪽. 상기 항목 관련)
+    [완] 개발환경에서는 문제가 없는데 실환경에서는 에러나는 문제 해결 (content 쪽. 상기 항목 관련)
         파일 다 지우고 새로 하면 잘 됨;;; access 는 되지 않은 상태에서 summarize 를 호출하면 발생하는 문제
 
 [이것저것]
-    다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
-    Celery 안되는 문제 해결
+    [ing] Celery 안되는 문제 해결
+        ~/.bashrc 에 하기 라인 삽입
+            export DJANGO_SETTINGS_MODULE=pks.settings 
     ImagesImporter
         임포트하고, 또 임포트하는 경우에 대한 처리
     구글 장소화
@@ -57,6 +58,10 @@
     3차 : 2차 이후 30개 미만인 Region 들끼리 뭉치기. 뭉친 결과로 인해 30개 이상인 Region 과의 intersection 이 생기지 않도록
     개수가 30 개 미만인 경우 더 뭉쳐서 크게...
     알고리즘을 바꾸는 것도 검토 : k-means 등
+
+[테스트 보강]
+    다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
+
 
 
 NLL 개선 : prior, likelyhood 계산방식 개선
