@@ -257,6 +257,7 @@ class Image(Content):
     @property
     def content_accessed(self):
         if not self._cache_accessed:
+            self.access()
             img = None
             exif = None
             try:

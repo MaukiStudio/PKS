@@ -322,6 +322,7 @@ class Content(models.Model):
     @property
     def content_accessed(self):
         if not self._cache_accessed:
+            self.access()
             file = Path(self.path_accessed)
             self._cache_accessed = file.read_text()
         return self._cache_accessed
