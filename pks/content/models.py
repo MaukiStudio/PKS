@@ -297,7 +297,8 @@ class LegacyPlace(Content):
     def summarize_force_mango(self, accessed):
         # 파싱
         pq = PyQuery(accessed)
-        d = json_loads(pq('script[id="restaurant_info_json"]').html().strip().replace('&quot;', '"'))
+        #d = json_loads(pq('script[id="restaurant_info_json"]').html().strip().replace('&quot;', '"'))
+        d = json_loads(pq('button[class="btn-map"]').attr('data-restaurant'))
 
         # 주요 정보
         lon = float(d['longitude'])
