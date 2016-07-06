@@ -1,10 +1,11 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from json import dumps as json_dumps
+
 from base.utils import get_timestamp, call
 from image.models import RawFile, Image, IMG_PD_HDIST_THREASHOLD
 from place.models import UserPlace, PostPiece, PostBase
-from account.models import VD
 from base.libs import Group, Clustering, distance_geography_group, distance_geography
 
 CLUSTERING_MAX_DISTANCE_THRESHOLD = 1500+1      # meters
@@ -101,18 +102,19 @@ class ImagesProxyTask(object):
         #self.dump_similars()
         #'''
         call(self.step_03_prepare_images)
-        call(self.step_04_first_clustering_by_geography_distance)
-        call(self.step_05_second_clustering_by_timedelta_distance)
-        call(self.step_06_third_clustering_by_hamming_distance)
-        call(self.step_07_fourth_clustering_by_geography_distance)
-        call(self.step_99_generate_uplaces)
+        if self.imgs:
+            call(self.step_04_first_clustering_by_geography_distance)
+            call(self.step_05_second_clustering_by_timedelta_distance)
+            call(self.step_06_third_clustering_by_hamming_distance)
+            call(self.step_07_fourth_clustering_by_geography_distance)
+            call(self.step_99_generate_uplaces)
 
         print('')
         print('complete!!!')
         return True
 
     def dump_similars(self):
-        rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
+        rfs1 = RawFile.objects.filter(vd=self.source).filter(same=None).exclude(mhash=None)
         similars = Image.objects.filter(rf__in=rfs1).exclude(similar=None).order_by('content')
         print('similars: %d' % len(similars))
         for img in similars:
@@ -124,7 +126,7 @@ class ImagesProxyTask(object):
 
 
     def step_01_task_rfs(self):
-        rfs = RawFile.objects.filter(vd=self.source.id).filter(mhash=None)
+        rfs = RawFile.objects.filter(vd=self.source).filter(mhash=None)
         for rf in rfs:
             if rf.task():
                 #print(rf.file)
@@ -133,7 +135,7 @@ class ImagesProxyTask(object):
         return True
 
     def step_02_task_images(self):
-        rfs2 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
+        rfs2 = RawFile.objects.filter(vd=self.source).filter(same=None).exclude(mhash=None)
         imgs = Image.objects.filter(rf__in=rfs2).filter(lonLat=None)
         for img in imgs:
             if img.task(vd=self.source):
@@ -143,10 +145,16 @@ class ImagesProxyTask(object):
         return True
 
     def step_03_prepare_images(self):
-        rfs1 = RawFile.objects.filter(vd=self.source.id).filter(same=None).exclude(mhash=None)
-        sames = RawFile.objects.filter(vd=self.source.id).exclude(same=None)
+        rfs1 = RawFile.objects.filter(vd=self.source).filter(same=None).exclude(mhash=None)
+        sames = RawFile.objects.filter(vd=self.source).exclude(same=None)
         rfs2 = RawFile.objects.filter(id__in=sames).exclude(vd=self.source)
-        self.imgs = list(Image.objects.filter(rf__in=rfs1 | rfs2).exclude(lonLat=None).exclude(timestamp=None))
+        imgs = list(Image.objects.filter(rf__in=rfs1 | rfs2).exclude(lonLat=None).exclude(timestamp=None))
+        # TODO : Tuning!!!
+        self.imgs = list()
+        for img in imgs:
+            if PostPiece.objects.filter(data__images__contains=[img.ujson]).first():
+                continue
+            self.imgs.append(img)
         for img in self.imgs:
             img.value = img.lonLat
         self.size = len(self.imgs)
@@ -229,14 +237,6 @@ class ImagesProxyTask(object):
     def step_99_generate_uplaces(self):
         # vd
         vd = self.proxy.vd
-        if UserPlace.objects.filter(vd=vd).first():
-            vd_new_publisher = VD.objects.create(parent=vd.parent, is_private=True, is_public=False)
-            if not 'old_vds' in self.proxy.guide or not self.proxy.guide['old_vds']:
-                self.proxy.guide['old_vds'] = list()
-            self.proxy.guide['old_vds'].append(vd.id)
-            self.proxy.vd = vd_new_publisher
-            self.proxy.save()
-            vd = vd_new_publisher
 
         uplace_cnt = 0
         pp_cnt = 0
@@ -249,7 +249,7 @@ class ImagesProxyTask(object):
                     pb.uplace_uuid = uplace.uuid
                     pb.lonLat = group3.lonLat
                     pb.images = group3.members
-                    pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, pb=pb)
+                    pp = PostPiece.create_smart(uplace, pb)
                     pp_cnt += 1
         print('uplace_cnt:%d, pp_cnt:%d' % (uplace_cnt, pp_cnt))
         return True
