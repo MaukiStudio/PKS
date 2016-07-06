@@ -152,7 +152,7 @@ class ImagesProxyTask(object):
         # TODO : Tuning!!!
         self.imgs = list()
         for img in imgs:
-            if PostPiece.objects.filter(data__images__contains=[img.ujson]).first():
+            if PostPiece.objects.filter(vd=self.proxy.vd).filter(data__images__contains=[img.ujson]).first():
                 continue
             self.imgs.append(img)
         for img in self.imgs:
