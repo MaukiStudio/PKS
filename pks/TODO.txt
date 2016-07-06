@@ -14,10 +14,11 @@
     [완] Celery 안되는 문제 해결
         ~/.bashrc 에 하기 라인 삽입
             export DJANGO_SETTINGS_MODULE=pks.settings 
-    [ing] ImagesImporter
+    [완] ImagesImporter
         임포트하고, 또 임포트하는 경우에 대한 처리
-    구글 장소화
-    네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
+    [ing] 셀러리 처리 부활
+    [보류] 구글 장소화
+    [보류] 네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
 
 [상세화]
     대충 장소화를 하고, 이후 다시 자세하게 장소화
@@ -38,10 +39,11 @@
         이건 나중에 task 에서 처리...
 
 [Tuning]
-    get_queryset() 의 검색 구현, filter_queryset() 으로 이동
-        cls.objects.get_or_create() 내부에서 get_queryset() 을 사용하고 있다;;;
+    cls.objects.get_or_create() 내부에서 get_queryset() 을 사용하고 있다
+        이거의 정체가 무엇인지 정확히 파악하고 튜닝
         아예 이걸 사용안하고 다른걸 사용하여 Tuning 하는 방법도 있다
-
+    캐시서버 적용
+    Post, Region 등 무거운 사항들에 대한 결과를 DB 에 저장
 
 [Task]
     Content 장소화

@@ -74,8 +74,7 @@ class ImporterViewset(BaseViewset):
 
         # importer 생성 및 celery task 처리
         importer, is_created = Importer.objects.get_or_create(publisher=proxy, subscriber=vd)
-        # TODO : 구현 완료 후 주석 풀기
-        # importer.start(high_priority=is_created)
+        importer.start(high_priority=is_created)
 
         # 결과 처리
         serializer = self.get_serializer(importer)
