@@ -573,8 +573,22 @@ class PostPiece(models.Model):
 
     @classmethod
     def create_smart(cls, uplace, pb, is_drop=False, is_remove=False):
-        return PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd,
-                                        is_drop=is_drop, is_remove=is_remove)
+        MAX_IMG_CNT = 30
+        img_cnt = len(pb.images)
+        if img_cnt > MAX_IMG_CNT:
+            pb_copied = pb.copy()
+            pp = None
+            for i in xrange((img_cnt+MAX_IMG_CNT-1)/MAX_IMG_CNT):
+                start = img_cnt - (i+1)*MAX_IMG_CNT
+                if start < 0: start = 0
+                end = img_cnt - i*MAX_IMG_CNT
+                pb_copied.images = pb.images[start:end]
+                pp = PostPiece.objects.create(uplace=uplace, pb=pb_copied, place=uplace.place, vd=uplace.vd,
+                                              is_drop=is_drop, is_remove=is_remove)
+        else:
+            pp = PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd,
+                                          is_drop=is_drop, is_remove=is_remove)
+        return pp
 
     @classmethod
     def create_smart_4place(cls, place, vd, pb, by_MAMMA=None):
