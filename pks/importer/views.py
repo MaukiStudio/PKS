@@ -152,7 +152,7 @@ class ImportedPlaceViewset(BaseViewset):
         pb.uplace_uuid = None
 
         uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
-        pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, pb=pb)
+        pp = PostPiece.create_smart(uplace, pb)
         serializer = UserPlaceSerializer(uplace)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -171,7 +171,7 @@ class ImportedPlaceViewset(BaseViewset):
         uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
         if is_created:
             # 매칭되는 UserPlace 가 없었다면 drop 처리
-            pp = PostPiece.objects.create(is_drop=True, place=None, uplace=uplace, vd=vd, pb=pb)
+            pp = PostPiece.create_smart(uplace, pb, is_drop=True)
             uplace.is_drop = True
             uplace.save()
             serializer = UserPlaceSerializer(uplace)

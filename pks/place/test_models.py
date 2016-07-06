@@ -335,10 +335,10 @@ class PostTest(APITestBase):
         pb1 = PostBase(json_userPost)
         pb2 = PostBase(json_placePost)
         self.assertEqual(PostPiece.objects.count(), 0)
-        pp1 = PostPiece.objects.create(place=None, uplace=uplace1, vd=vd1, pb=pb1)
+        pp1 = PostPiece.create_smart(uplace1, pb1)
         self.assertEqual(PostPiece.objects.count(), 1)
-        pp2 = PostPiece.objects.create(place=None, uplace=uplace2, vd=vd2, pb=pb2)
-        pp3 = PostPiece.objects.create(by_MAMMA=True, place=place, uplace=None, vd=vd1, pb=pb2)
+        pp2 = PostPiece.create_smart(uplace2, pb2)
+        pp3 = PostPiece.create_smart_4place(place, vd1, pb2, by_MAMMA=True)
         self.assertEqual(PostPiece.objects.count(), 3)
 
         want_userPost = json_loads(json_userPost)
@@ -398,7 +398,7 @@ class PostTest(APITestBase):
         uplace1._clearCache()
         uplace3._clearCache()
         pb3 = PostBase('{"notes": [{"content": "child"}]}')
-        pp3 = PostPiece.objects.create(place=None, uplace=uplace3, pb=pb3)
+        pp3 = PostPiece.create_smart(uplace3, pb3)
         self.assertNotEqual(uplace3.userPost, uplace1.userPost)
         self.assertNotEqual(uplace3.userPost.json, uplace1.userPost.json)
 
@@ -410,7 +410,7 @@ class PostTest(APITestBase):
         uplace1._clearCache()
         uplace4._clearCache()
         pb3 = PostBase('{"notes": [{"content": "child"}]}')
-        pp3 = PostPiece.objects.create(place=None, uplace=uplace4, vd=vd1, pb=pb3)
+        pp3 = PostPiece.create_smart(uplace4, pb3)
         self.assertNotEqual(uplace4.userPost, uplace1.userPost)
         self.assertNotEqual(uplace4.userPost.json, uplace1.userPost.json)
 

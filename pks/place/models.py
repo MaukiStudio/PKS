@@ -126,7 +126,7 @@ class Place(models.Model):
                 if lp:
                     lp.place = _place
                     lp.save()
-                    PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
+                    PostPiece.create_smart_4place(_place, vd, pb)
                 return _place, False
 
 
@@ -139,7 +139,7 @@ class Place(models.Model):
             _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
             lp.place = _place
             lp.save()
-            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
+            PostPiece.create_smart_4place(_place, vd, pb)
             return _place, True
 
         # Placed by placeName/lonLat
@@ -147,7 +147,7 @@ class Place(models.Model):
             if not pb.lonLat:
                 pb.point = Point(lonLat)
             _place = Place.objects.create(lonLat=lonLat, placeName=placeName)
-            PostPiece.objects.create(by_MAMMA=pb.by_MAMMA, place=_place, uplace=None, vd=vd, pb=pb)
+            PostPiece.create_smart_4place(_place, vd, pb)
             return _place, True
 
         # last : old_place
@@ -571,3 +571,13 @@ class PostPiece(models.Model):
     def pb(self, value):
         self.data = value.ujson
 
+    @classmethod
+    def create_smart(cls, uplace, pb, is_drop=False, is_remove=False):
+        return PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd,
+                                        is_drop=is_drop, is_remove=is_remove)
+
+    @classmethod
+    def create_smart_4place(cls, place, vd, pb, by_MAMMA=None):
+        if by_MAMMA is None:
+            by_MAMMA = pb.by_MAMMA
+        return PostPiece.objects.create(place=place, vd=vd, pb=pb, by_MAMMA=by_MAMMA, uplace=None)

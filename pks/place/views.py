@@ -111,7 +111,7 @@ class UserPlaceViewset(BaseViewset):
                 raise ValueError('삭제 포스트 처리 시에는 반드시 uplace_uuid 가 지정되어야 함')
 
             # 삭제 PostPiece 생성
-            pp = PostPiece.objects.create(is_remove=True, place=None, uplace=uplace, vd=vd, pb=pb)
+            pp = PostPiece.create_smart(uplace, pb, is_remove=True)
 
 
         #######################################
@@ -136,7 +136,7 @@ class UserPlaceViewset(BaseViewset):
                 raise ValueError('PostPiece 생성을 위한 최소한의 정보도 없음')
 
             # PostPiece 생성
-            pp = PostPiece.objects.create(place=None, uplace=uplace, vd=vd, pb=pb)
+            pp = PostPiece.create_smart(uplace, pb)
 
             # 임시적인 어드민 구현을 위해, MAMMA 가 추가로 뽑아준 post 가 있으면 추가로 포스팅
             pb_MAMMA = pb.pb_MAMMA
@@ -200,7 +200,7 @@ class UserPlaceViewset(BaseViewset):
             instance.is_drop = True
             instance.save()
             pb = PostBase('{"notes": [{"content": "delete"}]}')
-            pp = PostPiece.objects.create(is_drop=True, uplace=instance, vd=vd, pb=pb)
+            pp = PostPiece.create_smart(instance, pb, is_drop=True)
 
     @list_route(methods=['get'])
     def regions(self, request):

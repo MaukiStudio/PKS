@@ -108,7 +108,7 @@ class ImportedPlaceTest(APITestBase):
         self.place2 = Place.objects.create()
         self.iplace = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place)
         self.pb = PostBase('{"notes": [{"content": "test note"}]}')
-        self.pp = PostPiece.objects.create(uplace=self.iplace, vd=self.vd_publisher, pb=self.pb)
+        self.pp = PostPiece.create_smart(self.iplace, self.pb)
         self.iplace2 = ImportedPlace.objects.create(vd=self.vd_publisher, place=self.place2)
         self.iplace3 = ImportedPlace.objects.create(vd=self.vd_publisher, place=None)
         self.uplace = UserPlace.objects.create(vd=self.vd_subscriber, place=self.place2)
@@ -118,7 +118,7 @@ class ImportedPlaceTest(APITestBase):
         self.iplace4 = UserPlace.objects.create(vd=self.vd_publisher2, place=self.place3)
         self.iplace5 = ImportedPlace.objects.create(vd=self.vd_publisher2)
         self.pb5 = PostBase('{"notes": [{"content": "test note 5"}]}')
-        self.pp5 = PostPiece.objects.create(uplace=self.iplace5, vd=self.vd_publisher2, pb=self.pb5)
+        self.pp5 = PostPiece.create_smart(self.iplace5, self.pb5)
 
     def test_userPost(self):
         self.iplace.computePost(self.vd_subscriber.realOwner_publisher_ids)

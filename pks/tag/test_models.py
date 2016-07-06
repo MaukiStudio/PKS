@@ -323,6 +323,6 @@ class PlaceNoteTagTest(APITestBase):
             }
         '''
         pb = PostBase(json)
-        pp = PostPiece.objects.create(uplace=uplace, pb=pb)
+        pp = PostPiece.create_smart(uplace, pb)
         self.assertEqual(Tag.objects.count(), 1+4)
 

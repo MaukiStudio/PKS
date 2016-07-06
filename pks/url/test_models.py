@@ -217,7 +217,7 @@ class UrlTest(APITestBase):
         parent, is_created = UserPlace.get_or_create_smart(pb, vd)
         self.assertEqual(parent.place, None)
         url, is_created = Url.get_or_create_smart(test_data)
-        pp = PostPiece.objects.create(place=None, uplace=parent, vd=vd, pb=pb)
+        pp = PostPiece.create_smart(parent, pb)
         self.assertIn(url, parent.userPost.urls)
 
         self.assertEqual(UserPlace.objects.count(), 1)

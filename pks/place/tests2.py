@@ -54,17 +54,17 @@ class PlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         pb = PostBase(json_add)
         uplace = UserPlace.objects.create(vd=self.vd)
-        PostPiece.objects.create(place=None, uplace=uplace, vd=self.vd, pb=pb)
+        PostPiece.create_smart(uplace, pb)
 
         url.add_place(place1)
         self.assertEqual(UserPlace.objects.count(), 1)
         '''
         pb = PostBase(json_add)
         uplace, is_created = UserPlace.get_or_create_smart(pb, self.vd)
-        PostPiece.objects.create(place=None, uplace=uplace, vd=self.vd, pb=pb)
+        PostPiece.create_smart(uplace, pb)
         print(is_created)
         #'''
-        UserPlace.dump_all()
+        #UserPlace.dump_all()
         #'''
         response = self.client.post('/uplaces/', dict(add=json_add,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -73,20 +73,20 @@ class PlaceViewSetTest(FunctionalTestAfterLoginBase):
         uplace.save()
         #'''
         self.assertEqual(UserPlace.objects.count(), 1+1)
-        UserPlace.dump_all()
+        #UserPlace.dump_all()
 
         url.add_place(place2)
         self.assertEqual(UserPlace.objects.count(), 2+2)
         pb = PostBase(json_add)
         uplace = UserPlace.objects.create(vd=self.vd)
-        PostPiece.objects.create(place=None, uplace=uplace, vd=self.vd, pb=pb)
+        PostPiece.create_smart(uplace, pb)
         self.assertEqual(UserPlace.objects.count(), 4+1)
 
         url.add_place(place3)
         self.assertEqual(UserPlace.objects.count(), 5+1)
         pb = PostBase(json_add)
         uplace = UserPlace.objects.create(vd=self.vd)
-        PostPiece.objects.create(place=None, uplace=uplace, vd=self.vd, pb=pb)
+        PostPiece.create_smart(uplace, pb)
         self.assertEqual(UserPlace.objects.count(), 6+1)
 
     def test_placed_by_url1(self):
