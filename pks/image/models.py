@@ -61,12 +61,17 @@ class Image(Content):
                     self.dhash = self.compute_dhash(pil)
                 self.summarize(pil)
 
+    def update_hash(self, save=False):
+        pil = self.content_accessed
+        self.phash = self.compute_phash(pil)
+        self.dhash = self.compute_dhash(pil)
+        if save:
+            self.save()
+
     def task(self, vd=None, force_hash=False, force_similar=False):
         if force_hash or not self.phash or not self.dhash:
             try:
-                pil = self.content_accessed
-                self.phash = self.compute_phash(pil)
-                self.dhash = self.compute_dhash(pil)
+                self.update_hash(save=False)
             except:
                 return False
 
