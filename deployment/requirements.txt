@@ -23,3 +23,5 @@ celery
 librabbitmq
 geopy
 foursquare
+redis
+django-redis

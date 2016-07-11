@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from settings_deploy import SECRET_KEY, USER_ENC_KEY, VD_ENC_KEY, DEBUG, SERVER_HOST, WORK_ENVIRONMENT
+from settings_deploy import *
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -183,3 +183,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '../media/')
 
 # pks
 VD_SESSION_KEY = 'vd_session_key'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
