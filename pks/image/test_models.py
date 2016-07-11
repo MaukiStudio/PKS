@@ -76,10 +76,10 @@ class ImageTest(APITestBase):
         id2 = Image.compute_phash(PIL_Image.open('image/samples/no_exif_test.jpg'))
 
         self.assertLessEqual(Image.hamming_distance(id_640, id_256), 2)
-        self.assertLessEqual(Image.hamming_distance(id_640, id_480), 0)
-        #self.assertLessEqual(Image.hamming_distance(id_640, id_1200), 0)
+        self.assertLessEqual(Image.hamming_distance(id_640, id_480), 2)
+        #self.assertLessEqual(Image.hamming_distance(id_640, id_1200), 2)
         #self.assertLessEqual(Image.hamming_distance(id_640, id_org), 0)
-        self.assertGreater(Image.hamming_distance(id_640, id2), 10)  # distance = 58
+        self.assertGreater(Image.hamming_distance(id_640, id2), 36)  # distance = 69
 
     def test_dhash_hamming_dist(self):
         id_640 = Image.compute_dhash(PIL_Image.open('image/samples/test.jpg'))
@@ -201,7 +201,7 @@ class ImageTest(APITestBase):
         rf.file = self.uploadFile('test.jpg')
         rf.save()
         rf2 = RawFile()
-        rf2.file = self.uploadFile('test_480.jpg')
+        rf2.file = self.uploadFile('test.jpg')
         rf2.save()
 
         img = Image()
