@@ -61,7 +61,7 @@ class Image(Content):
                     self.dhash = self.compute_dhash(pil)
                 self.summarize(pil)
 
-    def update_hash(self, save=False):
+    def update_hash(self, save=True):
         pil = self.content_accessed
         self.phash = self.compute_phash(pil)
         self.dhash = self.compute_dhash(pil)
