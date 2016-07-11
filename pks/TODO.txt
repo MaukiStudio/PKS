@@ -1,5 +1,26 @@
 [Now]
 
+[오픈 준비]
+    이메일 인증
+        이메일 인증하지 않고도 서비스 사용에 지장 없는지 테스트 필요
+    regions API 결과 DB 캐싱 및 Celery 처리
+        더더욱 count 가 맞지 않을 수 있으므로 앱에서 N+ 처리 필요
+
+[imgur 형태에 맞춘 향후 개발 순서]
+    Loginless Service : 오픈 준비하면서 최종 완료
+    Image Tag : 금방 가능
+    Tag Extractor from Image 1차
+        일단 돈 들여서 구글꺼 붙이자...
+    Place Extractor from Image 1차
+        1차 Tag Extractor 를 이용하여 기존 검색엔진에서의 검색 결과를 활용하여 구현
+    Deep Learning
+        Tag Extractor from Image 2차
+        Place Extractor from Image 2차
+
+[튜닝]
+    나중 혹은 다른 분께 요청
+
+
 [Bug Fix]
     [완] 음수 좌표로 장소화가 안되는 버그 수정
     [완] timestamp 가 없는 이미지를 어드민에서 표시할 때의 버그 수정
@@ -13,10 +34,13 @@
 [이것저것]
     [완] Celery 안되는 문제 해결
         ~/.bashrc 에 하기 라인 삽입
-            export DJANGO_SETTINGS_MODULE=pks.settings 
+            export DJANGO_SETTINGS_MODULE=pks.settings
     [완] ImagesImporter
         임포트하고, 또 임포트하는 경우에 대한 처리
-    [ing] 셀러리 처리 부활
+    [완] 셀러리 처리 부활
+    [완] guide 로 Proxy 조회하는 부분 개선
+        일단 guide 생성 후 수정하지만 않으면 문제없고, 실섭에선 문제 없으므로 pass
+    
     [보류] 구글 장소화
     [보류] 네이버/다음, 지하철역은 다른 key 를 쓰고 있음;;;
 
