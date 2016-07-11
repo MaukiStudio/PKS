@@ -63,7 +63,6 @@ class Image(Content):
 
     def task(self, vd=None, force_hash=False, force_similar=False):
         if force_hash or not self.phash or not self.dhash:
-            self.access()
             try:
                 pil = self.content_accessed
                 self.phash = self.compute_phash(pil)

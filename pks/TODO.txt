@@ -1,10 +1,11 @@
 [Now]
 
 [오픈 준비]
+    regions API 결과 캐싱 및 Celery 처리
+        캐싱 프레임워크 구현 및 적용 : 기본은 redis
+        더더욱 count 가 맞지 않을 수 있으므로 앱에서 N+ 처리 필요
     이메일 인증
         이메일 인증하지 않고도 서비스 사용에 지장 없는지 테스트 필요
-    regions API 결과 DB 캐싱 및 Celery 처리
-        더더욱 count 가 맞지 않을 수 있으므로 앱에서 N+ 처리 필요
 
 [imgur 형태에 맞춘 향후 개발 순서]
     Loginless Service : 오픈 준비하면서 최종 완료
@@ -88,6 +89,10 @@
 [테스트 보강]
     다른 사람이 drop 한 경우에도 나한테는 drop 이 아니어야 하는 테스트 추가
 
+
+[ImageHash]
+Wavelet Hash 관련 R&D
+phash 가 바뀌었음. 다시 실험 필요. whash 와 비교 실험
 
 
 NLL 개선 : prior, likelyhood 계산방식 개선
