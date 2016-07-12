@@ -4,12 +4,14 @@ from __future__ import print_function
 
 from json import loads as json_loads
 from rest_framework import status
+from time import sleep
 
 from base.tests import APITestBase, FunctionalTestAfterLoginBase
 from place.models import UserPlace, Place, PostPiece
 from url.models import Url
 from account.models import VD
 from place.post import PostBase
+from base.cache import cache_get, cache_get_or_create, cache_set, cache_expire
 
 
 class PlaceViewSetTest(FunctionalTestAfterLoginBase):
@@ -178,3 +180,64 @@ class PlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(UserPlace.objects.count(), 5+1)
         place_id = json_loads(response.content)['place_id']
         self.assertEqual(place_id, None)
+
+
+class CacheTest(APITestBase):
+
+    def setUp(self):
+        super(APITestBase, self).setUp()
+        self.vd1 = VD.objects.create()
+        self.vd2 = VD.objects.create()
+
+    def test_cache_get_set(self):
+        self.assertEqual(cache_get(self.vd1, 'name1'), None)
+        self.assertEqual(cache_set(self.vd1, 'name1', None, lambda: 'value1'), 'value1')
+        self.assertEqual(cache_get(self.vd1, 'name1'), 'value1')
+
+        self.assertEqual(cache_set(self.vd1, 'name1', None, lambda: 'value11'), 'value1')
+        self.assertEqual(cache_get(self.vd1, 'name1'), 'value1')
+        cache_expire(self.vd1, 'name1', 1)
+        sleep(1.001)
+        self.assertEqual(cache_set(self.vd1, 'name1', None, lambda: 'value11'), 'value11')
+        self.assertEqual(cache_get(self.vd1, 'name1'), 'value11')
+
+        self.assertEqual(cache_get(self.vd1, 'name2'), None)
+        self.assertEqual(cache_set(self.vd1, 'name2', None, lambda: 'value2'), 'value2')
+        self.assertEqual(cache_get(self.vd1, 'name2'), 'value2')
+        self.assertEqual(cache_get(self.vd1, 'name1'), 'value11')
+
+        self.assertEqual(cache_get(self.vd2, 'name1'), None)
+        self.assertEqual(cache_set(self.vd2, 'name1', None, lambda: 'asdf1'), 'asdf1')
+        self.assertEqual(cache_get(self.vd2, 'name1'), 'asdf1')
+        self.assertEqual(cache_get(self.vd2, 'name2'), None)
+        self.assertEqual(cache_set(self.vd2, 'name2', None, lambda: 'asdf2'), 'asdf2')
+        self.assertEqual(cache_get(self.vd2, 'name2'), 'asdf2')
+        self.assertEqual(cache_get(self.vd1, 'name2'), 'value2')
+        self.assertEqual(cache_get(self.vd1, 'name1'), 'value11')
+
+    def test_cache_get_or_create(self):
+        self.assertEqual(cache_get(self.vd1, 'name1'), None)
+        value, is_created = cache_get_or_create(self.vd1, 'name1', None, lambda: 'value1')
+        self.assertEqual(value, 'value1')
+        self.assertEqual(is_created, True)
+        value, is_created = cache_get_or_create(self.vd1, 'name1', None, lambda: 'value11')
+        self.assertEqual(value, 'value1')
+        self.assertEqual(is_created, False)
+        cache_expire(self.vd1, 'name1', 1)
+        sleep(1.001)
+        value, is_created = cache_get_or_create(self.vd1, 'name1', None, lambda: 'value11')
+        self.assertEqual(value, 'value11')
+        self.assertEqual(is_created, True)
+
+        cache_get_or_create(self.vd1, 'name2', None, lambda: 'value2')
+        value, is_created = cache_get_or_create(self.vd1, 'name1', None, lambda: 'value11')
+        self.assertEqual(value, 'value11')
+        self.assertEqual(is_created, False)
+        cache_get_or_create(self.vd2, 'name1', None, lambda: 'asdf1')
+        value, is_created = cache_get_or_create(self.vd1, 'name1', None, lambda: 'value11')
+        self.assertEqual(value, 'value11')
+        self.assertEqual(is_created, False)
+
+    # TODO : thread 를 이용하여 구현
+    def __skip__test_cache_lock(self):
+        pass

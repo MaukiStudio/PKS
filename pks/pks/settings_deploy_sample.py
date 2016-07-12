@@ -15,3 +15,6 @@ SERVER_HOST = 'http://localhost:8000'
 # Work Environment or Not
 # If true, Unit Tests will remove all media files
 WORK_ENVIRONMENT = False
+
+# REDIS SERVER
+REDIS_SERVER_IP = '127.0.0.1'
