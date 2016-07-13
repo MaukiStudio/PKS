@@ -12,6 +12,7 @@ app = Celery(
     include=[
         'pks.tasks',
         'importer.task_wrappers',
+        'account.task_wrappers',
     ],
 )
 
