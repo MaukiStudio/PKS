@@ -35,7 +35,8 @@ def cache_set(vd, name, ttl, func, *args):
         old_ttl = django_cache.ttl(value_key)
         if old_ttl <= 0 or ttl - old_ttl >= TTL_MIN:
             value = func(*args)
-            django_cache.set(value_key, value, ttl)
+            if value is not None:
+                django_cache.set(value_key, value, ttl)
         else:
             value = django_cache.get(value_key)
 
@@ -56,8 +57,11 @@ def cache_get_or_create(vd, name, ttl, func, *args):
             old_ttl = django_cache.ttl(value_key)
             if old_ttl <= 0:
                 value = func(*args)
-                django_cache.set(value_key, value, ttl)
-                is_created = True
+                if value is not None:
+                    django_cache.set(value_key, value, ttl)
+                    is_created = True
+                else:
+                    is_created = False
 
     return value, is_created
 

@@ -46,7 +46,8 @@ def compute_regions(uplaces=None, vd=None):
         for uplace in uplaces:
             uplace.value = uplace.lonLat
             uplace.timestamp = uplace.modified
-    #print(len(uplaces))
+    if len(uplaces) == 0:
+        return None
 
     group0 = Group()
     group0.members = uplaces
