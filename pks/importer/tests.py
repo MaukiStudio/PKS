@@ -189,6 +189,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertDictEqual(results[1]['userPost'], self.iplace.userPost.cjson)
 
         # remove duplicate
+        self.clear_cache()
         self.iplace4.place = self.iplace.place
         self.iplace4.save()
         response = self.client.get('/iplaces/')

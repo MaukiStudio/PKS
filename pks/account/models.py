@@ -76,9 +76,6 @@ class VD(models.Model):
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def __init__(self, *args, **kwargs):
-        self._cache_realOwner_places = None
-        self._cache_realOwner_duplicated_uplace_ids = None
-        self._cache_realOwner_duplicated_iplace_ids = None
         super(VD, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -115,20 +112,19 @@ class VD(models.Model):
         result, is_created = cache_get_or_create(self, 'realOwner_publisher_ids', None, helper, self.realOwner_vd_ids)
         return result
 
-    # TODO : 튜닝
     @property
-    def realOwner_places(self):
-        if not self._cache_realOwner_places:
+    def realOwner_place_ids(self):
+        def helper(vd_ids):
             from place.models import Place
-            self._cache_realOwner_places = Place.objects.filter(uplaces__vd_id__in=self.realOwner_vd_ids)
-        return self._cache_realOwner_places
+            return [place.id for place in Place.objects.filter(uplaces__vd_id__in=vd_ids)]
+        result, is_created = cache_get_or_create(self, 'realOwner_place_ids', None, helper, self.realOwner_vd_ids)
+        return result
 
-    # TODO : 튜닝!!!
     @property
     def realOwner_duplicated_uplace_ids(self):
-        if not self._cache_realOwner_duplicated_uplace_ids:
+        def helper(vd_ids):
             from place.models import UserPlace
-            base = UserPlace.objects.all().exclude(place_id=None).filter(vd_id__in=self.realOwner_vd_ids)
+            base = UserPlace.objects.all().exclude(place_id=None).filter(vd_id__in=vd_ids)
             group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
             result = list()
             before = None
@@ -136,15 +132,15 @@ class VD(models.Model):
                 if uplace.place_id == (before and before.place_id):
                     result.append(uplace.id)
                 before = uplace
-            self._cache_realOwner_duplicated_uplace_ids = result
-        return self._cache_realOwner_duplicated_uplace_ids
+            return result
+        result, is_created = cache_get_or_create(self, 'realOwner_duplicated_uplace_ids', None, helper, self.realOwner_vd_ids)
+        return result
 
-    # TODO : 튜닝!!!
     @property
     def realOwner_duplicated_iplace_ids(self):
-        if not self._cache_realOwner_duplicated_iplace_ids:
+        def helper(vd_ids):
             from importer.models import ImportedPlace
-            base = ImportedPlace.objects.all().exclude(place_id=None).filter(vd_id__in=self.realOwner_publisher_ids)
+            base = ImportedPlace.objects.all().exclude(place_id=None).filter(vd_id__in=vd_ids)
             group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
             result = list()
             before = None
@@ -152,8 +148,9 @@ class VD(models.Model):
                 if iplace.place_id == (before and before.place_id):
                     result.append(iplace.id)
                 before = iplace
-            self._cache_realOwner_duplicated_iplace_ids = result
-        return self._cache_realOwner_duplicated_iplace_ids
+            return result
+        result, is_created = cache_get_or_create(self, 'realOwner_duplicated_iplace_ids', None, helper, self.realOwner_publisher_ids)
+        return result
 
     @property
     def is_private(self):

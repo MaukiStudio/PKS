@@ -106,7 +106,7 @@ class ImportedPlaceViewset(BaseViewset):
 
         # iplace filtering
         qs = qs.exclude(place_id=None)
-        qs = qs.exclude(place_id__in=self.vd.realOwner_places)
+        qs = qs.exclude(place_id__in=self.vd.realOwner_place_ids)
 
         origin = None
         if 'lon' in params and 'lat' in params:
