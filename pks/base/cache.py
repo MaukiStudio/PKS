@@ -66,7 +66,12 @@ def cache_get_or_create(vd, name, ttl, func, *args):
     return value, is_created
 
 
-# for unit test
-def cache_expire(vd, name, ttl):
+def cache_expire(vd, name, ttl=0):
     value_key = get_value_key(vd, name)
     django_cache.expire(value_key, timeout=ttl)
+
+
+def cache_expire_ru(ru, name, ttl=0):
+    for vd in ru.vds.all():
+        cache_expire(vd, name, ttl)
+

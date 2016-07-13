@@ -8,6 +8,7 @@ from json import loads as json_loads
 
 from account.models import VD, RealUser
 from place.models import UserPlace
+from base.cache import cache_expire_ru
 
 
 class Proxy(models.Model):
@@ -69,6 +70,9 @@ class Importer(models.Model):
     def save(self, *args, **kwargs):
         if not self.publisher or not self.subscriber:
             raise IntegrityError('Importer.publisher and subscriber must not be None')
+        if self.subscriber:
+            if self.subscriber.realOwner:
+                cache_expire_ru(self.subscriber.realOwner, 'realOwner_publisher_ids')
         super(Importer, self).save(*args, **kwargs)
 
     def reload(self):

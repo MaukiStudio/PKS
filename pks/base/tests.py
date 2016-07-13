@@ -10,7 +10,6 @@ from uuid import UUID
 from json import loads as json_loads, dumps as json_dumps
 from os import system as os_system
 from django.conf import settings
-from django.core.cache import cache
 
 from pks.settings import VD_SESSION_KEY, MEDIA_ROOT, WORK_ENVIRONMENT
 from requests import get as requests_get
@@ -26,7 +25,7 @@ class APITestBase(APITestCase):
 
     def setUp(self):
         self.clear_media_files()
-        cache.clear()
+        self.clear_cache()
         settings.CELERY_ALWAYS_EAGER = True
         app.conf.CELERY_ALWAYS_EAGER = True
         #settings.CELERY_EAGER_TRANSACTION = True
@@ -103,6 +102,10 @@ class APITestBase(APITestCase):
         # return
         if WORK_ENVIRONMENT:
             os_system('rm -rf %s' % (MEDIA_ROOT,))
+
+    def clear_cache(self):
+        from django.core.cache import cache
+        cache.clear()
 
     def assertValidInternetUrl(self, url):
         self.assertEqual(url.startswith('http'), True)
