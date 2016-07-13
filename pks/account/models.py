@@ -103,7 +103,6 @@ class VD(models.Model):
             return result
         return [self.id]
 
-    # TODO : 캐싱 처리에 용이하도록 리팩토링 및 캐싱
     @property
     def realOwner_publisher_ids(self):
         def helper(vd_ids):
