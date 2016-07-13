@@ -13,6 +13,7 @@ from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSer
 from base.views import BaseViewset
 from place.post import PostBase
 from base.utils import get_timestamp
+from base.cache import cache_get_or_create
 
 
 class PlaceViewset(BaseViewset):
@@ -205,7 +206,7 @@ class UserPlaceViewset(BaseViewset):
     @list_route(methods=['get'])
     def regions(self, request):
         from place.libs import compute_regions
-        result = compute_regions(vd=self.vd)
+        result, is_created = cache_get_or_create(self.vd, 'regions', None, compute_regions, None, self.vd)
         json = list()
         for r in result[:120]:
             lonLat = r.lonLat

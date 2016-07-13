@@ -121,6 +121,9 @@ class VDViewset(ModelViewSet):
                 and user_id == request.user.id and user_id == vd.authOwner_id:
             request.session[VD_SESSION_KEY] = vd_id
             token = self.getToken(vd)
+            from account.task_wrappers import TaskAfterLoginWrapper
+            task = TaskAfterLoginWrapper()
+            task.delay(vd_id)
             return Response({'auth_vd_token': token}, status=status.HTTP_200_OK)
         else:
             return Response({'auth_vd_token': None}, status=status.HTTP_401_UNAUTHORIZED)
