@@ -656,7 +656,7 @@ class UserPlaceViewSetTest(APITestBase):
             {
                 "urls": [{"content": "%s"}]
             }
-        ''' % (norms('https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714',))
+        ''' % (norms('https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714',))
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)

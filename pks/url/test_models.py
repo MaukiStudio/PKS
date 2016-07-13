@@ -127,7 +127,7 @@ class UrlTest(APITestBase):
     def test_4square_shortener_url(self):
         if WORK_ENVIRONMENT: return
         test_value = 'http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        normalized_value = 'https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714'
         self.assertEqual(Url.objects.count(), 0)
         url, is_created = Url.get_or_create_smart(test_value)
         self.assertEqual(Url.objects.count(), 1)
@@ -139,7 +139,7 @@ class UrlTest(APITestBase):
     def test_4square_shortener_url_with_garbage(self):
         if WORK_ENVIRONMENT: return
         test_value = 'DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doredore-도레도레/500d3737e4b03e92379f2714'
+        normalized_value = 'https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714'
         self.assertEqual(Url.objects.count(), 0)
         url, is_created = Url.get_or_create_smart(test_value)
         self.assertEqual(Url.objects.count(), 1)
