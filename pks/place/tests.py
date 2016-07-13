@@ -116,6 +116,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('lonLat', results[0])
         self.assertIn('count', results[0])
         self.assertIn('radius', results[0])
+        self.assertIn('thumbnail', results[0])
 
     def test_list(self):
         response = self.client.get('/uplaces/')

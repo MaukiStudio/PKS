@@ -214,7 +214,9 @@ class UserPlaceViewset(BaseViewset):
                 radius = r.radius
                 radius_json = int(round(radius + RADIUS_LOCAL_RANGE*2 + 0.499))
                 lonLat_json = dict(lon=lonLat.x, lat=lonLat.y)
-                for_debug_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
-                json.append(dict(lonLat=lonLat_json, count=r.count, radius=radius_json, for_debug_url=for_debug_url))
+                m = r.representative_member
+                thumbnail = (m.userPost.images and m.userPost.images[0].url_summarized) or\
+                            (m.placePost and m.placePost.images and m.placePost.images[0].url_summarized) or None
+                json.append(dict(lonLat=lonLat_json, count=r.count, radius=radius_json, thumbnail=thumbnail))
         return Response(json, status=status.HTTP_200_OK)
 

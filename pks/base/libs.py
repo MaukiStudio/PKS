@@ -121,6 +121,28 @@ class Group(object):
     def count(self):
         return len([member for member in self.flat_members if member.timestamp])
 
+    @property
+    def representative_member(self):
+        members = [member for member in self.flat_members if member.timestamp]
+        cnt = len(members)
+        if cnt % 2 == 0:
+            start = cnt/2 - 2
+            end = cnt/2 + 2
+        else:
+            start = cnt/2 - 2
+            end = cnt/2 + 3
+        if start < 0:
+            start = 0
+        print(members)
+        print(members[0].lonLat)
+        members.sort(key=lambda member: member.lonLat.x)
+        medians_x = members[start:end]
+        members.sort(key=lambda member: member.lonLat.y)
+        medians_y = members[start:end]
+        medians = medians_x + medians_y
+        medians.sort(key=lambda member: distance_geography(member.lonLat, self.lonLat))
+        return medians[0]
+
 
 class Clustering(object):
     def __init__(self, group, threshold, distance, m_value, verbose=False):
