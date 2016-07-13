@@ -132,7 +132,7 @@ class ComplexImporterViewSetTest(FunctionalTestAfterLoginBase):
         publisher_vd2.realOwner = self.ru
         publisher_vd2.save()
         self.clear_cache()
-        
+
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
