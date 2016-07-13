@@ -190,6 +190,7 @@ CACHES = {
         'LOCATION': 'redis://%s:6379/1' % REDIS_SERVER_IP,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
         }
     }
 }
