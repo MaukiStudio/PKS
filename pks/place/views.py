@@ -208,12 +208,13 @@ class UserPlaceViewset(BaseViewset):
         from place.libs import compute_regions
         result, is_created = cache_get_or_create(self.vd, 'regions', None, compute_regions, None, self.vd)
         json = list()
-        for r in result[:120]:
-            lonLat = r.lonLat
-            radius = r.radius
-            radius_json = int(round(radius + RADIUS_LOCAL_RANGE*2 + 0.499))
-            lonLat_json = dict(lon=lonLat.x, lat=lonLat.y)
-            for_debug_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
-            json.append(dict(lonLat=lonLat_json, count=r.count, radius=radius_json, for_debug_url=for_debug_url))
+        if result:
+            for r in result[:120]:
+                lonLat = r.lonLat
+                radius = r.radius
+                radius_json = int(round(radius + RADIUS_LOCAL_RANGE*2 + 0.499))
+                lonLat_json = dict(lon=lonLat.x, lat=lonLat.y)
+                for_debug_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
+                json.append(dict(lonLat=lonLat_json, count=r.count, radius=radius_json, for_debug_url=for_debug_url))
         return Response(json, status=status.HTTP_200_OK)
 
