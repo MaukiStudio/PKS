@@ -56,3 +56,18 @@ def call(func):
     ts_end = get_timestamp()
     func_name = str(func).split(' ')[2]
     #print('%s(): %0.1f' % (func_name, (ts_end - ts_start)/1000.0))
+
+
+def send_email(to, title, msg):
+    from requests import post as requests_post
+    from rest_framework import status
+    to_name = to.split('@')[0]
+    data = {'from': 'Mailgun Sandbox <postmaster@sandboxfd2c6bad257845eaa7c88b02a5edd038.mailgun.org>',
+            'to': '%s <%s>' % (to_name, to),
+            'subject': title,
+            'text': msg}
+    r = requests_post(
+        'https://api.mailgun.net/v3/sandboxfd2c6bad257845eaa7c88b02a5edd038.mailgun.org/messages',
+        auth=('api', 'key-1b25db28c7b404487efb45adc1aaf953'),
+        data=data)
+    return r.status_code == status.HTTP_200_OK

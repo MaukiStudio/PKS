@@ -10,7 +10,7 @@ from base.tests import APITestBase, FunctionalTestAfterLoginBase
 from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
 from account.models import User, RealUser, VD, Storage, Tracking
-from base.utils import get_timestamp
+from base.utils import get_timestamp, send_email
 
 
 class RealUserTest(APITestBase):
@@ -198,8 +198,12 @@ class VDTest(APITestBase):
         self.assertEqual(saved.is_public, True)
         self.assertEqual(saved.mask, 2 | 0)
 
+    def __skip__test_send_email(self):
+        r = send_email('gulby@maukistudio.com', '유닛테스트', '<html><body>유닛테스트임. <a href="http://www.daum.net/" target="_blank">링크</a></body></html>')
+        self.assertEqual(r, True)
 
-class TestStorage(FunctionalTestAfterLoginBase):
+
+class StorageTest(FunctionalTestAfterLoginBase):
 
     def test_save_and_retreive(self):
         vd = VD.objects.get(id=self.vd_id)
