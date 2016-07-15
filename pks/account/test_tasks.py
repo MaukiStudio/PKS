@@ -6,14 +6,14 @@ from base.tests import FunctionalTestAfterLoginBase
 from base.cache import cache_get_or_create
 
 
-class TaskAfterLoginTest(FunctionalTestAfterLoginBase):
+class AfterLoginTaskTest(FunctionalTestAfterLoginBase):
 
     def setUp(self):
-        super(TaskAfterLoginTest, self).setUp()
+        super(AfterLoginTaskTest, self).setUp()
 
     def test_basic(self):
-        from account.task_wrappers import TaskAfterLoginWrapper
-        task = TaskAfterLoginWrapper()
+        from account.task_wrappers import AfterLoginTaskWrapper
+        task = AfterLoginTaskWrapper()
         r = task.delay(self.vd_id)
 
         from place.libs import compute_regions

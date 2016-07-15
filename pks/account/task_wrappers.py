@@ -8,9 +8,9 @@ from pks.celery import app
 from celery import Task
 
 
-class TaskAfterLoginWrapper(Task):
+class AfterLoginTaskWrapper(Task):
 
     def run(self, vd_id):
-        from account.tasks import TaskAfterLogin
-        task = TaskAfterLogin()
+        from account.tasks import AfterLoginTask
+        task = AfterLoginTask()
         return task.run(vd_id)

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from base.cache import cache_set
 
 
-class TaskAfterLogin(object):
+class AfterLoginTask(object):
 
     def run(self, vd_id):
         from account.models import VD
@@ -15,4 +15,3 @@ class TaskAfterLogin(object):
         cache_set(vd, 'regions', None, compute_regions, None, vd)
 
         return True
-    
