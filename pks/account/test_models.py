@@ -11,6 +11,7 @@ from strgen import StringGenerator as SG
 from cryptography.fernet import InvalidToken
 from account.models import User, RealUser, VD, Storage, Tracking
 from base.utils import get_timestamp, send_email
+from pks.settings import WORK_ENVIRONMENT
 
 
 class RealUserTest(APITestBase):
@@ -198,8 +199,9 @@ class VDTest(APITestBase):
         self.assertEqual(saved.is_public, True)
         self.assertEqual(saved.mask, 2 | 0)
 
-    def __skip__test_send_email(self):
-        r = send_email('gulby@maukistudio.com', '유닛테스트', '<html><body>유닛테스트임. <a href="http://www.daum.net/" target="_blank">링크</a></body></html>')
+    def test_send_email(self):
+        if WORK_ENVIRONMENT: return
+        r = send_email('gulby@naver.com', '유닛테스트', '유닛테스트임 http://www.daum.net/')
         self.assertEqual(r, True)
 
 

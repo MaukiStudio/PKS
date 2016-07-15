@@ -62,12 +62,12 @@ def send_email(to, title, msg):
     from requests import post as requests_post
     from rest_framework import status
     to_name = to.split('@')[0]
-    data = {'from': 'Mailgun Sandbox <postmaster@sandboxfd2c6bad257845eaa7c88b02a5edd038.mailgun.org>',
+    data = {'from': 'PlaceKoob <gulby@maukistudio.com>',
             'to': '%s <%s>' % (to_name, to),
             'subject': title,
             'text': msg}
     r = requests_post(
-        'https://api.mailgun.net/v3/sandboxfd2c6bad257845eaa7c88b02a5edd038.mailgun.org/messages',
+        'https://api.mailgun.net/v3/maukistudio.com/messages',
         auth=('api', 'key-1b25db28c7b404487efb45adc1aaf953'),
         data=data)
     return r.status_code == status.HTTP_200_OK
