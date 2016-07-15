@@ -133,8 +133,6 @@ class Group(object):
             end = cnt/2 + 3
         if start < 0:
             start = 0
-        print(members)
-        print(members[0].lonLat)
         members.sort(key=lambda member: member.lonLat.x)
         medians_x = members[start:end]
         members.sort(key=lambda member: member.lonLat.y)
