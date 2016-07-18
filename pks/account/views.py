@@ -89,6 +89,7 @@ class VDViewset(ModelViewSet):
         token = vd.getToken()
 
         # send email for confirm
+        # TODO : 관련 테스트 보강
         if vd.authOwner and vd.authOwner.email:
             from account.task_wrappers import EmailTaskWrapper
             from pks.settings import SERVER_HOST
