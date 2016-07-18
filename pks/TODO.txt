@@ -6,8 +6,8 @@
             [완] Redis 설치 및 관련 작업 : 모듈 업그레이드 및 소스 변경, DB converting (imagehash 가 바뀌었음)
             [완] regions API 에 적용 : Celery 와 연계
         더더욱 count 가 맞지 않을 수 있으므로 앱에서 N+ 처리 필요
-    [ing] regions API 수정 : 대표 썸네일 내려보내기
-    이메일 인증
+    [완] regions API 수정 : 대표 썸네일 내려보내기
+    [ing] 이메일 인증
         이메일 인증하지 않고도 서비스 사용에 지장 없는지 테스트 필요
 
 [imgur 형태에 맞춘 향후 개발 순서]

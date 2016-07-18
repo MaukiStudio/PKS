@@ -45,9 +45,10 @@ class UserViewset(ModelViewSet):
         token = request.data['auth_user_token']
         decrypter = Fernet(USER_ENC_KEY)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
-        user_id = int(raw_token.split('|')[0])
-        username = raw_token.split('|')[1]
-        password = raw_token.split('|')[2]
+        splits = raw_token.split('|')
+        user_id = int(splits[0])
+        username = splits[1]
+        password = splits[2]
 
         # check credentials
         user = authenticate(username=username, password=password)
@@ -62,11 +63,6 @@ class UserViewset(ModelViewSet):
 class VDViewset(ModelViewSet):
     queryset = VD.objects.all()
     serializer_class = VDSerializer
-
-    def getToken(self, vd):
-        raw_token = '%s|%s' % (vd.id, vd.authOwner_id)
-        encrypter = Fernet(vd.authOwner.crypto_key)
-        return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
     @list_route(methods=['post'])
     def register(self, request):
@@ -90,15 +86,18 @@ class VDViewset(ModelViewSet):
             vd.authOwner.save()
 
         # generate token
-        token = self.getToken(vd)
+        token = vd.getToken()
 
-        # TODO : send email
-
-        # Temporary : 곧바로 이메일 인증이 된 것으로 처리
+        # send email for confirm
         if vd.authOwner and vd.authOwner.email:
-            realUser, is_created = RealUser.objects.get_or_create(email=vd.authOwner.email)
-            vd.realOwner = realUser
-            vd.save()
+            from account.task_wrappers import EmailTaskWrapper
+            from pks.settings import SERVER_HOST
+            task = EmailTaskWrapper()
+            to = vd.authOwner.email
+            title = '[PlaceKoob] 이메일 인증'
+            confirm_link = '%s/vds/confirm/?email_confirm_token=%s' % (SERVER_HOST, vd.getEmailConfirmToken(to))
+            msg = '안녕하세요. PlaceKoob 입니다.\n이메일 인증을 위해 하기 링크를 터치해 주세요.\n\n%s' % confirm_link
+            task.delay(to, title, msg)
 
         # return result
         return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)
@@ -109,8 +108,9 @@ class VDViewset(ModelViewSet):
         token = request.data['auth_vd_token']
         decrypter = Fernet(request.user.crypto_key)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
-        vd_id = int(raw_token.split('|')[0])
-        user_id = int(raw_token.split('|')[1])
+        splits = raw_token.split('|')
+        vd_id = int(splits[0])
+        user_id = int(splits[1])
 
         # check credentials
         try:
@@ -120,13 +120,34 @@ class VDViewset(ModelViewSet):
         if vd and vd_id and vd_id == vd.id and user_id and request.user.is_authenticated()\
                 and user_id == request.user.id and user_id == vd.authOwner_id:
             request.session[VD_SESSION_KEY] = vd_id
-            token = self.getToken(vd)
+            token = vd.getToken()
             from account.task_wrappers import AfterLoginTaskWrapper
             task = AfterLoginTaskWrapper()
             task.delay(vd_id)
             return Response({'auth_vd_token': token}, status=status.HTTP_200_OK)
         else:
             return Response({'auth_vd_token': None}, status=status.HTTP_401_UNAUTHORIZED)
+
+    @list_route(methods=['get'])
+    def confirm(self, request):
+        # email_confirm_token
+        token = request.query_params['email_confirm_token']
+        decrypter = Fernet(request.user.crypto_key)
+        raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
+        splits = raw_token.split('|')
+        vd_id = int(splits[0])
+        user_id = int(splits[1])
+        email = splits[2]
+
+        # check credentials and confirm email
+        vd = VD.objects.get(id=vd_id)
+        if vd and vd_id and user_id and email and user_id == vd.authOwner_id:
+            realUser, is_created = RealUser.objects.get_or_create(email=email)
+            vd.realOwner = realUser
+            vd.save()
+            return Response({'result': True}, status=status.HTTP_200_OK)
+        else:
+            return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
 
     @list_route(methods=['get', 'post'])
     def logout(self, request):

@@ -15,3 +15,11 @@ class AfterLoginTask(object):
         cache_set(vd, 'regions', None, compute_regions, None, vd)
 
         return True
+
+
+class EmailTask(object):
+
+    def run(self, to, title, msg):
+        from base.utils import send_email
+        r = send_email(to, title, msg)
+        return r

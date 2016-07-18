@@ -185,6 +185,16 @@ class VD(models.Model):
         # P(D|~H) / P(D|H)
         return 0.2
 
+    def getToken(self):
+        raw_token = '%s|%s' % (self.id, self.authOwner_id)
+        encrypter = Fernet(self.authOwner.crypto_key)
+        return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+
+    def getEmailConfirmToken(self, email):
+        raw_token = '%s|%s|%s' % (self.id, self.authOwner_id, email)
+        encrypter = Fernet(self.authOwner.crypto_key)
+        return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+
 
 class Storage(models.Model):
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='storages')
