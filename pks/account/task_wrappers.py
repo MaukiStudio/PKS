@@ -11,7 +11,6 @@ from pks.settings import WORK_ENVIRONMENT
 
 class AfterLoginTaskWrapper(Task):
     def run(self, vd_id):
-        if WORK_ENVIRONMENT: return True
         from account.tasks import AfterLoginTask
         task = AfterLoginTask()
         return task.run(vd_id)

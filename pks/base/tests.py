@@ -25,7 +25,6 @@ class APITestBase(APITestCase):
 
     def setUp(self):
         self.clear_media_files()
-        self.clear_cache()
         settings.CELERY_ALWAYS_EAGER = True
         app.conf.CELERY_ALWAYS_EAGER = True
         #settings.CELERY_EAGER_TRANSACTION = True
@@ -103,9 +102,13 @@ class APITestBase(APITestCase):
         if WORK_ENVIRONMENT:
             os_system('rm -rf %s' % (MEDIA_ROOT,))
 
-    def clear_cache(self):
-        from django.core.cache import cache
-        cache.clear()
+    def clear_cache(self, vd):
+        from base.cache import cache_clear
+        cache_clear(vd)
+
+    def clear_cache_ru(self, ru):
+        from base.cache import cache_clear_ru
+        cache_clear_ru(ru)
 
     def assertValidInternetUrl(self, url):
         self.assertEqual(url.startswith('http'), True)

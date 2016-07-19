@@ -131,7 +131,7 @@ class ComplexImporterViewSetTest(FunctionalTestAfterLoginBase):
 
         publisher_vd2.realOwner = self.ru
         publisher_vd2.save()
-        self.clear_cache()
+        self.clear_cache(self.vd)
 
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -189,7 +189,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertDictEqual(results[1]['userPost'], self.iplace.userPost.cjson)
 
         # remove duplicate
-        self.clear_cache()
+        self.clear_cache(self.vd)
         self.iplace4.place = self.iplace.place
         self.iplace4.save()
         response = self.client.get('/iplaces/')

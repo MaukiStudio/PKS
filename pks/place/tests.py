@@ -191,7 +191,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(len(results), 3)
 
         # remove duplicated
-        self.clear_cache()
+        self.clear_cache(self.vd)
         self.uplace.place = self.place
         self.uplace.save()
         uplace2.place = self.place
@@ -207,7 +207,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(len(results), 2)
         uplace3.place = self.place
         uplace3.save()
-        self.clear_cache()
+        self.clear_cache(self.vd)
         response = self.client.get('/uplaces/')
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 1)

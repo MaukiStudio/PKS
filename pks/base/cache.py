@@ -75,3 +75,13 @@ def cache_expire_ru(ru, name, ttl=0):
     for vd in ru.vds.all():
         cache_expire(vd, name, ttl)
 
+
+def cache_clear(vd):
+    searcher = get_value_key(vd, '*')
+    for value_key in django_cache.keys(searcher):
+        django_cache.expire(value_key, timeout=0)
+
+
+def cache_clear_ru(ru):
+    for vd in ru.vds.all():
+        cache_clear(vd)

@@ -68,7 +68,7 @@ class ImporterTest(FunctionalTestAfterLoginBase):
 
         publisher_vd2.realOwner = self.ru
         publisher_vd2.save()
-        self.clear_cache()
+        self.clear_cache(self.vd)
 
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
