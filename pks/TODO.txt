@@ -1,4 +1,5 @@
-[Now]
+[Bug Fix]
+    [ing] 상수형, uplace 에 나오는 장소인데 iplaces 에 나오는 버그 수정
 
 [오픈 준비]
     regions API 결과 캐싱 및 Celery 처리
@@ -7,9 +8,9 @@
             [완] regions API 에 적용 : Celery 와 연계
         더더욱 count 가 맞지 않을 수 있으므로 앱에서 N+ 처리 필요
     [완] regions API 수정 : 대표 썸네일 내려보내기
-    [ing] 이메일 인증
+    [완] 이메일 인증
         confirm 결과 UI 구현
-        이메일 인증하지 않고도 서비스 사용에 지장 없는지 테스트 필요
+    [ing] 이메일 인증하지 않고도 서비스 사용에 지장 없는지 테스트 필요
 
 [imgur 형태에 맞춘 향후 개발 순서]
     Loginless Service : 오픈 준비하면서 최종 완료

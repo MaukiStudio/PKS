@@ -153,6 +153,10 @@ class ImportedPlaceViewset(BaseViewset):
         uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
         pp = PostPiece.create_smart(uplace, pb)
         serializer = UserPlaceSerializer(uplace)
+
+        # for make taken place hidden
+        from base.cache import cache_expire
+        cache_expire(vd, 'realOwner_place_ids')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'])
