@@ -129,8 +129,7 @@ class VDRegisterTest(APITestBase):
         data = '{"UDID": "blah-blah"}'
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
-                                         country=country, language=language, timezone=timezone, data=data,
-                                         ignore_confirm_email=1,))
+                                         country=country, language=language, timezone=timezone, data=data))
         vd = VD.objects.first()
         user = User.objects.first()
 
@@ -160,8 +159,7 @@ class VDRegisterTest(APITestBase):
         deviceTypeName = 'LG-F460L'
         email = 'gulby@maukistudio.com'
         response = self.client.post('/vds/register/',
-                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
-                                         ignore_confirm_email=1,))
+                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         vd = VD.objects.first()
@@ -196,7 +194,7 @@ class VDLoginTest(APITestBase):
         response = self.client.post('/users/register/')
         auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com', ignore_confirm_email=1,))
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.vd = VD.objects.first()
 
@@ -318,13 +316,13 @@ class RealUserViewsetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(len(vds), 0)   # Login VD 는 포함되지 않음
 
         '''
-        self.client.post('/vds/register/', dict(email='gulby@maukistudio.com', ignore_confirm_email=1,))
+        self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json_loads(response.content)
         self.assertEqual(len(vds), 1)
 
-        self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com', ignore_confirm_email=1,))
+        self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com'))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json_loads(response.content)

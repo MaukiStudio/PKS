@@ -91,8 +91,7 @@ class VDViewset(ModelViewSet):
 
         # send email for confirm
         # TODO : 관련 테스트 보강
-        ignore_confirm_email = 'ignore_confirm_email' in request.data
-        if not ignore_confirm_email and vd.authOwner and vd.authOwner.email:
+        if vd.authOwner and vd.authOwner.email:
             from account.task_wrappers import EmailTaskWrapper
             from pks.settings import SERVER_HOST
             task = EmailTaskWrapper()
