@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'tag',
 
     'admin2',
+    'ui',
 ]
 
 AUTH_USER_MODEL = 'account.User'

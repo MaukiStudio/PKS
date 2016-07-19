@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
 
     url(r'^admin2/', include('admin2.urls', namespace='admin2')),
+    url(r'^ui/', include('ui.urls', namespace='ui')),
 
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/filebrowser/', include(fb_site.urls)),
