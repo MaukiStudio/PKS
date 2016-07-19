@@ -134,7 +134,8 @@ class VDViewset(ModelViewSet):
     def confirm(self, request):
         # email_confirm_token
         token = request.query_params['email_confirm_token']
-        decrypter = Fernet(request.user.crypto_key)
+        from pks.settings import VD_ENC_KEY
+        decrypter = Fernet(VD_ENC_KEY)
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
         splits = raw_token.split('|')
         vd_id = int(splits[0])

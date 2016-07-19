@@ -191,8 +191,9 @@ class VD(models.Model):
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
     def getEmailConfirmToken(self, email):
+        from pks.settings import VD_ENC_KEY
         raw_token = '%s|%s|%s' % (self.id, self.authOwner_id, email)
-        encrypter = Fernet(self.authOwner.crypto_key)
+        encrypter = Fernet(VD_ENC_KEY)
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
 
