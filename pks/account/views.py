@@ -11,6 +11,7 @@ from rest_framework import status
 from django.http import Http404
 from django.contrib.gis.geos import GEOSGeometry
 from json import loads as json_loads
+from django.shortcuts import redirect
 
 from cryptography.fernet import Fernet
 from pks.settings import USER_ENC_KEY, VD_SESSION_KEY
@@ -90,7 +91,8 @@ class VDViewset(ModelViewSet):
 
         # send email for confirm
         # TODO : 관련 테스트 보강
-        if vd.authOwner and vd.authOwner.email:
+        ignore_confirm_email = 'ignore_confirm_email' in request.data
+        if not ignore_confirm_email and vd.authOwner and vd.authOwner.email:
             from account.task_wrappers import EmailTaskWrapper
             from pks.settings import SERVER_HOST
             task = EmailTaskWrapper()
@@ -146,9 +148,9 @@ class VDViewset(ModelViewSet):
             realUser, is_created = RealUser.objects.get_or_create(email=email)
             vd.realOwner = realUser
             vd.save()
-            return Response({'result': True}, status=status.HTTP_200_OK)
+            return redirect('/ui/confirm_ok/')
         else:
-            return Response({'result': False}, status=status.HTTP_401_UNAUTHORIZED)
+            return redirect('/ui/confirm_fail/')
 
     @list_route(methods=['get', 'post'])
     def logout(self, request):

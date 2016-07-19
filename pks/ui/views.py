@@ -6,3 +6,7 @@ from django.shortcuts import render
 
 def confirm_ok(request):
     return render(request, 'ui/confirm_ok.html')
+
+
+def confirm_fail(request):
+    return render(request, 'ui/confirm_fail.html')

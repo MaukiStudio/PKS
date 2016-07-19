@@ -129,7 +129,8 @@ class VDRegisterTest(APITestBase):
         data = '{"UDID": "blah-blah"}'
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
-                                         country=country, language=language, timezone=timezone, data=data))
+                                         country=country, language=language, timezone=timezone, data=data,
+                                         ignore_confirm_email=1,))
         vd = VD.objects.first()
         user = User.objects.first()
 
@@ -159,29 +160,31 @@ class VDRegisterTest(APITestBase):
         deviceTypeName = 'LG-F460L'
         email = 'gulby@maukistudio.com'
         response = self.client.post('/vds/register/',
-                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName))
+                                    dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
+                                         ignore_confirm_email=1,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         vd = VD.objects.first()
         self.assertEqual(vd.realOwner, None)
 
-        #이메일 인증 처리
+        # 이메일 인증 처리
         token = vd.getEmailConfirmToken(email)
         response = self.client.get('/vds/confirm/', dict(email_confirm_token=token))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertTemplateUsed(response, '/ui/confirm_ok/')
 
         # assertion
         vd = VD.objects.first()
         self.assertIsNotNone(vd.realOwner)
         self.assertEqual(vd.authOwner.email, vd.realOwner.email)
 
-        #또 이메일 인증 처리 : 링크는 여러번 누를 수도...
+        # 또 이메일 인증 처리 : 링크는 여러번 누를 수도...
         self.assertEqual(VD.objects.count(), 1)
         self.assertEqual(RealUser.objects.count(), 1)
         self.assertEqual(User.objects.count(), 1)
         token = vd.getEmailConfirmToken(email)
         response = self.client.get('/vds/confirm/', dict(email_confirm_token=token))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(VD.objects.count(), 1)
         self.assertEqual(RealUser.objects.count(), 1)
         self.assertEqual(User.objects.count(), 1)
@@ -193,7 +196,7 @@ class VDLoginTest(APITestBase):
         response = self.client.post('/users/register/')
         auth_user_token = json_loads(response.content)['auth_user_token']
         self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com', ignore_confirm_email=1,))
         self.auth_vd_token = json_loads(response.content)['auth_vd_token']
         self.vd = VD.objects.first()
 
@@ -240,17 +243,7 @@ class VDLoginTest(APITestBase):
         self.assertVdNotLogin()
 
 
-class VDViewSetTest(APITestBase):
-
-    def setUp(self):
-        super(VDViewSetTest, self).setUp()
-        response = self.client.post('/users/register/')
-        auth_user_token = json_loads(response.content)['auth_user_token']
-        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        response = self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
-        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
-        self.vd = VD.objects.first()
-        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
+class VDViewSetTest(FunctionalTestAfterLoginBase):
 
     def test_vds_list(self):
         response = self.client.get('/vds/')
@@ -306,20 +299,10 @@ class RealUserViewSetBasicTest(APITestBase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class RealUserViewsetTest(APITestBase):
+class RealUserViewsetTest(FunctionalTestAfterLoginBase):
     def setUp(self):
         super(RealUserViewsetTest, self).setUp()
-        response = self.client.post('/users/register/')
-        auth_user_token = json_loads(response.content)['auth_user_token']
-        self.client.post('/users/login/', {'auth_user_token': auth_user_token})
-        email = 'gulby@maukistudio.com'
-        response = self.client.post('/vds/register/', dict(email=email))
-        self.auth_vd_token = json_loads(response.content)['auth_vd_token']
-        self.vd = VD.objects.first()
-        self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
-        token = self.vd.getEmailConfirmToken(email)
-        response = self.client.get('/vds/confirm/', dict(email_confirm_token=token))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        email = self.input_from_user()
         self.ru = RealUser.objects.get(email=email)
 
     def test_rus_detail(self):
@@ -335,13 +318,13 @@ class RealUserViewsetTest(APITestBase):
         self.assertEqual(len(vds), 0)   # Login VD 는 포함되지 않음
 
         '''
-        self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
+        self.client.post('/vds/register/', dict(email='gulby@maukistudio.com', ignore_confirm_email=1,))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json_loads(response.content)
         self.assertEqual(len(vds), 1)
 
-        self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com'))
+        self.client.post('/vds/register/', dict(email='hoonja@maukistudio.com', ignore_confirm_email=1,))
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json_loads(response.content)
