@@ -1,6 +1,6 @@
 [Bug Fix]
     [완] 상수형, uplace 에 나오는 장소인데 iplaces 에 나오는 버그 수정
-    [ing] 이메일 인증 암호화 잘못 구현한 부분 수정 (/vds/confirm/ 은 user 로그인 전에 동작)
+    [완] 이메일 인증 암호화 잘못 구현한 부분 수정 (/vds/confirm/ 은 user 로그인 전에 동작)
 
 [오픈 준비]
     regions API 결과 캐싱 및 Celery 처리
