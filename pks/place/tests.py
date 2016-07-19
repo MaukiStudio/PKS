@@ -657,6 +657,11 @@ class UserPlaceViewSetTest(APITestBase):
                 "urls": [{"content": "%s"}]
             }
         ''' % (norms('https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714',))
+        json_want2 = '''
+            {
+                "urls": [{"content": "%s"}]
+            }
+        ''' % (norms('https://foursquare.com/v/doré-doré-도레도레/500d3737e4b03e92379f2714',))
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
@@ -667,7 +672,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         uplace_uuid = json_loads(response.content)['uplace_uuid']
         self.uplace = UserPlace.objects.get(id=uplace_uuid.split('.')[0])
-        want = json_loads(json_want)
+        want = json_loads(json_want2)
         self.assertIsSubsetOf(want, self.uplace.userPost)
         self.assertNotEqual(self.uplace.placePost, None)
         self.assertIsNotSubsetOf(self.uplace.userPost, want)

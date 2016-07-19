@@ -127,26 +127,28 @@ class UrlTest(APITestBase):
     def test_4square_shortener_url(self):
         if WORK_ENVIRONMENT: return
         test_value = 'http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714'
+        normalized_values = ['https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714',
+                             'https://foursquare.com/v/doré-doré-도레도레/500d3737e4b03e92379f2714']
         self.assertEqual(Url.objects.count(), 0)
         url, is_created = Url.get_or_create_smart(test_value)
         self.assertEqual(Url.objects.count(), 1)
         saved = Url.objects.first()
-        self.assertEqual(url.content, normalized_value)
+        self.assertIn(url.content, normalized_values)
         self.assertEqual(saved, url)
-        self.assertEqual(saved.content, normalized_value)
+        self.assertIn(saved.content, normalized_values)
 
     def test_4square_shortener_url_with_garbage(self):
         if WORK_ENVIRONMENT: return
         test_value = 'DOREDORE (도레도레) - 하남대로 929 - http://4sq.com/MVWRaG'
-        normalized_value = 'https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714'
+        normalized_values = ['https://foursquare.com/v/doré-doré/500d3737e4b03e92379f2714',
+                             'https://foursquare.com/v/doré-doré-도레도레/500d3737e4b03e92379f2714']
         self.assertEqual(Url.objects.count(), 0)
         url, is_created = Url.get_or_create_smart(test_value)
         self.assertEqual(Url.objects.count(), 1)
         saved = Url.objects.first()
-        self.assertEqual(url.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+        self.assertIn(url.content, normalized_values)
         self.assertEqual(saved, url)
-        self.assertEqual(saved.content, unquote_plus(normalized_value.encode('utf-8')).decode('utf-8'))
+        self.assertIn(saved.content, normalized_values)
 
     def test_encoded_url1(self):
         test_data1 = 'https://place.kakao.com/places/10972091/%ED%99%8D%EB%AA%85'
