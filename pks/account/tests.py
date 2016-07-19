@@ -171,7 +171,7 @@ class VDRegisterTest(APITestBase):
         token = vd.getEmailConfirmToken(email)
         response = self.client.get('/vds/confirm/', dict(email_confirm_token=token))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertTemplateUsed(response, '/ui/confirm_ok/')
+        self.assertEqual(response.url, '/ui/confirm_ok/')
 
         # assertion
         vd = VD.objects.first()
