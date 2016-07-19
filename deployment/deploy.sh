@@ -35,3 +35,4 @@ sudo /etc/init.d/redis_6379 start
 
 cd ../../pks
 ./notify_model_changed.sh
+python manage.py createsuperuser

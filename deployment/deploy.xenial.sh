@@ -28,3 +28,4 @@ python manage.py migrate
 screen python manage.py runserver 0.0.0.0:8000
 py.test --create-db
 sudo -u postgres psql -a -f .script/nosuperuser.sql
+python manage.py createsuperuser
