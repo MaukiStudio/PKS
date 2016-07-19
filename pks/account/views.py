@@ -148,8 +148,8 @@ class VDViewset(ModelViewSet):
             realUser, is_created = RealUser.objects.get_or_create(email=email)
             vd.realOwner = realUser
             vd.save()
-            from base.cache import cache_expire_ru
-            cache_expire_ru(realUser)
+            from base.cache import cache_clear_ru
+            cache_clear_ru(realUser)
             return redirect('/ui/confirm_ok/')
         else:
             return redirect('/ui/confirm_fail/')
