@@ -174,7 +174,7 @@ class Image(Content):
 
         # AzurePrediction
         azure, is_created = AzurePrediction.objects.get_or_create(img=self)
-        if (is_created or not azure.result_analyze) and (not self.rf or not self.rf.same):
+        if (is_created or not azure.result_analyze or azure.result_analyze['statusCode'] == 429) and (not self.rf or not self.rf.same):
             azure.predict()
 
         self.save()
@@ -457,7 +457,7 @@ class AzurePrediction(models.Model):
             self.mask = (self.mask or 0) & (~1)
 
     # TODO : 돈 안들이고 할 수 있는 단위 테스트 작성
-    def predict(self):
+    def predict(self, idx=None):
         '''
             POST https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities HTTP/1.1
             Content-Type: application/json
@@ -471,8 +471,11 @@ class AzurePrediction(models.Model):
         if WORK_ENVIRONMENT: return None
         if SERVER_HOST.startswith('http://192.'): return None
 
-        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7']
-        headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': api_key[1]}
+        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa']
+        if idx is None:
+            from random import randrange
+            idx = randrange(0, 3)
+        headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': api_key[idx]}
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
         data = '{"url": "%s"}' % self.img.content
         try:
@@ -481,6 +484,15 @@ class AzurePrediction(models.Model):
             return None
         self.is_success_analyze = r.status_code == status.HTTP_200_OK
         result = json_loads(r.content)
+        if not self.is_success_analyze and result['statusCode'] == 429:
+            from re import compile as re_compile
+            regex = re_compile(r'Rate limit is exceeded\. Try again in (?P<seconds>[0-9]+) seconds\.')
+            searcher = regex.search(result['message'])
+            seconds = searcher.group('seconds')
+            if seconds:
+                from time import sleep
+                sleep(seconds)
+                return self.predict(idx)
         self.result_analyze = result
         self.save()
         return result
