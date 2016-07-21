@@ -471,7 +471,8 @@ class AzurePrediction(models.Model):
         if WORK_ENVIRONMENT: return None
         if SERVER_HOST.startswith('http://192.'): return None
 
-        headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': 'd91fa94bcd484158a74d9463826b689c'}
+        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7']
+        headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': api_key[1]}
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
         data = '{"url": "%s"}' % self.img.content
         try:
