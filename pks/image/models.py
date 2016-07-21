@@ -457,7 +457,7 @@ class AzurePrediction(models.Model):
             self.mask = (self.mask or 0) & (~1)
 
     # TODO : 돈 안들이고 할 수 있는 단위 테스트 작성
-    def predict(self, idx=None):
+    def predict(self, idx=None, level=0):
         '''
             POST https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities HTTP/1.1
             Content-Type: application/json
@@ -467,6 +467,8 @@ class AzurePrediction(models.Model):
 
             {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
+        if level >= 3:
+            return None
         from pks.settings import WORK_ENVIRONMENT, SERVER_HOST
         if WORK_ENVIRONMENT: return None
         if SERVER_HOST.startswith('http://192.'): return None
@@ -492,7 +494,7 @@ class AzurePrediction(models.Model):
             if seconds:
                 from time import sleep
                 sleep(seconds)
-                return self.predict(idx)
+                return self.predict(idx, level+1)
         self.result_analyze = result
         self.save()
         return result
