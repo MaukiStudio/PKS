@@ -376,8 +376,12 @@ class RawFile(models.Model):
                     else:
                         w_new = int(round(float(IMG_WH_MAX_SIZE) * w / h))
                         h_new = IMG_WH_MAX_SIZE
-                    resized = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
-                    resized.save(self.file.path)
+                    img = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
+                    exif = 'exif' in img.info and img.info['exif'] or None
+                    if exif:
+                        img.save(self.file.path, exif=exif)
+                    else:
+                        img.save(self.file.path)
             except:
                 result = False
 
