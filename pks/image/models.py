@@ -51,18 +51,21 @@ class Image(Content):
 
     def pre_save(self):
         # TODO : 구조 단순하게 리팩토링
-        if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
-            pil = self.content_accessed
-            if pil:
-                if not self.lonLat or not self.timestamp:
-                    lonLat, timestamp = self.process_exif()
-                    self.lonLat = self.lonLat or lonLat
-                    self.timestamp = self.timestamp or timestamp
-                if not self.phash:
-                    self.phash = self.compute_phash(pil)
-                if not self.dhash:
-                    self.dhash = self.compute_dhash(pil)
-                self.summarize(pil)
+        try:
+            if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
+                pil = self.content_accessed
+                if pil:
+                    if not self.lonLat or not self.timestamp:
+                        lonLat, timestamp = self.process_exif()
+                        self.lonLat = self.lonLat or lonLat
+                        self.timestamp = self.timestamp or timestamp
+                    if not self.phash:
+                        self.phash = self.compute_phash(pil)
+                    if not self.dhash:
+                        self.dhash = self.compute_dhash(pil)
+                    self.summarize(pil)
+        except:
+            pass
 
     def update_hash(self, save=True):
         pil = self.content_accessed
