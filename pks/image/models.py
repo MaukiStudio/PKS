@@ -399,23 +399,25 @@ class RawFile(models.Model):
         if not self.mhash:
             return None
         sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
-        file_size = None
+        self_file_size = None
         try:
-            file_size = self.file.size
+            self_file_size = self.file.size
         except:
             pass
-
         same = None
+
         if sames:
             for rf in sames:
+                # find same safely
+                # 실섭에서 이상하게도 cyclic symbolic link 가 발견되었는데, 이에 대한 대응
+                with Path(rf.file.path) as f:
+                    if f.is_symlink():
+                        continue
                 # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
-                if self.ext == rf.ext and (not file_size or file_size == rf.file.size):
-                    # find same safely
-                    # 실섭에서 이상하게도 cyclic symbolic link 가 발견되었는데, 이에 대한 대응
-                    with Path(rf.file.path) as f:
-                        if not f.is_symlink():
-                            same = rf
-                            break
+                if self.ext == rf.ext and (not self_file_size or self_file_size == rf.file.size):
+                    same = rf
+                    break
+
         if same == self:
             same = None
         return same
