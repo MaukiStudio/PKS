@@ -171,7 +171,7 @@ class Image(Content):
 
         # AzurePrediction
         azure, is_created = AzurePrediction.objects.get_or_create(img=self)
-        if is_created:
+        if is_created and (not self.rf or not self.rf.same):
             azure.predict()
 
         self.save()
