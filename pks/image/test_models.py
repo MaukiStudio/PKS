@@ -472,3 +472,12 @@ class RawFileTest(APITestBase):
         self.assertEqual(f.is_symlink(), False)
         self.assertEqual(f2.is_symlink(), False)
         self.assertEqual(f3.is_symlink(), True)
+
+        rf.task()
+        rf2.task()
+        f = Path(rf.file.path)
+        f2 = Path(rf2.file.path)
+        f3 = Path(rf3.file.path)
+        self.assertEqual(f.is_symlink(), False)
+        self.assertEqual(f2.is_symlink(), False)
+        self.assertEqual(f3.is_symlink(), True)
