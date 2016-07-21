@@ -174,8 +174,10 @@ class Image(Content):
 
         # AzurePrediction
         azure, is_created = AzurePrediction.objects.get_or_create(img=self)
-        if (is_created or not azure.result_analyze or azure.result_analyze['statusCode'] == 429) and (not self.rf or not self.rf.same):
-            azure.predict()
+        if not self.rf or not self.rf.same:
+            if is_created or not azure.result_analyze or\
+                    ('statusCode' in azure.result_analyze and azure.result_analyze['statusCode'] == 429):
+                azure.predict()
 
         self.save()
         return True
@@ -486,7 +488,7 @@ class AzurePrediction(models.Model):
             return None
         self.is_success_analyze = r.status_code == status.HTTP_200_OK
         result = json_loads(r.content)
-        if not self.is_success_analyze and result['statusCode'] == 429:
+        if not self.is_success_analyze and 'statusCode' in result and result['statusCode'] == 429:
             from re import compile as re_compile
             regex = re_compile(r'Rate limit is exceeded\. Try again in (?P<seconds>[0-9]+) seconds\.')
             searcher = regex.search(result['message'])
