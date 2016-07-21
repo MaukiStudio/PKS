@@ -137,17 +137,6 @@ class ImageTest(APITestBase):
         self.assertEqual(img3.lonLat, img2.lonLat)
         self.assertEqual(img3.timestamp, img2.timestamp)
 
-        rf4 = RawFile()
-        rf4.file = self.uploadFile('test_org.jpg')
-        rf4.save()
-        self.assertEqual(rf4.mhash, None)
-        pil4_1 = PIL_Image.open(rf4.file.path)
-        self.assertEqual(pil4_1.size, (4160, 2340))
-        rf4.task()
-        self.assertEqual(rf4.mhash, UUID('39f2f314-6064-f017-306c-8e1923a9de1f'))
-        pil4_2 = PIL_Image.open(rf4.file.path)
-        self.assertEqual(pil4_2.size, (1280, 720))
-
     def test_exif_gps(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))
         lonLat = exif_lib.get_lon_lat(exif)
@@ -481,3 +470,19 @@ class RawFileTest(APITestBase):
         self.assertEqual(f.is_symlink(), False)
         self.assertEqual(f2.is_symlink(), False)
         self.assertEqual(f3.is_symlink(), True)
+
+        rf4 = RawFile()
+        rf4.file = self.uploadFile('test_org.jpg')
+        rf4.save()
+        self.assertEqual(rf4.mhash, None)
+        pil4_1 = PIL_Image.open(rf4.file.path)
+        self.assertEqual(pil4_1.size, (4160, 2340))
+        rf4.task()
+        self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
+        pil4_2 = PIL_Image.open(rf4.file.path)
+        self.assertEqual(pil4_2.size, (1280, 720))
+
+        rf4.task()
+        self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
+        pil4_3 = PIL_Image.open(rf4.file.path)
+        self.assertEqual(pil4_3.size, (1280, 720))

@@ -349,20 +349,8 @@ class RawFile(models.Model):
 
     def task(self):
         result = True
-        # Calc mhash
         with Path(self.file.path) as f:
             is_symlink = f.is_symlink()
-        try:
-            m = md5()
-            self.file.open()
-            m.update(self.file.read())
-            self.file.close()
-            self.mhash = UUID(m.hexdigest())
-        except:
-            if is_symlink:
-                result = False
-            else:
-                raise
 
         # Image Resize
         if not is_symlink and self.ext in ('jpg', 'png'):
@@ -384,6 +372,19 @@ class RawFile(models.Model):
                         img.save(self.file.path)
             except:
                 result = False
+
+        # Calc mhash
+        if not is_symlink:
+            m = md5()
+            self.file.open()
+            m.update(self.file.read())
+            self.file.close()
+            self.mhash = UUID(m.hexdigest())
+        elif self.same:
+            self.mhash = self.same.mhash
+        else:
+            print('symlinkd but same property is None')
+            raise NotImplementedError
 
         # process same
         same = self.find_same()
