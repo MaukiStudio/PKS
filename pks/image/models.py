@@ -348,6 +348,9 @@ class RawFile(models.Model):
         return ext
 
     def task(self):
+        # Calc mhash
+        with Path(self.file.path) as f:
+            is_symlink = f.is_symlink()
         try:
             m = md5()
             self.file.open()
@@ -355,42 +358,59 @@ class RawFile(models.Model):
             self.file.close()
             self.mhash = UUID(m.hexdigest())
         except:
-            # TODO : 파일이 삭제되거나 손상된 RawFile 을 어떻게 처리할지 결정 및 구현 필요
-            return False
+            if is_symlink:
+                pass
+            else:
+                raise
 
         # Image Resize
-        if self.ext in ('jpg', 'png'):
-            img = PIL_Image.open(self.file.path)
-            w, h = img.size
-            if w > IMG_WH_MAX_SIZE or h > IMG_WH_MAX_SIZE:
-                if w >= h:
-                    w_new = IMG_WH_MAX_SIZE
-                    h_new = int(round(float(IMG_WH_MAX_SIZE) * h / w))
-                else:
-                    w_new = int(round(float(IMG_WH_MAX_SIZE) * w / h))
-                    h_new = IMG_WH_MAX_SIZE
-                resized = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
-                resized.save(self.file.path)
+        if not is_symlink and self.ext in ('jpg', 'png'):
+            try:
+                img = PIL_Image.open(self.file.path)
+                w, h = img.size
+                if w > IMG_WH_MAX_SIZE or h > IMG_WH_MAX_SIZE:
+                    if w >= h:
+                        w_new = IMG_WH_MAX_SIZE
+                        h_new = int(round(float(IMG_WH_MAX_SIZE) * h / w))
+                    else:
+                        w_new = int(round(float(IMG_WH_MAX_SIZE) * w / h))
+                        h_new = IMG_WH_MAX_SIZE
+                    resized = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
+                    resized.save(self.file.path)
+            except:
+                pass
 
-        sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
-        if sames:
-            # find same safely
-            # 실섭에서 이상하게도 cyclic symbolic link 가 발견되었는데, 이에 대한 대응
-            same = None
-            for rf in sames:
-                with Path(rf.file.path) as f:
-                    if not f.is_symlink():
-                        same = rf
-                        break
-
-            # process same
-            if same and self != same:
-                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
-                if self.ext == same.ext and self.file.size == same.file.size:
-                    self.same = same
-                    with Path(self.file.path) as f:
-                        f.unlink()
-                        f.symlink_to(same.file.path)
-
+        # process same
+        same = self.find_same()
+        if same and self != same:
+            self.same = same
+            with Path(self.file.path) as f:
+                f.unlink()
+                f.symlink_to(same.file.path)
         self.save()
         return True
+
+    def find_same(self):
+        if not self.mhash:
+            return None
+        sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
+        file_size = None
+        try:
+            file_size = self.file.size
+        except:
+            pass
+
+        same = None
+        if sames:
+            for rf in sames:
+                # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
+                if self.ext == rf.ext and (not file_size or file_size == rf.file.size):
+                    # find same safely
+                    # 실섭에서 이상하게도 cyclic symbolic link 가 발견되었는데, 이에 대한 대응
+                    with Path(rf.file.path) as f:
+                        if not f.is_symlink():
+                            same = rf
+                            break
+        if same == self:
+            same = None
+        return same
