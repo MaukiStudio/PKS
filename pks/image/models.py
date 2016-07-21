@@ -171,7 +171,7 @@ class Image(Content):
 
         # AzurePrediction
         azure, is_created = AzurePrediction.objects.get_or_create(img=self)
-        if is_created and (not self.rf or not self.rf.same):
+        if (is_created or not azure.result_analyze) and (not self.rf or not self.rf.same):
             azure.predict()
 
         self.save()
@@ -471,7 +471,10 @@ class AzurePrediction(models.Model):
         headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': 'd91fa94bcd484158a74d9463826b689c'}
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
         data = '{"url": "%s"}' % self.img.content
-        r = requests_post(api_url, headers=headers, data=data)
+        try:
+            r = requests_post(api_url, headers=headers, data=data)
+        except:
+            return None
         self.is_success_analyze = r.status_code == status.HTTP_200_OK
         result = json_loads(r.content)
         self.result_analyze = result
