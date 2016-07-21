@@ -347,10 +347,15 @@ class RawFile(models.Model):
             ext = 'jpg'
         return ext
 
+    @property
+    def is_symlink(self):
+        with Path(self.file.path) as f:
+            result = f.is_symlink()
+        return result
+
     def task(self):
         result = True
-        with Path(self.file.path) as f:
-            is_symlink = f.is_symlink()
+        is_symlink = self.is_symlink
 
         # Image Resize
         if not is_symlink and self.ext in ('jpg', 'png'):
@@ -390,9 +395,12 @@ class RawFile(models.Model):
         same = self.find_same()
         if same and self != same:
             self.same = same
+            self.mhash = self.same.mhash
             with Path(self.file.path) as f:
                 f.unlink()
                 f.symlink_to(same.file.path)
+
+        # file process
         self.save()
         return result
 
@@ -411,9 +419,8 @@ class RawFile(models.Model):
             for rf in sames:
                 # find same safely
                 # 실섭에서 이상하게도 cyclic symbolic link 가 발견되었는데, 이에 대한 대응
-                with Path(rf.file.path) as f:
-                    if f.is_symlink():
-                        continue
+                if rf.is_symlink:
+                    continue
                 # TODO : 이걸로 동일성 체크가 충분하지 않다면 실제 file 내용 일부 비교 추가 혹은 sha128 추가 및 활용
                 if self.ext == rf.ext and (not self_file_size or self_file_size == rf.file.size):
                     same = rf
