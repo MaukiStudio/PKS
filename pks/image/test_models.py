@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from uuid import uuid1
+from uuid import uuid1, UUID
 from base64 import b16encode
 from django.contrib.gis.geos import GEOSGeometry
 from re import compile as re_compile
@@ -136,6 +136,17 @@ class ImageTest(APITestBase):
         self.assertEqual(img2.similars.first(), img3)
         self.assertEqual(img3.lonLat, img2.lonLat)
         self.assertEqual(img3.timestamp, img2.timestamp)
+
+        rf4 = RawFile()
+        rf4.file = self.uploadFile('test_org.jpg')
+        rf4.save()
+        self.assertEqual(rf4.mhash, None)
+        pil4_1 = PIL_Image.open(rf4.file.path)
+        self.assertEqual(pil4_1.size, (4160, 2340))
+        rf4.task()
+        self.assertEqual(rf4.mhash, UUID('39f2f314-6064-f017-306c-8e1923a9de1f'))
+        pil4_2 = PIL_Image.open(rf4.file.path)
+        self.assertEqual(pil4_2.size, (1280, 720))
 
     def test_exif_gps(self):
         exif = exif_lib.get_exif_data(PIL_Image.open('image/samples/gps_test.jpg'))

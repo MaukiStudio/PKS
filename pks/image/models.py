@@ -22,6 +22,7 @@ from pathlib2 import Path
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
+IMG_WH_MAX_SIZE = 1280
 
 
 class Image(Content):
@@ -356,6 +357,20 @@ class RawFile(models.Model):
         except:
             # TODO : 파일이 삭제되거나 손상된 RawFile 을 어떻게 처리할지 결정 및 구현 필요
             return False
+
+        # Image Resize
+        if self.ext in ('jpg', 'png'):
+            img = PIL_Image.open(self.file.path)
+            w, h = img.size
+            if w > IMG_WH_MAX_SIZE or h > IMG_WH_MAX_SIZE:
+                if w >= h:
+                    w_new = IMG_WH_MAX_SIZE
+                    h_new = int(round(float(IMG_WH_MAX_SIZE) * h / w))
+                else:
+                    w_new = int(round(float(IMG_WH_MAX_SIZE) * w / h))
+                    h_new = IMG_WH_MAX_SIZE
+                resized = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
+                resized.save(self.file.path)
 
         sames = RawFile.objects.filter(mhash=self.mhash).order_by('id')
         if sames:
