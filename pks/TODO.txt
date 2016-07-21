@@ -1,3 +1,12 @@
+
+[애저 Vision API]
+    RawFile 사이즈 변경 처리
+    태그 구조 변경 : 확률, tagger 반영
+
+
+[장소화 지원]
+    주변 장소 목록 가져오기 : 다음, 구글
+
 [Bug Fix]
     [완] 상수형, uplace 에 나오는 장소인데 iplaces 에 나오는 버그 수정
     [완] 이메일 인증 암호화 잘못 구현한 부분 수정 (/vds/confirm/ 은 user 로그인 전에 동작)
