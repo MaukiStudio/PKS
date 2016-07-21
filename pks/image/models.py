@@ -8,6 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from json import loads as json_loads
 from rest_framework import status
 from hashlib import md5
+from django.contrib.postgres.fields import JSONField
 
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from account.models import VD
@@ -18,6 +19,7 @@ from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST
 from requests import get as requests_get
 from pathlib2 import Path
+from requests import post as requests_post
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
@@ -166,6 +168,11 @@ class Image(Content):
                         print(img2.url_summarized)
                         print('')
                         #'''
+
+        # AzurePrediction
+        azure, is_created = AzurePrediction.objects.get_or_create(img=self)
+        if is_created:
+            azure.predict()
 
         self.save()
         return True
@@ -429,3 +436,44 @@ class RawFile(models.Model):
         if same == self:
             same = None
         return same
+
+
+class AzurePrediction(models.Model):
+    img = models.OneToOneField(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='azure')
+    mask = models.SmallIntegerField(blank=True, null=True, default=None)
+    result_analyze = JSONField(blank=True, null=True, default=None, db_index=False)
+
+    @property
+    def is_success_analyze(self):
+        return (self.mask or 0) & 1 != 0
+    @is_success_analyze.setter
+    def is_success_analyze(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 1
+        else:
+            self.mask = (self.mask or 0) & (~1)
+
+    # TODO : 돈 안들이고 할 수 있는 단위 테스트 작성
+    def predict(self):
+        '''
+            POST https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities HTTP/1.1
+            Content-Type: application/json
+            Host: api.projectoxford.ai
+            Content-Length: 120
+            Ocp-Apim-Subscription-Key: d91fa94bcd484158a74d9463826b689c
+
+            {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
+        '''
+        from pks.settings import WORK_ENVIRONMENT, SERVER_HOST
+        if WORK_ENVIRONMENT: return None
+        if SERVER_HOST.startswith('http://192.'): return None
+
+        headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': 'd91fa94bcd484158a74d9463826b689c'}
+        api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
+        data = '{"url": "%s"}' % self.img.content
+        r = requests_post(api_url, headers=headers, data=data)
+        self.is_success_analyze = r.status_code == status.HTTP_200_OK
+        result = json_loads(r.content)
+        self.result_analyze = result
+        self.save()
+        return result
