@@ -348,6 +348,7 @@ class RawFile(models.Model):
         return ext
 
     def task(self):
+        result = True
         # Calc mhash
         with Path(self.file.path) as f:
             is_symlink = f.is_symlink()
@@ -359,7 +360,7 @@ class RawFile(models.Model):
             self.mhash = UUID(m.hexdigest())
         except:
             if is_symlink:
-                pass
+                result = False
             else:
                 raise
 
@@ -378,7 +379,7 @@ class RawFile(models.Model):
                     resized = img.resize((w_new, h_new), PIL_Image.ANTIALIAS)
                     resized.save(self.file.path)
             except:
-                pass
+                result = False
 
         # process same
         same = self.find_same()
@@ -388,7 +389,7 @@ class RawFile(models.Model):
                 f.unlink()
                 f.symlink_to(same.file.path)
         self.save()
-        return True
+        return result
 
     def find_same(self):
         if not self.mhash:
