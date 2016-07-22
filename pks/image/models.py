@@ -473,12 +473,13 @@ class AzurePrediction(models.Model):
         if WORK_ENVIRONMENT: return None
         if SERVER_HOST.startswith('http://192.'): return None
 
-        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa']
-        if level >= len(api_key):
+        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa', '8c96d76d3a2341189c06d9c86c417940']
+        cnt = len(api_key)
+        if level >= cnt:
             return None
         if idx is None:
             from random import randrange
-            idx = randrange(0, 3)
+            idx = randrange(0, cnt)
         headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': api_key[idx]}
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
         data = '{"url": "%s"}' % self.img.content
@@ -499,7 +500,7 @@ class AzurePrediction(models.Model):
                 if seconds > 60:
                     seconds = 60
                 sleep(seconds)
-                return self.predict((idx+1) % len(api_key), level+1)
+                return self.predict((idx+1) % cnt, level+1)
         self.result_analyze = result
         self.save()
         return result
