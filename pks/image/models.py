@@ -484,7 +484,7 @@ class AzurePrediction(models.Model):
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
         data = '{"url": "%s"}' % self.img.content
         try:
-            r = requests_post(api_url, headers=headers, data=data)
+            r = requests_post(api_url, headers=headers, data=data, timeout=60)
         except:
             return None
         self.is_success_analyze = r.status_code == status.HTTP_200_OK
