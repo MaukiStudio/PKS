@@ -469,13 +469,13 @@ class AzurePrediction(models.Model):
 
             {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
-        if level >= 3:
-            return None
         from pks.settings import WORK_ENVIRONMENT, SERVER_HOST
         if WORK_ENVIRONMENT: return None
         if SERVER_HOST.startswith('http://192.'): return None
 
         api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa']
+        if level >= len(api_key):
+            return None
         if idx is None:
             from random import randrange
             idx = randrange(0, 3)
@@ -495,8 +495,11 @@ class AzurePrediction(models.Model):
             seconds = searcher.group('seconds')
             if seconds:
                 from time import sleep
+                print('sleep for %s seconds...')
+                if seconds > 60:
+                    seconds = 60
                 sleep(seconds)
-                return self.predict(idx, level+1)
+                return self.predict((idx+1) % len(api_key), level+1)
         self.result_analyze = result
         self.save()
         return result
