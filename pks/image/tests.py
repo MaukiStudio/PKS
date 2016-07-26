@@ -46,11 +46,11 @@ class ImageViewsetTest(APITestBase):
         self.assertEqual(result['uuid'], self.img.uuid)
 
     def test_create(self):
-        response = self.client.post('/imgs/', dict(content=self.content2))
+        response = self.client.post('/imgs/', dict(content=self.content2, test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create2(self):
-        response = self.client.post('/imgs/', dict(content=self.content2, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19'))
+        response = self.client.post('/imgs/', dict(content=self.content2, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19', test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         img = Image.objects.get(content=self.content2)
         self.assertEqual(img.lonLat, GEOSGeometry('POINT(%f %f)' % (127.0, 37.0), srid=4326))
@@ -60,7 +60,7 @@ class ImageViewsetTest(APITestBase):
         with open('image/samples/gps_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
         img_url = json_loads(response.content)['url']
-        response = self.client.post('/imgs/', dict(content=img_url))
+        response = self.client.post('/imgs/', dict(content=img_url, test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         uuid = json_loads(response.content)['uuid']
         img = Image.get_from_json('{"uuid": "%s"}' % uuid)
@@ -71,7 +71,7 @@ class ImageViewsetTest(APITestBase):
         with open('image/samples/gps_test.jpg') as f:
             response = self.client.post('/rfs/', dict(file=f))
         img_url = json_loads(response.content)['url']
-        response = self.client.post('/imgs/', dict(content=img_url, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19'))
+        response = self.client.post('/imgs/', dict(content=img_url, lon=127.0, lat=37.0, local_datetime='2015:04:22 11:54:19', test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         uuid = json_loads(response.content)['uuid']
         img = Image.get_from_json('{"uuid": "%s"}' % uuid)
@@ -80,11 +80,11 @@ class ImageViewsetTest(APITestBase):
 
     def test_create_twice(self):
         self.assertEqual(Image.objects.count(), 1)
-        response = self.client.post('/imgs/', dict(content=self.content2))
+        response = self.client.post('/imgs/', dict(content=self.content2, test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Image.objects.count(), 2)
 
-        response = self.client.post('/imgs/', dict(content=self.content2))
+        response = self.client.post('/imgs/', dict(content=self.content2, test=True))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Image.objects.count(), 2)
 
