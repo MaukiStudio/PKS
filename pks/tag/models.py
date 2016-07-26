@@ -287,9 +287,6 @@ class ImageTags(models.Model):
     img = models.OneToOneField(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='ctags')
     tags = JSONField(blank=True, null=True, default=None, db_index=False)
 
-    def __unicode__(self):
-        return self.img and "%s's ctags" % unicode(self.tag) or None
-
     def add_tag(self, name, prob, tagger):
         if prob < TAG_MIN_PROB:
             return
@@ -344,4 +341,5 @@ class ImageTags(models.Model):
                 names = d['name']
                 prob = d['score']
                 for name in names.split('_'):
-                    self.add_tag(name, prob, TAGGER_AZURE)
+                    if name:
+                        self.add_tag(name, prob, TAGGER_AZURE)
