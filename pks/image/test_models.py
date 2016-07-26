@@ -8,14 +8,15 @@ from django.contrib.gis.geos import GEOSGeometry
 from re import compile as re_compile
 
 from base.tests import APITestBase
-from image.models import Image, RawFile
+from image.models import Image, RawFile, AzurePrediction
 from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
 from base.utils import get_timestamp
 from content.models import ImageNote
-from pks.settings import SERVER_HOST
+from pks.settings import SERVER_HOST, WORK_ENVIRONMENT
 from pathlib2 import Path
+from tag.models import ImageTags, Tag
 
 
 class ImageTest(APITestBase):
@@ -486,3 +487,24 @@ class RawFileTest(APITestBase):
         self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
         pil4_3 = PIL_Image.open(rf4.file.path)
         self.assertEqual(pil4_3.size, (1280, 720))
+
+
+class AzurePredictionTest(APITestBase):
+
+    def test_analyze(self):
+        #if WORK_ENVIRONMENT: return
+        img_url = 'http://mblogthumb1.phinf.naver.net/20160630_76/mardukas_1467275247982Cd19e_JPEG/DSC00245.JPG?type=w2'
+        img, is_created = Image.get_or_create_smart(img_url)
+        azure = AzurePrediction.objects.create(img=img)
+        r = azure.predict()
+        self.assertNotEqual(r, None)
+        self.assertEqual(img.azure, azure)
+        self.assertEqual(azure.is_success_analyze, True)
+        self.assertNotEqual(azure.result_analyze, None)
+
+        imgTags = ImageTags.objects.first()
+        self.assertEqual(imgTags.img, img)
+        self.assertEqual(img.ctags, imgTags)
+        self.assertNotEqual(imgTags, None)
+        self.assertNotEqual(imgTags.tags, None)
+        self.assertEqual(len(imgTags.tags), 5)

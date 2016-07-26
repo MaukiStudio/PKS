@@ -3,12 +3,21 @@ from __future__ import unicode_literals
 
 from json import loads as json_loads
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields import JSONField
 
 from place.models import UserPlace, Place
 from content.models import TagName, PlaceNote
+from image.models import Image
 
 # For Laplace Smoothing
 ALPHA = 0.5
+
+# Tag
+TAGGER_AZURE = 'A'
+TAG_JSON_NAME = 'T'
+
+# Tag Prob
+TAG_MIN_PROB = 0.05
 
 
 # TODO : 튜닝 (캐싱 등)
@@ -272,3 +281,67 @@ class PlaceNoteTag(models.Model):
 
     def __unicode__(self):
         return self.tag and unicode(self.tag) or None
+
+
+class ImageTags(models.Model):
+    img = models.OneToOneField(Image, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='ctags')
+    tags = JSONField(blank=True, null=True, default=None, db_index=False)
+
+    def __unicode__(self):
+        return self.img and "%s's ctags" % unicode(self.tag) or None
+
+    def add_tag(self, name, prob, tagger):
+        if prob < TAG_MIN_PROB:
+            return
+        if self.tags is None:
+            self.tags = list()
+        tag, is_created = Tag.get_or_create_smart(name)
+        tag = tag.id
+
+        item = None
+        for d in self.tags:
+            if TAG_JSON_NAME in d and d[TAG_JSON_NAME] == tag:
+                item = d
+                break
+        if not item:
+            item = {TAG_JSON_NAME: tag, TAGGER_AZURE: 0.0}
+            self.tags.append(item)
+
+        # TODO : 현재는 MAX 인데... 더 좋은 로직 고민
+        item[tagger] = max(item['A'], prob)
+
+    def process_azure_tag(self, azure):
+        if not azure or not azure.result_analyze:
+            return None
+        ar = azure.result_analyze
+
+        # description
+        if 'description' in ar:
+            description = ar['description']
+            for name in description['tags']:
+                for caption in description['captions']:
+                    if name in caption['text']:
+                        self.add_tag(name, caption['confidence'], TAGGER_AZURE)
+
+        # adult, racy
+        if 'adult' in ar:
+            self.add_tag('adult', ar['adult']['adultScore'], TAGGER_AZURE)
+            self.add_tag('racy', ar['adult']['racyScore'], TAGGER_AZURE)
+
+        # tags
+        if 'tags' in ar:
+            for d in ar['tags']:
+                name = d['name']
+                prob = d['confidence']
+                self.add_tag(name, prob, TAGGER_AZURE)
+                if 'hint' in d:
+                    name = d['hint']
+                    self.add_tag(name, prob, TAGGER_AZURE)
+
+        # categories
+        if 'categories' in ar:
+            for d in ar['categories']:
+                names = d['name']
+                prob = d['score']
+                for name in names.split('_'):
+                    self.add_tag(name, prob, TAGGER_AZURE)

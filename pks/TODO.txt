@@ -1,7 +1,28 @@
+[보충 작업]
+    이미지 업로드되면 task() 돌리기
+
 
 [애저 Vision API]
-    RawFile 사이즈 변경 처리
-    태그 구조 변경 : 확률, tagger 반영
+    [완] RawFile 사이즈 변경 처리
+    [완] AzurePrediction 구현 및 현 이미지에 대해 모두 호출
+    [ing] 태그 구조 변경 : 확률, tagger 반영
+        [ing] ImageTags 작업
+        PlaceNoteTags 작업
+            ptag 는 쓰지 않고 ctag 만 사용 : Content Tag 만
+            json type 으로 : {tag: 2, prob: 0.9, tagger: 1}
+        PlaceNoteTag 삭제
+        Tag 간 관계에 의한 확률 계산 방식 변경
+            min 확률에서 조정이 일어나도록 : 현재는 50%
+
+[이미지로 장소 판단]
+    동일 이미지 인식 처리
+
+[파헤치기]
+    get_or_create_child() 관련
+    앨범 import 후 장소화된 장소, 자동으로 take 처리
+
+[예외 처리]
+    깨진 rf, img 처리
 
 
 [장소화 지원]

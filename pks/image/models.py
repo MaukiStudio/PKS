@@ -458,7 +458,6 @@ class AzurePrediction(models.Model):
         else:
             self.mask = (self.mask or 0) & (~1)
 
-    # TODO : 돈 안들이고 할 수 있는 단위 테스트 작성
     def predict(self, idx=None, level=0):
         '''
             POST https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities HTTP/1.1
@@ -469,9 +468,10 @@ class AzurePrediction(models.Model):
 
             {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
-        from pks.settings import WORK_ENVIRONMENT, SERVER_HOST
-        if WORK_ENVIRONMENT: return None
-        if SERVER_HOST.startswith('http://192.'): return None
+        if not self.img or not self.img.content:
+            return None
+        if self.img.content.startswith('http://192.'):
+            return None
 
         api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa', '8c96d76d3a2341189c06d9c86c417940']
         cnt = len(api_key)
@@ -487,7 +487,7 @@ class AzurePrediction(models.Model):
             r = requests_post(api_url, headers=headers, data=data, timeout=60)
         except:
             return None
-        self.is_success_analyze = r.status_code == status.HTTP_200_OK
+        self.is_success_analyze = (r.status_code == status.HTTP_200_OK)
         result = json_loads(r.content)
         if not self.is_success_analyze and 'statusCode' in result and result['statusCode'] == 429:
             from re import compile as re_compile
@@ -503,4 +503,14 @@ class AzurePrediction(models.Model):
                 return self.predict((idx+1) % cnt, level+1)
         self.result_analyze = result
         self.save()
+
+        if self.is_success_analyze:
+            self.tagging()
         return result
+
+    def tagging(self):
+        from tag.models import ImageTags
+        imgTags, is_created = ImageTags.objects.get_or_create(img=self.img)
+        imgTags.process_azure_tag(self)
+        imgTags.save()
+        return imgTags
