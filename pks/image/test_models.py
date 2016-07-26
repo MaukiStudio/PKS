@@ -492,7 +492,7 @@ class RawFileTest(APITestBase):
 class AzurePredictionTest(APITestBase):
 
     def test_analyze(self):
-        #if WORK_ENVIRONMENT: return
+        if WORK_ENVIRONMENT: return
         img_url = 'http://mblogthumb1.phinf.naver.net/20160630_76/mardukas_1467275247982Cd19e_JPEG/DSC00245.JPG?type=w2'
         img, is_created = Image.get_or_create_smart(img_url)
         azure = AzurePrediction.objects.create(img=img)
