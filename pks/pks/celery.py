@@ -13,6 +13,7 @@ app = Celery(
         'pks.tasks',
         'importer.task_wrappers',
         'account.task_wrappers',
+        'image.task_wrappers',
     ],
 )
 
