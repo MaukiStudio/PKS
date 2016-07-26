@@ -325,6 +325,10 @@ class RawFile(models.Model):
     def timestamp(self):
         return (int(self.id) >> 8*8) & BIT_ON_8_BYTE
 
+    @property
+    def is_image(self):
+        return self.ext in ('jpg', 'png')
+
     def save(self, *args, **kwargs):
         is_created = False
 
@@ -342,7 +346,7 @@ class RawFile(models.Model):
         super(RawFile, self).save(*args, **kwargs)
 
         # 이미지인 경우 바로 캐시 처리 및 Image object 생성
-        if is_created and self.ext in ('jpg', 'png'):
+        if is_created and self.is_image:
             img, is_img_created = Image.get_or_create_smart(self.url)
             img.access_local(self.file.path)
             img.rf = self
@@ -370,7 +374,7 @@ class RawFile(models.Model):
         is_symlink = self.is_symlink
 
         # Image Resize
-        if not is_symlink and self.ext in ('jpg', 'png'):
+        if not is_symlink and self.is_image:
             try:
                 img = PIL_Image.open(self.file.path)
                 w, h = img.size
@@ -400,7 +404,7 @@ class RawFile(models.Model):
         elif self.same:
             self.mhash = self.same.mhash
         else:
-            print('symlinkd but same property is None')
+            print('symlinked but same property is None')
             raise NotImplementedError
 
         # process same
