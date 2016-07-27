@@ -103,7 +103,7 @@ class ImageTest(APITestBase):
         _rf = RawFile()
         _rf.file = self.uploadFile('no_exif_test.jpg')
         _rf.save()
-        img = _rf.img
+        img, is_created = Image.get_or_create_smart(_rf.url)
         self.assertEqual(Image.objects.count(), 1)
         saved = Image.objects.first()
 
@@ -118,7 +118,7 @@ class ImageTest(APITestBase):
         _rf2 = RawFile()
         _rf2.file = self.uploadFile('test.jpg')
         _rf2.save()
-        img2 = _rf2.img
+        img2, is_created = Image.get_or_create_smart(_rf2.url)
         img2.task()
         self.assertEqual(img.similar, None)
         self.assertEqual(img2.similar, None)
@@ -126,7 +126,7 @@ class ImageTest(APITestBase):
         _rf3 = RawFile()
         _rf3.file = self.uploadFile('test_480.jpg')
         _rf3.save()
-        img3 = _rf3.img
+        img3, is_created = Image.get_or_create_smart(_rf3.url)
         img3.lonLat = None
         img3.timestamp = None
         #img3.save()
@@ -228,7 +228,7 @@ class ImageTest(APITestBase):
         rf = RawFile()
         rf.file = self.uploadFile('test_transpose.jpg')
         rf.save()
-        img = rf.img
+        img, is_created = Image.get_or_create_smart(rf.url)
         timestamp = img.timestamp
         lonLat = img.lonLat
         self.assertNotEqual(timestamp, None)
@@ -290,7 +290,7 @@ class ImageTest(APITestBase):
         rf = RawFile()
         rf.file = self.uploadFile('test_transpose.jpg')
         rf.save()
-        img = rf.img
+        img, is_created = Image.get_or_create_smart(rf.url)
         timestamp = img.timestamp
         lonLat = img.lonLat
 
@@ -410,7 +410,7 @@ class RawFileTest(APITestBase):
         rf.save()
         self.assertEqual(rf.ext, 'jpg')
         self.assertEqual(RawFile.objects.count(), 1)
-        self.assertEqual(Image.objects.count(), 1)
+        self.assertEqual(Image.objects.count(), 0)
 
         img, is_created = Image.get_or_create_smart(rf.url)
         self.assertValidLocalFile(img.path_accessed)

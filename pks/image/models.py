@@ -415,9 +415,6 @@ class RawFile(models.Model):
         if is_created:
             self.start()
 
-        if is_created and self.is_image:
-            img, is_img_created = Image.get_or_create_smart(self.url)
-
     @property
     def url(self):
         return '%s%s' % (SERVER_HOST, self.file.url)
