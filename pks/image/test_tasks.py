@@ -27,5 +27,6 @@ class TaskTest(APITestBase):
         rf = RawFile()
         rf.file = self.uploadFile('test.png')
         rf.save()
+        rf.task()
         rf = RawFile.objects.get(id=rf.id)
         self.assertEqual(rf.mhash, UUID('5abd147d-ceb8-218a-a160-1c7821db6654'))

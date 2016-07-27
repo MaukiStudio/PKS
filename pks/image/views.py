@@ -47,4 +47,6 @@ class RawFileViewset(BaseViewset):
     serializer_class = RawFileSerializer
 
     def perform_create(self, serializer):
-        serializer.save(vd=self.vd)
+        rf = serializer.save(vd=self.vd)
+        # post_save : celery task
+        rf.start()

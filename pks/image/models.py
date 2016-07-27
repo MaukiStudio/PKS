@@ -410,10 +410,6 @@ class RawFile(models.Model):
         # 저장
         super(RawFile, self).save(*args, **kwargs)
 
-        # post_save : celery task
-        if is_created:
-            self.start()
-
     @property
     def url(self):
         return '%s%s' % (SERVER_HOST, self.file.url)
