@@ -305,7 +305,7 @@ class ImageTest(APITestBase):
         self.assertValidInternetUrl(img.url_accessed)
 
     def test_access_methods2(self):
-        test_data = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg?1463275413000'
+        test_data = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg'
         img, is_created = Image.get_or_create_smart(test_data)
         img.access()
         self.assertValidLocalFile(img.path_accessed)
