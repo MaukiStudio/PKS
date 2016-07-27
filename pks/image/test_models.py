@@ -318,6 +318,16 @@ class ImageTest(APITestBase):
         self.assertValidLocalFile(img.path_accessed)
         self.assertValidInternetUrl(img.url_accessed)
 
+    def test_access_methods2(self):
+        img = Image()
+        test_data = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg?1463275413000'
+        img.content = test_data
+        img.save()
+
+        img.access()
+        self.assertValidLocalFile(img.path_accessed)
+        self.assertValidInternetUrl(img.url_accessed)
+
     def test_summarize_methods(self):
         img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'

@@ -25,7 +25,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 IMG_WH_MAX_SIZE = 1280
-CONVERTED_DNS_LIST = [('maukitest.cloudapp.net', 'neapk-test01.japaneast.cloudapp.azure.com')]
+CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', 'http://neapk-test01.japaneast.cloudapp.azure.com')]
 
 
 class Image(Content):
@@ -213,15 +213,15 @@ class Image(Content):
     @property
     def json(self):
         if self.note:
-            return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized, note=self.note.json)
+            return dict(uuid=self.uuid, content=self.url_for_access, summary=self.url_summarized, note=self.note.json)
         else:
-            return dict(uuid=self.uuid, content=self.content, summary=self.url_summarized)
+            return dict(uuid=self.uuid, content=self.url_for_access, summary=self.url_summarized)
     @property
     def cjson(self):
         if self.note:
-            return dict(content=self.content, summary=self.url_summarized, note=self.note.cjson)
+            return dict(content=self.url_for_access, summary=self.url_summarized, note=self.note.cjson)
         else:
-            return dict(content=self.content, summary=self.url_summarized)
+            return dict(content=self.url_for_access, summary=self.url_summarized)
     @property
     def ujson(self):
         if self.note:
@@ -318,6 +318,7 @@ class Image(Content):
 
     def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}
+        print(self.url_for_access)
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
             print('Access failed : %s' % self.url_for_access)
@@ -329,6 +330,17 @@ class Image(Content):
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
         file.write_bytes(r.content)
+
+    @property
+    def url_for_access(self):
+        _url = self.content.strip()
+        if _url.startswith('http'):
+            for converted in CONVERTED_DNS_LIST:
+                if _url.startswith(converted[0]):
+                    return _url.replace(converted[0], converted[1])
+            return _url
+
+        raise NotImplementedError
 
 
 class RawFile(models.Model):
