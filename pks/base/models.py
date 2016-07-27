@@ -132,10 +132,10 @@ class Content(models.Model):
     def _id(self):
         return UUID(Content.get_md5_hash(self.content))
 
-    def pre_save(self):
+    def pre_save(self, is_created):
         pass
 
-    def post_save(self):
+    def post_save(self, is_created):
         pass
 
     @classmethod
@@ -222,14 +222,18 @@ class Content(models.Model):
         if not self.content:
             raise AssertionError
         _id = self._id
-        if self.id and self.id != _id:
-            raise NotImplementedError
+        is_created = False
+        if not self.id:
+            self.id = _id
+            is_created = True
+        else:
+            if self.id != _id:
+                raise NotImplementedError
 
         # 저장
-        self.id = _id
-        self.pre_save()
+        self.pre_save(is_created)
         super(Content, self).save(*args, **kwargs)
-        self.post_save()
+        self.post_save(is_created)
 
     # Methods for access
     def access_force(self, timeout=3):

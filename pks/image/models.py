@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+ #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from base64 import b16encode
@@ -16,7 +16,7 @@ from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
 from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
-from pks.settings import SERVER_HOST
+from pks.settings import SERVER_HOST, DISABLE_NO_FREE_API
 from requests import get as requests_get
 from pathlib2 import Path
 from requests import post as requests_post
@@ -67,35 +67,7 @@ class Image(Content):
 
         raise NotImplementedError
 
-
-    # id 값은 보존하면서 content 값을 바꾸려던 구현 시도
-    # 로그성으로 남겨둠
-    '''
-    def save(self, *args, **kwargs):
-        # id/content 처리
-        if not self.content:
-            raise AssertionError
-        _id = self._id
-        if not self.id:
-            self.id = _id
-        else:
-            if self.id == _id:
-                pass
-            else:
-                for converted in CONVERTED_DNS_LIST:
-                    _id2 = UUID(Content.get_md5_hash(self.content.replace(converted[1], converted[0])))
-                    if self.id == _id2:
-                        break
-                else:
-                    raise NotImplementedError
-
-        # 저장
-        self.pre_save()
-        super(Content, self).save(*args, **kwargs)
-        self.post_save()
-    '''
-
-    def pre_save(self):
+    def pre_save(self, is_created):
         # TODO : 구조 단순하게 리팩토링
         try:
             if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
@@ -113,12 +85,28 @@ class Image(Content):
         except:
             pass
 
+    def post_save(self, is_created):
+        # celery task
+        if is_created:
+            self.start()
+
     def update_hash(self, save=True):
         pil = self.content_accessed
         self.phash = self.compute_phash(pil)
         self.dhash = self.compute_dhash(pil)
         if save:
             self.save()
+
+    # TODO : priority 처리 구현
+    def start(self, high_priority=False):
+        from task_wrappers import AfterImageCreationTaskWrapper
+        task = AfterImageCreationTaskWrapper()
+        r = task.delay(self.id)
+
+        # TODO : 정확한 구현인지 확인
+        if r.failed():
+            raise NotImplementedError
+        return r
 
     def task(self, vd=None, force_hash=False, force_similar=False):
         if force_hash or not self.phash or not self.dhash:
@@ -391,6 +379,10 @@ class RawFile(models.Model):
         # 저장
         super(RawFile, self).save(*args, **kwargs)
 
+        # post_save : celery task
+        if is_created:
+            self.start()
+
         # 이미지인 경우 바로 캐시 처리 및 Image object 생성
         if is_created and self.is_image:
             img, is_img_created = Image.get_or_create_smart(self.url)
@@ -414,6 +406,17 @@ class RawFile(models.Model):
         with Path(self.file.path) as f:
             result = f.is_symlink()
         return result
+
+    # TODO : priority 처리 구현
+    def start(self, high_priority=False):
+        from task_wrappers import AfterRawFileCreationTaskWrapper
+        task = AfterRawFileCreationTaskWrapper()
+        r = task.delay(self.id)
+
+        # TODO : 정확한 구현인지 확인
+        if r.failed():
+            raise NotImplementedError
+        return r
 
     def task(self):
         result = True
@@ -518,6 +521,8 @@ class AzurePrediction(models.Model):
 
             {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
+        if DISABLE_NO_FREE_API:
+            return None
         if not self.img or not self.img.url_for_access:
             return None
         if self.img.url_for_access.startswith('http://192.'):

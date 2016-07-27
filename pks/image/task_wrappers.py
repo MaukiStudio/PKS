@@ -8,6 +8,14 @@ from pks.celery import app
 from celery import Task
 
 
+class AfterRawFileCreationTaskWrapper(Task):
+
+    def run(self, rf_id):
+        from image.tasks import AfterRawFileCreationTask
+        task = AfterRawFileCreationTask()
+        return task.run(rf_id)
+
+
 class AfterImageCreationTaskWrapper(Task):
 
     def run(self, img_id):

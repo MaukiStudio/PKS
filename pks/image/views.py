@@ -38,11 +38,6 @@ class ImageViewset(ContentViewset):
         if dirty:
             img.save()
 
-        if is_created and 'test' not in request.data:
-            from image.task_wrappers import AfterImageCreationTaskWrapper
-            task = AfterImageCreationTaskWrapper()
-            r = task.delay(img.id)
-
         serializer = self.get_serializer(img)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

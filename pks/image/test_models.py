@@ -248,7 +248,7 @@ class ImageTest(APITestBase):
         self.assertEqual(img.lonLat, lonLat)
 
     # id 값은 보존하면서 content 값을 바꾸려던 구현 시도
-    # 로그성으로 남겨둠
+    # 로그성으로 남겨둠. image/models.py 쪽의 코드는 commit 후 삭제. (git log 로 확인 가능)
     '''
     def test_save2(self):
         old_url = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg'
@@ -449,22 +449,21 @@ class RawFileTest(APITestBase):
         rf = RawFile()
         rf.file = self.uploadFile('test.png')
         rf.save()
+        rf = RawFile.objects.get(id=rf.id)
         saved = RawFile.objects.first()
+        self.assertEqual(rf, saved)
 
-        self.assertEqual(rf.mhash, None)
-        rf.task()
         self.assertNotEqual(rf.mhash, None)
         self.assertEqual(rf.same, None)
 
-        self.assertEqual(saved.mhash, None)
-        saved.task()
         self.assertEqual(saved.mhash, rf.mhash)
         self.assertEqual(saved.same, rf.same)
 
         rf2 = RawFile()
         rf2.file = self.uploadFile('test.jpg')
         rf2.save()
-        rf2.task()
+        #rf2.task()
+        rf2 = RawFile.objects.get(id=rf2.id)
         self.assertEqual(rf.same, None)
         self.assertEqual(rf2.same, None)
 
@@ -472,7 +471,8 @@ class RawFileTest(APITestBase):
         rf3.file = self.uploadFile('test.png')
         rf3.save()
         rf3_old_file_path = rf3.file.path
-        rf3.task()
+        #rf3.task()
+        rf3 = RawFile.objects.get(id=rf3.id)
         self.assertEqual(rf3.file.path, rf3_old_file_path)
         self.assertEqual(rf.same, None)
         self.assertEqual(rf2.same, None)
@@ -501,7 +501,8 @@ class RawFileTest(APITestBase):
         rf4.save()
         self.assertEqual(rf4.mhash, None)
         pil4_1 = PIL_Image.open(rf4.file.path)
-        self.assertEqual(pil4_1.size, (4160, 2340))
+        #self.assertEqual(pil4_1.size, (4160, 2340))
+        self.assertEqual(pil4_1.size, (1280, 720))
         rf4.task()
         self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
         pil4_2 = PIL_Image.open(rf4.file.path)

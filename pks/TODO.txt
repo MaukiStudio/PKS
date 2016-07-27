@@ -1,12 +1,17 @@
 [보충 작업]
-    이미지 업로드되면 task() 돌리기
-
+    [완] 이미지 업로드되면 task() 돌리기
+    [완] maukitest.cloudapp.net 시절 업로드되었던 이미지들의 URL 처리;;;
+    [완] Face 인식되면 성별은 태그로 달기
+    [완] imageType, celebrity 등에서도 정보를 뽑아 태그로 달기
+    [ing] 태스크 호출 구조 변경 : 객체 생성시 바로 하도록...
+    가져오기시 보여지는 Contents 범위 조정 : 전반적으로 체크 필요
+    동일한 사진 한번만 보이게 수정
 
 [애저 Vision API]
     [완] RawFile 사이즈 변경 처리
     [완] AzurePrediction 구현 및 현 이미지에 대해 모두 호출
     [ing] 태그 구조 변경 : 확률, tagger 반영
-        [ing] ImageTags 작업
+        [완] ImageTags 작업
         PlaceNoteTags 작업
             ptag 는 쓰지 않고 ctag 만 사용 : Content Tag 만
             json type 으로 : {tag: 2, prob: 0.9, tagger: 1}

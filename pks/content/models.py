@@ -326,7 +326,7 @@ class LegacyPlace(Content):
         f.write_text(json)
         return json
 
-    def pre_save(self):
+    def pre_save(self, is_created):
         if self.is_accessed:
             self.summarize()
         self.lp_type = LP_TYPE[self.contentType]
