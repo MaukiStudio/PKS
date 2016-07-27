@@ -22,10 +22,8 @@ from tag.models import ImageTags, Tag
 class ImageTest(APITestBase):
 
     def test_string_representation(self):
-        img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img.content = test_data
-        img.save()
+        img, is_created = Image.get_or_create_smart(test_data)
         self.assertEqual(unicode(img), img.content)
         self.assertEqual(img.uuid, '%s.img' % b16encode(img.id.bytes))
 
@@ -45,12 +43,9 @@ class ImageTest(APITestBase):
         self.assertEqual(saved4, img)
 
     def test_content_property(self):
-        img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img.content = test_data
-        img.save()
+        img, is_created = Image.get_or_create_smart(test_data)
         saved = Image.objects.first()
-
         url = test_data
         self.assertEqual(img.content, url)
         self.assertEqual(saved, img)
@@ -67,6 +62,14 @@ class ImageTest(APITestBase):
         img3.save()
         img3.summarize()
         self.assertEqual(img3, img2)
+
+        rf4 = RawFile()
+        rf4.file = self.uploadFile('test.jpg')
+        rf4.save()
+        img4, is_created = Image.get_or_create_smart(rf4.url)
+        self.assertNotEqual(img4.content, rf4.url)
+        self.assertEqual(img4.url_for_access, rf4.url)
+        self.assertEqual(img4.url_for_access.endswith(img4.content), True)
 
     def test_phash_hamming_dist(self):
         id_640 = Image.compute_phash(PIL_Image.open('image/samples/test.jpg'))
@@ -149,9 +152,7 @@ class ImageTest(APITestBase):
         rf.file = self.uploadFile('gps_test.jpg')
         rf.save()
 
-        img = Image()
-        img.content = rf.url
-        img.save()
+        img, is_created = Image.get_or_create_smart(rf.url)
         saved = Image.objects.first()
 
         self.assertEqual(img.lonLat, point)
@@ -166,9 +167,7 @@ class ImageTest(APITestBase):
         rf.file = self.uploadFile('gps_test.jpg')
         rf.save()
 
-        img = Image()
-        img.content = rf.url
-        img.save()
+        img, is_created = Image.get_or_create_smart(rf.url)
         saved = Image.objects.first()
 
         self.assertEqual(img.timestamp, timestamp)
@@ -186,9 +185,7 @@ class ImageTest(APITestBase):
         rf.file = self.uploadFile('no_exif_test.jpg')
         rf.save()
 
-        img = Image()
-        img.content = rf.url
-        img.save()
+        img, is_created = Image.get_or_create_smart(rf.url)
         saved = Image.objects.first()
 
         self.assertEqual(img.lonLat, None)
@@ -205,12 +202,8 @@ class ImageTest(APITestBase):
         rf2.file = self.uploadFile('test.jpg')
         rf2.save()
 
-        img = Image()
-        img.content = rf.url
-        img.save()
-        img2 = Image()
-        img2.content = rf2.url
-        img2.save()
+        img, is_created = Image.get_or_create_smart(rf.url)
+        img2, is_created = Image.get_or_create_smart(rf2.url)
 
         self.assertNotEqual(img.phash, None)
         self.assertNotEqual(img2.phash, None)
@@ -224,12 +217,8 @@ class ImageTest(APITestBase):
         rf2.file = self.uploadFile('test_480.jpg')
         rf2.save()
 
-        img = Image()
-        img.content = rf.url
-        img.save()
-        img2 = Image()
-        img2.content = rf2.url
-        img2.save()
+        img, is_created = Image.get_or_create_smart(rf.url)
+        img2, is_created = Image.get_or_create_smart(rf2.url)
 
         self.assertNotEqual(img.dhash, None)
         self.assertNotEqual(img2.dhash, None)
@@ -309,50 +298,36 @@ class ImageTest(APITestBase):
         self.assertNotEqual(timestamp, None)
 
     def test_access_methods(self):
-        img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img.content = test_data
-        img.save()
-
+        img, is_created = Image.get_or_create_smart(test_data)
         img.access()
         self.assertValidLocalFile(img.path_accessed)
         self.assertValidInternetUrl(img.url_accessed)
 
     def test_access_methods2(self):
-        img = Image()
         test_data = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg?1463275413000'
-        img.content = test_data
-        img.save()
-
+        img, is_created = Image.get_or_create_smart(test_data)
         img.access()
         self.assertValidLocalFile(img.path_accessed)
         self.assertValidInternetUrl(img.url_accessed)
 
     def test_summarize_methods(self):
-        img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img.content = test_data
-        img.save()
-
+        img, is_created = Image.get_or_create_smart(test_data)
         img.summarize()
         self.assertValidLocalFile(img.path_summarized)
         self.assertValidInternetUrl(img.url_summarized)
 
     def test_summarize_methods_2(self):
-        img = Image()
         test_data = 'http://bookmarkimgs.naver.com/img/naver_profile.png'
-        img.content = test_data
-        img.save()
-
+        img, is_created = Image.get_or_create_smart(test_data)
         img.summarize()
         self.assertValidLocalFile(img.path_summarized)
         self.assertValidInternetUrl(img.url_summarized)
 
     def test_json(self):
-        img = Image()
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
-        img.content = test_data
-        img.save()
+        img, is_created = Image.get_or_create_smart(test_data)
         img.summarize()
 
         self.assertIn('uuid', img.json)

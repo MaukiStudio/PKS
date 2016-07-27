@@ -48,7 +48,25 @@ class Image(Content):
     # CAN override
     @classmethod
     def normalize_content(cls, raw_content):
-        return url_norms(raw_content)
+        url = url_norms(raw_content)
+        if url.startswith(SERVER_HOST):
+            url = url[len(SERVER_HOST):]
+        return url
+
+    @property
+    def url_for_access(self):
+        _url = self.content.strip()
+        if _url.startswith('http'):
+            for converted in CONVERTED_DNS_LIST:
+                if _url.startswith(converted[0]):
+                    return _url.replace(converted[0], converted[1])
+            return _url
+        else:
+            if _url.startswith('/'):
+                return '%s%s' % (SERVER_HOST, _url)
+
+        raise NotImplementedError
+
 
     # id 값은 보존하면서 content 값을 바꾸려던 구현 시도
     # 로그성으로 남겨둠
@@ -318,7 +336,6 @@ class Image(Content):
 
     def access_force(self, timeout=3):
         headers = {'user-agent': 'Chrome'}
-        print(self.url_for_access)
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
             print('Access failed : %s' % self.url_for_access)
@@ -330,17 +347,6 @@ class Image(Content):
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
         file.write_bytes(r.content)
-
-    @property
-    def url_for_access(self):
-        _url = self.content.strip()
-        if _url.startswith('http'):
-            for converted in CONVERTED_DNS_LIST:
-                if _url.startswith(converted[0]):
-                    return _url.replace(converted[0], converted[1])
-            return _url
-
-        raise NotImplementedError
 
 
 class RawFile(models.Model):
@@ -512,9 +518,9 @@ class AzurePrediction(models.Model):
 
             {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
-        if not self.img or not self.img.content:
+        if not self.img or not self.img.url_for_access:
             return None
-        if self.img.content.startswith('http://192.'):
+        if self.img.url_for_access.startswith('http://192.'):
             return None
 
         api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa', '8c96d76d3a2341189c06d9c86c417940']
@@ -526,7 +532,7 @@ class AzurePrediction(models.Model):
             idx = randrange(0, cnt)
         headers = {'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': api_key[idx]}
         api_url = 'https://api.projectoxford.ai/vision/v1.0/analyze?visualFeatures=ImageType,Faces,Adult,Categories,Color,Tags,Description&details=Celebrities'
-        data = '{"url": "%s"}' % self.img.content
+        data = '{"url": "%s"}' % self.img.url_for_access
         try:
             r = requests_post(api_url, headers=headers, data=data, timeout=60)
         except:
