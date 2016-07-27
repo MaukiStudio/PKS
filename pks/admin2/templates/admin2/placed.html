@@ -39,9 +39,9 @@
                     <td>
                         {% for image in pb.images %}
                             {% if image.timestamp %}
-                                <a href="{{ image.content }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                                <a href="{{ image.url_for_access }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
                             {% else %}
-                                <a href="{{ image.content }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                                <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
                             {% endif %}
                         {% endfor %}
                     </td>
