@@ -21,8 +21,6 @@ class ImageViewset(ContentViewset):
         if 'content' not in request.data or not request.data['content']:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        # TODO : DB 처리가 1회에 끝나도록 튜닝 (get_from_json() --> get_or_create_smart() 로 변경하고 json 에 lonLat, timestamp 추가...)
-        #img = Image.get_from_json('{"content": "%s"}' % request.data['content'])
         img, is_created = Image.get_or_create_smart(request.data['content'])
         dirty = False
         if 'lon' in request.data and request.data['lon'] and 'lat' in request.data and request.data['lat']:
