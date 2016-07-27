@@ -9,6 +9,7 @@ from json import loads as json_loads
 from rest_framework import status
 from hashlib import md5
 from django.contrib.postgres.fields import JSONField
+from re import compile as re_compile
 
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from account.models import VD
@@ -68,7 +69,13 @@ class Image(Content):
         raise NotImplementedError
 
     def pre_save(self, is_created):
-        # TODO : 구조 단순하게 리팩토링
+        if not self.rf:
+            rf = RawFile.get_from_url(self.url_for_access)
+            if rf:
+                self.rf = rf
+                self.access_local(self.rf.file.path)
+
+        # TODO : 구조 단순하게 리팩토링. update_hash_exif 와의 연계도 고려
         try:
             if self.is_accessed and not (self.lonLat and self.timestamp and self.phash and self.dhash and self.is_summarized):
                 pil = self.content_accessed
@@ -90,10 +97,14 @@ class Image(Content):
         if is_created:
             self.start()
 
-    def update_hash(self, save=True):
+    def update_hash_exif(self, save=True):
         pil = self.content_accessed
         self.phash = self.compute_phash(pil)
         self.dhash = self.compute_dhash(pil)
+        if not self.lonLat or not self.timestamp:
+            lonLat, timestamp = self.process_exif()
+            self.lonLat = self.lonLat or lonLat
+            self.timestamp = self.timestamp or timestamp
         if save:
             self.save()
 
@@ -111,7 +122,7 @@ class Image(Content):
     def task(self, vd=None, force_hash=False, force_similar=False):
         if force_hash or not self.phash or not self.dhash:
             try:
-                self.update_hash(save=False)
+                self.update_hash_exif(save=False)
             except:
                 return False
 
@@ -323,6 +334,10 @@ class Image(Content):
         return self._cache_accessed[0]
 
     def access_force(self, timeout=3):
+        if self.rf:
+            self.access_local(self.rf.file.path)
+            return
+
         headers = {'user-agent': 'Chrome'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
@@ -343,6 +358,23 @@ class RawFile(models.Model):
     vd = models.ForeignKey(VD, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='rfs')
     mhash = models.UUIDField(blank=True, null=True, default=None, db_index=True)
     same = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='sames')
+
+    @classmethod
+    def get_from_url(cls, url):
+        if not url.startswith(SERVER_HOST):
+            return None
+        regex = re_compile('^.+/(?P<rf_id>[A-Fa-f0-9]+)\.rf_.+$')
+        searcher = regex.search(url)
+        if not searcher:
+            return None
+        rf_id = searcher.group('rf_id')
+        if not rf_id:
+            return None
+        try:
+            rf = cls.objects.get(id=rf_id)
+        except:
+            return None
+        return rf
 
     @property
     def uuid(self):
@@ -383,12 +415,8 @@ class RawFile(models.Model):
         if is_created:
             self.start()
 
-        # 이미지인 경우 바로 캐시 처리 및 Image object 생성
         if is_created and self.is_image:
             img, is_img_created = Image.get_or_create_smart(self.url)
-            img.access_local(self.file.path)
-            img.rf = self
-            img.save()
 
     @property
     def url(self):
