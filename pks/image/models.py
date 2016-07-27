@@ -523,7 +523,17 @@ class AzurePrediction(models.Model):
         if self.img.url_for_access.startswith('http://192.'):
             return None
 
-        api_key = ['d91fa94bcd484158a74d9463826b689c', 'e8312a7a2a2e4fc5b09624bfbbe861b7', '76f32cbb42c644abb8daf3aa105335aa', '8c96d76d3a2341189c06d9c86c417940']
+        api_key = ['d91fa94bcd484158a74d9463826b689c',
+                   'e8312a7a2a2e4fc5b09624bfbbe861b7',
+                   '76f32cbb42c644abb8daf3aa105335aa',
+                   '8c96d76d3a2341189c06d9c86c417940',
+                   '9d15c869c53847bf8b2efb2283af342a',
+                   'efe9e8f5e64d43a490f5310f162d8fa7',
+                   '8db18bd1adaf474ea7a2fb969e885583',
+                   '1bcda2d979ab4266ae032f0adeb579f4',
+                   '98f3ee698d3a4a2595856806ad133f33',
+                   '7da3a83c46a74c50af15a43a673e757b',
+                   'd3487f984f624d799b3c8a255877d2a5',]
         cnt = len(api_key)
         if level >= cnt:
             return None
