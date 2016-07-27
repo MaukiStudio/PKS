@@ -25,6 +25,7 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 IMG_WH_MAX_SIZE = 1280
+CONVERTED_DNS_LIST = [('maukitest.cloudapp.net', 'neapk-test01.japaneast.cloudapp.azure.com')]
 
 
 class Image(Content):
@@ -48,6 +49,33 @@ class Image(Content):
     @classmethod
     def normalize_content(cls, raw_content):
         return url_norms(raw_content)
+
+    # id 값은 보존하면서 content 값을 바꾸려던 구현 시도
+    # 로그성으로 남겨둠
+    '''
+    def save(self, *args, **kwargs):
+        # id/content 처리
+        if not self.content:
+            raise AssertionError
+        _id = self._id
+        if not self.id:
+            self.id = _id
+        else:
+            if self.id == _id:
+                pass
+            else:
+                for converted in CONVERTED_DNS_LIST:
+                    _id2 = UUID(Content.get_md5_hash(self.content.replace(converted[1], converted[0])))
+                    if self.id == _id2:
+                        break
+                else:
+                    raise NotImplementedError
+
+        # 저장
+        self.pre_save()
+        super(Content, self).save(*args, **kwargs)
+        self.post_save()
+    '''
 
     def pre_save(self):
         # TODO : 구조 단순하게 리팩토링

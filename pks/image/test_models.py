@@ -8,7 +8,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from re import compile as re_compile
 
 from base.tests import APITestBase
-from image.models import Image, RawFile, AzurePrediction
+from image.models import Image, RawFile, AzurePrediction, CONVERTED_DNS_LIST
 from PIL import Image as PIL_Image
 from base.legacy import exif_lib
 from account.models import VD
@@ -257,6 +257,45 @@ class ImageTest(APITestBase):
         img.save()
         self.assertEqual(img.timestamp, timestamp)
         self.assertEqual(img.lonLat, lonLat)
+
+    # id 값은 보존하면서 content 값을 바꾸려던 구현 시도
+    # 로그성으로 남겨둠
+    '''
+    def test_save2(self):
+        old_url = 'http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155ED9687CD0000000000D4F4A6.rf_image.jpg'
+        img, is_created = Image.get_or_create_smart(old_url)
+        self.assertEqual(is_created, True)
+        self.assertEqual(Image.objects.count(), 1)
+        saved_id = Image.objects.first().id
+        self.assertEqual(img.id, saved_id)
+
+        img.content = old_url
+        img.save()
+        self.assertEqual(Image.objects.count(), 1)
+        self.assertEqual(img.id, saved_id)
+
+        converted = CONVERTED_DNS_LIST[0]
+        img.content = img.content.replace(converted[0], converted[1])
+        img.save()
+        self.assertEqual(Image.objects.count(), 1)
+        self.assertEqual(img.id, saved_id)
+
+        #img2, is_created = Image.get_or_create_smart(old_url)
+        #self.assertEqual(is_created, False)
+        #self.assertEqual(img2, img)
+        img3, is_created = Image.get_or_create_smart(img.content)
+        self.assertEqual(is_created, False)
+        self.assertEqual(img3, img)
+
+        img.content = old_url
+        img.save()
+        self.assertEqual(Image.objects.count(), 1)
+        self.assertEqual(img.id, saved_id)
+
+        img.content = img.content.replace(converted[0], 'bad.domain.com')
+        with self.assertRaises(NotImplementedError):
+            img.save()
+    '''
 
     def test_transpose(self):
         rf = RawFile()
