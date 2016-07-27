@@ -3,74 +3,7 @@
 {% block header_text %}PlaceKoob Custom Admin - Placed Detail{% endblock %}
 
 {% block table %}
-    {% if placePost %}
-        <table class="table">
-            <tr>
-                <td>
-                    <a href="{{ placePost.map_url_naver }}" target="_blank">
-                        위도: {{ placePost.lonLat.y }}<br/>
-                    </a>
-                    <a href="{{ placePost.map_url_google }}" target="_blank">
-                        경도: {{ placePost.lonLat.x }}<br/>
-                    </a>
-                </td>
-                <td>
-                    도로명주소: {{ placePost.addr1 }}<br/>
-                    지번 주소 : {{ placePost.addr2 }}<br/>
-                    범위 주소 : {{ placePost.addr3 }}<br/>
-                </td>
-                <td>
-                    이름 : {{ placePost.name }}
-                </td>
-                <td>
-                    {% for url in placePost.urls %}
-                        <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                    {% endfor %}
-                </td>
-                <td>
-                    전화번호 : {{ placePost.phone }}
-                </td>
-            </tr>
-        </table>
-        <table class="table">
-            <tr>
-                <td>
-                    <a href="{{ userPost.map_url_naver }}" target="_blank">
-                        위도: {{ userPost.lonLat.y }}<br/>
-                    </a>
-                    <a href="{{ userPost.map_url_google }}" target="_blank">
-                        경도: {{ userPost.lonLat.x }}<br/>
-                    </a>
-                    <br/>
-                    도로명주소: {{ userPost.addr1 }}<br/>
-                    지번 주소 : {{ userPost.addr2 }}<br/>
-                    범위 주소 : {{ userPost.addr3 }}<br/>
-                    <br/>
-                    {% for url in userPost.urls %}
-                        <a href="{{ url.content }}" target="_blank">{{ url.content }}</a><br/>
-                    {% endfor %}
-                    <br/>
-                    {% for note in userPost.notes %}
-                        <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
-                    {% endfor %}
-                    <br/>
-                    {% for tag in userPost.tags %}
-                        {{ tag.content }},
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for image in userPost.images %}
-                        {% if image.timestamp %}
-                            <a href="{{ image.url_for_access }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
-                        {% else %}
-                            <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
-                        {% endif %}
-                    {% endfor %}
-                </td>
-            </tr>
-        </table>
-    {% endif %}
-
+    {% if not placePost %}
     <table class="table">
         <tr>
         <tr>
@@ -100,8 +33,8 @@
             </td>
         </tr>
     </table>
+    {% endif %}
 
-    {% if not placePost %}
     <table class="table">
         <tr>
             <td>
@@ -129,13 +62,53 @@
                 {% endfor %}
             </td>
             <td>
-                {% for image in userPost.images %}
-                    {% if image.timestamp %}
-                        <a href="{{ image.url_for_access }}?{{ image.timestamp }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
-                    {% else %}
-                        <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
-                    {% endif %}
-                {% endfor %}
+                <table><tr>
+                    {% for image in userPost.images %}
+                        <td>
+                            <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            timestamp : {{ image.timestamp }}<br/>
+                            {% for tagName in image.ctags.tagNames %}
+                                {{ tagName.T }} : {{ tagName.A }}<br/>
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr></table>
+            </td>
+        </tr>
+    </table>
+
+    {% if placePost %}
+    <table class="table">
+        <tr>
+        <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    LegacyPlace URL : <input type="text" id="id_url" name="url" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    PlaceName : <input type="text" id="id_placeName" name="placeName" class="form-control input-lg"/>
+                </div>
+            </td>
+            <td>
+                <div class="jumbotron">
+                    LonLat : <input type="text" id="id_lonLat" name="lonLat" class="form-control input-lg" value="{{ default_lonLat }}"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    <input type="submit" class="form-control input-lg"/>
+                </div>
             </td>
         </tr>
     </table>
