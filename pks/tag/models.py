@@ -292,6 +292,7 @@ class ImageTags(models.Model):
             return
         if self.tags is None:
             self.tags = list()
+        name = name.lower()
         tag, is_created = Tag.get_or_create_smart(name)
         tag = tag.id
 
@@ -343,3 +344,35 @@ class ImageTags(models.Model):
                 for name in names.split('_'):
                     if name:
                         self.add_tag(name, prob, TAGGER_AZURE)
+                # celebrities
+                if 'detail' in d:
+                    if 'celebrities' in d['detail']:
+                        for celebrity in d['detail']['celebrities']:
+                            prob = celebrity['confidence']
+                            name = celebrity['name']
+                            self.add_tag(name, prob, TAGGER_AZURE)
+
+        # imageType
+        if 'imageType' in ar:
+            CLIPART_TAGS = ['Non-clipart', 'ambiguous-clipart', 'normal-clipart', 'good-clipart']
+            LINEDRAWING_TAGS = ['Non-LineDrawing', 'LineDrawing']
+            clipArtType = ar['imageType']['clipArtType']
+            lineDrawingType = ar['imageType']['lineDrawingType']
+            self.add_tag(CLIPART_TAGS[clipArtType], 0.5, TAGGER_AZURE)
+            self.add_tag(LINEDRAWING_TAGS[lineDrawingType], 0.5, TAGGER_AZURE)
+
+        # faces
+        if 'faces' in ar:
+            for face in ar['faces']:
+                gender = face['gender']
+                age = face['age']
+                self.add_tag(gender, 0.5, TAGGER_AZURE)
+                self.add_tag('age_%d' % age, 0.5, TAGGER_AZURE)
+
+    def dump(self):
+        print('')
+        print('dump tags of %s' % self.img)
+        for tag_json in self.tags:
+            tag = Tag.objects.get(id=tag_json[TAG_JSON_NAME])
+            print('%s: %s=%0.4f' % (tag.content, TAGGER_AZURE, tag_json[TAGGER_AZURE]))
+        print('')

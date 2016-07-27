@@ -517,18 +517,20 @@ class AzurePredictionTest(APITestBase):
 
     def test_analyze(self):
         if WORK_ENVIRONMENT: return
-        img_url = 'http://mblogthumb1.phinf.naver.net/20160630_76/mardukas_1467275247982Cd19e_JPEG/DSC00245.JPG?type=w2'
+        img_url = 'http://pds.joins.com/news/component/starnews/201607/14/2016071408355459431_1.jpg'
         img, is_created = Image.get_or_create_smart(img_url)
         azure = AzurePrediction.objects.create(img=img)
         r = azure.predict()
+        #print(r)
         self.assertNotEqual(r, None)
         self.assertEqual(img.azure, azure)
         self.assertEqual(azure.is_success_analyze, True)
         self.assertNotEqual(azure.result_analyze, None)
 
         imgTags = ImageTags.objects.first()
+        #imgTags.dump()
         self.assertEqual(imgTags.img, img)
         self.assertEqual(img.ctags, imgTags)
         self.assertNotEqual(imgTags, None)
         self.assertNotEqual(imgTags.tags, None)
-        self.assertEqual(len(imgTags.tags), 5)
+        self.assertEqual(len(imgTags.tags), 11)
