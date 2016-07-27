@@ -38,6 +38,35 @@
     <table class="table">
         <tr>
             <td>
+                <a href="{{ placePost.map_url_naver }}" target="_blank">
+                    위도: {{ placePost.lonLat.y }}<br/>
+                </a>
+                <a href="{{ placePost.map_url_google }}" target="_blank">
+                    경도: {{ placePost.lonLat.x }}<br/>
+                </a>
+            </td>
+            <td>
+                도로명주소: {{ placePost.addr1 }}<br/>
+                지번 주소 : {{ placePost.addr2 }}<br/>
+                범위 주소 : {{ placePost.addr3 }}<br/>
+            </td>
+            <td>
+                이름 : {{ placePost.name }}
+            </td>
+            <td>
+                {% for url in placePost.urls %}
+                    <a href="{{ url.content }}" target="_blank">{{ url.cont
+ent }}</a><br/>
+                {% endfor %}
+            </td>
+            <td>
+                전화번호 : {{ placePost.phone }}
+            </td>
+        </tr>
+    </table>
+    <table class="table">
+        <tr>
+            <td>
                 <a href="{{ userPost.map_url_naver }}" target="_blank">
                     위도: {{ userPost.lonLat.y }}<br/>
                 </a>
@@ -62,22 +91,24 @@
                 {% endfor %}
             </td>
             <td>
-                <table><tr>
+                <table>
                     {% for image in userPost.images %}
-                        <td>
-                            <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
-                        </td>
-                        <td>
-                            &nbsp;
-                        </td>
-                        <td>
-                            timestamp : {{ image.timestamp }}<br/>
-                            {% for tagName in image.ctags.tagNames %}
-                                {{ tagName.T }} : {{ tagName.A }}<br/>
-                            {% endfor %}
-                        </td>
+                        <tr>
+                            <td>
+                                <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                            </td>
+                            <td>
+                                &nbsp;
+                            </td>
+                            <td>
+                                timestamp : {{ image.timestamp }}<br/>
+                                {% for tagName in image.ctags.tagNames %}
+                                    {{ tagName.T }} : {{ tagName.A }}<br/>
+                                {% endfor %}
+                            </td>
+                        </tr>
                     {% endfor %}
-                </tr></table>
+                </table>
             </td>
         </tr>
     </table>
