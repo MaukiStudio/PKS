@@ -92,10 +92,9 @@ class Image(Content):
         except:
             pass
 
-    def post_save(self, is_created):
+    def on_create(self):
         # celery task
-        if is_created:
-            self.start()
+        self.start()
 
     def update_hash_exif(self, save=True):
         pil = self.content_accessed

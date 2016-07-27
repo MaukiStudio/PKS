@@ -138,8 +138,7 @@ class Content(models.Model):
     def post_save(self, is_created):
         pass
 
-    @classmethod
-    def on_create(cls, instance):
+    def on_create(self):
         pass
 
     @property
@@ -191,7 +190,7 @@ class Content(models.Model):
             print(result.content)
             raise HashCollisionError
         if is_created:
-            cls.on_create(result)
+            result.on_create()
         return result, is_created
 
     @classmethod
