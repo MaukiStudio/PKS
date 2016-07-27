@@ -369,10 +369,17 @@ class ImageTags(models.Model):
                 self.add_tag(gender, 0.5, TAGGER_AZURE)
                 self.add_tag('age_%d' % age, 0.5, TAGGER_AZURE)
 
+    @property
+    def tagNames(self):
+        result = list()
+        for tag_json in self.tags:
+            tag = Tag.objects.get(id=tag_json[TAG_JSON_NAME])
+            result.append({TAG_JSON_NAME: tag.content, TAGGER_AZURE: tag_json[TAGGER_AZURE]})
+        return result
+
     def dump(self):
         print('')
         print('dump tags of %s' % self.img)
-        for tag_json in self.tags:
-            tag = Tag.objects.get(id=tag_json[TAG_JSON_NAME])
-            print('%s: %s=%0.4f' % (tag.content, TAGGER_AZURE, tag_json[TAGGER_AZURE]))
+        for tagName in self.tagNames:
+            print('%s: %s=%0.4f' % (tagName[TAG_JSON_NAME], TAGGER_AZURE, tagName[TAGGER_AZURE]))
         print('')

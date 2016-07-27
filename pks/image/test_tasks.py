@@ -5,8 +5,9 @@ from __future__ import print_function
 from uuid import UUID
 
 from base.tests import APITestBase
-from image.models import Image, RawFile
+from image.models import Image, RawFile, AzurePrediction
 from pks.settings import DISABLE_NO_FREE_API
+from tag.models import ImageTags
 
 
 class TaskTest(APITestBase):
@@ -30,3 +31,28 @@ class TaskTest(APITestBase):
         rf.task()
         rf = RawFile.objects.get(id=rf.id)
         self.assertEqual(rf.mhash, UUID('5abd147d-ceb8-218a-a160-1c7821db6654'))
+
+
+class AzurePredictionTest(APITestBase):
+
+    def test_analyze(self):
+        if DISABLE_NO_FREE_API: return
+        img_url = 'http://pds.joins.com/news/component/starnews/201607/14/2016071408355459431_1.jpg'
+        img, is_created = Image.get_or_create_smart(img_url)
+        azure, is_created = AzurePrediction.objects.get_or_create(img=img)
+        r = azure.predict()
+        #print(r)
+        self.assertNotEqual(r, None)
+        self.assertEqual(img.azure, azure)
+        self.assertEqual(azure.is_success_analyze, True)
+        self.assertNotEqual(azure.result_analyze, None)
+
+        imgTags = ImageTags.objects.first()
+        #imgTags.dump()
+        self.assertEqual(imgTags.img, img)
+        self.assertEqual(img.ctags, imgTags)
+        self.assertNotEqual(imgTags, None)
+        self.assertNotEqual(imgTags.tags, None)
+        self.assertEqual(len(imgTags.tags), 11)
+
+        #self.fail()
