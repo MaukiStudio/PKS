@@ -181,6 +181,7 @@ class FunctionalTestAfterLoginBase(FunctionalTestBase):
             response = self.client.get('/vds/confirm/', dict(email_confirm_token=token))
             self.assertEqual(response.status_code, status.HTTP_302_FOUND)
             self.assertEqual(response.url, '/ui/confirm_ok/')
+            self.vd = VD.objects.get(id=vd_id)
 
 
 def isSubsetOf(self, other):
