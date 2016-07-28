@@ -265,7 +265,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 9)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
@@ -289,7 +288,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 9)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
@@ -303,7 +301,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 9)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
