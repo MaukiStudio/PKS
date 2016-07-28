@@ -297,6 +297,7 @@ class UserPlace(models.Model):
     @property
     def userPost(self):
         if not self._cache_pb:
+            # base_post 는 parent/chlid 구조를 위한 것 : parent has child (import 와는 무관)
             base_post = self.parent and self.parent.userPost or PostBase()
             base_post.reset_except_region_property()
             vd_ids = None
