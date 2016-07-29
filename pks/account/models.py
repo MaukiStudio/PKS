@@ -65,7 +65,7 @@ class VD(models.Model):
     lastLonLat = models.PointField(blank=True, null=True, default=None, geography=True)
     data = JSONField(blank=True, null=True, default=None, db_index=False)
 
-    deviceName = models.CharField(max_length=36, blank=True, null=True, default=None)
+    deviceName = models.CharField(max_length=254, blank=True, null=True, default=None)
     deviceTypeName = models.CharField(max_length=36, blank=True, null=True, default=None)
 
     country = models.CharField(max_length=2, blank=True, null=True, default=None)
