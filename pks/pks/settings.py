@@ -65,7 +65,11 @@ AUTH_USER_MODEL = 'account.User'
 
 class DisableCSRF(object):
     def process_request(self, request):
-            setattr(request, '_dont_enforce_csrf_checks', True)
+        path_info = request.path_info
+        if path_info.startswith('/ui') or path_info.startswith('/admin'):
+            print('CSRF ON')
+            return
+        setattr(request, '_dont_enforce_csrf_checks', True)
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
