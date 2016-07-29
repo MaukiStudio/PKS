@@ -15,7 +15,10 @@ def confirm_fail(request):
     return render(request, 'ui/confirm_fail.html')
 
 
-def browser_login(request):
+def vd_login_for_browser(request):
+    # 브라우저 로그인은 VD 로그인만 한다
+    # API 호출은 User 로그인까지 되어야 가능하도록 해서 권한 관리를 확실히 분리
+    # 그리고 브라우저 로그인에서는 token 발급 및 저장은 없도록 해서 보안 관리를 한다
     vd_id = VD_SESSION_KEY in request.session and request.session[VD_SESSION_KEY] or None
     vd = None
     if vd_id:
@@ -29,9 +32,10 @@ def browser_login(request):
         vd = VD.objects.create(deviceTypeName='BROWSER', deviceName=user_agent, language=language)
         vd_id = vd.id
         request.session[VD_SESSION_KEY] = vd_id
+    return vd
 
 
 def ui_list(request):
-    browser_login(request)
+    vd = vd_login_for_browser(request)
     return render(request, 'ui/list.html')
 
