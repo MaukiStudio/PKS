@@ -56,11 +56,19 @@ class PlacedDetailTest1(AdminTestCase):
 
     def test_placed_by_lp_url(self):
         self.assertEqual(self.uplace.place, None)
-        lp_url = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        lp_url = 'http://place.map.daum.net/15738374'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.uplace = UserPlace.objects.first()
         self.assertNotEqual(self.uplace.place, None)
+
+    def test_placed_by_naver_disabled(self):
+        self.assertEqual(self.uplace.place, None)
+        lp_url = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertEqual(self.uplace.place, None)
 
     def test_placed_by_lp_url2(self):
         if WORK_ENVIRONMENT: return
@@ -107,11 +115,19 @@ class PlacedDetailTest2(AdminTestCase):
 
     def test_placed_by_lp_url(self):
         self.assertEqual(self.uplace.place, None)
-        lp_url = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        lp_url = 'http://place.map.daum.net/15738374'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.uplace = UserPlace.objects.first()
         self.assertNotEqual(self.uplace.place, None)
+
+    def test_placed_by_naver_disabled(self):
+        self.assertEqual(self.uplace.place, None)
+        lp_url = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertEqual(self.uplace.place, None)
 
     def test_placed_by_lp_url2(self):
         self.assertEqual(self.uplace.place, None)

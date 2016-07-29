@@ -23,7 +23,7 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.assertEqual(type(results), list)
         self.assertEqual(len(results), 1)
 
-        lp2, is_created = models.LegacyPlace.get_or_create_smart('http://map.naver.com/local/siteview.nhn?code=21149144')
+        lp2, is_created = models.LegacyPlace.get_or_create_smart('http://place.map.daum.net/15738374')
         response = self.client.get('/lps/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
@@ -40,7 +40,7 @@ class LegacyPlaceViewsetTest(APITestBase):
         self.assertNotIn('id', result)
         self.assertEqual(result['uuid'], self.lp.uuid)
 
-        response = self.client.post('/lps/', dict(content='http://map.naver.com/local/siteview.nhn?code=21149144'))
+        response = self.client.post('/lps/', dict(content='http://place.map.daum.net/15738374'))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(models.LegacyPlace.objects.count(), 2)
         result = json_loads(response.content)

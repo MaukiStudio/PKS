@@ -22,7 +22,7 @@ class SimpleSearchScenarioTest(FunctionalTestAfterLoginBase):
                 "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
                 "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
                 "addr3": {"content": "경기도 성남시 분당구 삼평동"},
-                "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
+                "urls": [{"content": "http://place.map.daum.net/15738374"}]
             }
         '''
         response = self.client.post('/uplaces/', dict(add=json_add))

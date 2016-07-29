@@ -258,15 +258,17 @@ class UserPlaceViewSetTest(APITestBase):
 
         #point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
         #point2 = GEOSGeometry('POINT(127.107316 37.400998)', srid=4326)
-        point1 = GEOSGeometry('POINT(127.092557 37.390271)', srid=4326)
-        point2 = GEOSGeometry('POINT(127.093557 37.391271)', srid=4326)
-        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        #point1 = GEOSGeometry('POINT(127.092557 37.390271)', srid=4326)
+        #point2 = GEOSGeometry('POINT(127.093557 37.391271)', srid=4326)
+        point1 = GEOSGeometry('POINT(127.065181 37.391751)', srid=4326)
+        point2 = GEOSGeometry('POINT(127.064649 37.392072)', srid=4326)
+        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=50)))
         self.assertEqual(len(qs11), 0)
-        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs12), 0)
-        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs2), 0)
-        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=50)))
         self.assertEqual(len(qs3), 0)
         qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
         self.assertEqual(len(qs4), 0)
@@ -291,7 +293,7 @@ class UserPlaceViewSetTest(APITestBase):
         url12, is_created = Url.get_or_create_smart('http://www.naver.com/?2')
         url13, is_created = Url.get_or_create_smart('http://www.naver.com/?3')
         lp11, is_created = LegacyPlace.get_or_create_smart('4ccffc63f6378cfaace1b1d6.4square')
-        lp12, is_created = LegacyPlace.get_or_create_smart('http://map.naver.com/local/siteview.nhn?code=21149144')
+        lp12, is_created = LegacyPlace.get_or_create_smart('http://place.map.daum.net/14747791')
         lp13, is_created = LegacyPlace.get_or_create_smart('ChIJrTLr-GyuEmsRBfy61i59si0.google')
         phone1, is_created = PhoneNumber.get_or_create_smart('010-5597-9245')
 
@@ -439,19 +441,18 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertDictEqual(result_userPost, self.uplace.userPost.cjson)
         self.assertDictEqual(result_placePost, self.uplace.placePost.cjson)
 
-        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs11 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=50)))
         self.assertEqual(len(qs11), 0)
-
-        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs12 = Place.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs12), 1)
         self.assertEqual(UserPlace.objects.count(), 1)
-        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs2 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs2), 1)
-        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=100)))
+        qs3 = UserPlace.objects.filter(lonLat__distance_lte=(point2, D(m=50)))
         self.assertEqual(len(qs3), 0)
-        qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs4 = UserPlace.objects.filter(vd_id=self.vd.id).filter(lonLat__distance_lte=(point2, D(m=100)))
         self.assertEqual(len(qs4), 1)
-        qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=1000)))
+        qs5 = UserPlace.objects.filter(vd_id=0).filter(lonLat__distance_lte=(point2, D(m=50)))
         self.assertEqual(len(qs5), 0)
 
 
@@ -613,7 +614,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
 
-    def test_create_case6_complex_url(self):
+    def _skip_test_create_case6_complex_url(self):
         json_add = '''
             {
                 "urls": [{"content": "%s"}]
@@ -749,7 +750,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(self.uplace.placePost.name, None)
         self.assertNotEqual(self.uplace.placePost.lonLat, None)
 
-    def test_create_by_naver_map_url(self):
+    def _skip_test_create_by_naver_map_url(self):
         self.uplace.place = self.place
         self.uplace.save()
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
@@ -776,7 +777,7 @@ class UserPlaceViewSetTest(APITestBase):
         #self.assertDictEqual(self.uplace.userPost.json, self.uplace.placePost.json)
 
     def test_create_by_MAMMA(self):
-        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        test_data = 'http://place.map.daum.net/14747791'
         json_add = '''
             {
                 "urls": [{"content": "%s"}]
@@ -801,7 +802,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotEqual(result_placePost['lps'][0], None)
 
     def test_create_by_MAMMA2(self):
-        test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
+        test_data = 'http://place.map.daum.net/14747791'
         json_add = '''
             {
                 "urls": [{"content": "%s"}]
@@ -915,12 +916,15 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
 
     def test_image_by_url(self):
+        # naver disabled
+        '''
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']
         self.assertIn(result, [
             unquote_plus('https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default'),
             'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg',
         ])
+        '''
 
         response = self.client.post('/uplaces/', dict(add='{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}'))
         result = json_loads(response.content)['userPost']['images'][0]['content']

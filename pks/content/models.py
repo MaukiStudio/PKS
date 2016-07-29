@@ -34,14 +34,14 @@ LP_REGEXS = (
 LP_REGEXS_URL = (
     # 'http://map.naver.com/local/siteview.nhn?code=21149144'
     # 'http://m.map.naver.com/siteview.nhn?code=31176899'
-    (re_compile(r'^https?://.*map\.naver\.com/.*\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+    #(re_compile(r'^https?://.*map\.naver\.com/.*\?code=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
     # 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=31130096&pinType=site&lat=37.3916387&lng=127.0584149&title=능이향기&dlevel=11'
     # 'https://m.map.naver.com/viewer/map.nhn?pinType=site&pinId=21652462'
-    (re_compile(r'^https?://.*map\.naver\.com/.*\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+    #(re_compile(r'^https?://.*map\.naver\.com/.*\?.*pinId=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
     # 'http://m.store.naver.com/restaurants/detail?id=37333252'
-    (re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
+    #(re_compile(r'^https?://m\.store\.naver\.com/[A-za-z0-9_\-]+/detail\?id=(?P<PlaceId>[0-9]+)&?.*$'), 'naver'),
 
 
     # 'https://place.kakao.com/places/14720610/홍콩'
@@ -170,7 +170,8 @@ class LegacyPlace(Content):
         json = None
         if accessed:
             if self.contentType == 'naver':
-                json = self.summarize_force_naver(accessed)
+                #json = self.summarize_force_naver(accessed)
+                raise NotImplementedError
             elif self.contentType == 'kakao':
                 json = self.summarize_force_kakao(accessed)
             elif self.contentType == '4square':
@@ -187,6 +188,8 @@ class LegacyPlace(Content):
                 img.summarize()
 
     def summarize_force_naver(self, accessed):
+        # TODO : 반드시 필요하게 되면... phantomjs 를 활용하여 다시 구현
+        raise NotImplementedError
         # 파싱
         # TODO : 안전하게 파싱하여 처리. 라이브러리 알아볼 것
         pq = PyQuery(accessed)

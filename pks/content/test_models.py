@@ -65,7 +65,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000001-4ccf-fc63-f637-8cfaace1b1d6'))
 
-    def test_content_property_naver_case1(self):
+    def _skip_test_content_property_naver_case1(self):
         test_data = '21149144.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         self.assertEqual(lp.uuid.split('.')[1], 'naver')
@@ -78,7 +78,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
         self.assertEqual(saved.lp_type, 2)
 
-    def test_content_property_naver_case2(self):
+    def _skip_test_content_property_naver_case2(self):
         test_data = 'http://map.naver.com/local/siteview.nhn?code=21149144'
         normalized_test_data = '21149144.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
@@ -91,7 +91,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
 
-    def test_content_property_naver_case2(self):
+    def _skip_test_content_property_naver_case2(self):
         test_data = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=36229742&pinType=site&lat=37.4893023&lng=127.1350392&title=%EB%B0%94%EC%9D%B4%ED%82%A4%20%EB%AC%B8%EC%A0%95%EC%A0%90&dlevel=11'
         normalized_test_data = '36229742.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
@@ -204,7 +204,7 @@ class LegacyPlaceTest(APITestBase):
         lp.access_force()
         self.assertEqual(path.exists(), True)
 
-    def test_access_by_naver(self):
+    def _skip_test_access_by_naver(self):
         test_data = '21149144.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         path = Path(lp.path_accessed)
@@ -239,21 +239,21 @@ class LegacyPlaceTest(APITestBase):
         place.save()
 
         self.assertEqual(LegacyPlace.objects.count(), 0)
-        lp, is_created = LegacyPlace.get_or_create_smart('21149144.naver')
+        lp, is_created = LegacyPlace.get_or_create_smart('14720610.kakao')
         self.assertEqual(LegacyPlace.objects.count(), 1)
         self.assertEqual(lp.place, None)
-        self.assertEqual(lp.lp_type, LP_TYPE['naver'])
+        self.assertEqual(lp.lp_type, LP_TYPE['kakao'])
 
-        lp2, is_created = LegacyPlace.get_or_create_smart('21149144.naver')
+        lp2, is_created = LegacyPlace.get_or_create_smart('14720610.kakao')
         self.assertEqual(LegacyPlace.objects.count(), 1)
         self.assertEqual(lp2.place, None)
-        self.assertEqual(lp2.lp_type, LP_TYPE['naver'])
+        self.assertEqual(lp2.lp_type, LP_TYPE['kakao'])
         self.assertEqual(lp2, lp)
 
-        lp3, is_created = LegacyPlace.get_or_create_smart('21149145.naver')
+        lp3, is_created = LegacyPlace.get_or_create_smart('15738374.kakao')
         self.assertEqual(LegacyPlace.objects.count(), 2)
         self.assertEqual(lp3.place, None)
-        self.assertEqual(lp3.lp_type, LP_TYPE['naver'])
+        self.assertEqual(lp3.lp_type, LP_TYPE['kakao'])
         self.assertNotEqual(lp3, lp)
 
         lp.place = place
@@ -265,6 +265,8 @@ class LegacyPlaceTest(APITestBase):
             lp3.save()
 
     def test_get_from_url(self):
+        # naver disabled
+        '''
         url, is_created = Url.get_or_create_smart('http://map.naver.com/local/siteview.nhn?code=21149144')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '21149144.naver')
 
@@ -282,6 +284,7 @@ class LegacyPlaceTest(APITestBase):
 
         url, is_created = Url.get_or_create_smart('https://m.map.naver.com/siteview.nhn?code=11523188&ret_url=https%3A%2F%2Fm.search.naver.com%2Fsearch.naver%3Fwhere%3Dm%26query%3D%25EC%259C%2584%25EB%258B%25B4%25ED%2595%259C%25EB%25B0%25A9%25EB%25B3%2591%25EC%259B%2590%26sm%3Dmsv_nex%23m_local')
         self.assertEqual(LegacyPlace.get_from_url(url).content, '11523188.naver')
+        '''
 
 
         url, is_created = Url.get_or_create_smart('http://place.kakao.com/places/14720610')
@@ -317,14 +320,14 @@ class LegacyPlaceTest(APITestBase):
         self.assertValidInternetUrl(lp.url_accessed)
 
     def test_summarize_methods(self):
-        test_data = '37333252.naver'
+        test_data = '14720610.kakao'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
 
         lp.summarize()
         self.assertValidLocalFile(lp.path_summarized)
         self.assertValidInternetUrl(lp.url_summarized)
 
-    def test_content_summarized_by_naver(self):
+    def _skip_test_content_summarized_by_naver(self):
         test_data = '21149144.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         lp.summarize()

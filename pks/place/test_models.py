@@ -68,14 +68,14 @@ class PlaceTest(APITestBase):
 
     def test_get_or_create_smart(self):
         vd = VD.objects.create()
-        test_data = 'http://map.naver.com/local/siteview.nhn?code=36229742'
+        test_data = 'http://place.kakao.com/places/15738374'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         pb = PostBase()
         pb.lps.append(lp)
         place, is_created = Place.get_or_create_smart(pb.pb_MAMMA, vd)
         placePost = place.placePost
         self.assertDictEqual(pb.pb_MAMMA.json, placePost.json)
-        self.assertEqual(unicode(place), '바이키 문정점')
+        self.assertEqual(unicode(place), '방아깐')
 
 
 class UserPlaceTest(APITestBase):
@@ -418,8 +418,8 @@ class PostTest(APITestBase):
     def test_placed(self):
         vd = VD(); vd.save()
         pb_add = PostBase('{"urls": [{"content": "http://www.naver.com/"}]}')
-        pb_place1 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]}')
-        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+        pb_place1 = PostBase('{"urls": [{"content": "http://place.kakao.com/places/15738374"}]}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://place.kakao.com/places/26455534"}]}')
 
         uplace, is_created = UserPlace.get_or_create_smart(pb_add, vd)
         self.assertEqual(uplace.place, None)
@@ -443,11 +443,11 @@ class PostTest(APITestBase):
     def test_placed_by_name1(self):
         vd = VD(); vd.save()
         pb_add = PostBase('''{
-            "lonLat": {"lon": 127.0584149999999966, "lat": 37.3916389999999978},
+            "lonLat": {"lon": 127.135037, "lat": 37.489283},
             "urls": [{"content": "http://www.naver.com/"}]
         }''')
-        pb_name = PostBase('{"name": {"content": "능이향기"}}')
-        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+        pb_name = PostBase('{"name": {"content": "바이키 문정점"}}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://place.kakao.com/places/26455534"}]}')
 
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
@@ -462,7 +462,7 @@ class PostTest(APITestBase):
         self.assertEqual(Place.objects.count(), 1)
         self.assertEqual(PostPiece.objects.count(), 1)
         place1 = uplace.place
-        self.assertEqual(place1.placePost.phone, None)
+        self.assertEqual(place1.placePost.addr1, None)
 
         pb_place2.uplace_uuid = uplace.uuid
         uplace, is_created = UserPlace.get_or_create_smart(pb_place2.pb_MAMMA, vd)
@@ -470,7 +470,7 @@ class PostTest(APITestBase):
         place2 = uplace.place
         self.assertEqual(place1, place2)
         self.assertEqual(Place.objects.count(), 1)
-        self.assertNotEqual(place2.placePost.phone, None)
+        self.assertNotEqual(place2.placePost.addr1, None)
         self.assertEqual(PostPiece.objects.count(), 2)
 
     def test_placed_by_name2(self):
@@ -478,8 +478,8 @@ class PostTest(APITestBase):
         pb_add = PostBase('''{
             "urls": [{"content": "http://www.naver.com/"}]
         }''')
-        pb_name = PostBase('{"name": {"content": "능이향기"}}')
-        pb_place2 = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
+        pb_name = PostBase('{"name": {"content": "바이키 문정점"}}')
+        pb_place2 = PostBase('{"urls": [{"content": "http://place.kakao.com/places/26455534"}]}')
 
         self.assertEqual(Place.objects.count(), 0)
         self.assertEqual(PostPiece.objects.count(), 0)
@@ -493,7 +493,7 @@ class PostTest(APITestBase):
         self.assertNotEqual(uplace.place, None)
         place2 = uplace.place
         self.assertEqual(Place.objects.count(), 1)
-        self.assertNotEqual(place2.placePost.phone, None)
+        self.assertNotEqual(place2.placePost.addr1, None)
         self.assertEqual(PostPiece.objects.count(), 1)
 
         pb_name.uplace_uuid = uplace.uuid
@@ -503,9 +503,10 @@ class PostTest(APITestBase):
         self.assertEqual(PostPiece.objects.count(), 1)
         place1 = uplace.place
         self.assertEqual(place1, place2)
-        self.assertNotEqual(place1.placePost.phone, None)
+        self.assertNotEqual(place1.placePost.addr1, None)
 
     def test_image_by_url(self):
+        '''
         pb = PostBase('{"urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=31130096"}]}')
         pb.load_additional_info()
         print(pb.images[0].content)
@@ -513,6 +514,7 @@ class PostTest(APITestBase):
             unquote_plus('https://ssl.map.naver.com/staticmap/image?version=1.1&crs=EPSG%3A4326&caller=og_map&center=127.0584149%2C37.3916387&level=11&scale=2&w=500&h=500&markers=type%2Cdefault2%2C127.0584149%2C37.3916387&baselayer=default'),
             'http://ldb.phinf.naver.net/20150902_90/1441122604108F2r99_JPEG/SUBMIT_1353817968111_31130096.jpg',
         ])
+        '''
 
         pb = PostBase('{"urls": [{"content": "http://place.kakao.com/places/14720610"}]}')
         pb.load_additional_info()
@@ -623,7 +625,7 @@ class PostPieceTest(APITestBase):
                 "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
                 "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
                 "addr3": {"content": "경기도 성남시 분당구 삼평동"},
-                "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
+                "urls": [{"content": "http://place.kakao.com/places/15738374"}]
             }
         ''')
         pp.data = json_add
@@ -701,7 +703,7 @@ class PostBaseTest(APITestBase):
                 "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
                 "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
                 "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
-                "urls": [{"content": "http://map.naver.com/local/siteview.nhn?code=21149144"}]
+                "urls": [{"content": "http://place.kakao.com/places/15738374"}]
             }
         '''
         pb = PostBase(json_add)
