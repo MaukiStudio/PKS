@@ -12,6 +12,7 @@ from place.post import PostBase
 from geopy.geocoders import Nominatim
 from url.models import Url
 from content.models import LegacyPlace
+from base.utils import convert_wgs84_to_daumurl
 
 geolocator = Nominatim()
 
@@ -21,7 +22,9 @@ def get_map_url(lonLat):
     if lonLat:
         # for 튜닝 : 한국이 확실한 경우 geolocator 를 쓰지 않고 곧바로 처리
         if lonLat.y >= 34.0 and lonLat.y <= 39.0 and lonLat.x >= 125.0 and lonLat.x <= 130.0:
-            map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+            #map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+            daumurl = convert_wgs84_to_daumurl(lonLat)
+            map_url = 'http://map.daum.net/?x=%f&y=%f' % daumurl
         # for 튜닝 : 한국이 확실히 아닌 경우 geolocator 를 쓰지 않고 곧바로 처리
         elif lonLat.y <= 33.0 or lonLat.y > 43.0 or lonLat.x <= 124.0 or lonLat.x >= 132.0:
             map_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
@@ -30,18 +33,27 @@ def get_map_url(lonLat):
                 location = geolocator.reverse((lonLat.y, lonLat.x))
                 if location.raw and 'address' in location.raw and 'country_code' in location.raw['address']:
                     if location.raw['address']['country_code'] == 'kr':
-                        map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+                        #map_url = 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
+                        daumurl = convert_wgs84_to_daumurl(lonLat)
+                        map_url = 'http://map.daum.net/?x=%f&y=%f' % daumurl
             except:
                 print('geolocator(Nominatim) fail() : lat=%f, lon=%f' % (lonLat.y, lonLat.x))
         if not map_url:
             map_url = 'http://maps.google.com/?q=%f,%f' % (lonLat.y, lonLat.x)
-    return map_url or 'http://map.naver.com/'
+    return map_url or 'http://map.daum.net/'
 
 
 def get_map_url_naver(lonLat):
     if lonLat:
         return 'http://map.naver.com/?dlevel=13&x=%f&y=%f' % (lonLat.x, lonLat.y)
     return 'http://map.naver.com/'
+
+
+def get_map_url_daum(lonLat):
+    if lonLat:
+        daumurl = convert_wgs84_to_daumurl(lonLat)
+        return 'http://map.daum.net/?x=%f&y=%f' % daumurl
+    return 'http://map.daum.net/'
 
 
 def get_map_url_google(lonLat):
@@ -77,7 +89,7 @@ def placed(request):
             for image in pb.images:
                 image.summarize()
         #pb.map_url = get_map_url(pb.lonLat)
-        pb.map_url_naver = get_map_url_naver(pb.lonLat)
+        pb.map_url_naver = get_map_url_daum(pb.lonLat)
         pb.map_url_google = get_map_url_google(pb.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/placed.html', context)
@@ -92,7 +104,7 @@ def places(request):
         if pb and pb.points:
             for point in pb.points:
                 pb.point.map_url = get_map_url(pb.point.lonLat)
-                #pb.map_url_naver = get_map_url_naver(pb.point.lonLat)
+                #pb.map_url_naver = get_map_url_daum(pb.point.lonLat)
                 #pb.map_url_google = get_map_url_google(pb.point.lonLat)
     context = dict(pbs=pbs)
     return render(request, 'admin2/places.html', context)
@@ -193,11 +205,11 @@ def placed_detail(request, uplace_id):
     if uplace.lonLat:
         default_lonLat = 'lon=%f&lat=%f' % (uplace.lonLat.x, uplace.lonLat.y)
     #uplace.userPost.map_url = get_map_url(uplace.lonLat)
-    uplace.userPost.map_url_naver = get_map_url_naver(uplace.lonLat)
+    uplace.userPost.map_url_naver = get_map_url_daum(uplace.lonLat)
     uplace.userPost.map_url_google = get_map_url_google(uplace.lonLat)
     if uplace.placePost:
         #uplace.placePost.map_url = get_map_url(uplace.placePost.lonLat)
-        uplace.placePost.map_url_naver = get_map_url_naver(uplace.placePost.lonLat)
+        uplace.placePost.map_url_naver = get_map_url_daum(uplace.placePost.lonLat)
         uplace.placePost.map_url_google = get_map_url_google(uplace.placePost.lonLat)
     context = dict(userPost=uplace.userPost, placePost=uplace.placePost, default_lonLat=default_lonLat)
     return render(request, 'admin2/placed_detail.html', context)
