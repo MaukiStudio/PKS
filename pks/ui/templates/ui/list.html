@@ -1,0 +1,35 @@
+{% extends 'ui/base.html' %}
+
+{% block header_text %}사진을 공유하는 새로운 방법!{% endblock %}
+
+{% block table %}
+    <table class="table">
+        <tr>
+        <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    LegacyPlace URL : <input type="text" id="id_url" name="url" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    PlaceName : <input type="text" id="id_placeName" name="placeName" class="form-control input-lg"/>
+                </div>
+            </td>
+            <td>
+                <div class="jumbotron">
+                    LonLat : <input type="text" id="id_lonLat" name="lonLat" class="form-control input-lg" value="{{ default_lonLat }}"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="jumbotron">
+                    <input type="submit" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+    </table>
+{% endblock %}
