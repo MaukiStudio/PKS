@@ -204,6 +204,26 @@ class VDTest(APITestBase):
         r = send_email('gulby@naver.com', '유닛테스트', '유닛테스트임 http://www.daum.net/')
         self.assertEqual(r, True)
 
+    def test_add_access_history(self):
+        from place.models import UserPlace
+        uplace1 = UserPlace.objects.create()
+        uplace2 = UserPlace.objects.create()
+        uplace3 = UserPlace.objects.create()
+        vd = VD.objects.create()
+        self.assertEqual(vd.accessHistory, None)
+        vd.add_access_history(uplace1)
+        self.assertEqual(len(vd.accessHistory['uplaces']), 1)
+        self.assertIn(uplace1.uuid, vd.accessHistory['uplaces'])
+        vd.add_access_history([uplace1, uplace2])
+        self.assertEqual(len(vd.accessHistory['uplaces']), 2)
+        self.assertIn(uplace1.uuid, vd.accessHistory['uplaces'])
+        self.assertIn(uplace2.uuid, vd.accessHistory['uplaces'])
+        self.assertNotIn(uplace3.uuid, vd.accessHistory['uplaces'])
+        self.assertEqual(VD.objects.count(), 1)
+        saved = VD.objects.first()
+        self.assertEqual(saved, vd)
+        self.assertDictEqual(saved.accessHistory, vd.accessHistory)
+
 
 class StorageTest(FunctionalTestAfterLoginBase):
 

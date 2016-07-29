@@ -75,6 +75,9 @@ class VD(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='childs')
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
+    accessHistory = JSONField(blank=True, null=True, default=None, db_index=False)
+
+
     def __init__(self, *args, **kwargs):
         super(VD, self).__init__(*args, **kwargs)
 
@@ -195,6 +198,17 @@ class VD(models.Model):
         raw_token = '%s|%s|%s' % (self.id, self.authOwner_id, email)
         encrypter = Fernet(VD_ENC_KEY)
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
+
+    def add_access_history(self, uplaces):
+        if not self.accessHistory:
+            self.accessHistory = dict(uplaces=[])
+        if not type(uplaces) is list:
+            uplaces = [uplaces]
+        for uplace in uplaces:
+            uuid = uplace.uuid
+            if uuid not in self.accessHistory['uplaces']:
+                self.accessHistory['uplaces'].append(uplace.uuid)
+        super(VD, self).save()
 
 
 class Storage(models.Model):
