@@ -236,7 +236,7 @@ class Content(models.Model):
 
     # Methods for access
     def access_force(self, timeout=3):
-        headers = {'user-agent': 'Chrome'}
+        headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36'}
         r = requests_get(self.url_for_access, headers=headers, timeout=timeout)
         if r.status_code not in (status.HTTP_200_OK,):
             print('Access failed : %s' % self.url_for_access)

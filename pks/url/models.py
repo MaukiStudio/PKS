@@ -37,7 +37,7 @@ class Url(Content):
 
         # javascript 로 동작해서 body 를 받아야만 하는 단축 URL 처리 : 현재는 네이버 단축 URL 만 확인됨
         if URL_REGEX_NAVER_SHORTENER_URLS[0].match(url) or URL_REGEX_NAVER_SHORTENER_URLS[1].match(url):
-            headers = {'user-agent': 'Chrome'}
+            headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36'}
             r = requests_get(url, headers=headers)
             content_type = r.headers.get('content-type')
             if r.status_code in (status.HTTP_200_OK,) and content_type and content_type.startswith('text/html'):
@@ -51,7 +51,7 @@ class Url(Content):
 
         # URL redirect 처리 : 301 에 의한 URL redirect : 현재는 포스퀘어 단축 URL 만 처리
         elif URL_REGEX_4SQUARE_SHORTENER_URL.match(url):
-            headers = {'user-agent': 'Chrome'}
+            headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36'}
             r = requests_get(url, headers=headers)
             content_type = r.headers.get('content-type')
             if r.status_code in (status.HTTP_200_OK,) and content_type and content_type.startswith('text/html'):
