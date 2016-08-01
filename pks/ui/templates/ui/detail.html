@@ -1,0 +1,46 @@
+{% extends 'ui/base.html' %}
+
+{% block header_text %}View Diary{% endblock %}
+
+{% block table %}
+    {% if userPost %}
+    <table class="table">
+        {% if userPost.images %}
+        <tr>
+            <td>
+                {% for image in userPost.images %}
+                    <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endif %}
+        {% if userPost.notes %}
+        <tr>
+            <td>
+                <ul>
+                    {% for note in userPost.notes %}
+                    <li>
+                        <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endif %}
+        {% if placePost %}
+        <tr>
+            <td>
+                <ul>
+                    <li>
+                        {{ placePost.name }}
+                    </li>
+                    <li>
+                        {{ placePost.addr1 }}
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+    {% endif %}
+{% endblock %}

@@ -11,13 +11,13 @@ from base.tests import APITestBase
 
 class ListTest(APITestBase):
 
-    def test_connect(self):
+    def test_diaries_connect(self):
         self.assertEqual(User.objects.count(), 0)
         self.assertEqual(VD.objects.count(), 0)
         self.assertEqual(RealUser.objects.count(), 0)
         self.assertNotLogin()
         self.assertVdNotLogin()
-        response = self.client.get('/ui/photoboxes/')
+        response = self.client.get('/ui/diaries/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.count(), 0)
         self.assertEqual(VD.objects.count(), 1)

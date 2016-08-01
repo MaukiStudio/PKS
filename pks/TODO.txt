@@ -3,8 +3,16 @@
     [완] VD.accessHistory 구현
     [완] ui 쪽은 CSRF 켜기
     [완] 자동 회원가입/인증 체계 구현
-    [ing] list UI 구현
-    detail UI 구현
+    [ing] /ui/diaries/ UI 구현
+    [ing] /ui/diaries/detail/paste/ UI 구현
+    /ui/diaries/defail/ UI 구현
+
+[장소화]
+    Place/UserPlace.get_or_create_smart() 개편
+    전반적 로직 리팩토링
+    이미 장소화된 컨텐츠를 이용한 장소화 로직 구현
+    PlacePostPiece 생성된 후 수정이 되지 않는 문제 보완
+        pb.update, normalize 이용
 
 [보충 작업]
     [완] 이미지 업로드되면 task() 돌리기
