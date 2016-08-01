@@ -65,7 +65,7 @@ target/
 *.swp
 *.sqlite3
 0*_*.py
-/static/
+/collected_static/
 /media/
 /temp/
 settings_deploy.py
