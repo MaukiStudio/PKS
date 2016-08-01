@@ -1,4 +1,11 @@
 
+[장소 태깅 imgur]
+    [완] VD.accessHistory 구현
+    [완] ui 쪽은 CSRF 켜기
+    [완] 자동 회원가입/인증 체계 구현
+    [ing] list UI 구현
+    detail UI 구현
+
 [보충 작업]
     [완] 이미지 업로드되면 task() 돌리기
     [완] maukitest.cloudapp.net 시절 업로드되었던 이미지들의 URL 처리;;;
@@ -7,7 +14,7 @@
     [완] 태스크 호출 구조 변경 : 객체 생성시 바로 하도록...
         Image 는 정리 완료
         RawFile 도 정리 필요
-    [ing] 가져오기시 보여지는 Contents 범위 조정 : 전반적으로 체크 필요
+    [완] 가져오기시 보여지는 Contents 범위 조정 : 전반적으로 체크 필요
     동일한 사진 한번만 보이게 수정
 
 [애저 Vision API]

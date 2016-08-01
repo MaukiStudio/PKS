@@ -35,7 +35,7 @@ def vd_login_for_browser(request):
     return vd
 
 
-def ui_list(request):
+def photoboxes(request):
     vd = vd_login_for_browser(request)
-    return render(request, 'ui/list.html')
+    return render(request, 'ui/photoboxes.html')
 

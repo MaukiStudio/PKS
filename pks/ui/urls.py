@@ -8,7 +8,7 @@ from ui import views
 
 urlpatterns = [
     # 장소 태깅 서비스
-    url(r'^list/$', views.ui_list, name='list'),
+    url(r'^photoboxes/$', views.photoboxes, name='photoboxes'),
 
     # 이메일 인증
     url(r'^confirm_ok/$', views.confirm_ok, name='confirm_ok'),

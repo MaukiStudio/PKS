@@ -17,7 +17,7 @@ class ListTest(APITestBase):
         self.assertEqual(RealUser.objects.count(), 0)
         self.assertNotLogin()
         self.assertVdNotLogin()
-        response = self.client.get('/ui/list/')
+        response = self.client.get('/ui/photoboxes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.count(), 0)
         self.assertEqual(VD.objects.count(), 1)
