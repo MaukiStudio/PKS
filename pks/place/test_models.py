@@ -279,6 +279,12 @@ class UserPlaceTest(APITestBase):
         uplace.origin = point3
         self.assertEqual(uplace.distance_from_origin, '45.3km')
 
+    def test_aid(self):
+        uplace = UserPlace.objects.create()
+        aid = uplace.aid
+        id = UserPlace.aid2id(aid)
+        self.assertEqual(id, uplace.id)
+
 
 class PostTest(APITestBase):
 

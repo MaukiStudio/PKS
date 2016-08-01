@@ -83,12 +83,13 @@ def paste(request, uplace_id):
                 uplace.save()
         else:
             if uplace.place:
-                return redirect('/ui/diaries/%s/' % uplace.uuid)
+                return redirect('/ui/diaries/%s/' % uplace.aid)
 
     return render(request, 'ui/paste.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))
 
 
-def detail(request, uplace_id):
+def detail(request, enc_uplace_id):
     vd = vd_login_for_browser(request)
+    uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
     return render(request, 'ui/detail.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))

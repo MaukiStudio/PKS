@@ -14,6 +14,8 @@ from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
 from base.libs import distance_geography
+from cryptography.fernet import Fernet
+from pks.settings import VD_ENC_KEY
 
 RADIUS_LOCAL_RANGE = 150
 
@@ -482,6 +484,18 @@ class UserPlace(models.Model):
             uplace.dump()
         print('[DUMP ALL END]')
         print('')
+
+    @property
+    def aid(self):
+        encrypter = Fernet(VD_ENC_KEY)
+        result = encrypter.encrypt(b16encode(self.id.bytes).encode(encoding='utf-8'))
+        return result
+
+    @classmethod
+    def aid2id(cls, aid):
+        decrypter = Fernet(VD_ENC_KEY)
+        result = decrypter.decrypt(aid.encode(encoding='utf-8'))
+        return UUID(result)
 
 
 class PostPiece(models.Model):
