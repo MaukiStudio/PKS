@@ -48,12 +48,14 @@
       <dl>
         <dd>
           {% for note in userPost.notes %}
-            {{ note.content }}<br/>
+            {% if not note.is_only_for_tag %}
+              {{ note.content }}<br/>
+            {% endif %}
           {% endfor %}
         </dd>
       </dl>
       {% for image in userPost.images %}
-        <img class="img-thumbnail" alt="width:100%" src="{{ image.content }}" data-holder-rendered="true" style="width: 100%;">
+        <img class="img-thumbnail" alt="width:100%" src="{{ image.url_for_access }}" data-holder-rendered="true" style="width: 100%;">
       {% endfor %}
       <div class="row">
         <div class="col-xs-12">&nbsp;</div>

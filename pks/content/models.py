@@ -432,6 +432,10 @@ class PlaceNote(Content):
             instance.process_tag_realtime()
         return instance, is_created
 
+    @property
+    def is_only_for_tag(self):
+        return self.content.startswith('[NOTE_TAGS]')
+
 
 class ImageNote(Content):
     # MUST override
