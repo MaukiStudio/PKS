@@ -90,5 +90,5 @@ def paste(request, uplace_id):
 
 def detail(request, uplace_id):
     vd = vd_login_for_browser(request)
-    uplace = UserPlace.objects.get(vd=vd, id=uplace_id)
+    uplace = UserPlace.objects.get(id=uplace_id)
     return render(request, 'ui/detail.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))
