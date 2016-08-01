@@ -228,7 +228,12 @@ class UserPlaceViewSetTest(APITestBase):
 
         response2 = self.client.get('/uplaces/%s/' % self.uplace.uuid.split('.')[0])
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.content, response.content)
+        self.assertNotEqual(response2.content, response.content)
+        result2 = json_loads(response2.content)
+        self.assertNotEqual(result, result2)
+        result['ui_url'] = 'dummy'
+        result2['ui_url'] = 'dummy'
+        self.assertEqual(result, result2)
 
     def test_delete_not_placed(self):
         self.assertEqual(UserPlace.objects.count(), 1)
