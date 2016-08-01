@@ -377,6 +377,16 @@ class UserPlace(models.Model):
             self.mask = (self.mask or 0) & (~8)
 
     @property
+    def is_empty(self):
+        return (self.mask or 0) & 16 != 0
+    @is_empty.setter
+    def is_empty(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 16
+        else:
+            self.mask = (self.mask or 0) & (~16)
+
+    @property
     def origin(self):
         return self._origin
     @origin.setter

@@ -216,6 +216,28 @@ class UserPlaceTest(APITestBase):
         self.assertEqual(saved.is_hurry2placed, False)
         self.assertEqual(saved.mask, 0 | 0)
 
+        uplace.is_parent = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_parent, True)
+        self.assertEqual(saved.mask, 0 | 8)
+        uplace.is_parent = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_parent, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
+        uplace.is_empty = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_empty, True)
+        self.assertEqual(saved.mask, 0 | 16)
+        uplace.is_empty = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_empty, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
     def test_get_from_post(self):
         vd_other = VD.objects.create()
         place_other = Place.objects.create()
