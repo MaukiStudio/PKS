@@ -39,6 +39,7 @@ class UserPlaceSerializer(BaseSerializer):
     created = ReadOnlyField()
     distance_from_origin = ReadOnlyField()
     NLL = ReadOnlyField()
+    ui_url = ReadOnlyField()
 
     class Meta:
         model = UserPlace

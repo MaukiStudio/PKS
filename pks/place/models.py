@@ -497,6 +497,11 @@ class UserPlace(models.Model):
         result = decrypter.decrypt(aid.encode(encoding='utf-8'))
         return UUID(result)
 
+    @property
+    def ui_url(self):
+        from pks.settings import SERVER_HOST
+        return '%s/ui/diaries/%s/' % (SERVER_HOST, self.aid)
+
 
 class PostPiece(models.Model):
     # id
