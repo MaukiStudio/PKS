@@ -59,7 +59,7 @@ def init(request):
 
 def paste(request, uplace_id):
     vd = vd_login_for_browser(request)
-    uplace = UserPlace.objects.get(vd=vd, id=uplace_id)
+    uplace = UserPlace.objects.get(vd_id__in=vd.realOwner_vd_ids, id=uplace_id)
 
     if request.method == 'POST':
         pb = PostBase()
