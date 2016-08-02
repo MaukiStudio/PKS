@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.db.models import F
 
 from pks.settings import VD_SESSION_KEY
-from account.models import VD
+from account.models import VD, RealUser
 from place.models import UserPlace, PostBase, PostPiece, Place
 from content.models import PlaceNote, LegacyPlace
 from image.models import RawFile, Image
@@ -46,7 +46,7 @@ def diaries(request):
     uplaces = get_proper_uplaces_qs(vd).exclude(place=None)
     histories = [VD.objects.get(id=vd_id).accessUplaces for vd_id in vd.realOwner_vd_ids]
     histories_sorted = merge_sort(histories, lambda u: u.accessed)
-    return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces), history=histories_sorted))
+    return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces), history=histories_sorted, vd=vd))
 
 
 def init(request):
@@ -99,3 +99,15 @@ def detail(request, enc_uplace_id):
     uplace = UserPlace.objects.get(id=uplace_id)
     vd.add_access_history(uplace)
     return render(request, 'ui/detail.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))
+
+
+def register_email(request):
+    vd = vd_login_for_browser(request)
+    email = None
+    if request.method == 'POST':
+        email = request.POST['email']
+        if email:
+            r = vd.send_confirm_email(email)
+            if not r:
+                raise NotImplementedError
+    return render(request, 'ui/register_email.html', context=dict(email=email, ru=vd.realOwner))

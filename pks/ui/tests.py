@@ -11,7 +11,7 @@ from base.utils import merge_sort
 
 class ListTest(APITestBase):
 
-    def test_diaries_connect(self):
+    def test_diaries(self):
         self.assertEqual(User.objects.count(), 0)
         self.assertEqual(VD.objects.count(), 0)
         self.assertEqual(RealUser.objects.count(), 0)
@@ -28,9 +28,38 @@ class ListTest(APITestBase):
     def test_merge_sort(self):
         ll = []
         self.assertEqual(merge_sort(ll, lambda e: e), [])
-        ll = [['c', 'b', 'a']]
+        ll = ['cba']
         self.assertEqual(merge_sort(ll, lambda e: e), ['c', 'b', 'a'])
         ll = ['dba', 'ztd', 'rgb']
         self.assertEqual(merge_sort(ll, lambda e: e), ['z', 't', 'r', 'g', 'd', 'b', 'a'])
         ll = ['yuujdba', 'ztdccccb', 'rgbaaa']
         self.assertEqual(merge_sort(ll, lambda e: e), ['z', 'y', 'u', 't', 'r', 'j', 'g', 'd', 'c', 'b', 'a'])
+
+    def test_diaries_init(self):
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(VD.objects.count(), 0)
+        self.assertEqual(RealUser.objects.count(), 0)
+        self.assertNotLogin()
+        self.assertVdNotLogin()
+        response = self.client.get('/ui/diaries/init/')
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('/paste/', response.url)
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(VD.objects.count(), 1)
+        self.assertEqual(RealUser.objects.count(), 0)
+        self.assertNotLogin()
+        self.assertVdLogin()
+
+    def test_diaries_email(self):
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(VD.objects.count(), 0)
+        self.assertEqual(RealUser.objects.count(), 0)
+        self.assertNotLogin()
+        self.assertVdNotLogin()
+        response = self.client.get('/ui/diaries/register_email/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(VD.objects.count(), 1)
+        self.assertEqual(RealUser.objects.count(), 0)
+        self.assertNotLogin()
+        self.assertVdLogin()

@@ -55,5 +55,22 @@
                 </div>
             </td>
         </tr>
+        <tr>
+            {% if vd.realOwner %}
+            <td>
+                <div class="jumbotron">
+                    {{ vd.realOwner.email }} 에 연결되어 있습니다. 변경도 가능합니다.
+                    <h3><a href="register_email/">[이메일 변경하기]</a></h3>
+                </div>
+            </td>
+            {% else %}
+            <td>
+                <div class="jumbotron">
+                    계속 보관하고 싶다면? 다른 곳에서도 보고 싶다면? 이메일을 연결하세요~
+                    <h3><a href="register_email/">[이메일 연결하기]</a></h3>
+                </div>
+            </td>
+            {% endif %}
+        </tr>
     </table>
 {% endblock %}

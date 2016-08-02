@@ -10,6 +10,7 @@ urlpatterns = [
     # 장소 태깅 서비스
     url(r'^diaries/$', views.diaries, name='diaries'),
     url(r'^diaries/init', views.init, name='init'),
+    url(r'^diaries/register_email', views.register_email, name='register_email'),
     url(r'^diaries/(?P<uplace_id>[0-9A-Za-z]+)\.uplace/paste/$', views.paste, name='paste'),
     url(r'^diaries/(?P<enc_uplace_id>[0-9A-Za-z-_]+)/$', views.detail, name='detail'),
 

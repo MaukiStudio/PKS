@@ -86,8 +86,6 @@ def merge_sort(ll, key, reversed=True, remove_duplicates=True):
         raise NotImplementedError
     if len(ll) == 0:
         return ll
-    if len(ll) == 1:
-        return ll[0]
     result = []
     hashmap = {}
     pointer = [0]*len(ll)

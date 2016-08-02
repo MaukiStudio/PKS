@@ -86,23 +86,11 @@ class VDViewset(ModelViewSet):
             vd.authOwner.email = request.data['email']
             vd.authOwner.save()
 
-        # generate token
-        token = vd.getToken()
-
-        # send email for confirm
-        # TODO : 관련 테스트 보강
+        # send confirm email
         if vd.authOwner and vd.authOwner.email:
-            from account.task_wrappers import EmailTaskWrapper
-            from pks.settings import SERVER_HOST
-            task = EmailTaskWrapper()
-            to = vd.authOwner.email
-            title = '[PlaceKoob] 이메일 인증'
-            confirm_link = '%s/vds/confirm/?email_confirm_token=%s' % (SERVER_HOST, vd.getEmailConfirmToken(to))
-            msg = '안녕하세요. PlaceKoob 입니다.\n이메일 인증을 위해 하기 링크를 터치해 주세요.\n\n%s' % confirm_link
-            task.delay(to, title, msg)
-
+            vd.send_confirm_email(vd.authOwner.email)
         # return result
-        return Response({'auth_vd_token': token}, status=status.HTTP_201_CREATED, headers=headers)
+        return Response({'auth_vd_token': vd.getToken()}, status=status.HTTP_201_CREATED, headers=headers)
 
     @list_route(methods=['post'])
     def login(self, request):
@@ -139,16 +127,17 @@ class VDViewset(ModelViewSet):
         raw_token = decrypter.decrypt(token.encode(encoding='utf-8'))
         splits = raw_token.split('|')
         vd_id = int(splits[0])
-        user_id = int(splits[1])
-        email = splits[2]
+        email = splits[1]
 
         # check credentials and confirm email
         vd = VD.objects.get(id=vd_id)
-        if vd and vd_id and user_id and email and user_id == vd.authOwner_id:
+        if vd and vd_id and email:
+            from base.cache import cache_clear_ru
             realUser, is_created = RealUser.objects.get_or_create(email=email)
+            if vd.realOwner:
+                cache_clear_ru(vd.realOwner)
             vd.realOwner = realUser
             vd.save()
-            from base.cache import cache_clear_ru
             cache_clear_ru(realUser)
             return redirect('/ui/confirm_ok/')
         else:

@@ -195,7 +195,7 @@ class VD(models.Model):
 
     def getEmailConfirmToken(self, email):
         from pks.settings import VD_ENC_KEY
-        raw_token = '%s|%s|%s' % (self.id, self.authOwner_id, email)
+        raw_token = '%s|%s' % (self.id, email)
         encrypter = Fernet(VD_ENC_KEY)
         return encrypter.encrypt(raw_token.encode(encoding='utf-8'))
 
@@ -220,6 +220,19 @@ class VD(models.Model):
                 uplace.accessed = d['timestamp']
                 result.append(uplace)
         return result
+
+    def send_confirm_email(self, email):
+        # send email for confirm
+        # TODO : 관련 테스트 보강
+        from account.task_wrappers import EmailTaskWrapper
+        from pks.settings import SERVER_HOST
+        task = EmailTaskWrapper()
+        to = email
+        title = '[PlaceKoob] 이메일 인증'
+        confirm_link = '%s/vds/confirm/?email_confirm_token=%s' % (SERVER_HOST, self.getEmailConfirmToken(to))
+        msg = '안녕하세요. PlaceKoob 입니다.\n이메일 인증을 위해 하기 링크를 터치해 주세요.\n\n%s' % confirm_link
+        r = task.delay(to, title, msg)
+        return not r.failed()
 
 
 class Storage(models.Model):

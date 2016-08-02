@@ -5,9 +5,9 @@
     [완] 자동 회원가입/인증 체계 구현
     [ing] /ui/diaries/ UI 구현
         [완] 내꺼 목록 뿌려주기
-        [ing] 내가 조회한 목록 뿌려주기
-            [ing] detail 로 보면 VD.accessHistory 에 추가하기
-        이메일 연결
+        [완] 내가 조회한 목록 뿌려주기
+            [완] detail 로 보면 VD.accessHistory 에 추가하기
+        [ing] 이메일 연결
     [ing] /ui/diaries/detail/paste/ UI 구현
         [완] 사진 스티커 붙이기
         [완] 노트 스티커 붙이기

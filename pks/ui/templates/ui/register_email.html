@@ -1,0 +1,41 @@
+{% extends 'ui/base.html' %}
+
+{% block header_text %}Register Email{% endblock %}
+
+{% block table %}
+    <table class="table">
+        {% if email %}
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    {{ email }} 로 이메일을 발송하였습니다. 메일의 링크를 터치하면 이메일 연결이 완료됩니다. 이메일 연결 완료 후 아래 링크를 터치해 주세요.
+                    <h3><a href="../">[PhotoDiary List 로 돌아가기]</a></h3>
+                </div>
+            </td>
+        </tr>
+        {% elif ru %}
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    이미 {{ ru.email }} 에 연결되어 있습니다. 변경도 가능합니다.
+                    <h3><a href="../">[PhotoDiary List 로 돌아가기]</a></h3>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    이메일 주소 : <input type="text" id="id_email" name="email" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    <input type="submit" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+    </table>
+{% endblock %}
