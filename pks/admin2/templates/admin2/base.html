@@ -18,6 +18,7 @@
         <h1>{% block header_text %}{% endblock %}</h1>
         <br/>
         <form method="POST" action="{% block form_action %}{% endblock %}">
+            {% csrf_token %}
             {% block table %}
             {% endblock %}
         </form>
