@@ -4,8 +4,17 @@
     [완] ui 쪽은 CSRF 켜기
     [완] 자동 회원가입/인증 체계 구현
     [ing] /ui/diaries/ UI 구현
+        내꺼 목록 뿌려주기
+        내가 조회한 목록 뿌려주기
+            detail 로 보면 VD.accessHistory 에 추가하기
+        이메일 연결
     [ing] /ui/diaries/detail/paste/ UI 구현
-    /ui/diaries/defail/ UI 구현
+        [완] 사진 스티커 붙이기
+        [완] 노트 스티커 붙이기
+        [ing] 장소 스티커 붙이기
+            [X] 다음 API 연동
+    [ing] /ui/diaries/detail/ UI 구현
+        [X] 미구현 사항 구현
 
 [장소화]
     Place/UserPlace.get_or_create_smart() 개편

@@ -7,12 +7,26 @@
         <tr>
             <td>
                 <div class="jumbotron">
-                    내꺼
-                    <ul>
-                        <li>요케</li>
-                        <li>요케요케</li>
-                    </ul>
-                    <a href="init/">[새로 만들기]</a>
+                    <h2>내꺼</h2>
+                    <table>
+                        {% for uplace in uplaces %}
+                            {% if uplace.userPost.images %}
+                            <tr>
+                                <td> &nbsp; </td>
+                                <td>
+                                    {{ uplace.placePost.name }}
+                                </td>
+                                <td> &nbsp; </td>
+                                <td>
+                                    {% for image in uplace.userPost.images %}
+                                        <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                    <h3><a href="init/">[새로 만들기]</a></h3>
                 </div>
             </td>
         </tr>

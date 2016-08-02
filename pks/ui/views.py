@@ -41,7 +41,9 @@ def vd_login_for_browser(request):
 
 def diaries(request):
     vd = vd_login_for_browser(request)
-    return render(request, 'ui/diaries.html')
+    from place.libs import get_proper_uplaces_qs
+    uplaces = get_proper_uplaces_qs(vd).exclude(place=None)
+    return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces)))
 
 
 def init(request):
