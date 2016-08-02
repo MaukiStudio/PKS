@@ -206,9 +206,20 @@ class VD(models.Model):
             uplaces = [uplaces]
         for uplace in uplaces:
             uuid = uplace.uuid
-            if uuid not in self.accessHistory['uplaces']:
-                self.accessHistory['uplaces'].append(uplace.uuid)
+            timestamp = get_timestamp()
+            self.accessHistory['uplaces'].insert(0, dict(uuid=uuid, timestamp=timestamp))
         super(VD, self).save()
+
+    @property
+    def accessUplaces(self):
+        from place.models import UserPlace
+        result = []
+        if self.accessHistory and 'uplaces' in self.accessHistory:
+            for d in self.accessHistory['uplaces']:
+                uplace = UserPlace.get_from_uuid(d['uuid'])
+                uplace.accessed = d['timestamp']
+                result.append(uplace)
+        return result
 
 
 class Storage(models.Model):

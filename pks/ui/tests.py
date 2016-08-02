@@ -7,7 +7,7 @@ from rest_framework import status
 
 from account.models import User, RealUser, VD
 from base.tests import APITestBase
-
+from base.utils import merge_sort
 
 class ListTest(APITestBase):
 
@@ -24,3 +24,13 @@ class ListTest(APITestBase):
         self.assertEqual(RealUser.objects.count(), 0)
         self.assertNotLogin()
         self.assertVdLogin()
+
+    def test_merge_sort(self):
+        ll = []
+        self.assertEqual(merge_sort(ll, lambda e: e), [])
+        ll = [['c', 'b', 'a']]
+        self.assertEqual(merge_sort(ll, lambda e: e), ['c', 'b', 'a'])
+        ll = ['dba', 'ztd', 'rgb']
+        self.assertEqual(merge_sort(ll, lambda e: e), ['z', 't', 'r', 'g', 'd', 'b', 'a'])
+        ll = ['yuujdba', 'ztdccccb', 'rgbaaa']
+        self.assertEqual(merge_sort(ll, lambda e: e), ['z', 'y', 'u', 't', 'r', 'j', 'g', 'd', 'c', 'b', 'a'])

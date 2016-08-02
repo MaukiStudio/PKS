@@ -14,7 +14,7 @@
                             <tr>
                                 <td> &nbsp; </td>
                                 <td>
-                                    {{ uplace.placePost.name }}
+                                    <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
                                 </td>
                                 <td> &nbsp; </td>
                                 <td>
@@ -33,11 +33,25 @@
         <tr>
             <td>
                 <div class="jumbotron">
-                    본거
-                    <ul>
-                        <li>요케</li>
-                        <li>요케요케</li>
-                    </ul>
+                    <h2>본거</h2>
+                    <table>
+                        {% for uplace in history %}
+                            {% if uplace.userPost.images %}
+                            <tr>
+                                <td> &nbsp; </td>
+                                <td>
+                                    <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
+                                </td>
+                                <td> &nbsp; </td>
+                                <td>
+                                    {% for image in uplace.userPost.images %}
+                                        <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
                 </div>
             </td>
         </tr>

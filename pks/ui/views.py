@@ -42,8 +42,11 @@ def vd_login_for_browser(request):
 def diaries(request):
     vd = vd_login_for_browser(request)
     from place.libs import get_proper_uplaces_qs
+    from base.utils import merge_sort
     uplaces = get_proper_uplaces_qs(vd).exclude(place=None)
-    return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces)))
+    histories = [VD.objects.get(id=vd_id).accessUplaces for vd_id in vd.realOwner_vd_ids]
+    histories_sorted = merge_sort(histories, lambda u: u.accessed)
+    return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces), history=histories_sorted))
 
 
 def init(request):
@@ -94,4 +97,5 @@ def detail(request, enc_uplace_id):
     vd = vd_login_for_browser(request)
     uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
+    vd.add_access_history(uplace)
     return render(request, 'ui/detail.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))

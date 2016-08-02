@@ -79,3 +79,35 @@ def convert_wgs84_to_daumurl(point):
     daum = pyproj.Proj('+init=EPSG:5181')
     x, y = pyproj.transform(wgs84, daum, point.x, point.y)
     return (x/0.4, y/0.4)
+
+
+def merge_sort(ll, key, reversed=True, remove_duplicates=True):
+    if not reversed or not remove_duplicates:
+        raise NotImplementedError
+    if len(ll) == 0:
+        return ll
+    if len(ll) == 1:
+        return ll[0]
+    result = []
+    hashmap = {}
+    pointer = [0]*len(ll)
+    total = 0
+    for l in ll:
+        total += len(l)
+
+    for dummy in xrange(total):
+        result_i = None
+        result_value = None
+        for i in xrange(len(ll)):
+            if pointer[i] >= len(ll[i]):
+                continue
+            value = ll[i][pointer[i]]
+            if not result_value or key(value) > key(result_value):
+                result_i = i
+                result_value = value
+        if result_value not in hashmap:
+            result.append(result_value)
+        hashmap[result_value] = True
+        pointer[result_i] += 1
+
+    return result
