@@ -286,14 +286,10 @@ class UserPlaceTest(APITestBase):
         self.assertEqual(id, uplace.id)
 
     def test_shorten_url(self):
-        if DISABLE_NO_FREE_API:
-            return None
         place = Place.objects.create()
         uplace = UserPlace.objects.create(place=place)
         self.assertEqual(uplace.shorten_url, None)
         longUrl = uplace.ui_url
-        longUrl = longUrl.replace('http://192.168.1.2:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
-        longUrl = longUrl.replace('http://192.168.1.3:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
         uplace.make_shorten_url(longUrl=longUrl)
         uplace = UserPlace.objects.get(id=uplace.id)
         self.assertNotEqual(uplace.shorten_url, None)

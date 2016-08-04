@@ -508,8 +508,6 @@ class UserPlace(models.Model):
         return '%s/ui/diaries/%s/' % (SERVER_HOST, self.aid)
 
     def make_shorten_url(self, longUrl=None, idx=None):
-        if DISABLE_NO_FREE_API:
-            return None
         if not self.place:
             return None
         if self.shorten_url:
@@ -524,6 +522,9 @@ class UserPlace(models.Model):
         api_url = 'https://www.googleapis.com/urlshortener/v1/url?key=%s' % api_key[idx]
         if not longUrl:
             longUrl = self.ui_url
+        # TODO : 테스트를 위해 거시기한 구조의 구현이 되어 있음. 개선
+        longUrl = longUrl.replace('http://192.168.1.2:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
+        longUrl = longUrl.replace('http://192.168.1.3:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
         data = '{"longUrl": "%s"}' % longUrl
         try:
             r = requests_post(api_url, headers=headers, data=data, timeout=60)
