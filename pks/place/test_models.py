@@ -15,7 +15,7 @@ from url.models import Url
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from base.utils import get_timestamp, BIT_ON_8_BYTE, BIT_ON_6_BYTE
 from place.post import PostBase
-
+from pks.settings import DISABLE_NO_FREE_API
 
 class PlaceTest(APITestBase):
 
@@ -286,6 +286,8 @@ class UserPlaceTest(APITestBase):
         self.assertEqual(id, uplace.id)
 
     def test_shorten_url(self):
+        if DISABLE_NO_FREE_API:
+            return None
         place = Place.objects.create()
         uplace = UserPlace.objects.create(place=place)
         self.assertEqual(uplace.shorten_url, None)
