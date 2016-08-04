@@ -77,8 +77,12 @@ def convert_wgs84_to_daumurl(point):
     import pyproj
     wgs84 = pyproj.Proj('+init=EPSG:4326')
     daum = pyproj.Proj('+init=EPSG:5181')
-    x, y = pyproj.transform(wgs84, daum, point.x, point.y)
-    return (x/0.4, y/0.4)
+    try:
+        x, y = pyproj.transform(wgs84, daum, point.x, point.y)
+        return (x / 0.4, y / 0.4)
+    except RuntimeError:
+        pass
+    return None
 
 
 def merge_sort(ll, key, reversed=True, remove_duplicates=True):
