@@ -39,7 +39,9 @@ class UserPlaceSerializer(BaseSerializer):
     created = ReadOnlyField()
     distance_from_origin = ReadOnlyField()
     NLL = ReadOnlyField()
-    ui_url = ReadOnlyField()
+    # TODO : deprecated. 훈자 작업 후 삭제 (importer 쪽도 처리해야 에러 안남)
+    ui_url = ReadOnlyField(source='shorten_url')
+    shorten_url = ReadOnlyField()
 
     class Meta:
         model = UserPlace

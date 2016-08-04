@@ -6,7 +6,7 @@ from rest_framework import status
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 
 from place.models import Place, UserPlace, PostPiece, RADIUS_LOCAL_RANGE
 from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSerializer
@@ -219,4 +219,10 @@ class UserPlaceViewset(BaseViewset):
                             (m.placePost and m.placePost.images and m.placePost.images[0].url_summarized) or None
                 json.append(dict(lonLat=lonLat_json, count=r.count, radius=radius_json, thumbnail=thumbnail))
         return Response(json, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'])
+    def shorten_url(self, request, pk=None):
+        uplace = self.get_object()
+        result = uplace.make_shorten_url()
+        return Response({'shorten_url': result}, status=status.HTTP_200_OK)
 

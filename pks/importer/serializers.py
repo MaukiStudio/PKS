@@ -22,7 +22,7 @@ class ImportedPlaceSerializer(UserPlaceSerializer):
 
     class Meta:
         model = ImportedPlace
-        exclude = ('id', 'place', 'vd', 'mask', 'uplace_uuid', 'ui_url',)
+        exclude = ('id', 'place', 'vd', 'mask', 'uplace_uuid', 'ui_url', 'shorten_url',)
 
     def to_representation(self, instance):
         vd = self.vd
