@@ -285,6 +285,18 @@ class UserPlaceTest(APITestBase):
         id = UserPlace.aid2id(aid)
         self.assertEqual(id, uplace.id)
 
+    def test_shorten_url(self):
+        place = Place.objects.create()
+        uplace = UserPlace.objects.create(place=place)
+        self.assertEqual(uplace.shorten_url, None)
+        longUrl = uplace.ui_url
+        longUrl = longUrl.replace('http://192.168.1.2:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
+        longUrl = longUrl.replace('http://192.168.1.3:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
+        uplace.make_shorten_url(longUrl=longUrl)
+        uplace = UserPlace.objects.get(id=uplace.id)
+        self.assertNotEqual(uplace.shorten_url, None)
+        self.assertEqual(uplace.shorten_url.startswith('http://goo.gl/'), True)
+
 
 class PostTest(APITestBase):
 

@@ -7,6 +7,11 @@ from base64 import b16encode
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
+from random import randrange
+from cryptography.fernet import Fernet
+from requests import post as requests_post
+from json import loads as json_loads
+from rest_framework import status
 
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
@@ -14,8 +19,7 @@ from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
 from base.libs import distance_geography
-from cryptography.fernet import Fernet
-from pks.settings import VD_ENC_KEY
+from pks.settings import VD_ENC_KEY, DISABLE_NO_FREE_API
 
 RADIUS_LOCAL_RANGE = 150
 
@@ -173,6 +177,7 @@ class UserPlace(models.Model):
     mask = models.SmallIntegerField(blank=True, null=True, default=None)
 
     parent = models.ForeignKey('self', on_delete=models.SET_DEFAULT, null=True, default=None, related_name='childs')
+    shorten_url = models.CharField(max_length=254, blank=True, null=True, default=None)
 
     def __init__(self, *args, **kwargs):
         self._cache_pb = None
@@ -501,6 +506,40 @@ class UserPlace(models.Model):
     def ui_url(self):
         from pks.settings import SERVER_HOST
         return '%s/ui/diaries/%s/' % (SERVER_HOST, self.aid)
+
+    def make_shorten_url(self, longUrl=None, idx=None):
+        if DISABLE_NO_FREE_API:
+            return None
+        if not self.place:
+            return None
+        if self.shorten_url:
+            return self.shorten_url
+
+        api_key = ['AIzaSyCqc2GQDrA1J2l8reCYcKp9RymDumyreSg',
+                   'AIzaSyBUox6pBmiFtv0PA-KukrOHRcW4_HO2xyw',]
+        cnt = len(api_key)
+        if idx is None:
+            idx = randrange(0, cnt)
+        headers = {'content-type': 'application/json'}
+        api_url = 'https://www.googleapis.com/urlshortener/v1/url?key=%s' % api_key[idx]
+        if not longUrl:
+            longUrl = self.ui_url
+        data = '{"longUrl": "%s"}' % longUrl
+        try:
+            r = requests_post(api_url, headers=headers, data=data, timeout=60)
+        except:
+            return None
+        if not r.status_code == status.HTTP_200_OK:
+            return None
+
+        d = json_loads(r.content)
+        if not d or 'id' not in d or not d['id']:
+            return None
+
+        shorten_url = d['id']
+        self.shorten_url = shorten_url
+        self.save()
+        return shorten_url
 
 
 class PostPiece(models.Model):
