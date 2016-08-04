@@ -156,3 +156,14 @@ class RawFileViewsetTest(APITestBase):
         self.assertNotLogin()
         self.assertVdNotLogin()
         self.assertEqual(self.vd_id, None)
+
+    def test_create_with_kor_file_name(self):
+        self.assertEqual(RawFile.objects.count(), 1)
+        self.assertVdLogin()
+        self.assertNotEqual(self.vd_id, None)
+        with open('image/samples/한글.png') as f:
+            response = self.client.post('/rfs/', dict(file=f))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(RawFile.objects.count(), 2)
+        result = json_loads(response.content)
+        self.assertEqual(result['vd'], self.vd.id)

@@ -10,17 +10,17 @@ from rest_framework import status
 from hashlib import md5
 from django.contrib.postgres.fields import JSONField
 from re import compile as re_compile
-
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
+from requests import get as requests_get
+from pathlib2 import Path
+from requests import post as requests_post
+
 from account.models import VD
 from base.utils import get_timestamp, BIT_ON_8_BYTE, get_uuid_from_ts_vd
 from base.models import Content
 from base.legacy import exif_lib
 from base.legacy.urlnorm import norms as url_norms
 from pks.settings import SERVER_HOST, DISABLE_NO_FREE_API
-from requests import get as requests_get
-from pathlib2 import Path
-from requests import post as requests_post
 
 RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
@@ -404,7 +404,7 @@ class RawFile(models.Model):
             timestamp = kwargs.pop('timestamp', get_timestamp())
             _id = self._id(timestamp)
             self.id = _id
-            self.file.name = '%s_%s' % (self.uuid, self.file.name)
+            self.file.name = '%s.%s' % (self.uuid, self.ext)
             is_created = True
 
         # 저장
