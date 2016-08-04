@@ -259,7 +259,10 @@ class Content(models.Model):
             summary.parent.mkdir(parents=True)
         if file.exists():
             file.unlink()
-        file.symlink_to(source)
+        try:
+            file.symlink_to(source)
+        except OSError:
+            print('[Content.access_local()] source file does not exists: %s' % source)
 
     def access(self, timeout=3):
         if not self.id:
