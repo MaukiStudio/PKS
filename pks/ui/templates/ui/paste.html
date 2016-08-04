@@ -3,22 +3,33 @@
 {% block header_text %}Paste Stickers{% endblock %}
 
 {% block table %}
-    {% if userPost %}
+    {% if uplace.userPost %}
     <table class="table">
-        {% if userPost.images %}
         <tr>
             <td>
-                {% for image in userPost.images %}
+                <div class="jumbotron">
+                    {% if uplace.shorten_url %}
+                        공유용 단축 URL : {{ uplace.shorten_url }}
+                    {% else %}
+                        <a href="../make_shorten_url/">단축 URL 발급</a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% if uplace.userPost.images %}
+        <tr>
+            <td>
+                {% for image in uplace.userPost.images %}
                     <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}"/></a>
                 {% endfor %}
             </td>
         </tr>
         {% endif %}
-        {% if userPost.notes %}
+        {% if uplace.userPost.notes %}
         <tr>
             <td>
                 <ul>
-                    {% for note in userPost.notes %}
+                    {% for note in uplace.userPost.notes %}
                     <li>
                         <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
                     </li>
@@ -27,15 +38,15 @@
             </td>
         </tr>
         {% endif %}
-        {% if placePost %}
+        {% if uplace.placePost %}
         <tr>
             <td>
                 <ul>
                     <li>
-                        {{ placePost.name }}
+                        {{ uplace.placePost.name }}
                     </li>
                     <li>
-                        {{ placePost.addr1 }}
+                        {{ uplace.placePost.addr1 }}
                     </li>
                 </ul>
             </td>

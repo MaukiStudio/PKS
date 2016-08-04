@@ -54,7 +54,7 @@ def init(request):
     uplace = UserPlace.objects.filter(vd=vd).exclude(mask=F('mask').bitand(~16)).first()
     if not uplace:
         uplace = UserPlace.objects.create(vd=vd, is_empty=True)
-    return redirect('/ui/diaries/%s/paste/' % uplace.uuid)
+    return redirect('../%s/paste/' % uplace.uuid)
 
 
 def paste(request, uplace_id):
@@ -90,7 +90,14 @@ def paste(request, uplace_id):
             if uplace.place:
                 return redirect('/ui/diaries/%s/' % uplace.aid)
 
-    return render(request, 'ui/paste.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))
+    return render(request, 'ui/paste.html', context=dict(uplace=uplace))
+
+
+def make_shorten_url(request, uplace_id):
+    vd = vd_login_for_browser(request)
+    uplace = UserPlace.objects.get(vd_id__in=vd.realOwner_vd_ids, id=uplace_id)
+    uplace.make_shorten_url()
+    return redirect('../paste/')
 
 
 def detail(request, enc_uplace_id):
