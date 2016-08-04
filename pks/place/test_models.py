@@ -289,9 +289,7 @@ class UserPlaceTest(APITestBase):
         place = Place.objects.create()
         uplace = UserPlace.objects.create(place=place)
         self.assertEqual(uplace.shorten_url, None)
-        longUrl = uplace.ui_url
-        uplace.make_shorten_url(longUrl=longUrl)
-        uplace = UserPlace.objects.get(id=uplace.id)
+        uplace.make_shorten_url()
         self.assertNotEqual(uplace.shorten_url, None)
         self.assertEqual(uplace.shorten_url.startswith('http://goo.gl/'), True)
 

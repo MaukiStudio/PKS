@@ -508,8 +508,6 @@ class UserPlace(models.Model):
         return '%s/ui/diaries/%s/' % (SERVER_HOST, self.aid)
 
     def make_shorten_url(self, longUrl=None, idx=None):
-        if not self.place:
-            return None
         if self.shorten_url:
             return self.shorten_url
 
