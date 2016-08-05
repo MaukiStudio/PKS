@@ -52,7 +52,7 @@ def init(request):
     vd = vd_login_for_browser(request)
     uplace = UserPlace.objects.filter(vd=vd).exclude(mask=F('mask').bitand(~16)).first()
     if not uplace:
-        uplace = UserPlace.objects.create(vd=vd, is_empty=True)
+        uplace = UserPlace.objects.create(vd=vd, is_empty=True, is_post_fixed=True)
     return redirect('../%s/paste/' % uplace.uuid)
 
 

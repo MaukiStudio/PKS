@@ -43,6 +43,8 @@ class Place(models.Model):
         # placePost
         pb = PostBase()
         for pp in self.pps.all().filter(uplace=None).order_by('id'):
+            if pp.is_derived:
+                continue
             pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
         pb.place_id = self.id
@@ -54,6 +56,8 @@ class Place(models.Model):
             base_post = base_post and base_post.copy()
             pb = base_post or PostBase()
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
+                if pp.is_derived:
+                    continue
                 if pp.is_drop:
                     # TODO : 이 부분이 테스트되는 테스트 추가
                     if pp.vd in vd_ids:
@@ -279,7 +283,7 @@ class UserPlace(models.Model):
                 self.placed(place)
 
     def computePost(self, vd_ids=None, base_post=None):
-        if self.place:
+        if self.place and not self.is_post_fixed:
             self.place.computePost(vd_ids, base_post)
             self._cache_pb = self.place.userPost
         else:
@@ -383,6 +387,8 @@ class UserPlace(models.Model):
         else:
             self.mask = (self.mask or 0) & (~8)
 
+    # 비어 있는 uplace
+    # 공유용 uplace 를 만들때, 초기 상태를 표현하기 위한 속성
     @property
     def is_empty(self):
         return (self.mask or 0) & 16 != 0
@@ -392,6 +398,18 @@ class UserPlace(models.Model):
             self.mask = (self.mask or 0) | 16
         else:
             self.mask = (self.mask or 0) & (~16)
+
+    # 자신에게 연결된 pp 만으로 post 가 구성되는 uplace 의 경우 True
+    # 공유용 Customized post 를 만들기 위해 활용
+    @property
+    def is_post_fixed(self):
+        return (self.mask or 0) & 32 != 0
+    @is_post_fixed.setter
+    def is_post_fixed(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 32
+        else:
+            self.mask = (self.mask or 0) & (~32)
 
     @property
     def origin(self):
@@ -623,6 +641,18 @@ class PostPiece(models.Model):
             self.mask = (self.mask or 0) | 4
         else:
             self.mask = (self.mask or 0) & (~4)
+
+    # userPost 의 일부를 차용하여 만들어진 pp 인 경우 True
+    # UserPlace.is_post_fixed == True 인 uplace 에 의해 활용됨
+    @property
+    def is_derived(self):
+        return ((self.mask or 0) & 8) != 0
+    @is_derived.setter
+    def is_derived(self, value):
+        if value:
+            self.mask = (self.mask or 0) | 8
+        else:
+            self.mask = (self.mask or 0) & (~8)
 
     @property
     def pb(self):

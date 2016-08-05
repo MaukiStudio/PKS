@@ -238,6 +238,17 @@ class UserPlaceTest(APITestBase):
         self.assertEqual(saved.is_empty, False)
         self.assertEqual(saved.mask, 0 | 0)
 
+        uplace.is_post_fixed = True
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_post_fixed, True)
+        self.assertEqual(saved.mask, 0 | 32)
+        uplace.is_post_fixed = False
+        uplace.save()
+        saved = UserPlace.objects.first()
+        self.assertEqual(saved.is_post_fixed, False)
+        self.assertEqual(saved.mask, 0 | 0)
+
     def test_get_from_post(self):
         vd_other = VD.objects.create()
         place_other = Place.objects.create()
@@ -722,6 +733,18 @@ class PostPieceTest(APITestBase):
         self.assertEqual(saved.by_MAMMA, False)
         self.assertEqual(saved.is_drop, True)
         self.assertEqual(saved.mask, 4 | 0 | 0)
+
+        pp.mask = 0
+        pp.is_derived = True
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_derived, True)
+        self.assertEqual(saved.mask, 0 | 8)
+        pp.is_derived = False
+        pp.save()
+        saved = PostPiece.objects.first()
+        self.assertEqual(saved.is_derived, False)
+        self.assertEqual(saved.mask, 0 | 0)
 
 
 class PostBaseTest(APITestBase):
