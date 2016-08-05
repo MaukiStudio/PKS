@@ -7,6 +7,14 @@
     <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
     <title>사진을 공유하는 새로운 방법!</title>
 
+    <meta name="description" content="사진을 공유하는 새로운 방법!" />
+    <meta name="keywords" content="{% for tag in uplace.userPost.tags %}{{ tag.content }}, {% endfor %}" />
+    <meta property="og:title" content="{{ uplace.placePost.name }}" />
+    <meta property="og:image" content="{{ uplace.userPost.image }}" />
+    <meta property="og:site_name" content="Photo & Place" />
+    <meta property="og:url" content="{{ uplace.shorten_url }}" />
+    <meta property="og:description" content="사진을 공유하는 새로운 방법!" />
+
     <!-- 부트스트랩 -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -20,14 +28,11 @@
   <body>
     <div class="container-fluid">
       <div class="page-header">
-        <h3>{{ placePost.name }}</h3>
+        <h3>{{ uplace.placePost.name }}</h3>
       </div>
       <p>
-        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>{{ placePost.addr1 }}</address>
-        {% for tag in userPost.tags %}
-            <span class="label label-warning">{{ tag.content }}</span>
-        {% endfor %}
-        {% for tag in placePost.tags %}
+        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>{{ uplace.placePost.addr1 }}</address>
+        {% for tag in uplace.userPost.tags %}
             <span class="label label-warning">{{ tag.content }}</span>
         {% endfor %}
       </p>
@@ -36,7 +41,7 @@
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalBookmark">즐겨찾기</button>
         </div>
         <div class="btn-group" role="group">
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalMap" data-location-name="{{ placePost.name }}">지도</button>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalMap" data-location-name="{{ uplace.placePost.name }}">지도</button>
         </div>
         <div class="btn-group" role="group">
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalShare">공유</button>
@@ -47,14 +52,14 @@
       </div>
       <dl>
         <dd>
-          {% for note in userPost.notes %}
+          {% for note in uplace.userPost.notes %}
             {% if not note.is_only_for_tag %}
               {{ note.content }}<br/>
             {% endif %}
           {% endfor %}
         </dd>
       </dl>
-      {% for image in userPost.images %}
+      {% for image in uplace.userPost.images %}
         <img class="img-thumbnail" alt="width:100%" src="{{ image.url_for_access }}" data-holder-rendered="true" style="width: 100%;">
       {% endfor %}
       <div class="row">
@@ -109,7 +114,7 @@
         <div class="modal-content" role="document">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="modalMapLabel">{{ placePost.name }}의 위치</h4>
+            <h4 class="modal-title" id="modalMapLabel">{{ uplace.placePost.name }}의 위치</h4>
           </div>
           <div class="modal-body">
             <div id="map" style="width:100%;height:400px;"></div>
@@ -182,7 +187,7 @@
       'use strict';
 
       function initMap() {
-        var lat = {{ placePost.lonLat.y }}, lng = {{ placePost.lonLat.x }};
+        var lat = {{ uplace.placePost.lonLat.y }}, lng = {{ uplace.placePost.lonLat.x }};
         var mapOption = {
           center: {
             lat: lat,

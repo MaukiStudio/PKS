@@ -104,7 +104,7 @@ def detail(request, enc_uplace_id):
     uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
     vd.add_access_history(uplace)
-    return render(request, 'ui/detail.html', context=dict(userPost=uplace.userPost, placePost=uplace.placePost))
+    return render(request, 'ui/detail.html', context=dict(uplace=uplace))
 
 
 def register_email(request):

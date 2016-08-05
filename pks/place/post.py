@@ -132,6 +132,13 @@ class PostBase(object):
     def lonLat(self, v):
         self.point = Point(v)
 
+    @property
+    def image(self):
+        return (self.images and self.images[0]) or None
+    @image.setter
+    def image(self, v):
+        self.images.insert(0, v)
+
 
     # TODO : iplace_uuid 가 세팅된 경우 원본 소스의 최신 데이터를 가져오는 처리
     def update(self, other, add=True):
