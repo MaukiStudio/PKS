@@ -404,7 +404,8 @@ class RawFile(models.Model):
             timestamp = kwargs.pop('timestamp', get_timestamp())
             _id = self._id(timestamp)
             self.id = _id
-            self.file.name = '%s.%s' % (self.uuid, self.ext)
+            self.file.name = '%s_%s' % (self.uuid, self.file.name)
+            #self.file.name = '%s.%s' % (self.uuid, self.ext)   # 이 코드는 에러가 왕창 생성됨;;;
             is_created = True
 
         # 저장
