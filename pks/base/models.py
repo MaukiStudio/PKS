@@ -211,6 +211,11 @@ class Content(models.Model):
         return result
 
     @classmethod
+    def get_from_uuid(cls, uuid):
+        id = uuid.split('.')[0]
+        return cls.objects.get(id=id)
+
+    @classmethod
     def get_md5_hash(cls, v):
         m = md5()
         m.update(v.encode(encoding='utf-8'))
