@@ -98,6 +98,6 @@ class ImportedPlace(UserPlace):
 
     @property
     def userPost(self):
-        if self.place:
+        if self.place and not self.is_bounded:
             return self.place.userPost
         return super(ImportedPlace, self).userPost

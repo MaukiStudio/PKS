@@ -126,8 +126,8 @@ class VD(models.Model):
     @property
     def realOwner_duplicated_uplace_ids(self):
         def helper(vd_ids):
-            from place.models import UserPlace
-            base = UserPlace.objects.all().exclude(place_id=None).filter(vd_id__in=vd_ids)
+            from place.libs import get_valid_uplaces_qs
+            base = get_valid_uplaces_qs().exclude(place_id=None).filter(vd_id__in=vd_ids)
             group_by = base.values('place_id').annotate(cnt=Count(1)).filter(cnt__gte=2)
             result = list()
             before = None

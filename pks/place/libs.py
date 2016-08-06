@@ -29,13 +29,19 @@ class RegionClustering(Clustering):
         return True
 
 
-def get_proper_uplaces_qs(vd, qs=None):
+def get_valid_uplaces_qs(qs=None):
     if not qs:
         qs = UserPlace.objects.all()
-    qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
-    qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
     qs = qs.filter(mask=F('mask').bitand(~1))   # is_drop == True 인것 제외
     qs = qs.filter(mask=F('mask').bitand(~16))  # is_empty == True 인것 제외
+    qs = qs.filter(mask=F('mask').bitand(~32))  # is_bounded == True 인것 제외
+    return qs
+
+
+def get_proper_uplaces_qs(vd, qs=None):
+    qs = get_valid_uplaces_qs(qs)
+    qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
+    qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
     return qs
 
 

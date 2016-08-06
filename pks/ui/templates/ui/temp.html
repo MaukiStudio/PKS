@@ -1,0 +1,37 @@
+{% extends 'ui/base.html' %}
+
+{% block header_text %}Temporary Diary{% endblock %}
+
+{% block table %}
+    <table class="table">
+        {% for image in uplace.userPost.images %}
+        <tr>
+            <td><input type="checkbox" name="images" id="id_images" value="{{ image.uuid }}" checked/></td>
+            <td>
+                <a href="{{ image.url_for_access }}" target="_blank"><img src="{{ image.url_summarized }}" height="150px"/></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <table class="table">
+        {% for note in uplace.userPost.notes %}
+        <tr>
+            <td><input type="checkbox" name="notes" id="id_notes" value="{{ note.uuid }}" checked/></td>
+            <td>
+                <a href='http://www.google.co.kr/?gws_rd=ssl#q="{{ note.content_for_search }}"' target="_blank">{{ note.content }}</a><br/>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <table class="table">
+        <tr>
+            <td>
+                <div class="jumbotron">
+                    <input type="submit" class="form-control input-lg"/>
+                </div>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

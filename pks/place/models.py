@@ -43,7 +43,7 @@ class Place(models.Model):
         # placePost
         pb = PostBase()
         for pp in self.pps.all().filter(uplace=None).order_by('id'):
-            if pp.is_derived:
+            if pp.is_bounded:
                 continue
             pb_new = pp.pb
             pb.update(pb_new, pp.is_add)
@@ -56,7 +56,7 @@ class Place(models.Model):
             base_post = base_post and base_post.copy()
             pb = base_post or PostBase()
             for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
-                if pp.is_derived:
+                if pp.is_bounded:
                     continue
                 if pp.is_drop:
                     # TODO : 이 부분이 테스트되는 테스트 추가
@@ -283,7 +283,7 @@ class UserPlace(models.Model):
                 self.placed(place)
 
     def computePost(self, vd_ids=None, base_post=None):
-        if self.place and not self.is_post_fixed:
+        if self.place and not self.is_bounded:
             self.place.computePost(vd_ids, base_post)
             self._cache_pb = self.place.userPost
         else:
@@ -399,13 +399,13 @@ class UserPlace(models.Model):
         else:
             self.mask = (self.mask or 0) & (~16)
 
-    # 자신에게 연결된 pp 만으로 post 가 구성되는 uplace 의 경우 True
-    # 공유용 Customized post 를 만들기 위해 활용
+    # 자신에게 연결된 pp 만으로 (bounded) post 가 구성되는 uplace 의 경우 True
+    # 일시적 공유용 Customized post 를 만들기 위해 활용
     @property
-    def is_post_fixed(self):
+    def is_bounded(self):
         return (self.mask or 0) & 32 != 0
-    @is_post_fixed.setter
-    def is_post_fixed(self, value):
+    @is_bounded.setter
+    def is_bounded(self, value):
         if value:
             self.mask = (self.mask or 0) | 32
         else:
@@ -642,13 +642,12 @@ class PostPiece(models.Model):
         else:
             self.mask = (self.mask or 0) & (~4)
 
-    # userPost 의 일부를 차용하여 만들어진 pp 인 경우 True
-    # UserPlace.is_post_fixed == True 인 uplace 에 의해 활용됨
+    # UserPlace.is_bounded == True 인 uplace 에 의해 활용됨
     @property
-    def is_derived(self):
+    def is_bounded(self):
         return ((self.mask or 0) & 8) != 0
-    @is_derived.setter
-    def is_derived(self, value):
+    @is_bounded.setter
+    def is_bounded(self, value):
         if value:
             self.mask = (self.mask or 0) | 8
         else:
@@ -682,10 +681,10 @@ class PostPiece(models.Model):
                 end = img_cnt - i*MAX_IMG_CNT
                 pb_copied.images = pb.images[start:end]
                 pp = PostPiece.objects.create(uplace=uplace, pb=pb_copied, place=uplace.place, vd=uplace.vd,
-                                              is_drop=is_drop, is_remove=is_remove)
+                                              is_drop=is_drop, is_remove=is_remove, is_bounded=uplace.is_bounded)
         else:
             pp = PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd,
-                                          is_drop=is_drop, is_remove=is_remove)
+                                          is_drop=is_drop, is_remove=is_remove, is_bounded=uplace.is_bounded)
         return pp
 
     @classmethod

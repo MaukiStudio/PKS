@@ -15,6 +15,15 @@
                     {% endif %}
                 </div>
             </td>
+            <td>
+                <div class="jumbotron">
+                    {% if uplace.is_bounded %}
+                        공유용 사진/노트 선택된 임시 사본
+                    {% else %}
+                        <a href="../temp/">편집 사본을 만들어 공유 (for 사진 일부만 공유)</a>
+                    {% endif %}
+                </div>
+            </td>
         </tr>
         {% if uplace.userPost.images %}
         <tr>

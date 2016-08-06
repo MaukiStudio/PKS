@@ -42,7 +42,7 @@ def diaries(request):
     vd = vd_login_for_browser(request)
     from place.libs import get_proper_uplaces_qs
     from base.utils import merge_sort
-    uplaces = get_proper_uplaces_qs(vd).exclude(place=None)
+    uplaces = get_proper_uplaces_qs(vd).exclude(place=None).order_by('-id')
     histories = [VD.objects.get(id=vd_id).accessUplaces for vd_id in vd.realOwner_vd_ids]
     histories_sorted = merge_sort(histories, lambda u: u.accessed)
     return render(request, 'ui/diaries.html', context=dict(uplaces=list(uplaces), history=histories_sorted, vd=vd))
@@ -52,7 +52,7 @@ def init(request):
     vd = vd_login_for_browser(request)
     uplace = UserPlace.objects.filter(vd=vd).exclude(mask=F('mask').bitand(~16)).first()
     if not uplace:
-        uplace = UserPlace.objects.create(vd=vd, is_empty=True, is_post_fixed=True)
+        uplace = UserPlace.objects.create(vd=vd, is_empty=True)
     return redirect('../%s/paste/' % uplace.uuid)
 
 
@@ -117,3 +117,24 @@ def register_email(request):
             if not r:
                 raise NotImplementedError
     return render(request, 'ui/register_email.html', context=dict(email=email, ru=vd.realOwner))
+
+
+def temp(request, uplace_id):
+    vd = vd_login_for_browser(request)
+    uplace = UserPlace.objects.get(vd_id__in=vd.realOwner_vd_ids, id=uplace_id)
+
+    if request.method == 'POST':
+        pb = uplace.userPost.copy()
+        pb.images = list()
+        pb.notes = list()
+        for img_uuid in request.POST.getlist('images'):
+            img = Image.get_from_uuid(img_uuid)
+            pb.images.append(img)
+        for note_uuid in request.POST.getlist('notes'):
+            note = PlaceNote.get_from_uuid(note_uuid)
+            pb.notes.append(note)
+        uplace_temp = UserPlace.objects.create(vd=vd, is_empty=True, is_bounded=True, place=uplace.place, lonLat=uplace.lonLat)
+        pp = PostPiece.create_smart(uplace_temp, pb)
+        return redirect('../../%s/paste/' % uplace_temp.uuid)
+
+    return render(request, 'ui/temp.html', context=dict(uplace=uplace))

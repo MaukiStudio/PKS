@@ -6,54 +6,53 @@
     <table class="table">
         <tr>
             <td>
-                <div class="jumbotron">
-                    <h2>내꺼</h2>
-                    <table>
-                        {% for uplace in uplaces %}
-                            {% if uplace.userPost.images %}
-                            <tr>
-                                <td> &nbsp; </td>
-                                <td>
-                                    <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
-                                    <a href="{{ uplace.uuid }}/paste/">[수정]</a>
-                                </td>
-                                <td> &nbsp; </td>
-                                <td>
-                                    {% for image in uplace.userPost.images %}
-                                        <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </table>
-                    <h3><a href="init/">[새로 만들기]</a></h3>
-                </div>
+                <h2>내꺼</h2>
+                <table>
+                    {% for uplace in uplaces %}
+                        {% if uplace.userPost.images %}
+                        <tr>
+                            <td> &nbsp; </td>
+                            <td>
+                                <a href="{{ uplace.uuid }}/paste/">[수정]</a>
+                            </td>
+                            <td> &nbsp; </td>
+                            <td>
+                                <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
+                            </td>
+                            <td> &nbsp; </td>
+                            <td>
+                                {% for image in uplace.userPost.images %}
+                                    <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                <h3><a href="init/">[새로 만들기]</a></h3>
             </td>
         </tr>
         <tr>
             <td>
-                <div class="jumbotron">
-                    <h2>본거</h2>
-                    <table>
-                        {% for uplace in history %}
-                            {% if uplace.userPost.images %}
-                            <tr>
-                                <td> &nbsp; </td>
-                                <td>
-                                    <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
-                                </td>
-                                <td> &nbsp; </td>
-                                <td>
-                                    {% for image in uplace.userPost.images %}
-                                        <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </table>
-                </div>
+                <h2>본거</h2>
+                <table>
+                    {% for uplace in history %}
+                        {% if uplace.userPost.images %}
+                        <tr>
+                            <td> &nbsp; </td>
+                            <td>
+                                <a href="{{ uplace.aid }}/">{{ uplace.placePost.name }}</a>
+                            </td>
+                            <td> &nbsp; </td>
+                            <td>
+                                {% for image in uplace.userPost.images %}
+                                    <img class="img-thumbnail" alt="height:60px" src="{{ image.url_summarized }}" data-holder-rendered="true" style="height: 60px;">
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
             </td>
         </tr>
         <tr>
