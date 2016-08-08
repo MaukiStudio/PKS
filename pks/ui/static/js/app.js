@@ -1,6 +1,10 @@
 'use strict';
 
 angular.module('placeApp', [])
+.config(function($interpolateProvider) {
+    $interpolateProvider.startSymbol('{$');
+    $interpolateProvider.endSymbol('$}');
+})
 .controller('blogSearchCtrl', ['$scope', '$q', 'daumSearchService', function($scope, $q, daumSearchService){
   function makeKeyword() {
     var keyword = '리우올림픽';
