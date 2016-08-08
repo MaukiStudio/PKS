@@ -53,8 +53,6 @@ def get_map_url_daum(lonLat):
     if lonLat:
         daumurl = convert_wgs84_to_daumurl(lonLat)
         if daumurl is None:
-            print('')
-            print('[get_map_url_daum()] invalid lonLat : %s' % lonLat)
             return get_map_url_naver(lonLat)
         return 'http://map.daum.net/?x=%f&y=%f' % daumurl
     return 'http://map.daum.net/'
