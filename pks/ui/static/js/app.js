@@ -5,7 +5,7 @@ angular.module('placeApp', [])
     $interpolateProvider.startSymbol('{$');
     $interpolateProvider.endSymbol('$}');
 })
-.controller('blogSearchCtrl', ['$scope', '$q', function($scope, $q){
+.controller('blogSearchCtrl', ['$scope', '$q', '$http', function($scope, $q, $http){
   function makeKeyword() {
     var keyword = '리우올림픽';
     // if ($scope.post.placePost) {
