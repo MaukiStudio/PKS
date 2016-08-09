@@ -25,13 +25,13 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body>
+  <body ng-app="placeApp">
     <div class="container-fluid">
       <div class="page-header">
-        <h3>{{ uplace.placePost.name }}</h3>
+        <h3 id="place-name">{{ uplace.placePost.name }}</h3>
       </div>
       <p>
-        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>{{ uplace.placePost.addr1 }}</address>
+        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span id="place-addr">{{ uplace.placePost.addr1 }}</span></address>
         {% for tag in uplace.userPost.tags %}
             <span class="label label-warning">{{ tag.content }}</span>
         {% endfor %}
@@ -65,9 +65,13 @@
       <div class="row">
         <div class="col-xs-12">&nbsp;</div>
       </div>
-      <div class="list-group">
+      <div class="list-group" ng-controller="blogSearchCtrl">
         <a class="list-group-item active">관련 정보 - Not Implemented Yet</a>
-        <a class="list-group-item">
+        <a class="list-group-item" ng-repeat="result in searchResults"  href="{$result.link$}">
+          <h4>{$result.title$} - <small>{$result.author$}</small></h4>
+				  <p>{$result.description$}</p>
+        </a>
+        <!-- <a class="list-group-item">
           <h4>[판교맛집] 신하균 동생네 떡볶이 혜선이떡볶이 - <small>◕‿◕좋아서하는 블로그</small></h4>
 				  <p>경기도 성남시 분당구 삼평동 660 골드타워 2층 혜선이떡볶이 신하균 여동생이 한다는 그 떡볶이집에 다녀왔다 가게 안은 어마어마해 레고들 난리나 난리나 그리고 피규어들 떡볶이는... 좀 많이 칼칼하지만 내 스타일 ♥ 이런...</p>
         </a>
@@ -82,7 +86,7 @@
         <a class="list-group-item">
           <h4>[판교맛집] 신하균 동생네 떡볶이 혜선이떡볶이 - <small>◕‿◕좋아서하는 블로그</small></h4>
 				  <p>경기도 성남시 분당구 삼평동 660 골드타워 2층 혜선이떡볶이 신하균 여동생이 한다는 그 떡볶이집에 다녀왔다 가게 안은 어마어마해 레고들 난리나 난리나 그리고 피규어들 떡볶이는... 좀 많이 칼칼하지만 내 스타일 ♥ 이런...</p>
-        </a>
+        </a> -->
       </div>
       <button type="button" class="btn btn-primary btn-lg btn-block">사진 공유 하기 - Not Implemented Yet</button>
     </div>
@@ -182,6 +186,8 @@
     <script src="/static/js/jquery.min.js"></script>
     <!-- 모든 컴파일된 플러그인을 포함합니다 (아래), 원하지 않는다면 필요한 각각의 파일을 포함하세요 -->
     <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/app.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8&"></script>
     <script language="javascript">
       'use strict';
