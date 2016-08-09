@@ -141,7 +141,13 @@ class PostBase(object):
 
     @property
     def note(self):
-        return (self.notes and self.notes[0]) or None
+        result = None
+        if self.notes:
+            for note in self.notes:
+                if not note.is_only_for_tag:
+                    result = note
+                    break
+        return result
     @note.setter
     def note(self, v):
         self.notes.insert(0, v)
