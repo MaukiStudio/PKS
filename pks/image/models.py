@@ -26,7 +26,8 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 IMG_WH_MAX_SIZE = 1280
-CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', 'http://neapk-test01.japaneast.cloudapp.azure.com')]
+CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', 'http://placekoob.com'),
+                      ('http://neapk-test01.japaneast.cloudapp.azure.com', 'http://placekoob.com')]
 
 
 class Image(Content):

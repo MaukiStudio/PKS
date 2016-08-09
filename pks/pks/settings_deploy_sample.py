@@ -10,7 +10,7 @@ VD_ENC_KEY = 'TTlrdjLDsgcN63Pjd9dU8CvZ4bllcL8nkJejTAR2EAY='
 DEBUG = True
 
 # Server's Url Host
-SERVER_HOST = 'http://neapk-test01.japaneast.cloudapp.azure.com'
+SERVER_HOST = 'http://placekoob.com'
 
 # Work Environment or Not
 # If true, Unit Tests will remove all media files
