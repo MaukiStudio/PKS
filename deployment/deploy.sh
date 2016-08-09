@@ -18,6 +18,8 @@ hash -r
 sudo -H pip install --upgrade pip
 sudo -H pip install -r requirements.txt --upgrade
 sudo -u postgres psql -a -f initdb.sql
+echo "export DJANGO_SETTINGS_MODULE=pks.settings" >> ~/.bashrc
+source ~/.bashrc
 
 wget http://download.redis.io/releases/redis-3.2.1.tar.gz
 tar xzf redis-3.2.1.tar.gz
