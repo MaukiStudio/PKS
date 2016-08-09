@@ -20,5 +20,4 @@ class RawFileSerializer(ModelSerializer):
     class Meta:
         model = RawFile
         exclude = ('id', 'mhash',)
-        # TODO : 하위 호환을 위한 임시 주석 처리. 훈자 작업 완료 후 주석 해제
-        #extra_kwargs = {'file': {'write_only': True}}
+        extra_kwargs = {'file': {'write_only': True}}
