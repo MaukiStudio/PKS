@@ -28,10 +28,10 @@
   <body ng-app="placeApp">
     <div class="container-fluid">
       <div class="page-header">
-        <h3>{{ uplace.placePost.name }}</h3>
+        <h3 ng-model="placeName">{{ uplace.placePost.name }}</h3>
       </div>
       <p>
-        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>{{ uplace.placePost.addr1 }}</address>
+        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span ng-model="placeAddr">{{ uplace.placePost.addr1 }}</span></address>
         {% for tag in uplace.userPost.tags %}
             <span class="label label-warning">{{ tag.content }}</span>
         {% endfor %}
