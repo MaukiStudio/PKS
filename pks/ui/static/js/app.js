@@ -70,6 +70,6 @@ angular.module('placeApp', [])
   };
 
   getDaumResult();
-  console.log('The Name of Place : ' + $scope.placeName);
-  console.log('The Addr of Place : ' + $scope.placeAddr);
+  console.log('The Name of Place : ' + $('#place-name').innerHTML);
+  console.log('The Addr of Place : ' + $('#place-addr').innerHTML);
 }]);
