@@ -139,6 +139,17 @@ class PostBase(object):
     def image(self, v):
         self.images.insert(0, v)
 
+    @property
+    def note(self):
+        return (self.notes and self.notes[0]) or None
+    @note.setter
+    def note(self, v):
+        self.notes.insert(0, v)
+
+    @property
+    def addr(self):
+        return self.addr1 or self.addr2 or self.addr3 or None
+
 
     # TODO : iplace_uuid 가 세팅된 경우 원본 소스의 최신 데이터를 가져오는 처리
     def update(self, other, add=True):

@@ -103,8 +103,11 @@ def detail(request, enc_uplace_id):
     vd = vd_login_for_browser(request)
     uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
+    desc = uplace.userPost.note or uplace.placePost.addr
+    from pks.settings import SERVER_HOST
+    url = '%s%s' % (SERVER_HOST, request.get_full_path())
     vd.add_access_history(uplace)
-    return render(request, 'ui/detail.html', context=dict(uplace=uplace))
+    return render(request, 'ui/detail.html', context=dict(uplace=uplace, url=url, desc=desc))
 
 
 def register_email(request):
@@ -133,7 +136,7 @@ def temp(request, uplace_id):
         for note_uuid in request.POST.getlist('notes'):
             note = PlaceNote.get_from_uuid(note_uuid)
             pb.notes.append(note)
-        uplace_temp = UserPlace.objects.create(vd=vd, is_empty=True, is_bounded=True, place=uplace.place, lonLat=uplace.lonLat)
+        uplace_temp = UserPlace.objects.create(vd=vd, is_bounded=True, place=uplace.place, lonLat=uplace.lonLat)
         pp = PostPiece.create_smart(uplace_temp, pb)
         return redirect('../../%s/paste/' % uplace_temp.uuid)
 
