@@ -30,8 +30,8 @@ angular.module('placeApp', [])
     var deferred = $q.defer();
 
     $http({
-      method: 'GET',
-      url: 'https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json'
+      method: 'JSONP',
+      url: 'https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&callback=JSON_CALLBACK&q=' + keyword + '&output=json'
     })
     .then(function(response) {
       // console.dir(response.data);
