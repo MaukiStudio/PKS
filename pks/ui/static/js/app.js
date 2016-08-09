@@ -7,22 +7,22 @@ angular.module('placeApp', [])
 })
 .controller('blogSearchCtrl', ['$scope', '$q', '$http', function($scope, $q, $http){
   function makeKeyword() {
-    var keyword = '리우올림픽';
-    // if ($scope.post.placePost) {
-    //   var region = $scope.post.placePost.addr2 || $scope.post.placePost.addr1 || $scope.post.placePost.addr3 || null;
-    //   if (region) {
-    //     var region_items = region.content.split(' ');
-    //     var loopCount = region_items.length >= 4 ? 4 : region_items.length;
-    //     for (var i = 1; i < loopCount; i++) {
-    //       keyword += region_items[i] + '+';
-    //     }
-    //   }
-    //
-    //   keyword += ($scope.post.placePost.name.content || $scope.post.userPost.name.content);
-    //   console.log('Calculated keyword : ', keyword);
-    //   keyword = encodeURI(keyword);
-    //   console.log('URL encoded keyword : ', keyword);
-    // }
+    // var keyword = '리우올림픽';
+    var placeName = $('#place-name')[0].innerHTML;
+    var placeAddr = $('#place-addr')[0].innerHTML;
+
+    if (placeAddr && placeAddr !== '') {
+      var region_items = placeAddr.split(' ');
+      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+      for (var i = 1; i < loopCount; i++) {
+        keyword += region_items[i] + '+';
+      }
+
+      keyword += placeName;
+      console.log('Calculated keyword : ', keyword);
+      keyword = encodeURI(keyword);
+      console.log('URL encoded keyword : ', keyword);
+    }
     return keyword;
   };
 
@@ -70,6 +70,6 @@ angular.module('placeApp', [])
   };
 
   getDaumResult();
-  console.log('The Name of Place : ' + $('#place-name').innerHTML);
-  console.log('The Addr of Place : ' + $('#place-addr').innerHTML);
+  console.log('The Name of Place : ' + $('#place-name')[0].innerHTML);
+  console.log('The Addr of Place : ' + $('#place-addr')[0].innerHTML);
 }]);
