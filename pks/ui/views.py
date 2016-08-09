@@ -105,7 +105,9 @@ def detail(request, enc_uplace_id):
     uplace = UserPlace.objects.get(id=uplace_id)
     desc = uplace.userPost.note or uplace.placePost.addr
     from pks.settings import SERVER_HOST
-    url = '%s%s' % (SERVER_HOST, request.get_full_path())
+    url = uplace.wrapping_shorten_url
+    if not url:
+        url = '%s%s' % (SERVER_HOST, request.get_full_path())
     vd.add_access_history(uplace)
     return render(request, 'ui/detail.html', context=dict(uplace=uplace, url=url, desc=desc))
 

@@ -539,8 +539,8 @@ class UserPlace(models.Model):
         if not longUrl:
             longUrl = self.ui_url
         # TODO : 테스트를 위해 거시기한 구조의 구현이 되어 있음. 개선
-        longUrl = longUrl.replace('http://192.168.1.2:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
-        longUrl = longUrl.replace('http://192.168.1.3:8000/', 'http://neapk-test01.japaneast.cloudapp.azure.com/')
+        longUrl = longUrl.replace('http://192.168.1.2:8000/', 'http://placekoob.com/')
+        longUrl = longUrl.replace('http://192.168.1.3:8000/', 'http://placekoob.com/')
         data = '{"longUrl": "%s"}' % longUrl
         try:
             r = requests_post(api_url, headers=headers, data=data, timeout=60)
@@ -557,6 +557,13 @@ class UserPlace(models.Model):
         self.shorten_url = shorten_url
         self.save()
         return shorten_url
+
+    @property
+    def wrapping_shorten_url(self):
+        if self.shorten_url:
+            from pks.settings import SERVER_HOST
+            return '%s/g/%s' % (SERVER_HOST, self.shorten_url.split('/')[3])
+        return None
 
 
 class PostPiece(models.Model):

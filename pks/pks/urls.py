@@ -46,8 +46,14 @@ router.register(r'uptags', tag_views.UserPlaceTagViewset)
 router.register(r'ptags', tag_views.PlaceTagViewset)
 
 
+def redirect_to_google_shortener(request, key):
+    from django.shortcuts import redirect
+    return redirect('http://goo.gl/%s' % key)
+
+
 urlpatterns = [
     url(r'^', include(router.urls)),
+    url(r'^g/(?P<key>.+)', redirect_to_google_shortener, name='diaries'),
 
     url(r'^admin2/', include('admin2.urls', namespace='admin2')),
     url(r'^ui/', include('ui.urls', namespace='ui')),

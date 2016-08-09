@@ -8,8 +8,8 @@
         <tr>
             <td>
                 <div class="jumbotron">
-                    {% if uplace.shorten_url %}
-                        공유용 단축 URL : <a href="{{ uplace.shorten_url }}">{{ uplace.shorten_url }}</a>
+                    {% if uplace.wrapping_shorten_url %}
+                        공유용 단축 URL : <a href="{{ uplace.wrapping_shorten_url }}">{{ uplace.wrapping_shorten_url }}</a>
                     {% else %}
                         <a href="../make_shorten_url/">단축 URL 발급</a>
                     {% endif %}

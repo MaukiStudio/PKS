@@ -224,5 +224,5 @@ class UserPlaceViewset(BaseViewset):
     def shorten_url(self, request, pk=None):
         uplace = self.get_object()
         result = uplace.make_shorten_url()
-        return Response({'shorten_url': result}, status=status.HTTP_200_OK)
+        return Response({'shorten_url': uplace.wrapping_shorten_url}, status=status.HTTP_200_OK)
 
