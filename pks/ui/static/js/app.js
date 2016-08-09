@@ -7,7 +7,7 @@ angular.module('placeApp', [])
 })
 .controller('blogSearchCtrl', ['$scope', '$q', '$http', function($scope, $q, $http){
   function makeKeyword() {
-    // var keyword = '리우올림픽';
+    var keyword = '';
     var placeName = $('#place-name')[0].innerHTML;
     var placeAddr = $('#place-addr')[0].innerHTML;
 
