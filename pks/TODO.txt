@@ -1,8 +1,8 @@
 
 [마무리]
     URL 공유 개선
-        Not Implemented 처리
         API 제작
+        구글 장소화 backend
     Azure ML API 파악
     Post 캐싱 처리
     거의 유사한 이미지, Post 에서 한번만 보여지게 수정
