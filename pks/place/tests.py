@@ -285,7 +285,7 @@ class UserPlaceViewSetTest(APITestBase):
         imgNote1, is_created = ImageNote.get_or_create_smart('냉면 사진')
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
-        img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img3_content = 'http://mblogthumb3.phinf.naver.net/20160807_298/mardukas_14705287064440EYVC_JPEG/DSC03530.JPG?type=w800'
         img1, is_created = Image.get_or_create_smart(img1_content)
         img2, is_created = Image.get_or_create_smart(img2_content)
         img3, is_created = Image.get_or_create_smart(img3_content)
@@ -695,7 +695,7 @@ class UserPlaceViewSetTest(APITestBase):
         imgNote1_content='냉면 사진'
         img1_content = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img2_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
-        img3_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img3_content = 'http://mblogthumb3.phinf.naver.net/20160807_298/mardukas_14705287064440EYVC_JPEG/DSC03530.JPG?type=w800'
         img1, is_created = Image.get_or_create_smart(img1_content)
         img2, is_created = Image.get_or_create_smart(img2_content)
         img3, is_created = Image.get_or_create_smart(img3_content)

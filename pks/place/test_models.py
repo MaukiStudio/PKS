@@ -331,7 +331,7 @@ class PostTest(APITestBase):
         note21, is_created = PlaceNote.get_or_create_smart('여기 가게 바로 옆으로 이전')
         note22, is_created = PlaceNote.get_or_create_smart('평양냉면 맛집')
         img21_content = 'http://blogpfthumb.phinf.naver.net/20100110_16/mardukas_1263055491560_VI01Ic_JPG/DSCN1968.JPG'
-        img22_content = 'http://mblogthumb1.phinf.naver.net/20160302_36/mardukas_14569226823176xNHG_JPEG/DSC07314.JPG'
+        img22_content = 'http://mblogthumb3.phinf.naver.net/20160807_298/mardukas_14705287064440EYVC_JPEG/DSC03530.JPG?type=w800'
         img21, is_created = Image.get_or_create_smart(img21_content)
         img22, is_created = Image.get_or_create_smart(img22_content)
         imgNote2, is_created = ImageNote.get_or_create_smart('만두 사진')
