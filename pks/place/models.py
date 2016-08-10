@@ -110,19 +110,26 @@ class Place(models.Model):
         if pb.place_id:
             return cls.objects.get(id=pb.place_id), False
 
+        # uplace, lonLat 조회
+        uplace = None
+        if pb.uplace_uuid:
+            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
+        lonLat = pb.lonLat or (uplace and uplace.lonLat)
+
         # Placed by LegacyPlace
         lp = None
         if pb.lps:
             pb.normalize()
             lp = pb.lps[0]
             if lp.place:
-                return lp.place, False
-
-        # uplace, lonLat 조회
-        uplace = None
-        if pb.uplace_uuid:
-            uplace = UserPlace.get_from_uuid(pb.uplace_uuid)
-        lonLat = pb.lonLat or (uplace and uplace.lonLat)
+                place = lp.place
+                if not place.placeName or not place.lonLat:
+                    if pb.name and pb.lonLat:
+                        place.placeName = pb.name
+                        place.lonLat = pb.lonLat
+                        place.save()
+                        PostPiece.create_smart_4place(place, vd, pb)
+                return place, False
 
         # Placed by placeName/lonLat
         placeName = pb.name
@@ -529,13 +536,10 @@ class UserPlace(models.Model):
         if self.shorten_url:
             return self.shorten_url
 
-        api_key = ['AIzaSyCqc2GQDrA1J2l8reCYcKp9RymDumyreSg',
-                   'AIzaSyBUox6pBmiFtv0PA-KukrOHRcW4_HO2xyw',]
-        cnt = len(api_key)
-        if idx is None:
-            idx = randrange(0, cnt)
         headers = {'content-type': 'application/json'}
-        api_url = 'https://www.googleapis.com/urlshortener/v1/url?key=%s' % api_key[idx]
+        from base.google import get_api_key
+        api_key = get_api_key(idx)
+        api_url = 'https://www.googleapis.com/urlshortener/v1/url?key=%s' % api_key
         if not longUrl:
             longUrl = self.ui_url
         # TODO : 테스트를 위해 거시기한 구조의 구현이 되어 있음. 개선

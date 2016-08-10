@@ -5,11 +5,14 @@ from uuid import UUID
 from re import compile as re_compile
 from django.contrib.gis.db import models
 from json import loads as json_loads, dumps as json_dumps
+from rest_framework import status
+from requests import get as requests_get
 
 from base.models import Content
 from phonenumbers import parse, format_number, PhoneNumberFormat
 from pyquery import PyQuery
 from pathlib2 import Path
+from base.google import get_api_key
 
 FOURSQUARE_CLIENT_ID = 'QEA4FRXVQNHKUQYFZ3IZEU0EI0FDR0MCZL0HEZKW11HUNCTW'
 FOURSQUARE_CLIENT_SECRET = '4VU0FLFOORV13ETKHN5UNYKGBNPZBAJ3OGGKC5E2NILYA2VD'
@@ -115,17 +118,20 @@ class LegacyPlace(Content):
     @property
     def url_for_access(self):
         splits = self.content.split('.')
-        if splits[1] == 'naver':
-            return 'http://map.naver.com/local/siteview.nhn?code=%s' % splits[0]
-        elif splits[1] == 'kakao':
-            return 'http://place.kakao.com/places/%s/' % splits[0]
-        elif splits[1] == '4square':
+        type = splits[1]
+        key = splits[0]
+        if type == 'naver':
+            return 'http://map.naver.com/local/siteview.nhn?code=%s' % key
+        elif type == 'kakao':
+            return 'http://place.kakao.com/places/%s/' % key
+        elif type == '4square':
             #return 'https://foursquare.com/v/%s' % splits[0]
-            return '4square://%s' % splits[0]
-        elif splits[1] == 'mango':
-            return 'http://www.mangoplate.com/restaurants/%s' % splits[0]
+            return '4square://%s' % key
+        elif type == 'mango':
+            return 'http://www.mangoplate.com/restaurants/%s' % key
+        elif type == 'google':
+            return 'google://%s' % key
         else:
-            # TODO : 구글도 땡겨올 수 있게끔 수정
             raise NotImplementedError
 
     def access_force(self, timeout=3):
@@ -138,11 +144,14 @@ class LegacyPlace(Content):
         if url.startswith('4square'):
             from foursquare import Foursquare
             client = Foursquare(client_id=FOURSQUARE_CLIENT_ID, client_secret=FOURSQUARE_CLIENT_SECRET)
-            result = json_dumps(client.venues(url.split('//')[1]), ensure_ascii=False)
+            result = client.venues(url.split('//')[1])
+        elif url.startswith('google'):
+            result = self.access_force_google(url)
         else:
             raise NotImplementedError
 
         if result:
+            result = json_dumps(result, ensure_ascii=False)
             file = Path(self.path_accessed)
             if not file.parent.exists():
                 file.parent.mkdir(parents=True)
@@ -151,6 +160,23 @@ class LegacyPlace(Content):
                 summary.parent.mkdir(parents=True)
             file.write_text(result)
             self._cache_accessed = result.replace('\r', '')
+
+    def access_force_google(self, url, idx=None):
+        api_key = get_api_key(idx)
+        #headers = {'content-type': 'application/json'}
+        key = url.split('//')[1]
+        api_url = 'https://maps.googleapis.com/maps/api/place/details/json?key=%s&placeid=%s' % (api_key, key)
+        try:
+            r = requests_get(api_url, timeout=60)
+        except:
+            return None
+        if not r.status_code == status.HTTP_200_OK:
+            return None
+
+        d = json_loads(r.content)
+        if d['status'] != 'OK':
+            return None
+        return d
 
     @classmethod
     def get_from_url(cls, url):
@@ -178,6 +204,8 @@ class LegacyPlace(Content):
                 json = self.summarize_force_4square(accessed)
             elif self.contentType == 'mango':
                 json = self.summarize_force_mango(accessed)
+            elif self.contentType == 'google':
+                json = self.summarize_force_google(accessed)
             else:
                 raise NotImplementedError
 
@@ -324,6 +352,44 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr, img_url, self.content,)
+
+        f = Path(self.path_summarized)
+        f.write_text(json)
+        return json
+
+    def summarize_force_google(self, accessed):
+        # 파싱
+        d = json_loads(accessed)['result']
+
+        # 주요 정보
+        lon = float(d['geometry']['location']['lng'])
+        lat = float(d['geometry']['location']['lat'])
+        name = d['name']
+        phone = d.get('international_phone_number')
+        if phone:
+            phone = PhoneNumber.normalize_content(phone)
+        addr_new = d.get('formattedAddress')
+        pr = None
+        photos = d.get('photos')
+        if photos:
+            pr = photos[0]['photo_reference']
+        img_url = None
+        if pr:
+            api_key = get_api_key()
+            img_url = 'https://maps.googleapis.com/maps/api/place/photo?key=%s&maxwidth=1280&maxheight=1280&photoreference=%s' % (api_key, pr)
+            print(img_url)
+
+        # TODO : Post class 를 이용하여 리팩토링
+        json = '''
+            {
+                "lonLat": {"lon": %f, "lat": %f},
+                "name": {"content": "%s"},
+                "phone": {"content": "%s"},
+                "addr1": {"content": "%s"},
+                "images": [{"content": "%s"}],
+                "lps": [{"content": "%s"}]
+            }
+        ''' % (lon, lat, name, phone, addr_new, img_url, self.content,)
 
         f = Path(self.path_summarized)
         f.write_text(json)
