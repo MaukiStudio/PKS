@@ -11,7 +11,7 @@
     <meta name="keywords" content="{% for tag in uplace.userPost.tags %}{{ tag.content }}, {% endfor %}" />
     <meta property="og:title" content="{{ uplace.placePost.name }}" />
     <meta property="og:image" content="{{ uplace.userPost.image.url_summarized }}" />
-    <meta property="og:site_name" content="Photo.Place" />
+    <meta property="og:site_name" content="photo.place" />
     <meta property="og:url" content="{{ url }}" />
     <meta property="og:description" content="{{ desc }}" />
 
@@ -37,15 +37,15 @@
         {% endfor %}
       </p>
       <div class="btn-group btn-group-justified" role="group" aria-label="...">
-        <div class="btn-group" role="group">
+        <!--div class="btn-group" role="group">
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalBookmark">즐겨찾기</button>
-        </div>
+        </div-->
         <div class="btn-group" role="group">
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalMap" data-location-name="{{ uplace.placePost.name }}">지도</button>
         </div>
-        <div class="btn-group" role="group">
+        <!--div class="btn-group" role="group">
           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalShare">공유</button>
-        </div>
+        </div-->
       </div>
       <div class="row">
         <div class="col-xs-12">&nbsp;</div>
@@ -88,7 +88,7 @@
 				  <p>경기도 성남시 분당구 삼평동 660 골드타워 2층 혜선이떡볶이 신하균 여동생이 한다는 그 떡볶이집에 다녀왔다 가게 안은 어마어마해 레고들 난리나 난리나 그리고 피규어들 떡볶이는... 좀 많이 칼칼하지만 내 스타일 ♥ 이런...</p>
         </a> -->
       </div>
-      <button type="button" class="btn btn-primary btn-lg btn-block">사진 공유 하기 - Not Implemented Yet</button>
+      <!--button type="button" class="btn btn-primary btn-lg btn-block">사진 공유 하기 - Not Implemented Yet</button-->
     </div>
     <div class="row">
       <div class="col-xs-12">&nbsp;</div>
