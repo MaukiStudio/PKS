@@ -103,7 +103,7 @@ def detail(request, enc_uplace_id):
     vd = vd_login_for_browser(request)
     uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
-    desc = uplace.userPost.note or uplace.placePost.addr
+    desc = uplace.userPost.note or uplace.placePost.addr or '사진을 공유하는 새로운 방법!'
     from pks.settings import SERVER_HOST
     url = uplace.wrapping_shorten_url
     if not url:
