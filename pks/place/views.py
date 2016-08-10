@@ -226,3 +226,16 @@ class UserPlaceViewset(BaseViewset):
         result = uplace.make_shorten_url()
         return Response({'shorten_url': uplace.wrapping_shorten_url}, status=status.HTTP_200_OK)
 
+    # TODO : 관련 테스트 추가
+    @detail_route(methods=['post'])
+    def create_bounded(self, request, pk=None):
+        # vd 조회
+        vd = self.vd
+        if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        uplace = self.get_object()
+        pb = PostBase(request.data['add'])
+        uplace_temp = UserPlace.objects.create(vd=vd, is_bounded=True, place=uplace.place, lonLat=uplace.lonLat)
+        pp = PostPiece.create_smart(uplace_temp, pb)
+        serializer = self.get_serializer(uplace_temp)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
