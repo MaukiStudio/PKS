@@ -108,7 +108,7 @@ class Rating(object):
 
 class Content(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
-    content = models.CharField(max_length=254, blank=True, null=True, default=None)
+    content = models.CharField(max_length=2000, blank=True, null=True, default=None)
 
     class Meta:
         abstract = True
