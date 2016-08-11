@@ -7,7 +7,6 @@ from base64 import b16encode
 from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
-from random import randrange
 from cryptography.fernet import Fernet
 from requests import post as requests_post
 from json import loads as json_loads
@@ -19,7 +18,7 @@ from place.post import PostBase
 from base.models import Point
 from content.models import PlaceName
 from base.libs import distance_geography
-from pks.settings import VD_ENC_KEY, DISABLE_NO_FREE_API
+from pks.settings import VD_ENC_KEY
 
 RADIUS_LOCAL_RANGE = 150
 
