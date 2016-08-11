@@ -14,6 +14,7 @@ app = Celery(
         'importer.task_wrappers',
         'account.task_wrappers',
         'image.task_wrappers',
+        'place.task_wrappers',
     ],
 )
 
