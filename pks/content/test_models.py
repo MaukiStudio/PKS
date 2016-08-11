@@ -91,7 +91,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000021149144'))
 
-    def _skip_test_content_property_naver_case2(self):
+    def _skip_test_content_property_naver_case3(self):
         test_data = 'http://map.naver.com/?app=Y&version=10&appMenu=location&pinId=36229742&pinType=site&lat=37.4893023&lng=127.1350392&title=%EB%B0%94%EC%9D%B4%ED%82%A4%20%EB%AC%B8%EC%A0%95%EC%A0%90&dlevel=11'
         normalized_test_data = '36229742.naver'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
@@ -105,6 +105,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.id, UUID('00000002-0000-0000-0000-000036229742'))
 
     def test_content_property_google_case1(self):
+        if WORK_ENVIRONMENT: return
         test_data = 'ChIJN1t_tDeuEmsRUsoyG83frY4.google'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         self.assertEqual(lp.uuid.split('.')[1], 'google')
@@ -118,6 +119,7 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.lp_type, 3)
 
     def test_content_property_google_case2(self):
+        if WORK_ENVIRONMENT: return
         test_data = 'ChIJrTLr-GyuEmsRBfy61i59si0.google'
         lp, is_created = LegacyPlace.get_or_create_smart(test_data)
         self.assertEqual(lp.uuid.split('.')[1], 'google')
@@ -127,6 +129,18 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(saved.id, lp.id)
         self.assertEqual(saved.content, lp.content)
         self.assertEqual(saved.id, UUID('fdc64a309ca7409a8a143be959307efe'))
+
+    def test_content_property_google_case3(self):
+        if WORK_ENVIRONMENT: return
+        test_data = 'https://www.google.com/maps/place/Han+Ha+Rum+Korean+Restaurant/@22.3636765,113.4067433,9z/data=!4m8!1m2!2m1!1z7Iud64u5!3m4!1s0x34040056de2d51b3:0xae100fb893526bdf!8m2!3d22.2801408!4d114.182783'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        self.assertEqual(lp.uuid.split('.')[1], 'google')
+        saved = LegacyPlace.objects.first()
+        self.assertEqual(lp.content, 'ChIJs1Et3lYABDQR32tSk7gPEK4.google')
+        self.assertEqual(saved, lp)
+        self.assertEqual(saved.id, lp.id)
+        self.assertEqual(saved.content, lp.content)
+        self.assertEqual(saved.id, UUID('ba698d72-72bb-1a1e-97bb-3c44f54b973f'))
 
     def test_content_property_kakao_case1(self):
         test_data = '14720610.kakao'
@@ -234,6 +248,17 @@ class LegacyPlaceTest(APITestBase):
         lp.access()
         self.assertEqual(path.exists(), True)
 
+    def test_access_by_google(self):
+        if WORK_ENVIRONMENT: return
+        test_data = 'ChIJs1Et3lYABDQR32tSk7gPEK4.google'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        path = Path(lp.path_accessed)
+        if path.exists():
+            path.unlink()
+        self.assertEqual(path.exists(), False)
+        lp.access()
+        self.assertEqual(path.exists(), True)
+
     def test_place_property(self):
         place = Place()
         place.save()
@@ -310,6 +335,10 @@ class LegacyPlaceTest(APITestBase):
 
         url, is_created = Url.get_or_create_smart('https://www.mangoplate.com/restaurants/f-YvkBx8IemC')
         self.assertEqual(LegacyPlace.get_from_url(url).content, 'f-YvkBx8IemC.mango')
+
+        if not WORK_ENVIRONMENT:
+            url, is_created = Url.get_or_create_smart('https://www.google.com/maps/place/Han+Ha+Rum+Korean+Restaurant/@22.3636765,113.4067433,9z/data=!4m8!1m2!2m1!1z7Iud64u5!3m4!1s0x34040056de2d51b3:0xae100fb893526bdf!8m2!3d22.2801408!4d114.182783')
+            self.assertEqual(LegacyPlace.get_from_url(url).content, 'ChIJs1Et3lYABDQR32tSk7gPEK4.google')
 
     def test_access_methods(self):
         test_data = '4ccffc63f6378cfaace1b1d6.4square'
@@ -396,6 +425,20 @@ class LegacyPlaceTest(APITestBase):
         self.assertEqual(pb.images[0].content, unquote_plus(
             'https://mp-seoul-image-production-s3.mangoplate.com/259736/xverhn9edfxp5w.jpg'
         ))
+        self.assertValidLocalFile(pb.images[0].path_summarized)
+        self.assertValidInternetUrl(pb.images[0].url_summarized)
+
+    def test_content_summarized_by_google(self):
+        if WORK_ENVIRONMENT: return
+        test_data = 'ChIJs1Et3lYABDQR32tSk7gPEK4.google'
+        lp, is_created = LegacyPlace.get_or_create_smart(test_data)
+        lp.summarize()
+        pb = lp.content_summarized
+        self.printJson(pb)
+        self.assertEqual(pb.is_valid(), True)
+        self.assertEqual(pb.name.content, 'Han Ha Rum Korean Restaurant')
+        self.assertEqual(pb.phone.content, '+85228777797')
+        self.assertEqual(pb.addr.content, 'Causeway Bay Plaza 1, 489 Hennessy Rd, Causeway Bay, Hong Kong')
         self.assertValidLocalFile(pb.images[0].path_summarized)
         self.assertValidInternetUrl(pb.images[0].url_summarized)
 

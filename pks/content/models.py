@@ -64,6 +64,9 @@ LP_REGEXS_URL = (
 
     # 'http://foursquare.com/v/4ccffc63f6378cfaace1b1d6'
     (re_compile(r'^https?://www\.mangoplate\.com/restaurants/(?P<PlaceId>[A-za-z0-9_\-]+)$'), 'mango'),
+
+    # 'https://www.google.com/maps/place/Han+Ha+Rum+Korean+Restaurant/@22.3585964,113.5605519,9z/data=!4m8!1m2!2m1!1z7Iud64u5!3m4!1s0x34040056de2d51b3:0xae100fb893526bdf!8m2!3d22.2801408!4d114.182783'
+    (re_compile(r'^https?://www\.google\.com/maps/place/(?P<PlaceName>.+)/@.+z/data=.*!3d(?P<lat>-?[0-9\.]+)!4d(?P<lon>-?[0-9\.]+).*$'), 'google'),
 )
 
 LP_TYPE = {'4square': 1, 'naver': 2, 'google': 3, 'kakao': 4, 'mango': 5,}
@@ -96,11 +99,45 @@ class LegacyPlace(Content):
 
     @classmethod
     def normalize_content(cls, raw_content):
-        for regex in LP_REGEXS+LP_REGEXS_URL:
+        # uuid style
+        for regex in LP_REGEXS:
             searcher = regex[0].search(raw_content)
             if searcher:
                 return '%s.%s' % (searcher.group('PlaceId'), regex[1])
+
+        # url style
+        for regex in LP_REGEXS_URL:
+            from base.legacy.urlnorm import norms
+            raw_content = norms(raw_content)
+            searcher = regex[0].search(raw_content)
+            if searcher:
+                d = searcher.groupdict()
+                if 'PlaceId' in d:
+                    return '%s.%s' % (d['PlaceId'], regex[1])
+                elif 'PlaceName' in d and 'lon' in d and 'lat' in d:
+                    google_place_id = cls.find_google_place_id_by_lonLatName(d['PlaceName'], d['lon'], d['lat'])
+                    return '%s.%s' % (google_place_id, regex[1])
+                else:
+                    raise NotImplementedError
         return None
+
+    @classmethod
+    def find_google_place_id_by_lonLatName(cls, name, lon, lat, idx=None):
+        api_key = get_api_key(idx)
+        api_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s&location=%s,%s&name=%s&rankby=distance' % (api_key, lat, lon, name)
+        try:
+            r = requests_get(api_url, timeout=60)
+        except:
+            return None
+        if not r.status_code == status.HTTP_200_OK:
+            return None
+
+        d = json_loads(r.content)
+        if 'status' not in d or d['status'] != 'OK':
+            return None
+        if 'results' not in d or not d['results'] or not d['results'][0] or 'place_id' not in d['results'][0]:
+            return None
+        return d['results'][0]['place_id']
 
     @property
     def _id(self):
@@ -183,8 +220,8 @@ class LegacyPlace(Content):
         for regex in LP_REGEXS_URL:
             searcher = regex[0].search(url.content)
             if searcher:
-                url, is_created = cls.get_or_create_smart('%s.%s' % (searcher.group('PlaceId'), regex[1]))
-                return url
+                lp, is_created = cls.get_or_create_smart(url.content)
+                return lp
         return None
 
 
@@ -368,7 +405,7 @@ class LegacyPlace(Content):
         phone = d.get('international_phone_number')
         if phone:
             phone = PhoneNumber.normalize_content(phone)
-        addr_new = d.get('formattedAddress')
+        addr_new = d.get('formatted_address')
         pr = None
         photos = d.get('photos')
         if photos:

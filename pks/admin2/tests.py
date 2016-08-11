@@ -54,7 +54,7 @@ class PlacedDetailTest1(AdminTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('lon=127.103743&amp;lat=37.399732', response.content.decode('utf-8'))
 
-    def test_placed_by_lp_url(self):
+    def test_placed_by_kakao(self):
         self.assertEqual(self.uplace.place, None)
         lp_url = 'http://place.map.daum.net/15738374'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
@@ -70,10 +70,19 @@ class PlacedDetailTest1(AdminTestCase):
         self.uplace = UserPlace.objects.first()
         self.assertEqual(self.uplace.place, None)
 
-    def test_placed_by_lp_url2(self):
+    def test_placed_by_foursquare(self):
         if WORK_ENVIRONMENT: return
         self.assertEqual(self.uplace.place, None)
         lp_url = 'https://foursquare.com/v/%EB%B0%A9%EC%95%84%EA%B9%90/4ccffc63f6378cfaace1b1d6'
+        response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.uplace = UserPlace.objects.first()
+        self.assertNotEqual(self.uplace.place, None)
+
+    def test_placed_by_google(self):
+        if WORK_ENVIRONMENT: return
+        self.assertEqual(self.uplace.place, None)
+        lp_url = 'https://www.google.com/maps/place/Han+Ha+Rum+Korean+Restaurant/@22.3636765,113.4067433,9z/data=!4m8!1m2!2m1!1z7Iud64u5!3m4!1s0x34040056de2d51b3:0xae100fb893526bdf!8m2!3d22.2801408!4d114.182783'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.uplace = UserPlace.objects.first()
@@ -113,7 +122,7 @@ class PlacedDetailTest2(AdminTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('LonLat Required', response.content.decode('utf-8'))
 
-    def test_placed_by_lp_url(self):
+    def test_placed_by_kakao(self):
         self.assertEqual(self.uplace.place, None)
         lp_url = 'http://place.map.daum.net/15738374'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
@@ -129,7 +138,7 @@ class PlacedDetailTest2(AdminTestCase):
         self.uplace = UserPlace.objects.first()
         self.assertEqual(self.uplace.place, None)
 
-    def test_placed_by_lp_url2(self):
+    def test_placed_by_mango(self):
         self.assertEqual(self.uplace.place, None)
         lp_url = 'https://www.mangoplate.com/restaurants/f-YvkBx8IemC'
         response = self.client.post('/admin2/placed/%s/' % self.uplace.uuid, dict(url=lp_url))
