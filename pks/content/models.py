@@ -415,7 +415,6 @@ class LegacyPlace(Content):
         if pr:
             api_key = get_api_key()
             img_url = 'https://maps.googleapis.com/maps/api/place/photo?key=%s&maxwidth=1280&maxheight=1280&photoreference=%s' % (api_key, pr)
-            print(img_url)
 
         # TODO : Post class 를 이용하여 리팩토링
         json = '''
