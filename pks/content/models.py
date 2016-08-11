@@ -198,7 +198,8 @@ class LegacyPlace(Content):
             file.write_text(result)
             self._cache_accessed = result.replace('\r', '')
 
-    def access_force_google(self, url, idx=None):
+    @classmethod
+    def access_force_google(cls, url, idx=None):
         api_key = get_api_key(idx)
         #headers = {'content-type': 'application/json'}
         key = url.split('//')[1]
