@@ -31,7 +31,7 @@
         <h3 id="place-name">{{ uplace.placePost.name }}</h3>
       </div>
       <p>
-        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span id="place-addr">{{ uplace.placePost.addr1 }}</span></address>
+        <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span id="place-addr">{% firstof  uplace.placePost.addr1 uplace.placePost.addr2 uplace.placePost.addr3 %}</span></address>
         {% for tag in uplace.userPost.tags %}
             <span class="label label-warning">{{ tag.content }}</span>
         {% endfor %}
