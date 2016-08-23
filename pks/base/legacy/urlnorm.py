@@ -90,7 +90,9 @@ def norms(urlstring):
                 urlstring = line
                 break
     if not urlstring.startswith('http'):
-        urlstring = 'http%s' % urlstring.split('http')[1]
+        splits = urlstring.split('http')
+        if len(splits) >= 2:
+            urlstring = 'http%s' % urlstring.split('http')[1]
 
     try:
         encoded = None

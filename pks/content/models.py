@@ -252,6 +252,8 @@ class LegacyPlace(Content):
             pb = PostBase(json)
             for img in pb.images:
                 img.summarize()
+            f = Path(self.path_summarized)
+            f.write_text(json_dumps(pb.json).decode('utf-8'))
 
     def summarize_force_naver(self, accessed):
         # TODO : 반드시 필요하게 되면... phantomjs 를 활용하여 다시 구현
@@ -291,9 +293,6 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, addr, img_url, self.content,)
-
-        f = Path(self.path_summarized)
-        f.write_text(json)
         return json
 
     def summarize_force_kakao(self, accessed):
@@ -327,9 +326,6 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, addr, img_url, self.content,)
-
-        f = Path(self.path_summarized)
-        f.write_text(json)
         return json
 
     def summarize_force_4square(self, accessed):
@@ -358,9 +354,6 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, img_url, self.content,)
-
-        f = Path(self.path_summarized)
-        f.write_text(json)
         return json
 
     def summarize_force_mango(self, accessed):
@@ -390,9 +383,6 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr, img_url, self.content,)
-
-        f = Path(self.path_summarized)
-        f.write_text(json)
         return json
 
     def summarize_force_google(self, accessed):
@@ -427,9 +417,6 @@ class LegacyPlace(Content):
                 "lps": [{"content": "%s"}]
             }
         ''' % (lon, lat, name, phone, addr_new, img_url, self.content,)
-
-        f = Path(self.path_summarized)
-        f.write_text(json)
         return json
 
     def pre_save(self, is_created):

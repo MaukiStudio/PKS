@@ -27,3 +27,16 @@ class PlaceTaskTest(APITestBase):
         place = Place.objects.get(id=place.id)
         self.assertEqual(place.placePost.addr.content, 'South Korea, Gyeonggi-do, Hanam-si, Pungsan-dong, 풍산로 270')
         self.assertEqual(place.placePost.phone.content, '+82317961917')
+
+    def test_task_no_image(self):
+        placeName, is_created = PlaceName.get_or_create_smart('Calle Nueva')
+        lonLat = GEOSGeometry('POINT(-5.166208 36.741447)', srid=4326)
+        place = Place.objects.create(lonLat=lonLat, placeName=placeName)
+        vd = VD.objects.create()
+        uplace = UserPlace.objects.create(vd=vd, place=place)
+        task = PlaceTaskWrapper()
+        task.delay(place.id)
+        place = Place.objects.get(id=place.id)
+        self.assertEqual(place.lps.count(), 1)
+        place.lps.first().access_force()
+        place.lps.first().summarize_force()

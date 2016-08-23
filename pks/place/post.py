@@ -241,37 +241,41 @@ class PostBase(object):
         # lps 조회
         if is_valid_json_item('lps', json):
             for lp_json in json['lps']:
-                lp = LegacyPlace.get_from_json(lp_json)
-                if lp:
-                    self.lps.append(lp)
+                if is_valid_json_item(None, json):
+                    lp = LegacyPlace.get_from_json(lp_json)
+                    if lp:
+                        self.lps.append(lp)
 
         # urls 조회
         if is_valid_json_item('urls', json):
             from url.models import Url
             for url_json in json['urls']:
-                url = Url.get_from_json(url_json)
-                if url:
-                    self.urls.append(url)
+                if is_valid_json_item(None, url_json):
+                    url = Url.get_from_json(url_json)
+                    if url:
+                        self.urls.append(url)
 
         # notes 조회
         if is_valid_json_item('notes', json):
             for note_json in json['notes']:
-                note = PlaceNote.get_from_json(note_json)
-                if note:
-                    note.timestamp = timestamp
-                    self.notes.append(note)
+                if is_valid_json_item(None, note_json):
+                    note = PlaceNote.get_from_json(note_json)
+                    if note:
+                        note.timestamp = timestamp
+                        self.notes.append(note)
 
         # images 조회
         if is_valid_json_item('images', json):
             for img_json in json['images']:
-                img = Image.get_from_json(img_json)
-                if img:
-                    if 'note' in img_json and img_json['note']:
-                        note = ImageNote.get_from_json(img_json['note'])
-                        if note:
-                            note.timestamp = timestamp
-                            img.note = note
-                    self.images.append(img)
+                if is_valid_json_item(None, img_json):
+                    img = Image.get_from_json(img_json)
+                    if img:
+                        if 'note' in img_json and img_json['note']:
+                            note = ImageNote.get_from_json(img_json['note'])
+                            if note:
+                                note.timestamp = timestamp
+                                img.note = note
+                        self.images.append(img)
 
         # place_id, uplace_uuid, iplace_uuid 조회
         if is_valid_json_item('place_id', json):

@@ -23,10 +23,16 @@ def get_timestamp():
 
 
 def is_valid_json_item(item_name, json):
-    if item_name in json and json[item_name]:
-        item_json = json[item_name]
-        if 'content' in item_json:
-            return item_json['content'] != 'None'
+    if item_name:
+        if item_name in json and json[item_name]:
+            item_json = json[item_name]
+            if 'content' in item_json:
+                return item_json['content'] != 'None'
+            else:
+                return True
+    else:
+        if 'content' in json:
+            return json['content'] != 'None'
         else:
             return True
     return False

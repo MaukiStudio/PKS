@@ -1,8 +1,5 @@
 
 [마무리]
-    URL 공유 개선
-        API 제작
-        구글 장소화 backend
     Azure ML API 파악
     Post 캐싱 처리
     거의 유사한 이미지, Post 에서 한번만 보여지게 수정
@@ -25,6 +22,7 @@
 
 
 [나중에]
+    구글 장소화 관련 테스트 추가
     ImportedPlace 관련 리팩토링 : UserPlace 의 것을 최대한 상속받도록
     Place/UserPlace.get_or_create_smart() 개편 : 좀 더 Readability 가 높도록
     Tag 구조 개편
