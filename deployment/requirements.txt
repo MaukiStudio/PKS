@@ -1,4 +1,4 @@
-django
+Django==1.9.9
 django-grappelli
 django-filebrowser
 djangorestframework
