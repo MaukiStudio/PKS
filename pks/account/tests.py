@@ -127,9 +127,11 @@ class VDRegisterTest(APITestBase):
         language = 'ko'
         timezone = 'KST'
         data = '{"UDID": "blah-blah"}'
+        self.assertEqual(VD.objects.count(), 0)
         response = self.client.post('/vds/register/',
                                     dict(email=email, deviceTypeName=deviceTypeName, deviceName=deviceName,
                                          country=country, language=language, timezone=timezone, data=data))
+        self.assertEqual(VD.objects.count(), 1)
         vd = VD.objects.first()
         user = User.objects.first()
 
@@ -152,6 +154,23 @@ class VDRegisterTest(APITestBase):
 
         self.assertEqual(vd_id, vd.id)
         self.assertEqual(user_id, user.id)
+        self.assertEqual(vd.realOwner, None)
+
+    def test_register_by_facebook(self):
+        email = '1234567890@facebook'
+        self.assertEqual(VD.objects.count(), 0)
+        response = self.client.post('/vds/register/', dict(email=email))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        vd = VD.objects.first()
+        self.assertNotEqual(vd.realOwner, None)
+
+    def test_register_by_kakaotalk(self):
+        email = '1234567890@kakaotalk'
+        self.assertEqual(VD.objects.count(), 0)
+        response = self.client.post('/vds/register/', dict(email=email))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        vd = VD.objects.first()
+        self.assertNotEqual(vd.realOwner, None)
 
     def test_email_confirm(self):
         # TODO : 향후 이메일 발송 루틴이 구현되면 테스트도 수정해야 한다.

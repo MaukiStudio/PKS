@@ -83,11 +83,16 @@ class VDViewset(ModelViewSet):
             vd.authOwner = request.user
             vd.save()
         if 'email' in request.data:
-            vd.authOwner.email = request.data['email']
+            email = request.data['email']
+            vd.authOwner.email = email
             vd.authOwner.save()
+            if email.split('@')[1] in ('facebook', 'kakaotalk'):
+                realUser, is_created = RealUser.objects.get_or_create(email=email)
+                vd.realOwner = realUser
+                vd.save()
 
         # send confirm email
-        if vd.authOwner and vd.authOwner.email:
+        if not vd.realOwner and vd.authOwner and vd.authOwner.email:
             vd.send_confirm_email(vd.authOwner.email)
         # return result
         return Response({'auth_vd_token': vd.getToken()}, status=status.HTTP_201_CREATED, headers=headers)
