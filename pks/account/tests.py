@@ -327,6 +327,10 @@ class RealUserViewsetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rus/myself/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.vd.realOwner = None
+        self.vd.save()
+        response = self.client.get('/rus/myself/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_rus_myself_vds(self):
         response = self.client.get('/rus/myself/vds/')
