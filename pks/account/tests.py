@@ -352,6 +352,19 @@ class RealUserViewsetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(len(vds), 1)
         #'''
 
+    def test_rus_patch(self):
+        other_ru = RealUser.objects.create(email='test@test.com', nickname='other_ru')
+        response = self.client.get('/rus/myself/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ru = RealUser.objects.get(id=self.ru.id)
+        self.assertEqual(ru.nickname, None)
+        response = self.client.patch('/rus/myself/', dict(nickname='gulby'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ru = RealUser.objects.get(id=self.ru.id)
+        self.assertEqual(ru.nickname, 'gulby')
+        response = self.client.patch('/rus/myself/', dict(nickname='other_ru'))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class StorageViewsetTest(FunctionalTestAfterLoginBase):
     def setUp(self):
