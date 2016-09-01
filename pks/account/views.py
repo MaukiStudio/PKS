@@ -171,12 +171,9 @@ class RealUserViewset(ModelViewSet):
         aid = self.kwargs['pk']
         if unicode(aid) == 'myself' and VD_SESSION_KEY in self.request.session:
             vd_id = self.request.session[VD_SESSION_KEY]
-            if not vd_id:
-                return None
             vd = VD.objects.get(id=vd_id)
-            if not vd:
-                return None
-            return vd.realOwner
+            if vd.realOwner:
+                return vd.realOwner
         return super(RealUserViewset, self).get_object()
 
     @detail_route(methods=['get'])
