@@ -1,4 +1,13 @@
 
+[포플]
+    외부 인증에 의한 로그인 : 페이스북/카톡 로그인
+    이메일 로그인 : validation check 강제
+    RealUser 추가 속성
+        닉네임 : 필수, unique, 10자 이내, 공백 불허
+        기타 : json 으로
+    uplaces API, RealUser 가 있는 경우에만 되도록 권한 처리
+
+
 [마무리]
     Azure ML API 파악
     Post 캐싱 처리
