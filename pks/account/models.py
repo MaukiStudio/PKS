@@ -37,6 +37,8 @@ class User(AbstractUser):
 
 class RealUser(models.Model):
     email = models.EmailField(unique=True, blank=False, null=False, default=None)
+    nickname = models.CharField(unique=True, max_length=36, blank=True, null=True, default=None)
+    data = JSONField(blank=True, null=True, default=None, db_index=False)
 
     def __init__(self, *args, **kwargs):
         self._vd_ids_cache = None
