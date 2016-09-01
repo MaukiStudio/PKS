@@ -437,7 +437,7 @@ class LegacyPlaceTest(APITestBase):
         self.printJson(pb)
         self.assertEqual(pb.is_valid(), True)
         self.assertEqual(pb.name.content, 'Han Ha Rum Korean Restaurant')
-        self.assertEqual(pb.phone.content, '+85228777797')
+        self.assertEqual(pb.phone.content, '+85228666927')
         self.assertEqual(pb.addr.content, 'Causeway Bay Plaza 1, 489 Hennessy Rd, Causeway Bay, Hong Kong')
         self.assertValidLocalFile(pb.images[0].path_summarized)
         self.assertValidInternetUrl(pb.images[0].url_summarized)
