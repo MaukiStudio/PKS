@@ -1,17 +1,18 @@
-sudo apt-get update -y
-sudo apt-get upgrade -y
+sudo apt update -y
+sudo apt upgrade -y
 sudo reboot
 
-sudo apt-get install -y git vim screen
-sudo apt-get install -y postgresql postgresql-contrib
-sudo apt-get install -y postgis postgresql-9.5-postgis-2.2
-sudo apt-get install -y rabbitmq-server
-sudo apt-get install -y redis-server
+sudo apt install -y git vim screen
+sudo apt install -y postgresql postgresql-contrib
+sudo apt install -y postgis postgresql-9.5-postgis-2.2
+sudo apt install -y rabbitmq-server
+sudo apt install -y redis-server
 
-sudo apt-get install -y python-pip
+sudo apt install -y python-dev
+sudo apt install -y python-pip
 sudo -H pip install --upgrade pip
-sudo apt-get install -y python-psycopg2 python-lxml
-sudo apt-get install -y libpq-dev libxml2-dev libxslt1-dev
+sudo apt install -y python-psycopg2 python-lxml
+sudo apt install -y libpq-dev libxml2-dev libxslt1-dev libopenblas-dev
 sudo -H pip install -r requirements.txt --upgrade
 
 sudo -u postgres psql -a -f initdb.sql
