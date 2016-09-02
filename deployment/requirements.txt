@@ -28,3 +28,4 @@ foursquare
 redis
 django-redis
 pyproj
+ipython
