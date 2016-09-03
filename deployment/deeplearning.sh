@@ -16,6 +16,9 @@ sudo ./cuda_7.5.18_linux.run --override
 # Do you want to install a symbolic link at /usr/local/cuda? ((y)es/(n)o/(q)uit): yes
 # Install the CUDA 7.5 Samples? ((y)es/(n)o/(q)uit): no
 
+# ./bashrc 에 PATH 랑 LD_LIBRARY_PATH 추가
+
+
 # Step 3 : CUDNN
 # https://developer.nvidia.com/rdp/cudnn-download 에 접속
 # 로그인 및 cuDNN v4 Library for Linux 다운로드

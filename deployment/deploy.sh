@@ -2,6 +2,7 @@ sudo apt update -y
 sudo apt upgrade -y
 sudo reboot
 
+sudo apt install -y openssh-server
 sudo apt install -y git vim screen
 sudo apt install -y postgresql postgresql-contrib
 sudo apt install -y postgis postgresql-9.5-postgis-2.2
