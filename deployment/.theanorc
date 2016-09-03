@@ -1,0 +1,12 @@
+
+[nvcc]
+flags=-D_FORCE_INLINES
+
+[cuda]
+root=/usr/local/cuda
+
+[global]
+device = gpu
+floatX = float32
+force_device=True
+
