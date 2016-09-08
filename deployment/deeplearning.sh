@@ -15,54 +15,24 @@ sudo ./cuda_7.5.18_linux.run --override
 # Enter Toolkit Location [ default is /usr/local/cuda-7.5 ]: 그냥 엔터
 # Do you want to install a symbolic link at /usr/local/cuda? ((y)es/(n)o/(q)uit): yes
 # Install the CUDA 7.5 Samples? ((y)es/(n)o/(q)uit): no
-
-# ./bashrc 에 PATH 랑 LD_LIBRARY_PATH 추가
-
+echo "export PATH=/usr/local/cuda/bin:$PATH" >> ~/.bashrc
+echo "LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH" >> ~/.bashrc
 
 # Step 3 : CUDNN
 # https://developer.nvidia.com/rdp/cudnn-download 에 접속
 # 로그인 및 cuDNN v4 Library for Linux 다운로드
 cd /usr/local
 sudo tar zxf ~/Downloads/cudnn-7.0-linux-x64-v4.0-prod.tgz
+#sudo tar zxf ~/Downloads/cudnn-7.5-linux-x64-v5.1.tgz
 cd ~/PKS/deployment/
 
-# Step 4 : Tensorflow (0.9. 0.10 은 아직 rc 단계)
-sudo pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.9.0-cp27-none-linux_x86_64.whl
+# Step 4 : Tensorflow
+#sudo pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.9.0-cp27-none-linux_x86_64.whl
+sudo pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl
+sudo pip install --upgrade https://ci.tensorflow.org/view/Nightly/job/nightly-matrix-linux-gpu/TF_BUILD_CONTAINER_TYPE=GPU,TF_BUILD_IS_OPT=OPT,TF_BUILD_IS_PIP=PIP,TF_BUILD_PYTHON_VERSION=PYTHON2,label=gpu-linux/lastSuccessfulBuild/artifact/pip_test/whl/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl
 
-# Step 5 : Theano
-sudo pip install nose
-sudo pip install Theano
-cp .theanorc ~
 
-# Step 6 : Downgrade g++
-# CUDA 7.5 는 아직 최신 버전 g++ 과는 호환이 안됨
-sudo apt install g++-4.9
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 10
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 10
-sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 30
-sudo update-alternatives --set cc /usr/bin/gcc
-sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 30
-sudo update-alternatives --set c++ /usr/bin/g++
-
-# Step 7 : Keras
-sudo pip install keras
-sudo apt install libopencv-dev python-opencv
-sudo pip install h5py
-
-# Step 8 : Caffe
-sudo apt install libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler
-sudo apt install --no-install-recommends libboost-all-dev
-sudo apt install libgflags-dev libgoogle-glog-dev liblmdb-dev
-# https://developer.nvidia.com/rdp/cudnn-download 에 접속
-# 로그인 및 cuDNN v5 Library for Linux 다운로드
-cd /usr/local
-sudo tar zxf ~/Downloads/cudnn-7.5-linux-x64-v5.0-ga.tgz
-cd ~/git/
-git clone https://github.com/BVLC/caffe
-cd caffe/
-sudo -H pip install -r python/requirements.txt --upgrade
-cp Makefile.config.example Makefile.config
-sudo apt install cmake
-vi Makefile.config
+# Step 5 : Python Library
+sudo pip install --upgrade matplotlib
+sudo pip install --upgrade pandas
+sudo pip install --upgrade seaborn
