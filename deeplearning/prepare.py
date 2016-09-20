@@ -104,7 +104,7 @@ def _process_image_files_batch(coder, thread_index, ranges, name, filenames, tex
     counter = 0
     for s in xrange(num_shards_per_batch):
         shard = thread_index * num_shards_per_batch + s
-        output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
+        output_filename = '%s-%.5d-of-%.5d.tfrecord' % (name, shard, num_shards)
         output_file = os.path.join(FLAGS.output_directory, output_filename)
         writer = tf.python_io.TFRecordWriter(output_file)
 
