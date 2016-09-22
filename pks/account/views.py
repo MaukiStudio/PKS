@@ -86,7 +86,7 @@ class VDViewset(ModelViewSet):
             email = request.data['email']
             vd.authOwner.email = email
             vd.authOwner.save()
-            if email.split('@')[1] in ('facebook', 'kakaotalk'):
+            if email.split('@')[1] in ('facebook.auth', 'kakaotalk.auth'):
                 realUser, is_created = RealUser.objects.get_or_create(email=email)
                 vd.realOwner = realUser
                 vd.save()

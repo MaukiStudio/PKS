@@ -157,7 +157,7 @@ class VDRegisterTest(APITestBase):
         self.assertEqual(vd.realOwner, None)
 
     def test_register_by_facebook(self):
-        email = '1234567890@facebook'
+        email = '1234567890@facebook.auth'
         self.assertEqual(VD.objects.count(), 0)
         response = self.client.post('/vds/register/', dict(email=email))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -165,7 +165,7 @@ class VDRegisterTest(APITestBase):
         self.assertNotEqual(vd.realOwner, None)
 
     def test_register_by_kakaotalk(self):
-        email = '1234567890@kakaotalk'
+        email = '1234567890@kakaotalk.auth'
         self.assertEqual(VD.objects.count(), 0)
         response = self.client.post('/vds/register/', dict(email=email))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -362,6 +362,28 @@ class RealUserViewsetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ru = RealUser.objects.get(id=self.ru.id)
         self.assertEqual(ru.nickname, 'gulby')
+        response = self.client.patch('/rus/myself/', dict(nickname='other_ru'))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_rus_patch2(self):
+        self.ru.email = 'gulby@kakaotalk.auth'
+        self.ru.save()
+        other_ru = RealUser.objects.create(email='test@kakaotalk.auth', nickname='other_ru')
+        response = self.client.get('/rus/myself/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ru = RealUser.objects.get(id=self.ru.id)
+        self.assertEqual(ru.nickname, None)
+
+        response = self.client.patch('/rus/myself/', dict(nickname='gulby'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ru = RealUser.objects.get(id=self.ru.id)
+        self.assertEqual(ru.nickname, 'gulby')
+
+        response = self.client.patch('/rus/myself/', dict(email='gulby@facebook.auth'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ru = RealUser.objects.get(id=self.ru.id)
+        self.assertEqual(ru.email, 'gulby@facebook.auth')
+
         response = self.client.patch('/rus/myself/', dict(nickname='other_ru'))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
