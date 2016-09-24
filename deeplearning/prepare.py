@@ -18,7 +18,7 @@ import tensorflow as tf
 tf.app.flags.DEFINE_string('project_name', 'uspace', 'Project Name')
 tf.app.flags.DEFINE_string('data_directory', '', 'Data directory')
 tf.app.flags.DEFINE_string('output_directory', '', 'Output data directory')
-tf.app.flags.DEFINE_integer('num_threads', '4', 'Number of threads to preprocess the images.')
+tf.app.flags.DEFINE_integer('num_threads', '6', 'Number of threads to preprocess the images.')
 tf.app.flags.DEFINE_integer('num_folds', 0, 'Number of folds')
 tf.app.flags.DEFINE_string('labels_file', '', 'Labels file')
 
@@ -104,7 +104,7 @@ def _process_image_files_batch(coder, thread_index, ranges, name, filenames, tex
     counter = 0
     for s in xrange(num_shards_per_batch):
         shard = thread_index * num_shards_per_batch + s
-        output_filename = '%s-%.5d-of-%.5d.tfrecord' % (name, shard, num_shards)
+        output_filename = '%s-%s-%.3d-of-%.3d.tfrecord' % (FLAGS.project_name, name, shard, num_shards)
         output_file = os.path.join(FLAGS.output_directory, output_filename)
         writer = tf.python_io.TFRecordWriter(output_file)
 
@@ -219,13 +219,13 @@ def _process_dataset(name, directory, num_shards, labels_file):
 
 def main(_):
     if not FLAGS.data_directory:
-        FLAGS.data_directory = '/home/gulby/tmp/%s/data/' % FLAGS.project_name
+        FLAGS.data_directory = '/home/gulby/tmp/%s/data' % FLAGS.project_name
     if not FLAGS.output_directory:
-        FLAGS.output_directory = '/home/gulby/tmp/%s/output/' % FLAGS.project_name
+        FLAGS.output_directory = '/home/gulby/tmp/%s/output' % FLAGS.project_name
     if not FLAGS.num_folds:
         FLAGS.num_folds = FLAGS.num_threads * 5
     if not FLAGS.labels_file:
-        FLAGS.labels_file = '/home/gulby/tmp/%s/labels.txt' % FLAGS.project_name
+        FLAGS.labels_file = '%s/labels.txt' % FLAGS.data_directory
 
     assert not FLAGS.num_folds % FLAGS.num_threads, (
         'Please make the FLAGS.num_threads commensurate with FLAGS.num_folds')
