@@ -13,7 +13,7 @@ from base.utils import remove_list, is_valid_json_item, remove_duplicates
 
 class PostBase(object):
 
-    def __init__(self, json=None, timestamp=None):
+    def __init__(self, json=None, timestamp=None, vd=None):
         self.names = list()
         self.visits = list()
         self.ratings = list()
@@ -33,14 +33,15 @@ class PostBase(object):
         self.iplace_uuid = None
 
         self._cache_tags = None
+        self.vd = vd
 
         t = type(json)
         if json is None:
             pass
         elif t is unicode or t is str:
-            self.setUp(json_loads(json), timestamp)
+            self.setUp(json_loads(json), timestamp, vd)
         elif t is dict:
-            self.setUp(json, timestamp)
+            self.setUp(json, timestamp, vd)
         else:
             print(t)
             print(json)
@@ -140,6 +141,13 @@ class PostBase(object):
         self.images.insert(0, v)
 
     @property
+    def url(self):
+        return (self.urls and self.urls[0]) or None
+    @url.setter
+    def url(self, v):
+        self.urls.insert(0, v)
+
+    @property
     def note(self):
         result = None
         if self.notes:
@@ -160,6 +168,8 @@ class PostBase(object):
     # TODO : iplace_uuid 가 세팅된 경우 원본 소스의 최신 데이터를 가져오는 처리
     def update(self, other, add=True):
         if add:
+            if not self.vd:
+                self.vd = other.vd
             self.names = other.names + self.names
             self.visits = other.visits + self.visits
             self.ratings = other.ratings + self.ratings
@@ -188,54 +198,62 @@ class PostBase(object):
             self.images = remove_list(self.images, other.images)
 
 
-    def setUp(self, json, timestamp=None):
+    def setUp(self, json, timestamp=None, vd=None):
 
         # name 조회
         if is_valid_json_item('name', json):
             name = PlaceName.get_from_json(json['name'])
             if name:
+                name.vd = vd
                 self.names.append(name)
 
         # visit 조회
         if is_valid_json_item('visit', json):
             visit = Visit.get_from_json(json['visit'])
             if visit:
+                visit.vd = vd
                 self.visits.append(visit)
 
         # rating 조회
         if is_valid_json_item('rating', json):
             rating = Rating.get_from_json(json['rating'])
             if rating:
+                rating.vd = vd
                 self.ratings.append(rating)
 
         # lonLat 조회
         if is_valid_json_item('lonLat', json):
             point = Point.get_from_json(json['lonLat'])
             if point:
+                point.vd = vd
                 self.points.append(point)
 
         # phone 조회
         if is_valid_json_item('phone', json):
             phone = PhoneNumber.get_from_json(json['phone'])
             if phone:
+                phone.vd = vd
                 self.phone = phone
 
         # addr1 조회
         if is_valid_json_item('addr1', json):
             addr1 = Address.get_from_json(json['addr1'])
             if addr1:
+                addr1.vd = vd
                 self.addrs1.append(addr1)
 
         # addr2 조회
         if is_valid_json_item('addr2', json):
             addr2 = Address.get_from_json(json['addr2'])
             if addr2:
+                addr2.vd = vd
                 self.addrs2.append(addr2)
 
         # addr3 조회
         if is_valid_json_item('addr3', json):
             addr3 = Address.get_from_json(json['addr3'])
             if addr3:
+                addr3.vd = vd
                 self.addrs3.append(addr3)
 
         # lps 조회
@@ -244,6 +262,7 @@ class PostBase(object):
                 if is_valid_json_item(None, json):
                     lp = LegacyPlace.get_from_json(lp_json)
                     if lp:
+                        lp.vd = vd
                         self.lps.append(lp)
 
         # urls 조회
@@ -253,6 +272,7 @@ class PostBase(object):
                 if is_valid_json_item(None, url_json):
                     url = Url.get_from_json(url_json)
                     if url:
+                        url.vd = vd
                         self.urls.append(url)
 
         # notes 조회
@@ -262,6 +282,7 @@ class PostBase(object):
                     note = PlaceNote.get_from_json(note_json)
                     if note:
                         note.timestamp = timestamp
+                        note.vd = vd
                         self.notes.append(note)
 
         # images 조회
@@ -274,7 +295,9 @@ class PostBase(object):
                             note = ImageNote.get_from_json(img_json['note'])
                             if note:
                                 note.timestamp = timestamp
+                                note.vd = vd
                                 img.note = note
+                        img.vd = vd
                         self.images.append(img)
 
         # place_id, uplace_uuid, iplace_uuid 조회
@@ -304,6 +327,10 @@ class PostBase(object):
         if self.images: json['images'] = [img.json for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         if self.tags: json['tags'] = [tag.json for tag in self.tags]
+        if self.vd:
+            json['vd'] = self.vd.id
+            if self.vd.realOwner:
+                json['ru'] = self.vd.realOwner.json
         return json
 
     @property
@@ -323,6 +350,10 @@ class PostBase(object):
         if self.images: json['images'] = [img.cjson for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         if self.tags: json['tags'] = [tag.cjson for tag in self.tags]
+        if self.vd:
+            json['vd'] = self.vd.id
+            if self.vd.realOwner:
+                json['ru'] = self.vd.realOwner.json
         return json
 
     @property

@@ -229,22 +229,26 @@ class Image(Content):
 
     @property
     def json(self):
+        result = dict(uuid=self.uuid, content=self.url_for_access, summary=self.url_summarized)
         if self.note:
-            return dict(uuid=self.uuid, content=self.url_for_access, summary=self.url_summarized, note=self.note.json)
-        else:
-            return dict(uuid=self.uuid, content=self.url_for_access, summary=self.url_summarized)
+            result['note'] = self.note.json
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def cjson(self):
+        result = dict(content=self.url_for_access, summary=self.url_summarized)
         if self.note:
-            return dict(content=self.url_for_access, summary=self.url_summarized, note=self.note.cjson)
-        else:
-            return dict(content=self.url_for_access, summary=self.url_summarized)
+            result['note'] = self.note.cjson
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def ujson(self):
+        result = dict(uuid=self.uuid)
         if self.note:
-            return dict(uuid=self.uuid, note=self.note.cjson)
-        else:
-            return dict(uuid=self.uuid)
+            result['note'] = self.note.ujson
+        return result
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)

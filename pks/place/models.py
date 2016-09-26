@@ -665,7 +665,10 @@ class PostPiece(models.Model):
 
     @property
     def pb(self):
-        pb1 = PostBase(self.data, self.timestamp)
+        vd = None
+        if self.uplace:
+            vd = self.vd
+        pb1 = PostBase(self.data, self.timestamp, vd)
         # 하기 기능은 computePost() 시 vd_ids 에 realOwner_publisher_ids 를 넘기는 방식으로 구현 변경
         '''
         if pb1.iplace_uuid:

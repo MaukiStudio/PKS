@@ -676,10 +676,13 @@ class PostPieceTest(APITestBase):
             }
         ''')
         pp.data = json_add
+        pp.vd = self.vd
         pp.save()
         saved = PostPiece.objects.first()
         self.assertEqual(json_add, pp.data)
         self.assertEqual(json_add, saved.data)
+        self.assertEqual(pp.pb.image.vd, pp.vd)
+        self.assertEqual(pp.pb.url.vd, pp.vd)
 
         pp2 = PostPiece()
         pb = PostBase(json_add)
@@ -691,6 +694,8 @@ class PostPieceTest(APITestBase):
         self.assertDictEqual(pp2.pb.cjson, saved.pb.cjson)
         self.assertDictEqual(pb.json, saved.pb.json)
         self.assertDictEqual(pb.cjson, saved.pb.cjson)
+        self.assertEqual(pp2.pb.image.vd, pp2.vd)
+        self.assertEqual(pp2.pb.url.vd, pp2.vd)
 
     def test_mask(self):
         pp = PostPiece()
@@ -772,3 +777,37 @@ class PostBaseTest(APITestBase):
         self.assertIsSubsetOf(json_loads(json_add), json)
         self.printJson(pb.pb_MAMMA)
 
+    def test_vd(self):
+        pp = PostPiece()
+        json_add = json_loads('''
+            {
+                "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
+                "images": [{"content": "http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg"}],
+                "addr1": {"content": "경기도 성남시 분당구 판교로 256번길 25"},
+                "addr2": {"content": "경기도 성남시 분당구 삼평동 631"},
+                "addr3": {"content": "경기도 성남시 분당구 삼평동"},
+                "urls": [{"content": "http://place.kakao.com/places/15738374"}]
+            }
+        ''')
+        pp.data = json_add
+        pp.save()
+        self.assertEqual(pp.pb.vd, None)
+
+        vd1 = VD.objects.create()
+        pp.vd = vd1
+        pp.save()
+        pb = pp.pb
+        self.assertEqual(pb.vd, vd1)
+
+        pp2 = PostPiece()
+        pp2.pb = pp.pb
+        vd2 = VD.objects.create()
+        pp2.vd = vd2
+        pp2.save()
+        pb2 = pp2.pb
+        self.assertEqual(pb2.vd, vd2)
+
+        pb.update(pp2.pb)
+        self.assertEqual(pb.vd, vd1)
+        pb2.update(pp.pb)
+        self.assertEqual(pb2.vd, vd2)

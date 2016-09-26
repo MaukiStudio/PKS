@@ -13,7 +13,7 @@ from place.models import UserPlace, Place, PostPiece
 from image.models import Image
 from content.models import LegacyPlace, PhoneNumber, PlaceName, Address, PlaceNote, ImageNote
 from url.models import Url
-from account.models import VD
+from account.models import VD, RealUser
 from place.post import PostBase
 from base.legacy.urlnorm import norms
 from pks.settings import WORK_ENVIRONMENT
@@ -103,6 +103,12 @@ class UserPlaceViewSetTest(APITestBase):
         self.client.post('/vds/login/', {'auth_vd_token': self.auth_vd_token})
         self.place = Place(); self.place.save()
         self.vd = VD.objects.first()
+        self.ru = RealUser.objects.create(email='gulby@maukistudio.com')
+        self.ru.nickname = "Jinwoo's father"
+        self.ru.data = dict(profile='profile')
+        self.ru.save()
+        self.vd.realOwner = self.ru
+        self.vd.save()
         self.uplace = UserPlace(vd=self.vd)
         self.uplace.save()
 
@@ -358,6 +364,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIsNotSubsetOf(self.uplace.placePost, want)
 
         result = json_loads(response.content)
+        self.printJson(result)
         self.assertIn('created', result)
         self.assertIn('modified', result)
         t1 = result['modified']
@@ -371,6 +378,13 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertDictEqual(result_placePost, self.uplace.placePost.cjson)
         self.assertIn('visit', self.uplace.userPost.cjson)
         self.assertIn('rating', self.uplace.userPost.cjson)
+        self.assertIn('ru', result_userPost)
+        self.assertEqual(result_userPost['ru'], dict(email='gulby@maukistudio.com', nickname="Jinwoo's father", profile='profile'))
+        self.assertIn('vd', result_userPost)
+        self.assertIn('vd', result_userPost['images'][0])
+        self.assertNotIn('ru', result_placePost)
+        self.assertNotIn('vd', result_placePost)
+        self.assertNotIn('vd', result_placePost['images'][0])
 
         # 한번 더...
         response = self.client.post('/uplaces/', dict(add=json_full))

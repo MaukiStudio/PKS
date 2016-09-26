@@ -59,6 +59,16 @@ class RealUser(models.Model):
         self.email = BaseUserManager.normalize_email(self.email)
         super(RealUser, self).save(*args, **kwargs)
 
+    @property
+    def json(self):
+        result = dict()
+        if self.data:
+            result = self.data
+        result['email'] = self.email
+        if self.nickname:
+            result['nickname'] = self.nickname
+        return result
+
 
 class VD(models.Model):
     authOwner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, null=True, default=None, related_name='vds')

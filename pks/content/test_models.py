@@ -13,6 +13,7 @@ from pathlib2 import Path
 from place.models import Place
 from url.models import Url
 from pks.settings import WORK_ENVIRONMENT
+from account.models import VD
 
 
 class LegacyPlaceTest(APITestBase):
@@ -716,3 +717,17 @@ class TagNameTest(APITestBase):
         self.assertEqual(path.exists(), False)
         tname.access_force()
         self.assertEqual(path.exists(), True)
+
+
+class ContentTest(APITestBase):
+
+    def test_vd(self):
+        test_data = '능이백숙 국물 죽이네~ ㅎㅎ'
+        pnote, is_created = PlaceNote.get_or_create_smart(test_data)
+        self.assertEqual(pnote.vd, None)
+        vd = VD.objects.create()
+        pnote.vd = vd
+        self.assertEqual(pnote.vd, vd)
+        pnote.save()
+        pnote_reloaded = PlaceNote.objects.get(id=pnote.id)
+        self.assertEqual(pnote_reloaded.vd, None)

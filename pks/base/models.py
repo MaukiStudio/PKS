@@ -20,6 +20,7 @@ class Point(object):
     def __init__(self, lonLat):
         self.lonLat = lonLat
         self.timestamp = None
+        self.vd = None
 
     @classmethod
     def get_from_json(cls, json):
@@ -32,9 +33,12 @@ class Point(object):
 
     @property
     def json(self):
+        result = dict(lon=self.lonLat.x, lat=self.lonLat.y)
         if self.timestamp:
-            return dict(lon=self.lonLat.x, lat=self.lonLat.y, timestamp=self.timestamp)
-        return dict(lon=self.lonLat.x, lat=self.lonLat.y)
+            result['timestamp'] = self.timestamp
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def cjson(self):
         return self.json
@@ -50,6 +54,7 @@ class Visit(object):
     def __init__(self, content):
         self.content = content
         self.timestamp = None
+        self.vd = None
 
     @classmethod
     def get_from_json(cls, json):
@@ -62,9 +67,12 @@ class Visit(object):
 
     @property
     def json(self):
+        result = dict(content=self.content)
         if self.timestamp:
-            return dict(content=self.content, timestamp=self.timestamp)
-        return dict(content=self.content)
+            result['timestamp'] = self.timestamp
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def cjson(self):
         return self.json
@@ -80,6 +88,7 @@ class Rating(object):
     def __init__(self, content):
         self.content = content
         self.timestamp = None
+        self.vd = None
 
     @classmethod
     def get_from_json(cls, json):
@@ -92,9 +101,12 @@ class Rating(object):
 
     @property
     def json(self):
+        result = dict(content=self.content)
         if self.timestamp:
-            return dict(content=self.content, timestamp=self.timestamp)
-        return dict(content=self.content)
+            result['timestamp'] = self.timestamp
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def cjson(self):
         return self.json
@@ -143,12 +155,18 @@ class Content(models.Model):
 
     @property
     def json(self):
+        result = dict(uuid=self.uuid, content=self.content)
         if self.timestamp:
-            return dict(uuid=self.uuid, content=self.content, timestamp=self.timestamp)
-        return dict(uuid=self.uuid, content=self.content)
+            result['timestamp'] = self.timestamp
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def cjson(self):
-        return dict(content=self.content)
+        result = dict(content=self.content)
+        if self.vd:
+            result['vd'] = self.vd.id
+        return result
     @property
     def ujson(self):
         return dict(uuid=self.uuid)
@@ -176,6 +194,10 @@ class Content(models.Model):
         self.timestamp = None
         self._cache_accessed = None
         self._cache_normalized_content = None
+
+        # Inherited from PostPiece (No save to DB. m:n)
+        self.vd = None
+
         super(Content, self).__init__(*args, **kwargs)
 
     @classmethod
