@@ -68,6 +68,7 @@ class PostBase(object):
         result.iplace_uuid = self.iplace_uuid
 
         result._cache_tags = self._cache_tags and self._cache_tags[:]
+        result.vd = self.vd
         return result
 
     @property

@@ -664,7 +664,8 @@ class PostPieceTest(APITestBase):
 
     def test_data_property(self):
         # TODO : json 에 대한 query 테스트 추가
-        pp = PostPiece()
+        uplace = UserPlace.objects.create()
+        pp = PostPiece(uplace=uplace)
         json_add = json_loads('''
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
@@ -778,7 +779,8 @@ class PostBaseTest(APITestBase):
         self.printJson(pb.pb_MAMMA)
 
     def test_vd(self):
-        pp = PostPiece()
+        uplace = UserPlace.objects.create()
+        pp = PostPiece(uplace=uplace)
         json_add = json_loads('''
             {
                 "lonLat": {"lon": 127.1037430, "lat": 37.3997320},
@@ -799,7 +801,8 @@ class PostBaseTest(APITestBase):
         pb = pp.pb
         self.assertEqual(pb.vd, vd1)
 
-        pp2 = PostPiece()
+        uplace2 = UserPlace.objects.create()
+        pp2 = PostPiece(uplace=uplace2)
         pp2.pb = pp.pb
         vd2 = VD.objects.create()
         pp2.vd = vd2
