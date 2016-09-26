@@ -61,12 +61,11 @@ class RealUser(models.Model):
 
     @property
     def json(self):
-        result = dict()
-        if self.data:
-            result = self.data
-        result['email'] = self.email
+        result = dict(email=self.email)
         if self.nickname:
             result['nickname'] = self.nickname
+        if self.data:
+            result['data'] = self.data
         return result
 
 

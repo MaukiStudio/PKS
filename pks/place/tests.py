@@ -379,7 +379,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertIn('visit', self.uplace.userPost.cjson)
         self.assertIn('rating', self.uplace.userPost.cjson)
         self.assertIn('ru', result_userPost)
-        self.assertEqual(result_userPost['ru'], dict(email='gulby@maukistudio.com', nickname="Jinwoo's father", profile='profile'))
+        self.assertEqual(result_userPost['ru'], dict(email='gulby@maukistudio.com', nickname="Jinwoo's father", data=dict(profile='profile')))
         self.assertIn('vd', result_userPost)
         self.assertIn('vd', result_userPost['images'][0])
         self.assertNotIn('ru', result_placePost)
