@@ -7,6 +7,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models import Count
+from json import loads as json_loads
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
@@ -56,6 +57,8 @@ class RealUser(models.Model):
     def save(self, *args, **kwargs):
         if not self.email:
             raise ValueError('RealUser.email cannot be None')
+        if self.data and type(self.data) is not dict:
+            self.data = json_loads(self.data)
         self.email = BaseUserManager.normalize_email(self.email)
         super(RealUser, self).save(*args, **kwargs)
 
