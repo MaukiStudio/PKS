@@ -16,6 +16,6 @@ class AfterLoginTaskTest(FunctionalTestAfterLoginBase):
         task = AfterLoginTaskWrapper()
         r = task.delay(self.vd_id)
 
-        from place.libs import compute_regions
-        result, is_created = cache_get_or_create(self.vd, 'regions', None, compute_regions, None, self.vd)
+        from place.libs import compute_regions_impl
+        result, is_created = cache_get_or_create(self.vd, 'regions', None, compute_regions_impl, None, self.vd)
         self.assertEqual(is_created, False)

@@ -6,6 +6,7 @@ from django.db.models import F
 from place.models import UserPlace
 from base.libs import Group, Clustering
 from importer.tasks import distance_geography
+from base.cache import cache_get_or_create
 
 
 class RegionClustering(Clustering):
@@ -46,6 +47,11 @@ def get_proper_uplaces_qs(vd, qs=None):
 
 
 def compute_regions(uplaces=None, vd=None):
+    result, is_created = cache_get_or_create(vd, 'regions', None, compute_regions_impl, None, vd)
+    return result
+
+
+def compute_regions_impl(uplaces=None, vd=None):
     if not uplaces:
         if not vd:
             raise NotImplementedError

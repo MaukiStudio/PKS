@@ -12,7 +12,7 @@ class AfterLoginTask(object):
 
         # regions API 결과 캐싱
         from place.libs import compute_regions
-        cache_set(vd, 'regions', None, compute_regions, None, vd)
+        compute_regions(None, vd)
 
         return True
 
