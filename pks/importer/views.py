@@ -13,7 +13,7 @@ from base.views import BaseViewset
 from importer.models import Proxy, Importer, ImportedPlace
 from importer.serializers import ProxySerializer, ImporterSerializer, ImportedPlaceSerializer
 from account.models import VD, RealUser
-from place.models import Place, UserPlace, PostPiece
+from place.models import UserPlace, PostPiece
 from place.post import PostBase
 from place.serializers import UserPlaceSerializer
 from base.utils import convert_to_json
@@ -153,8 +153,9 @@ class ImportedPlaceViewset(BaseViewset):
         serializer = UserPlaceSerializer(uplace)
 
         # for make taken place hidden
-        from base.cache import cache_expire
+        from base.cache import cache_expire, cache_expire_ru
         cache_expire(vd, 'realOwner_place_ids')
+        cache_expire_ru(vd, 'uplaces')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'])

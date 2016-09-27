@@ -13,6 +13,7 @@ from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSer
 from base.views import BaseViewset
 from place.post import PostBase
 from base.utils import get_timestamp
+from base.cache import cache_expire_ru
 
 
 class PlaceViewset(BaseViewset):
@@ -182,6 +183,7 @@ class UserPlaceViewset(BaseViewset):
         # 결과 처리
         #######################################
         serializer = self.get_serializer(uplace)
+        cache_expire_ru(vd, 'uplaces')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -201,6 +203,9 @@ class UserPlaceViewset(BaseViewset):
             instance.save()
             pb = PostBase('{"notes": [{"content": "delete"}]}')
             pp = PostPiece.create_smart(instance, pb, is_drop=True)
+
+        # remove cache
+        cache_expire_ru(vd, 'uplaces')
 
     @list_route(methods=['get'])
     def regions(self, request):
@@ -237,4 +242,5 @@ class UserPlaceViewset(BaseViewset):
         uplace_temp = UserPlace.objects.create(vd=vd, is_bounded=True, place=uplace.place, lonLat=uplace.lonLat)
         pp = PostPiece.create_smart(uplace_temp, pb)
         serializer = self.get_serializer(uplace_temp)
+        cache_expire_ru(vd, 'uplaces')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
