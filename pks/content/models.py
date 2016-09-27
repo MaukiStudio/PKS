@@ -502,9 +502,10 @@ class PlaceNote(Content):
 
     @property
     def cjson(self):
+        result = super(PlaceNote, self).cjson
         if self.timestamp:
-            return dict(content=self.content, timestamp=self.timestamp)
-        return dict(content=self.content)
+            result['timestamp'] = self.timestamp
+        return result
 
     @property
     def content_for_search(self):
