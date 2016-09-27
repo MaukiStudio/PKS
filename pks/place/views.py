@@ -13,7 +13,6 @@ from place.serializers import PlaceSerializer, UserPlaceSerializer, PostPieceSer
 from base.views import BaseViewset
 from place.post import PostBase
 from base.utils import get_timestamp
-from base.cache import cache_get_or_create
 
 
 class PlaceViewset(BaseViewset):
