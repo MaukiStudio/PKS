@@ -347,7 +347,7 @@ class PostBase(object):
         if self.addrs3: json['addr3'] = self.addr3.cjson
         if self.lps: json['lps'] = [lp.cjson for lp in self.lps]
         if self.urls: json['urls'] = [url.cjson for url in self.urls]
-        if self.notes: json['notes'] = [note.cjson for note in self.notes]
+        if self.notes: json['notes'] = [note.cjson for note in self.notes if not note.is_only_for_tag]
         if self.images: json['images'] = [img.cjson for img in self.images]
         if self.iplace_uuid: json['iplace_uuid'] = self.iplace_uuid
         if self.tags: json['tags'] = [tag.cjson for tag in self.tags]

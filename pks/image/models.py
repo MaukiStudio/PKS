@@ -26,8 +26,8 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 IMG_WH_MAX_SIZE = 1280
-CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', 'http://placekoob.com'),
-                      ('http://neapk-test01.japaneast.cloudapp.azure.com', 'http://placekoob.com')]
+CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', SERVER_HOST),
+                      ('http://neapk-test01.japaneast.cloudapp.azure.com', SERVER_HOST)]
 
 
 class Image(Content):
@@ -66,7 +66,6 @@ class Image(Content):
         else:
             if _url.startswith('/'):
                 return '%s%s' % (SERVER_HOST, _url)
-
         raise NotImplementedError
 
     def pre_save(self, is_created):
@@ -234,7 +233,7 @@ class Image(Content):
             result['note'] = self.note.json
         if self.vd:
             result['vd'] = self.vd.id
-        return result
+        return self.compress_json(result)
     @property
     def cjson(self):
         result = dict(content=self.url_for_access, summary=self.url_summarized)
@@ -242,7 +241,7 @@ class Image(Content):
             result['note'] = self.note.cjson
         if self.vd:
             result['vd'] = self.vd.id
-        return result
+        return self.compress_json(result)
     @property
     def ujson(self):
         result = dict(uuid=self.uuid)

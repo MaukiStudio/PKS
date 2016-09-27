@@ -153,6 +153,14 @@ class Content(models.Model):
     def on_create(self):
         pass
 
+    @classmethod
+    def compress_json(self, json):
+        if 'content' in json:
+            json['content'] = json['content'].replace(SERVER_HOST, '')
+        if 'summary' in json:
+            json['summary'] = json['summary'].replace(SERVER_HOST, '')
+        return json
+
     @property
     def json(self):
         result = dict(uuid=self.uuid, content=self.content)
@@ -160,13 +168,13 @@ class Content(models.Model):
             result['timestamp'] = self.timestamp
         if self.vd:
             result['vd'] = self.vd.id
-        return result
+        return self.compress_json(result)
     @property
     def cjson(self):
         result = dict(content=self.content)
         if self.vd:
             result['vd'] = self.vd.id
-        return result
+        return self.compress_json(result)
     @property
     def ujson(self):
         return dict(uuid=self.uuid)
