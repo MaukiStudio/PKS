@@ -71,8 +71,11 @@ def cache_expire(vd, name, ttl=0):
     django_cache.expire(value_key, timeout=ttl)
 
 
-def cache_expire_ru(ru, name, ttl=0):
-    for vd in ru.vds.all():
+def cache_expire_ru(vd, name, ttl=0):
+    if vd.realOwner:
+        for vd in vd.realOwner.vds.all():
+            cache_expire(vd, name, ttl)
+    else:
         cache_expire(vd, name, ttl)
 
 

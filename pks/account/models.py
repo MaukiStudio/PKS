@@ -190,10 +190,9 @@ class VD(models.Model):
     def save(self, *args, **kwargs):
         if not self.mask:
             self.mask = 0
-        if self.realOwner:
-            cache_expire_ru(self.realOwner, 'realOwner_vd_ids')
         self.data = convert_to_json(self.data)
         self.accessHistory = convert_to_json(self.accessHistory)
+        cache_expire_ru(self, 'realOwner_vd_ids')
         super(VD, self).save(*args, **kwargs)
 
     # TODO : 제대로 구현하기

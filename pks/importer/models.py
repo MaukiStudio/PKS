@@ -70,8 +70,7 @@ class Importer(models.Model):
         if not self.publisher or not self.subscriber:
             raise IntegrityError('Importer.publisher and subscriber must not be None')
         if self.subscriber:
-            if self.subscriber.realOwner:
-                cache_expire_ru(self.subscriber.realOwner, 'realOwner_publisher_ids')
+            cache_expire_ru(self.subscriber, 'realOwner_publisher_ids')
         super(Importer, self).save(*args, **kwargs)
 
     def reload(self):
