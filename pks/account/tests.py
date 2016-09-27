@@ -141,7 +141,7 @@ class VDRegisterTest(APITestBase):
         self.assertEqual(vd.country, country)
         self.assertEqual(vd.language, language)
         self.assertEqual(vd.timezone, timezone)
-        self.assertEqual(vd.data, data)
+        self.assertEqual(vd.data, json_loads(data))
         self.assertEqual(user, vd.authOwner)
         self.assertEqual(user.email, email)
 

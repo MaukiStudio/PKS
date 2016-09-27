@@ -21,7 +21,7 @@ class StorageScenarioTest(FunctionalTestAfterLoginBase):
         response = self.client.patch('/storages/new_key/', dict(value=json))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
-        self.assertEqual(result['value'], json)
+        self.assertEqual(result['value'], json_loads(json))
 
 
 class TrackingScenarioTest(FunctionalTestAfterLoginBase):

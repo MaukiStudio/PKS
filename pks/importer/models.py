@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db import IntegrityError
-from json import loads as json_loads
 
 from account.models import VD, RealUser
 from place.models import UserPlace
 from base.cache import cache_expire_ru
+from base.utils import convert_to_json
 
 
 class Proxy(models.Model):
@@ -31,8 +31,7 @@ class Proxy(models.Model):
         if not self.id:
             # 나중에 vd 가 바뀔 수 있으며, 이때부터 proxy.id != proxy.vd.id
             self.id = self.vd.id
-        if self.guide and type(self.guide) is not dict:
-            self.guide = json_loads(self.guide)
+        self.guide = convert_to_json(self.guide)
         super(Proxy, self).save(*args, **kwargs)
 
     def reload(self):

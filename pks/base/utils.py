@@ -119,3 +119,14 @@ def merge_sort(ll, key, reversed=True, remove_duplicates=True):
         pointer[result_i] += 1
 
     return result
+
+
+def convert_to_json(v):
+    if not v:
+        return None
+    if type(v) in (dict, list):
+        return v
+    if type(v) in (str, unicode):
+        from json import loads as json_loads
+        return json_loads(v)
+    raise ValueError

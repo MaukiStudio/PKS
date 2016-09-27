@@ -7,11 +7,10 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db.models import Count
-from json import loads as json_loads
 
 from cryptography.fernet import Fernet
 from pks.settings import VD_ENC_KEY
-from base.utils import get_timestamp, BIT_ON_6_BYTE, BIT_ON_8_BYTE
+from base.utils import get_timestamp, BIT_ON_6_BYTE, BIT_ON_8_BYTE, convert_to_json
 from base.cache import cache_get_or_create, cache_expire_ru
 
 
@@ -57,8 +56,7 @@ class RealUser(models.Model):
     def save(self, *args, **kwargs):
         if not self.email:
             raise ValueError('RealUser.email cannot be None')
-        if self.data and type(self.data) is not dict:
-            self.data = json_loads(self.data)
+        self.data = convert_to_json(self.data)
         self.email = BaseUserManager.normalize_email(self.email)
         super(RealUser, self).save(*args, **kwargs)
 
@@ -194,6 +192,8 @@ class VD(models.Model):
             self.mask = 0
         if self.realOwner:
             cache_expire_ru(self.realOwner, 'realOwner_vd_ids')
+        self.data = convert_to_json(self.data)
+        self.accessHistory = convert_to_json(self.accessHistory)
         super(VD, self).save(*args, **kwargs)
 
     # TODO : 제대로 구현하기
@@ -256,6 +256,10 @@ class Storage(models.Model):
 
     class Meta:
         unique_together = ('vd', 'key',)
+
+    def save(self, *args, **kwargs):
+        self.value = convert_to_json(self.value)
+        super(Storage, self).save(*args, **kwargs)
 
 
 class Tracking(models.Model):

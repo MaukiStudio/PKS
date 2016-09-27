@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from rest_framework.response import Response
 from rest_framework import status
-from json import loads as json_loads
 from rest_framework.decorators import detail_route
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
@@ -17,6 +16,7 @@ from account.models import VD, RealUser
 from place.models import Place, UserPlace, PostPiece
 from place.post import PostBase
 from place.serializers import UserPlaceSerializer
+from base.utils import convert_to_json
 
 
 class ProxyViewset(BaseViewset):
@@ -34,9 +34,7 @@ class ImporterViewset(BaseViewset):
         if not vd: return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # guide 조회
-        guide = request.data['guide']
-        if type(guide) is not dict:
-            guide = json_loads(guide)
+        guide = convert_to_json(request.data['guide'])
 
         # myself 변환
         if 'vd' in guide and guide['vd'] == 'myself':
