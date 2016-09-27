@@ -46,12 +46,12 @@ def get_proper_uplaces_qs(vd, qs=None):
     return qs
 
 
-def compute_regions(uplaces=None, vd=None):
-    result, is_created = cache_get_or_create(vd, 'regions', None, compute_regions_impl, None, vd)
+def compute_regions(vd, uplaces=None):
+    result, is_created = cache_get_or_create(vd, 'regions', None, compute_regions_impl, vd)
     return result
 
 
-def compute_regions_impl(uplaces=None, vd=None):
+def compute_regions_impl(vd, uplaces=None):
     if not uplaces:
         if not vd:
             raise NotImplementedError

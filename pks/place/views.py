@@ -206,7 +206,7 @@ class UserPlaceViewset(BaseViewset):
     @list_route(methods=['get'])
     def regions(self, request):
         from place.libs import compute_regions
-        result = compute_regions(None, self.vd)
+        result = compute_regions(self.vd)
         json = list()
         if result:
             for r in result[:120]:

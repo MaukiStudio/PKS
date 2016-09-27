@@ -22,7 +22,7 @@ class RegionTest(APITestBase):
                 self.uplaces.append(uplace)
 
     def __skip__test_compute_regions(self):
-        result = compute_regions(uplaces=self.uplaces)
+        result = compute_regions(vd=None, uplaces=self.uplaces)
         for g in result[:5]:
             print('http://map.naver.com/?dlevel=10&x=%f&y=%f : %d, %0.1f' % (g.lonLat.x, g.lonLat.y, g.count, g.radius))
         self.fail()
