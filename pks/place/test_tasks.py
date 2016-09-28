@@ -25,6 +25,7 @@ class PlaceTaskTest(APITestBase):
         task = PlaceTaskWrapper()
         task.delay(place.id)
         place = Place.objects.get(id=place.id)
+        place._clearCache()
         self.assertEqual(place.placePost.addr.content, 'South Korea, Gyeonggi-do, Hanam-si, Pungsan-dong, 풍산로 270')
         self.assertEqual(place.placePost.phone.content, '+82317961917')
 
