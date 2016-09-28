@@ -94,8 +94,16 @@ class ImportedPlace(UserPlace):
     class Meta:
         proxy = True
 
+    def __init__(self, *args, **kwargs):
+        self.subscriber = None
+        super(ImportedPlace, self).__init__(*args, **kwargs)
+
     @property
-    def userPost(self):
-        if self.place and not self.is_bounded:
-            return self.place.userPost
-        return super(ImportedPlace, self).userPost
+    def vd_ids(self):
+        if self._cache_vd_ids is None:
+            self._cache_vd_ids = []
+            if self.vd:
+                self._cache_vd_ids.extend(self.vd.realOwner_vd_ids)
+            if self.subscriber:
+                self._cache_vd_ids.extend(self.subscriber.realOwner_publisher_ids)
+        return self._cache_vd_ids

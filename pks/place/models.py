@@ -19,6 +19,7 @@ from base.models import Point
 from content.models import PlaceName
 from base.libs import distance_geography
 from pks.settings import VD_ENC_KEY
+from base.cache import cache_get_or_create, cache_expire
 
 RADIUS_LOCAL_RANGE = 150
 
@@ -30,7 +31,6 @@ class Place(models.Model):
 
     def __init__(self, *args, **kwargs):
         self._cache_placePost = None
-        self._cache_userPost = None
         super(Place, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -38,52 +38,25 @@ class Place(models.Model):
             return self.placeName.content
         return 'No named place object'
 
-    def computePost(self, vd_ids=None, base_post=None):
-        # placePost
-        pb = PostBase()
-        for pp in self.pps.all().filter(uplace=None).order_by('id'):
-            if pp.is_bounded:
-                continue
-            pb_new = pp.pb
-            pb.update(pb_new, pp.is_add)
-        pb.place_id = self.id
-        pb.normalize()
-        self._cache_placePost = pb
-
-        # userPost
-        if vd_ids:
-            base_post = base_post and base_post.copy()
-            pb = base_post or PostBase()
-            for pp in self.pps.filter(vd__in=vd_ids).order_by('id'):
-                if pp.is_bounded:
-                    continue
-                if pp.is_drop:
-                    # TODO : 이 부분이 테스트되는 테스트 추가
-                    if pp.vd in vd_ids:
-                        pb = base_post or PostBase()
-                    else:
-                        # TODO : 친구는 이 장소를 drop 했으므로... 이를 어떠한 형태로든 userPost 에 반영하기
-                        pass
-                    pass
-                else:
-                    pb.update(pp.pb, pp.is_add)
-            pb.place_id = self.id
-            pb.normalize()
-            self._cache_userPost = pb
-
     def _clearCache(self):
+        cache_expire(None, 'placePost_%s' % self.id)
         self._cache_placePost = None
-        self._cache_userPost = None
 
     @property
     def placePost(self):
+        def helper(self):
+            pb = PostBase()
+            for pp in self.pps.all().filter(uplace=None).order_by('id'):
+                if pp.is_bounded:
+                    continue
+                pb_new = pp.pb
+                pb.update(pb_new, pp.is_add)
+            pb.place_id = self.id
+            pb.normalize()
+            return pb
         if not self._cache_placePost:
-            self.computePost()
+            self._cache_placePost, is_created = cache_get_or_create(None, 'placePost_%s' % self.id, None, helper, self)
         return self._cache_placePost
-
-    @property
-    def userPost(self):
-        return self._cache_userPost
 
     @property
     def _totalPost(self):
@@ -190,9 +163,10 @@ class UserPlace(models.Model):
     shorten_url = models.CharField(max_length=254, blank=True, null=True, default=None)
 
     def __init__(self, *args, **kwargs):
-        self._cache_pb = None
+        self._cache_userPost = None
         self._cache_prev_tags = None
         self._cache_prev_NLL = None
+        self._cache_vd_ids = None
         self._origin = None
         self._search_tags = None
         super(UserPlace, self).__init__(*args, **kwargs)
@@ -288,40 +262,61 @@ class UserPlace(models.Model):
             else:
                 self.placed(place)
 
-    def computePost(self, vd_ids=None, base_post=None):
-        if self.place and not self.is_bounded:
-            self.place.computePost(vd_ids, base_post)
-            self._cache_pb = self.place.userPost
-        else:
-            base_post = base_post and base_post.copy()
-            pb = base_post or PostBase()
-            for pp in self.pps.all().order_by('id'):
-                if pp.is_drop:
-                    # TODO : 이 부분이 테스트되는 테스트 추가
-                    pb = base_post or PostBase()
-                else:
-                    pb.update(pp.pb, pp.is_add)
-            pb.uplace_uuid = self.uuid
-            pb.place_id = self.place_id
-            pb.normalize()
-            self._cache_pb = pb
-
     def _clearCache(self):
-        self._cache_pb = None
+        cache_expire(self.vd, 'userPost_%s' % self.id)
+        self._cache_userPost = None
         if self.place:
             self.place._clearCache()
 
     @property
+    def vd_ids(self):
+        if self._cache_vd_ids is None:
+            self._cache_vd_ids = []
+            if self.vd:
+                self._cache_vd_ids.extend(self.vd.realOwner_vd_ids)
+                self._cache_vd_ids.extend(self.vd.realOwner_publisher_ids)
+        return self._cache_vd_ids
+
+    @property
+    def base_post(self):
+        base_post = self.parent and self.parent.userPost or PostBase()
+        # TODO : 아래 코드가 기억나지 않음 ㅠ_ㅜ 정체 파악 후 다시 부활
+        #base_post.reset_except_region_property()
+        base_post = base_post.copy()
+        return base_post
+
+    @property
     def userPost(self):
-        if not self._cache_pb:
-            # base_post 는 parent/chlid 구조를 위한 것 : parent has child (import 와는 무관)
-            base_post = self.parent and self.parent.userPost or PostBase()
-            base_post.reset_except_region_property()
-            vd_ids = None
-            if self.vd and self.place:
-                vd_ids = self.vd.realOwner_vd_ids + self.vd.realOwner_publisher_ids
-            self.computePost(vd_ids, base_post)
-        return self._cache_pb
+        def helper(self):
+            pb = self.base_post
+            if self.place and not self.is_bounded:
+                for pp in self.place.pps.filter(vd__in=self.vd_ids).order_by('id'):
+                    if pp.is_bounded:
+                        continue
+                    if pp.is_drop:
+                        # TODO : 이 부분이 테스트되는 테스트 추가
+                        if pp.vd in self.vd_ids:
+                            pb = self.base_post
+                        else:
+                            # TODO : 친구는 이 장소를 drop 했으므로... 이를 어떠한 형태로든 userPost 에 반영하기
+                            pass
+                        pass
+                    else:
+                        pb.update(pp.pb, pp.is_add)
+            else:
+                for pp in self.pps.all().order_by('id'):
+                    if pp.is_drop:
+                        # TODO : 이 부분이 테스트되는 테스트 추가
+                        pb = self.base_post or PostBase()
+                    else:
+                        pb.update(pp.pb, pp.is_add)
+            pb.uplace_uuid = self.uuid
+            pb.place_id = self.place_id
+            pb.normalize()
+            return pb
+        if not self._cache_userPost:
+            self._cache_userPost, is_created = cache_get_or_create(self.vd, 'userPost_%s' % self.id, None, helper, self)
+        return self._cache_userPost
 
     @property
     def placePost(self):
@@ -669,7 +664,6 @@ class PostPiece(models.Model):
         if self.uplace:
             vd = self.vd
         pb1 = PostBase(self.data, self.timestamp, vd)
-        # 하기 기능은 computePost() 시 vd_ids 에 realOwner_publisher_ids 를 넘기는 방식으로 구현 변경
         '''
         if pb1.iplace_uuid:
             iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)

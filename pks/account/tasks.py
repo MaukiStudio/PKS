@@ -1,8 +1,6 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from base.cache import cache_set
-
 
 class AfterLoginTask(object):
 
@@ -10,10 +8,9 @@ class AfterLoginTask(object):
         from account.models import VD
         vd = VD.objects.get(id=vd_id)
 
-        # regions API 결과 캐싱
-        from place.libs import compute_regions, get_proper_uplaces_qs
-        _ = get_proper_uplaces_qs(vd)
-        _ = compute_regions(vd)
+        # 캐싱 : uplaces, regions
+        from place.libs import compute_regions
+        compute_regions(vd)
 
         return True
 

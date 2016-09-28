@@ -2,15 +2,21 @@
 from __future__ import unicode_literals
 
 from django.core.cache import cache as django_cache
+from pks.settings import WORK_ENVIRONMENT
 
 TTL_DEFAULT = 10*60
 TTL_MIN = 1*60
+if WORK_ENVIRONMENT:
+    TTL_DEFAULT = TTL_MIN
+
 
 def get_value_key(vd, name):
-    return 'v%s_%s' % (vd.id, name)
+    vd_id = vd and vd.id or 0
+    return 'v%s_%s' % (vd_id, name)
 
 def get_lock_key(vd, name):
-    return 'l%s_%s' % (vd.id, name)
+    vd_id = vd and vd.id or 0
+    return 'l%s_%s' % (vd_id, name)
 
 def init_ttl(ttl):
     if not ttl:
@@ -88,3 +94,11 @@ def cache_clear(vd):
 def cache_clear_ru(ru):
     for vd in ru.vds.all():
         cache_clear(vd)
+
+
+def cache_clear_all():
+    if WORK_ENVIRONMENT:
+        searcher = '*'
+        for value_key in django_cache.keys(searcher):
+            print(value_key)
+            django_cache.expire(value_key, timeout=0)

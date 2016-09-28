@@ -27,8 +27,5 @@ class ImportedPlaceSerializer(UserPlaceSerializer):
     def to_representation(self, instance):
         vd = self.vd
         if vd:
-            # base_post 는 parent/chlid 구조를 위한 것 : parent has child (import 와는 무관)
-            base_post = instance.parent and instance.parent.userPost or PostBase()
-            base_post.reset_except_region_property()
-            instance.computePost(vd.realOwner_publisher_ids, base_post)
+            instance.subscriber = vd
         return super(ImportedPlaceSerializer, self).to_representation(instance)

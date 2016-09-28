@@ -40,60 +40,57 @@ def get_valid_uplaces_qs(qs=None):
 
 
 def get_proper_uplaces_qs(vd, qs=None):
-    result, is_created = cache_get_or_create(vd, 'uplaces', None, get_proper_uplaces_qs_impl, vd, qs)
+    def helper(vd, qs=None):
+        qs = get_valid_uplaces_qs(qs)
+        qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
+        qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
+        return qs
+    result, is_created = cache_get_or_create(vd, 'uplaces', None, helper, vd, qs)
     return result
-
-
-def get_proper_uplaces_qs_impl(vd, qs=None):
-    qs = get_valid_uplaces_qs(qs)
-    qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
-    qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
-    return qs
 
 
 def compute_regions(vd, uplaces=None):
-    result, is_created = cache_get_or_create(vd, 'regions', None, compute_regions_impl, vd)
-    return result
+    def helper(vd, uplaces=None):
+        if not uplaces:
+            if not vd:
+                raise NotImplementedError
+            uplaces = list(get_proper_uplaces_qs(vd).exclude(lonLat=None))
+            for uplace in uplaces:
+                uplace.value = uplace.lonLat
+                uplace.timestamp = uplace.modified
+        if len(uplaces) == 0:
+            return None
 
-
-def compute_regions_impl(vd, uplaces=None):
-    if not uplaces:
-        if not vd:
-            raise NotImplementedError
-        uplaces = list(get_proper_uplaces_qs(vd).exclude(lonLat=None))
-        for uplace in uplaces:
-            uplace.value = uplace.lonLat
-            uplace.timestamp = uplace.modified
-    if len(uplaces) == 0:
-        return None
-
-    group0 = Group()
-    group0.members = uplaces
-    m_value = group0.lonLat
-    from place.models import RADIUS_LOCAL_RANGE
-    cluster = RegionClustering(group0, RADIUS_LOCAL_RANGE, distance_geography, m_value, True)
-    cluster.run()
-    elements = cluster.result
-    for e in elements:
-        e.type = 'lonLat'
-
-    for i in [6, 5, 4]:
         group0 = Group()
-        group0.members = elements
+        group0.members = uplaces
         m_value = group0.lonLat
-        cluster = RegionClustering(group0, i*1000, distance_geography, m_value, True)
+        from place.models import RADIUS_LOCAL_RANGE
+        cluster = RegionClustering(group0, RADIUS_LOCAL_RANGE, distance_geography, m_value, True)
         cluster.run()
-        cluster.result.sort(key=lambda g: g.count, reverse=True)
-        for r in cluster.result:
-            uplace = UserPlace(lonLat=r.lonLat)
-            uplace.value = uplace.lonLat
-            uplace.timestamp = 0
-            g = Group([uplace])
-            g.type = 'lonLat'
-            elements.append(g)
+        elements = cluster.result
+        for e in elements:
+            e.type = 'lonLat'
 
-    result = [member for member in cluster.result if member.count > 0]
-    result.sort(key=lambda g: g.count, reverse=True)
-    for g in result:
-        g.distance = distance_geography
+        for i in [6, 5, 4]:
+            group0 = Group()
+            group0.members = elements
+            m_value = group0.lonLat
+            cluster = RegionClustering(group0, i*1000, distance_geography, m_value, True)
+            cluster.run()
+            cluster.result.sort(key=lambda g: g.count, reverse=True)
+            for r in cluster.result:
+                uplace = UserPlace(lonLat=r.lonLat)
+                uplace.value = uplace.lonLat
+                uplace.timestamp = 0
+                g = Group([uplace])
+                g.type = 'lonLat'
+                elements.append(g)
+
+        result = [member for member in cluster.result if member.count > 0]
+        result.sort(key=lambda g: g.count, reverse=True)
+        for g in result:
+            g.distance = distance_geography
+        return result
+
+    result, is_created = cache_get_or_create(vd, 'regions', None, helper, vd)
     return result

@@ -11,6 +11,7 @@ from account.models import VD, RealUser
 from place.models import UserPlace, Place, PostPiece
 from place.post import PostBase
 from image.models import Image
+from base.cache import cache_clear_all
 
 
 class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
@@ -125,8 +126,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         uplace = self.uplace32_album; pb = self.pb32_album
         self.pp32_album = PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd)
 
-        #self.reset_cache()
-
     def reset_cache(self):
         self.clear_cache_ru(self.ru1)
         self.clear_cache_ru(self.ru2)
@@ -139,7 +138,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         pb.uplace_uuid = None
         uplace, is_created = UserPlace.get_or_create_smart(pb, vd)
         pp = PostPiece.create_smart(uplace, pb)
-        #self.reset_cache()
         return uplace
 
     def assertMembersIn(self, members, container):
@@ -286,6 +284,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         uplace = iiplace32_album; pb = pb32_album_2
         pp32_album_2 = PostPiece.objects.create(uplace=uplace, pb=pb, place=uplace.place, vd=uplace.vd)
 
+        self.reset_cache()
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
@@ -299,6 +298,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         # ru1 imports ru3
         self.importer_ru1_ru3 = Importer.objects.create(publisher=self.proxy_ru3, subscriber=self.vd11)
 
+        self.reset_cache()
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']

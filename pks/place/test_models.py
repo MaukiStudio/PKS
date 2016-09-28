@@ -441,6 +441,8 @@ class PostTest(APITestBase):
         uplace3 = UserPlace.objects.create(parent=uplace1)
         self.assertEqual(uplace3.parent, uplace1)
         self.assertNotEqual(uplace3.userPost, uplace1.userPost)
+        self.printJson(uplace3.userPost.json)
+        self.printJson(uplace1.userPost.json)
         self.assertEqual(uplace3.userPost.json, uplace1.userPost.json)
         uplace1._clearCache()
         uplace3._clearCache()
@@ -517,6 +519,7 @@ class PostTest(APITestBase):
         place2 = uplace.place
         self.assertEqual(place1, place2)
         self.assertEqual(Place.objects.count(), 1)
+        place2._clearCache()
         self.assertNotEqual(place2.placePost.addr1, None)
         self.assertEqual(PostPiece.objects.count(), 2)
 

@@ -121,10 +121,10 @@ class ImportedPlaceTest(APITestBase):
         self.pp5 = PostPiece.create_smart(self.iplace5, self.pb5)
 
     def test_userPost(self):
-        self.iplace.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.iplace.subscriber = self.vd_subscriber
         self.assertNotEqual(self.iplace.userPost, None)
         self.assertIsSubsetOf(self.pb, self.iplace.userPost)
 
-        self.iplace5.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.iplace.subscriber = self.vd_subscriber
         self.assertNotEqual(self.iplace5.userPost, None)
         self.assertIsSubsetOf(self.pb5, self.iplace5.userPost)

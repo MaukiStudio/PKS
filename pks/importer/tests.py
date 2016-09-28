@@ -182,7 +182,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertNotIn('mask', results[0])
         self.assertEqual(results[0]['iplace_uuid'], self.iplace4.uuid)
         self.assertEqual(results[1]['iplace_uuid'], self.iplace.uuid)
-        self.iplace.computePost(self.vd_subscriber.realOwner_publisher_ids)
+        self.iplace.subscriber = self.vd_subscriber
         self.assertNotEqual(self.iplace.userPost, None)
         self.assertIsSubsetOf(self.pb, self.iplace.userPost)
         self.assertNotEqual(results[1]['userPost'], None)

@@ -4,10 +4,8 @@ from __future__ import print_function
 
 from json import loads as json_loads
 from rest_framework import status
-from django.contrib.gis.geos import GEOSGeometry
 
 from base.tests import APITestBase, FunctionalTestAfterLoginBase
-from content.models import PlaceNote
 from place.models import UserPlace
 
 
@@ -49,6 +47,10 @@ class PlaceTagViewTest(APITestBase):
 
 class PostWithTagsTest(FunctionalTestAfterLoginBase):
 
+    def _clearCache(self):
+        from base.cache import cache_clear
+        cache_clear(None)
+
     def setUp(self):
         super(PostWithTagsTest, self).setUp()
         self.uplace = UserPlace.objects.create()
@@ -66,6 +68,7 @@ class PostWithTagsTest(FunctionalTestAfterLoginBase):
         self.assertIn(dict(content='C'), result_userPost['tags'])
 
         json_add2 = '{"notes": [{"content": "아 변했음. 여기 이제 A #B #-C 아님"}]}'
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(add=json_add2, uplace_uuid=self.uplace.uuid,))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.uplace = UserPlace.objects.first()

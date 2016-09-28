@@ -39,7 +39,7 @@ class PlaceViewSetTest(APITestBase):
         result = json_loads(response.content)
         self.assertIn('results', result)
         self.assertEqual(len(result['results']), 1)
-        self.assertIn('userPost', result['results'][0])
+        self.assertNotIn('userPost', result['results'][0])
         self.assertIn('placePost', result['results'][0])
 
         point1 = GEOSGeometry('POINT(127.1037430 37.3997320)', srid=4326)
@@ -92,6 +92,10 @@ class PlaceViewSetTest(APITestBase):
 
 
 class UserPlaceViewSetTest(APITestBase):
+
+    def _clearCache(self):
+        from base.cache import cache_clear
+        cache_clear(self.vd)
 
     def setUp(self):
         super(UserPlaceViewSetTest, self).setUp()
@@ -350,6 +354,7 @@ class UserPlaceViewSetTest(APITestBase):
 
         self.assertEqual(UserPlace.objects.count(), 1)
         self.assertEqual(Place.objects.count(), 1)
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(add=json_full))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
@@ -387,6 +392,7 @@ class UserPlaceViewSetTest(APITestBase):
         self.assertNotIn('vd', result_placePost['images'][0])
 
         # 한번 더...
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(add=json_full))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
@@ -422,6 +428,7 @@ class UserPlaceViewSetTest(APITestBase):
         # 삭제 포스트
         self.assertEqual(len(result_userPost['urls']), 3)
         json_remove = '{"urls": [{"content": "%s"}], "phone": {"content": "%s"}}' % (url12.content, phone1.content,)
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(remove=json_remove, uplace_uuid=self.uplace.uuid))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserPlace.objects.count(), 1)
@@ -531,6 +538,7 @@ class UserPlaceViewSetTest(APITestBase):
                 "images": [{"content": "%s"}]
             }
         ''' % (uplace.uuid, img2_content,)
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)['userPost']

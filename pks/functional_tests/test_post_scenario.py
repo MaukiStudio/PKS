@@ -6,9 +6,13 @@ from json import loads as json_loads
 from rest_framework import status
 
 from base.tests import FunctionalTestAfterLoginBase
+from base.cache import cache_clear
 
 
 class PostScenarioTest(FunctionalTestAfterLoginBase):
+    def _clearCache(self):
+        cache_clear(self.vd)
+
     '''
         Post Json Schema
             {
@@ -120,6 +124,8 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "images": [{"content": "%s", "note": {"content": "%s"}}]
             }
         ''' % (uplace_uuid, file_url, note,)
+
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(add=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)
@@ -137,6 +143,7 @@ class PostScenarioTest(FunctionalTestAfterLoginBase):
                 "images": [{"content": "%s"}]
             }
         ''' % (uplace_uuid, remove_url_sample,)
+        self._clearCache()
         response = self.client.post('/uplaces/', dict(remove=json_add))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         result = json_loads(response.content)
