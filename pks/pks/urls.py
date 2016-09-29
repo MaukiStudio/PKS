@@ -15,6 +15,7 @@ from place import views as place_views
 from content import views as content_views
 from importer import views as importer_views
 from tag import views as tag_views
+from etc import views as etc_views
 
 
 router = DefaultRouter()
@@ -44,6 +45,9 @@ router.register(r'iplaces', importer_views.ImportedPlaceViewset)
 router.register(r'tags', tag_views.TagViewset)
 router.register(r'uptags', tag_views.UserPlaceTagViewset)
 router.register(r'ptags', tag_views.PlaceTagViewset)
+
+router.register(r'notices', etc_views.NoticeViewset)
+router.register(r'inquiries', etc_views.InquiryViewset)
 
 
 def redirect_to_google_shortener(request, key):
