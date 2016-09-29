@@ -6,10 +6,10 @@ from rest_framework import status
 from json import loads as json_loads
 
 from base.tests import FunctionalTestAfterLoginBase
-from importer.models import Importer, Proxy
+from importer.models import Importer, Proxy, ImportedPlace
 from account.models import VD, RealUser
 from base.utils import get_timestamp
-from place.models import UserPlace, Place
+from place.models import Place
 
 
 class ImporterTest(FunctionalTestAfterLoginBase):
@@ -39,9 +39,9 @@ class ImporterTest(FunctionalTestAfterLoginBase):
         publisher_vd1 = VD.objects.create(realOwner=self.ru)
         publisher_vd2 = VD.objects.create()
         place1 = Place.objects.create()
-        uplace1 = UserPlace.objects.create(place=place1, vd=publisher_vd1)
+        uplace1 = ImportedPlace.objects.create(place=place1, vd=publisher_vd1)
         place2 = Place.objects.create()
-        uplace2 = UserPlace.objects.create(place=place2, vd=publisher_vd2)
+        uplace2 = ImportedPlace.objects.create(place=place2, vd=publisher_vd2)
 
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

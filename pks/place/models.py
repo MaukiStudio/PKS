@@ -183,7 +183,7 @@ class UserPlace(models.Model):
     @classmethod
     def get_from_uuid(cls, _uuid):
         splits = _uuid.split('.')
-        if splits[1] != 'uplace':
+        if splits[1] not in ('uplace', 'iplace'):
             raise ValueError
         _id = UUID(splits[0])
         return cls.objects.get(id=_id)
@@ -262,8 +262,12 @@ class UserPlace(models.Model):
             else:
                 self.placed(place)
 
+    @property
+    def post_cache_name(self):
+        return 'userPost_%s' % self.uuid
+
     def _clearCache(self):
-        cache_expire(self.vd, 'userPost_%s' % self.id)
+        cache_expire(self.vd, self.post_cache_name)
         self._cache_userPost = None
         if self.place:
             self.place._clearCache()
@@ -315,7 +319,7 @@ class UserPlace(models.Model):
             pb.normalize()
             return pb
         if not self._cache_userPost:
-            self._cache_userPost, is_created = cache_get_or_create(self.vd, 'userPost_%s' % self.id, None, helper, self)
+            self._cache_userPost, is_created = cache_get_or_create(self.vd, self.post_cache_name, None, helper, self)
         return self._cache_userPost
 
     @property

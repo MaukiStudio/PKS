@@ -99,6 +99,11 @@ class ImportedPlace(UserPlace):
         super(ImportedPlace, self).__init__(*args, **kwargs)
 
     @property
+    def uuid(self):
+        from base64 import b16encode
+        return '%s.%s' % (b16encode(self.id.bytes), 'iplace',)
+
+    @property
     def vd_ids(self):
         if self._cache_vd_ids is None:
             self._cache_vd_ids = []

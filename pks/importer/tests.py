@@ -161,7 +161,7 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.vd_other = VD.objects.create()
         self.uplace_other = UserPlace.objects.create(vd=self.vd_other, place=self.place)
         self.place3 = Place.objects.create()
-        self.iplace4 = UserPlace.objects.create(vd=self.vd_publisher2, place=self.place3)
+        self.iplace4 = ImportedPlace.objects.create(vd=self.vd_publisher2, place=self.place3)
 
     def test_list(self):
         response = self.client.get('/iplaces/')
