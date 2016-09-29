@@ -668,13 +668,15 @@ class PostPiece(models.Model):
         if self.uplace:
             vd = self.vd
         pb1 = PostBase(self.data, self.timestamp, vd)
-        '''
         if pb1.iplace_uuid:
-            iplace = UserPlace.get_from_uuid(pb1.iplace_uuid)
-            if iplace:
-                pb1.update(iplace.userPost)
-        #'''
+            from importer.models import ImportedPlace
+            iplace = ImportedPlace.get_from_uuid(pb1.iplace_uuid)
+            if iplace and iplace.vd and not iplace.vd.is_private:
+                iplace.subscriber = self.vd
+                post = iplace.userPost
+                pb1.update(post)
         return pb1
+
     @pb.setter
     def pb(self, value):
         self.data = value.ujson

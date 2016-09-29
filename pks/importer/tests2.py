@@ -11,7 +11,6 @@ from account.models import VD, RealUser
 from place.models import UserPlace, Place, PostPiece
 from place.post import PostBase
 from image.models import Image
-from base.cache import cache_clear_all
 
 
 class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
@@ -142,17 +141,22 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
     def assertMembersIn(self, members, container):
         for member in members:
-            self.assertIn(member, container)
+            if member not in container:
+                print('')
+                print('%s is not in container' % member)
+                self.fail()
 
     def assertMembersNotIn(self, members, container):
         for member in members:
-            self.assertNotIn(member, container)
+            if member in container:
+                print('')
+                print('%s is in container' % member)
+                self.fail()
 
 
     def test_uplaces_basic(self):
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 2)
         self.assertMembersIn([self.url11, self.url12], response.content)
@@ -163,7 +167,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
     def test_iplaces_basic(self):
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
         self.assertMembersIn([self.url12_album, self.url21, self.url22], response.content)
@@ -177,7 +180,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
         self.assertMembersIn([self.url11, self.url12, self.url12_album], response.content)
@@ -190,7 +192,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/iplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 4)
         self.assertMembersIn([self.url12_album, self.url21, self.url22], response.content)
@@ -208,7 +209,6 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 6)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
@@ -222,12 +222,12 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 3)
         self.assertMembersIn([self.url11, self.url12], response.content)
         self.assertMembersNotIn([self.url12_album,
-                                 self.url21, self.url22, self.url22_album,
+                                 self.url21, self.url22,
+                                 self.url22_album,
                                  self.url31, self.url32, self.url32_album], response.content)
 
     def test_uplaces_illegal_take2(self):
@@ -237,13 +237,15 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
 
         response = self.client.get('/uplaces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.content)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 5)
-        self.assertMembersIn([self.url11, self.url12], response.content)
+        self.assertMembersIn([self.url11, self.url12,
+                              self.url31, self.url32,
+                              ], response.content)
         self.assertMembersNotIn([self.url12_album,
                                  self.url21, self.url22, self.url22_album,
-                                 self.url31, self.url32, self.url32_album], response.content)
+                                 self.url32_album,
+                                 ], response.content)
 
     def test_uplaces_total(self):
         iplace32_album = self.take(self.uplace32_album, self.vd32)
@@ -266,10 +268,12 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 9)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
+                              self.url31, self.url32,
                               self.url21, self.url22], response.content)
         self.assertMembersNotIn([
             self.url22_album,
-            self.url31, self.url32, self.url32_album], response.content)
+            self.url32_album,
+        ], response.content)
 
         # add image
         url22_album_2 = 'http://www.maukistudio.com/img22_album_2.jpg'
@@ -290,10 +294,12 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 9)
         self.assertMembersIn([self.url11, self.url12, self.url12_album,
+                              self.url31, self.url32,
                               self.url21, self.url22, url22_album_2, url32_album_2], response.content)
         self.assertMembersNotIn([
             self.url22_album,
-            self.url31, self.url32, self.url32_album], response.content)
+            self.url32_album,
+        ], response.content)
 
         # ru1 imports ru3
         self.importer_ru1_ru3 = Importer.objects.create(publisher=self.proxy_ru3, subscriber=self.vd11)
@@ -308,4 +314,5 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
                               self.url31, self.url32], response.content)
         self.assertMembersNotIn([
             self.url22_album,
-            self.url32_album], response.content)
+            self.url32_album,
+        ], response.content)
