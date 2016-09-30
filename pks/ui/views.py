@@ -5,10 +5,11 @@ from django.shortcuts import render, redirect
 from django.db.models import F
 
 from pks.settings import VD_SESSION_KEY
-from account.models import VD, RealUser
+from account.models import VD
 from place.models import UserPlace, PostBase, PostPiece, Place
 from content.models import PlaceNote, LegacyPlace
 from image.models import RawFile, Image
+from base.utils import convert_to_datetime_desc
 
 
 def confirm_ok(request):
@@ -102,13 +103,20 @@ def detail(request, enc_uplace_id):
     vd = vd_login_for_browser(request)
     uplace_id = UserPlace.aid2id(enc_uplace_id)
     uplace = UserPlace.objects.get(id=uplace_id)
-    desc = uplace.userPost.note or (uplace.placePost and uplace.placePost.addr) or '사진을 공유하는 새로운 방법!'
+
+    etc = {}
+    etc['title'] = (uplace.placePost and uplace.placePost.name) or uplace.userPost.note or '사진을 공유하는 새로운 방법!'
+    etc['desc'] = uplace.userPost.note or (uplace.placePost and uplace.placePost.addr) or '사진을 공유하는 새로운 방법!'
     from pks.settings import SERVER_HOST
     url = uplace.wrapping_shorten_url
     if not url:
         url = '%s%s' % (SERVER_HOST, request.get_full_path())
+    etc['url'] = url
+    etc['datetime_desc'] = convert_to_datetime_desc(uplace.modified)
+
+    ru = uplace.userPost.cjson['ru']
     vd.add_access_history(uplace)
-    return render(request, 'ui/detail.html', context=dict(uplace=uplace, url=url, desc=desc))
+    return render(request, 'ui/album.html', context=dict(uplace=uplace, ru=ru, etc=etc))
 
 
 def register_email(request):

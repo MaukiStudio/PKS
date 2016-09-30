@@ -130,3 +130,20 @@ def convert_to_json(v):
         from json import loads as json_loads
         return json_loads(v)
     raise ValueError
+
+
+# 1분내->방금, 1시간내->X분전, 하루이내->X시간전, 7일내->X일전, 기타->YYYY.mm.DD
+def convert_to_datetime_desc(timestamp):
+    from delorean import epoch
+    d = epoch(timestamp/1000.0).date
+    result = '%04d.%02d.%02d' % (d.year, d.month, d.day)
+    diff = get_timestamp() - timestamp
+    if diff < 60*1000:
+        result = '방금'
+    elif diff < 1*60*60*1000:
+        result = '%d분전' % int(diff / (1000*60))
+    elif diff < 24*60*60*1000:
+        result = '%d시간전' % int(diff / (1000*60*60))
+    elif diff < 7*24*60*60*1000:
+        result = '%d일전' % int(diff / (1000*60*60*24))
+    return result
