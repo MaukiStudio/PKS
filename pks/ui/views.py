@@ -85,9 +85,8 @@ def paste(request, uplace_id):
             if uplace.is_empty:
                 uplace.is_empty = False
                 uplace.save()
-        else:
-            if uplace.place:
-                return redirect('/ui/diaries/%s/' % uplace.aid)
+
+        uplace._clearCache()
 
     return render(request, 'ui/paste.html', context=dict(uplace=uplace))
 

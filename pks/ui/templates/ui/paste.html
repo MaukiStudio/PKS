@@ -6,24 +6,31 @@
     {% if uplace.userPost %}
     <table class="table">
         <tr>
-            <td>
-                <div class="jumbotron">
-                    {% if uplace.wrapping_shorten_url %}
-                        공유용 단축 URL : <a href="{{ uplace.wrapping_shorten_url }}">{{ uplace.wrapping_shorten_url }}</a>
-                    {% else %}
-                        <a href="../make_shorten_url/">단축 URL 발급</a>
-                    {% endif %}
-                </div>
-            </td>
-            <td>
-                <div class="jumbotron">
-                    {% if uplace.is_bounded %}
-                        공유용 사진/노트 선택된 임시 사본
-                    {% else %}
-                        <a href="../temp/">편집 사본을 만들어 공유 (for 사진 일부만 공유)</a>
-                    {% endif %}
-                </div>
-            </td>
+            <table><tr>
+                <td>
+                    <div class="jumbotron">
+                        <a href="../../{{ uplace.aid }}/">상세 페이지 보기</a>
+                    </div>
+                </td>
+                <td>
+                    <div class="jumbotron">
+                        {% if uplace.wrapping_shorten_url %}
+                            공유용 단축 URL : <a href="{{ uplace.wrapping_shorten_url }}">{{ uplace.wrapping_shorten_url }}</a>
+                        {% else %}
+                            <a href="../make_shorten_url/">단축 URL 발급</a>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <div class="jumbotron">
+                        {% if uplace.is_bounded %}
+                            공유용 사진/노트 선택된 임시 사본
+                        {% else %}
+                            <a href="../temp/">편집 사본을 만들어 공유 (for 사진 일부만 공유)</a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr></table>
         </tr>
         {% if uplace.userPost.images %}
         <tr>
