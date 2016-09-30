@@ -84,15 +84,17 @@
         {% endif %}
       {% endfor %}
 
-      <div class="border" style="margin-top:20px;width:100%;padding:10px;">
-        {% if uplace.placePost %}
-          <h4 id="place-name">{{ uplace.placePost.name }}</h4>
-          <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span id="place-addr">{{ uplace.placePost.addr }}</span></address>
-        {% endif %}
-        {% for tag in uplace.userPost.tags %}
-          <span>#{{ tag.content }}</span>{% if not forloop.last %}, &nbsp; {% endif %}
-        {% endfor %}
-      </div>
+      {% if uplace.placePost or uplace.userPost.tags %}
+        <div class="border" style="margin-top:20px;width:100%;padding:10px;">
+          {% if uplace.placePost %}
+            <h4 id="place-name">{{ uplace.placePost.name }}</h4>
+            <address><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><span id="place-addr">{{ uplace.placePost.addr }}</span></address>
+          {% endif %}
+          {% for tag in uplace.userPost.tags %}
+            <span>#{{ tag.content }}</span>{% if not forloop.last %}, &nbsp; {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <div class="row">
         <div class="col-xs-12">&nbsp;</div>
