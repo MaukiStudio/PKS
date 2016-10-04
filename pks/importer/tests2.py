@@ -194,9 +194,8 @@ class ImportedPlaceViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = json_loads(response.content)['results']
         self.assertEqual(len(results), 4)
-        self.assertMembersIn([self.url12_album, self.url21, self.url22], response.content)
+        self.assertMembersIn([self.url12_album, self.url21, self.url22, self.url22_album], response.content)
         self.assertMembersNotIn([self.url11, self.url12,
-                                 self.url22_album,
                                  self.url31, self.url32, self.url32_album], response.content)
 
     def test_uplaces_after_ru2_take_album_and_ru1_take_all(self):

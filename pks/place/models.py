@@ -164,6 +164,7 @@ class UserPlace(models.Model):
 
     def __init__(self, *args, **kwargs):
         self._cache_userPost = None
+        self._cache_total_pps = None
         self._cache_prev_tags = None
         self._cache_prev_NLL = None
         self._cache_vd_ids = None
@@ -269,6 +270,10 @@ class UserPlace(models.Model):
     def _clearCache(self):
         cache_expire(self.vd, self.post_cache_name)
         self._cache_userPost = None
+        self._cache_total_pps = None
+        self._cache_prev_tags = None
+        self._cache_prev_NLL = None
+        self._cache_vd_ids = None
         if self.place:
             self.place._clearCache()
 
@@ -290,30 +295,44 @@ class UserPlace(models.Model):
         return base_post
 
     @property
+    def total_pps(self):
+        if not self._cache_total_pps:
+            if not self.place or self.is_bounded:
+                self._cache_total_pps = self.pps.all().order_by('id')
+            else:
+                qs1 = self.place.pps.filter(vd__in=self.vd_ids)
+                uplace_publisher_ids = []
+                for pp in qs1:
+                    if 'iplace_uuid' in pp.data:
+                        from importer.models import ImportedPlace
+                        iplace = ImportedPlace.get_from_uuid(pp.data['iplace_uuid'])
+                        uplace_publisher_ids.extend(iplace.vd.realOwner_vd_ids)
+                if uplace_publisher_ids:
+                    qs2 = self.place.pps.filter(vd__in=uplace_publisher_ids)
+                    self._cache_total_pps = (qs1 | qs2).order_by('id')
+                else:
+                    self._cache_total_pps = qs1.order_by('id')
+        return self._cache_total_pps
+
+    @property
     def userPost(self):
         def helper(self):
             pb = self.base_post
-            if self.place and not self.is_bounded:
-                for pp in self.place.pps.filter(vd__in=self.vd_ids).order_by('id'):
-                    if pp.is_bounded:
-                        continue
-                    if pp.is_drop:
-                        # TODO : 이 부분이 테스트되는 테스트 추가
-                        if pp.vd in self.vd_ids:
-                            pb = self.base_post
-                        else:
-                            # TODO : 친구는 이 장소를 drop 했으므로... 이를 어떠한 형태로든 userPost 에 반영하기
-                            pass
+            for pp in self.total_pps:
+                if pp.vd and pp.vd.is_private and pp.vd.id not in self.vd.realOwner_vd_ids and pp.vd.parent.id not in self.vd.realOwner_vd_ids:
+                    continue
+                if pp.is_bounded:
+                    continue
+                if pp.is_drop:
+                    # TODO : 이 부분이 테스트되는 테스트 추가
+                    if pp.vd.id in self.vd.realOwner_vd_ids:
+                        pb = self.base_post
+                    else:
+                        # TODO : 친구는 이 장소를 drop 했으므로... 이를 어떠한 형태로든 userPost 에 반영하기
                         pass
-                    else:
-                        pb.update(pp.pb, pp.is_add)
-            else:
-                for pp in self.pps.all().order_by('id'):
-                    if pp.is_drop:
-                        # TODO : 이 부분이 테스트되는 테스트 추가
-                        pb = self.base_post or PostBase()
-                    else:
-                        pb.update(pp.pb_bounded, pp.is_add)
+                    pass
+                else:
+                    pb.update(pp.pb, pp.is_add)
             pb.uplace_uuid = self.uuid
             pb.place_id = self.place_id
             pb.normalize()
@@ -664,16 +683,12 @@ class PostPiece(models.Model):
             self.mask = (self.mask or 0) & (~8)
 
     @property
-    def pb_bounded(self):
+    def pb(self):
         vd = None
         if self.uplace:
             vd = self.vd
         pb1 = PostBase(self.data, self.timestamp, vd)
-        return pb1
-
-    @property
-    def pb(self):
-        pb1 = self.pb_bounded
+        '''
         if pb1.iplace_uuid and self.uplace:
             from importer.models import ImportedPlace
             iplace = ImportedPlace.get_from_uuid(pb1.iplace_uuid)
@@ -684,6 +699,7 @@ class PostPiece(models.Model):
                 iplace.is_bounded = True
                 post = iplace.userPost
                 pb1.update(post)
+        '''
         return pb1
 
     @pb.setter
