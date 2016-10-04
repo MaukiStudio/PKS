@@ -293,8 +293,12 @@ class UserPlace(models.Model):
     def userPost(self):
         def helper(self):
             pb = self.base_post
+            pps = []
             if self.place and not self.is_bounded:
                 for pp in self.place.pps.filter(vd__in=self.vd_ids).order_by('id'):
+                    if pp in pps:
+                        continue
+                    pps.append(pp)
                     if pp.is_bounded:
                         continue
                     if pp.is_drop:
@@ -309,6 +313,9 @@ class UserPlace(models.Model):
                         pb.update(pp.pb, pp.is_add)
             else:
                 for pp in self.pps.all().order_by('id'):
+                    if pp in pps:
+                        continue
+                    pps.append(pp)
                     if pp.is_drop:
                         # TODO : 이 부분이 테스트되는 테스트 추가
                         pb = self.base_post or PostBase()
