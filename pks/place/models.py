@@ -293,12 +293,8 @@ class UserPlace(models.Model):
     def userPost(self):
         def helper(self):
             pb = self.base_post
-            pps = []
             if self.place and not self.is_bounded:
                 for pp in self.place.pps.filter(vd__in=self.vd_ids).order_by('id'):
-                    if pp in pps:
-                        continue
-                    pps.append(pp)
                     if pp.is_bounded:
                         continue
                     if pp.is_drop:
@@ -313,20 +309,18 @@ class UserPlace(models.Model):
                         pb.update(pp.pb, pp.is_add)
             else:
                 for pp in self.pps.all().order_by('id'):
-                    if pp in pps:
-                        continue
-                    pps.append(pp)
                     if pp.is_drop:
                         # TODO : 이 부분이 테스트되는 테스트 추가
                         pb = self.base_post or PostBase()
                     else:
-                        pb.update(pp.pb, pp.is_add)
+                        pb.update(pp.pb_bounded, pp.is_add)
             pb.uplace_uuid = self.uuid
             pb.place_id = self.place_id
             pb.normalize()
             return pb
         if not self._cache_userPost:
-            self._cache_userPost, is_created = cache_get_or_create(self.vd, self.post_cache_name, None, helper, self)
+            #self._cache_userPost, is_created = cache_get_or_create(self.vd, self.post_cache_name, None, helper, self)
+            self._cache_userPost = helper(self)
         return self._cache_userPost
 
     @property
@@ -670,16 +664,24 @@ class PostPiece(models.Model):
             self.mask = (self.mask or 0) & (~8)
 
     @property
-    def pb(self):
+    def pb_bounded(self):
         vd = None
         if self.uplace:
             vd = self.vd
         pb1 = PostBase(self.data, self.timestamp, vd)
-        if pb1.iplace_uuid:
+        return pb1
+
+    @property
+    def pb(self):
+        pb1 = self.pb_bounded
+        if pb1.iplace_uuid and self.uplace:
             from importer.models import ImportedPlace
             iplace = ImportedPlace.get_from_uuid(pb1.iplace_uuid)
+            if iplace.id == self.uplace.id:
+                return pb1
             if iplace and iplace.vd and not iplace.vd.is_private:
                 iplace.subscriber = self.vd
+                iplace.is_bounded = True
                 post = iplace.userPost
                 pb1.update(post)
         return pb1
