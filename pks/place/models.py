@@ -319,8 +319,8 @@ class UserPlace(models.Model):
             pb.normalize()
             return pb
         if not self._cache_userPost:
-            #self._cache_userPost, is_created = cache_get_or_create(self.vd, self.post_cache_name, None, helper, self)
-            self._cache_userPost = helper(self)
+            self._cache_userPost, is_created = cache_get_or_create(self.vd, self.post_cache_name, None, helper, self)
+            #self._cache_userPost = helper(self)
         return self._cache_userPost
 
     @property
