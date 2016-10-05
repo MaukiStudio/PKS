@@ -344,7 +344,7 @@ class UserPlace(models.Model):
 
     @property
     def placePost(self):
-        return self.place and self.place.placePost
+        return self.place and self.place.placePost or None
 
     def _id(self, timestamp):
         vd_id = self.vd_id or 0

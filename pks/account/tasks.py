@@ -9,7 +9,10 @@ class AfterLoginTask(object):
         vd = VD.objects.get(id=vd_id)
 
         # 캐싱 : uplaces, regions
-        from place.libs import compute_regions
+        from place.libs import get_proper_uplaces_qs, compute_regions
+        for uplace in get_proper_uplaces_qs(vd):
+            placePost = uplace.placePost
+            userPost = uplace.userPost
         compute_regions(vd)
 
         return True
