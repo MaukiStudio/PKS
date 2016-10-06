@@ -335,6 +335,7 @@
         $('.modal-content img').css({
           'max-width': $('#modalImageViewer .modal-content').width() - 10
         });
+        $(this).find('#full-image').attr('src', $(event.relatedTarget).data('image-src'));
       });
 
       //  Part for Google Analytics
