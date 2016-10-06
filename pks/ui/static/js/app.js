@@ -50,10 +50,13 @@ angular.module('placeApp', [])
       search(keyword)
       .then(function(items) {
         $scope.searchResults = [];
+        console.log('items.length: ' + items.length);
         for (var i = 0; i < items.length / 2; i++) {
           items[i].title = items[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
           items[i].description = items[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+          console.log('items.description(before) : ' + items.description);
           items[i].description = items[i].description.substr(0, items[i].description.length/2) + '...';
+          console.log('items.description(after) : ' + items.description);
           $scope.searchResults.push(items[i]);
         }
 
