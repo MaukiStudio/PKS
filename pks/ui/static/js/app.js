@@ -49,12 +49,14 @@ angular.module('placeApp', [])
     if (keyword !== '') {
       search(keyword)
       .then(function(items) {
+        $scope.searchResults = [];
         for (var i = 0; i < items.length / 2; i++) {
           items[i].title = items[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
           items[i].description = items[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"').substr;
           items[i].description = items[i].description.substr(0, items[i].description.length/2) + '...';
+          $scope.searchResults.push(items[i]);
         }
-        $scope.searchResults = items;
+
         // console.dir($scope.searchResults);
 
       }, function(err) {
