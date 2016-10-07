@@ -68,7 +68,7 @@ def send_email(to, title, msg):
     from requests import post as requests_post
     from rest_framework import status
     to_name = to.split('@')[0]
-    data = {'from': 'PlaceKoob <gulby@maukistudio.com>',
+    data = {'from': '사진 공유 서비스 포플(PHOPL) <gulby@maukistudio.com>',
             'to': '%s <%s>' % (to_name, to),
             'subject': title,
             'text': msg}

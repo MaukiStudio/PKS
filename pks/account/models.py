@@ -241,9 +241,9 @@ class VD(models.Model):
         from pks.settings import SERVER_HOST
         task = EmailTaskWrapper()
         to = email
-        title = '[PlaceKoob] 이메일 인증'
+        title = '사진 공유 서비스 포플(PHOPL) 이메일 인증'
         confirm_link = '%s/vds/confirm/?email_confirm_token=%s' % (SERVER_HOST, self.getEmailConfirmToken(to))
-        msg = '안녕하세요. PlaceKoob 입니다.\n이메일 인증을 위해 하기 링크를 터치해 주세요.\n\n%s' % confirm_link
+        msg = '안녕하세요. 사진 공유 서비스 포플(PHOPL) 입니다.\n이메일 인증을 위해 하기 링크를 터치해 주세요.\n\n%s' % confirm_link
         r = task.delay(to, title, msg)
         return not r.failed()
 

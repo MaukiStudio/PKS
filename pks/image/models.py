@@ -26,8 +26,11 @@ RAW_FILE_PATH = 'rfs/%Y/%m/%d/'
 IMG_PD_HDIST_THREASHOLD = 36
 IMG_P_HDIST_STRICT_THREASHOLD = 11
 IMG_WH_MAX_SIZE = 1280
-CONVERTED_DNS_LIST = [('http://maukitest.cloudapp.net', SERVER_HOST),
-                      ('http://neapk-test01.japaneast.cloudapp.azure.com', SERVER_HOST)]
+CONVERTED_DNS_LIST = [
+    ('http://maukitest.cloudapp.net', SERVER_HOST),
+    ('http://neapk-test01.japaneast.cloudapp.azure.com', SERVER_HOST),
+    ('http://placekoob.com', SERVER_HOST),
+]
 
 
 class Image(Content):
@@ -544,7 +547,7 @@ class AzurePrediction(models.Model):
             Content-Length: 120
             Ocp-Apim-Subscription-Key: d91fa94bcd484158a74d9463826b689c
 
-            {"url":"http://maukitest.cloudapp.net/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
+            {"url":"http://phopl.com/media/rfs/2016/07/15/00000155EDBB32190000000000D4ECE0.rf_image.jpg?1434956498000"}
         '''
         if DISABLE_NO_FREE_API:
             return None
