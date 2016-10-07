@@ -293,7 +293,7 @@
       'use strict';
 
       function initMap() {
-        var lat = {{ uplace.placePost.lonLat.y }}, lng = {{ uplace.placePost.lonLat.x }};
+        var lat = {{ uplace.placePost.lonLat.y if uplace.placePost.lonLat else 37.391009}}, lng = {{ uplace.placePost.lonLat.x if uplace.placePost.lonLat else 127.076961}};
         var mapOption = {
           center: {
             lat: lat,
