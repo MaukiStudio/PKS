@@ -49,15 +49,14 @@ angular.module('placeApp', [])
     if (keyword !== '') {
       search(keyword)
       .then(function(items) {
-        $scope.searchResults = items;
-        // $scope.searchResults = [];
-        // for (var i = 0; i < (items.length < 3) ? items.length : 3; i++) {
-        //   $scope.searchResults.push(items[i]);
-        // }
-        for (var i = 0; i < $scope.searchResults.length; i++) {
-          $scope.searchResults[i].title = $scope.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
-          $scope.searchResults[i].description = $scope.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+        $scope.searchResults = [];
+        for (var i = 0; i < items.length / 2; i++) {
+          items[i].title = items[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+          items[i].description = items[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+          items[i].description = items[i].description.substr(0, items[i].description.length/2) + '...';
+          $scope.searchResults.push(items[i]);
         }
+
         // console.dir($scope.searchResults);
 
       }, function(err) {

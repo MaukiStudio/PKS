@@ -74,7 +74,7 @@
           <div class="row image-container">
         {% endif %}
           <div class="col-xs-4">
-            <a class="thumbnail" href="#" data-toggle="modal" data-target="#modalImageViewer">
+            <a class="thumbnail" href="#" data-toggle="modal" data-target="#modalImageViewer" data-image-src="{{ image.url_for_access }}">
               <img src="{{ image.url_summarized }}">
               <!--img src="{{ image.url_for_access }}"-->
             </a>
@@ -185,7 +185,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="modalImageViewerLabel">사진 보기</h4>
           </div>
-          <img src="http://phopl.com/media/rfs/2016/09/29/00000157755635B90000000007E6EE19.rf_image.jpg" alt="...">
+          <img id="full-image" src="" alt="...">
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
@@ -331,10 +331,11 @@
       });
 
       $('#modalImageViewer').on('shown.bs.modal', function(event) {
-        $('#modalImageViewer modal-content').css('text-align', 'center');
+        $('#modalImageViewer .modal-content').css('text-align', 'center');
         $('.modal-content img').css({
-          'max-width': document.getElementsByClassName('modal-content')[0].clientWidth - 5
+          'max-width': $('#modalImageViewer .modal-content').width() - 10
         });
+        $(this).find('#full-image').attr('src', $(event.relatedTarget).data('image-src'));
       });
 
       //  Part for Google Analytics
