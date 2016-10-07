@@ -347,7 +347,7 @@
               } else {
                 console.info('in timer : not ios, not android');
               }
-            }            
+            }
           }
         }, 1000);
 
@@ -366,6 +366,7 @@
         } else if (uagentLow.search("iphone") > -1){
           console.info('ios');
           var strVer = /version\/[0-9]+\.[0-9]+\s/.exec('userAgent: mozilla/5.0 (iphone; cpu iphone os 10_0 like mac os x) applewebkit/602.1.50 (khtml, like gecko) version/10.0 mobile/14a345 safari/602.1');
+          console.debug('strVer = ' + strVer);
           var numVer = Number(strVer.split('/')[1]);
           if (numVer >= 9.0) {
             location.href = 'soribada30://applink?param=value';
