@@ -339,13 +339,15 @@
 
         setTimeout(function() {
           if (new Date - openAt < 2000) {
-            if (uagentLow.search("android") > -1) {
-              $("#____phopllink____").attr("src","market://details?id=com.soribada.android&hl=ko");
-            } else if (uagentLow.search("iphone") > -1) {
-              location.replace("https://itunes.apple.com/kr/app/solibada-myujig-mujehan-eum/id346528006?mt=8");
-            } else {
-              console.info('in timer : not ios, not android');
-            }
+            if (window.confirm("PHOPL 앱이 설치되어 있지 않습니다.\n설치페이지로 이동하시겠습니까?")) {
+              if (uagentLow.search("android") > -1) {
+                $("#____phopllink____").attr("src","market://details?id=com.soribada.android&hl=ko");
+              } else if (uagentLow.search("iphone") > -1) {
+                location.replace("https://itunes.apple.com/kr/app/solibada-myujig-mujehan-eum/id346528006?mt=8");
+              } else {
+                console.info('in timer : not ios, not android');
+              }
+            }            
           }
         }, 1000);
 
@@ -363,7 +365,13 @@
           }
         } else if (uagentLow.search("iphone") > -1){
           console.info('ios');
-          $("#____phopllink____").attr("src", 'soribada30://applink?param=value');
+          var strVer = /version\/[0-9]+\.[0-9]+\s/.exec('userAgent: mozilla/5.0 (iphone; cpu iphone os 10_0 like mac os x) applewebkit/602.1.50 (khtml, like gecko) version/10.0 mobile/14a345 safari/602.1');
+          var numVer = Number(strVer.split('/')[1]);
+          if (numVer >= 9.0) {
+            location.href = 'soribada30://applink?param=value';
+          } else {
+            $("#____phopllink____").attr("src", 'soribada30://applink?param=value');
+          }
         } else {
           console.info('not ios, not android.');
         }
