@@ -358,8 +358,10 @@
           kitkatWebview = uagentLow.indexOf('naver') != -1 || uagentLow.indexOf('daum') != -1;
 
           if (chrome25 && !kitkatWebview){
+            // userAgent: mozilla/5.0 (linux; android 6.0.1; nexus 5 build/mob31e) applewebkit/537.36 (khtml, like gecko) chrome/53.0.2785.124 mobile safari/537.36
             console.info('chrome25 && !kitkatWebView');
-            document.location.href = 'intent://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname + '#Intent;scheme=soribada30;package=com.soribada.android;end';
+            // document.location.href = 'intent://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname + '#Intent;scheme=soribada30;package=com.soribada.android;end';
+            location.href = 'phopl://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname;
           } else {
             console.info('can use applink');
             $('#____phopllink____').attr('src', 'phopl://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname);
