@@ -359,17 +359,17 @@
 
           if (chrome25 && !kitkatWebview){
             console.info('chrome25 && !kitkatWebView');
-            document.location.href = 'intent://album?uplace_uuid=' + uplace_uuid + '#Intent;scheme=soribada30;package=com.soribada.android;end';
+            document.location.href = 'intent://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname + '#Intent;scheme=soribada30;package=com.soribada.android;end';
           } else {
             console.info('can use applink');
-            $('#____phopllink____').attr('src', 'phopl://album?uplace_uuid=' + uplace_uuid);
+            $('#____phopllink____').attr('src', 'phopl://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname);
           }
         } else if (uagentLow.search('iphone') > -1){
           console.info('ios');
           var strVer = /version\/[0-9]+\.[0-9]+\s/.exec('userAgent: mozilla/5.0 (iphone; cpu iphone os 10_0 like mac os x) applewebkit/602.1.50 (khtml, like gecko) version/10.0 mobile/14a345 safari/602.1');
           var numVer = Number(strVer[0].split('/')[1]);
           if (numVer >= 9.0) {
-            location.href = 'phopl://album?uplace_uuid=' + uplace_uuid;
+            location.href = 'phopl://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname;
           } else {
             $('#____phopllink____').attr('src', 'phopl://album?uplace_uuid=' + uplace_uuid + '&nickname=' + nickname);
           }
