@@ -73,6 +73,4 @@ angular.module('placeApp', [])
   };
 
   getDaumResult();
-  console.log('The Name of Place : ' + $('#place-name')[0].innerHTML);
-  console.log('The Addr of Place : ' + $('#place-addr')[0].innerHTML);
 }]);
