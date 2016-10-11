@@ -420,15 +420,15 @@
         // // 카카오톡 링크 버튼을 생성합니다. 처음 한번만 호출하면 됩니다.
         Kakao.Link.createTalkLinkButton({
           container: '#btn-share-kakaotalk',
-          label: '카카오링크 샘플에 오신 것을 환영합니다.',
+          label: '{{ etc.desc }}',
           image: {
-            src: 'http://dn.api1.kage.kakao.co.kr/14/dn/btqaWmFftyx/tBbQPH764Maw2R6IBhXd6K/o.jpg',
+            src: '{{ uplace.userPost.image.url_summarized }}',
             width: '300',
-            height: '200'
+            height: '300'
           },
           webButton: {
-            text: '카카오 디벨로퍼스',
-            url: 'https://dev.kakao.com/docs/js' // 앱 설정의 웹 플랫폼에 등록한 도메인의 URL이어야 합니다.
+            text: 'PHOPL에서 보기',
+            url: '{{ etc.url }}' // 앱 설정의 웹 플랫폼에 등록한 도메인의 URL이어야 합니다.
           }
         });
       })();
