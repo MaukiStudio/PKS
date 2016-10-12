@@ -30,9 +30,10 @@
   </head>
   <body ng-app="placeApp">
     <script>
+    function loadFB(appid) {
       window.fbAsyncInit = function() {
         FB.init({
-          appId      : '1036395799812464',
+          appId      : appid,
           xfbml      : true,
           version    : 'v2.8'
         });
@@ -46,6 +47,17 @@
          js.src = "//connect.facebook.net/en_US/sdk.js";
          fjs.parentNode.insertBefore(js, fjs);
        }(document, 'script', 'facebook-jssdk'));
+    }
+    var appid = 0;
+      if (window.location.href.search('http://placekoob.com') > -1) {
+        console.info('load FB with placekoob.com');
+        appid = '1765072327115352';
+        loadFB(appid);
+      } else if (window.location.href.search('http://phopl.com') > -1) {
+        console.info('load FB with phopl.com');
+        appid = '1036395799812464';
+        loadFB(appid);
+      }
     </script>
     <div class="container-fluid">
       <nav class="navbar navbar-default navbar-fixed-top" id="app-banner">
