@@ -29,6 +29,24 @@
     <![endif]-->
   </head>
   <body ng-app="placeApp">
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1036395799812464',
+          xfbml      : true,
+          version    : 'v2.8'
+        });
+        FB.AppEvents.logPageView();
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
     <div class="container-fluid">
       <nav class="navbar navbar-default navbar-fixed-top" id="app-banner">
         <div class="container-fluid">
@@ -449,7 +467,15 @@
 
       function shareAlbumWithLine(selector) {}
       function shareAlbumWithTelegram(selector) {}
-      function shareAlbumWithFacebook(selector) {}
+      function shareAlbumWithFacebook(selector) {
+        $(selector).on('click', function() {
+          FB.ui({
+            method: 'share',
+            display: 'popup',
+            href: '{{ etc.url }}',
+          }, function(response){});
+        });
+      }
       function shareAlbumWithKakaostory(selector) {}
       function shareAlbumWithBand(selector) {}
       function shareAlbumWithTwitter(selector) {}
@@ -457,7 +483,7 @@
       registerShareFunc(shareAlbumWithKakaotalk, '#btn-share-kakaotalk');
       registerShareFunc(shareAlbumWithLine, '#btn-share-line');
       registerShareFunc(shareAlbumWithTelegram, '#btn-share-telegram');
-      registerShareFunc(shareAlbumWithFacebook, '#btn-share-facebook');
+      shareAlbumWithFacebook('#btn-share-facebook');
       registerShareFunc(shareAlbumWithKakaostory, '#btn-share-kakaostory');
       registerShareFunc(shareAlbumWithBand, '#btn-share-band');
       registerShareFunc(shareAlbumWithTwitter, '#btn-share-twitter');
