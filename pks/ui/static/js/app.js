@@ -8,8 +8,8 @@ angular.module('placeApp', [])
 .controller('blogSearchCtrl', ['$scope', '$q', '$http', function($scope, $q, $http){
   function makeKeyword() {
     var keyword = '';
-    var placeName = $('#place-name')[0].innerHTML;
-    var placeAddr = $('#place-addr')[0].innerHTML;
+    var placeName = ($('#place-name')[0] !== undefined) ? $('#place-name')[0].innerHTML : '';
+    var placeAddr = ($('#place-addr')[0] !== undefined) ? $('#place-addr')[0].innerHTML : '';
 
     if (placeAddr && placeAddr !== '') {
       var region_items = placeAddr.split(' ');
@@ -73,6 +73,4 @@ angular.module('placeApp', [])
   };
 
   getDaumResult();
-  console.log('The Name of Place : ' + $('#place-name')[0].innerHTML);
-  console.log('The Addr of Place : ' + $('#place-addr')[0].innerHTML);
 }]);
