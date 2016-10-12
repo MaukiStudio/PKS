@@ -232,7 +232,7 @@
 
     <!-- Modal for Sharing in SNS -->
     <div class="modal fade" id="modalShare" tabindex="-1" role="dialog" aria-labelledby="modalShareLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-sm">
         <div class="modal-content" role="document">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -241,37 +241,56 @@
           <div class="modal-body">
             <div class="container-fluid">
               <div class="row">
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(0)">카카오톡</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-kakaotalk">
+                    <img src="/static/img/btns_share/kakaotalk.png">
+                  </a>
+                  카카오톡
                 </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(1)">밴드</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-line">
+                    <img src="/static/img/btns_share/line.png">
+                  </a>
+                  라인
                 </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(2)">라인</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-telegram">
+                    <img src="/static/img/btns_share/telegram.png">
+                  </a>
+                  텔레그램
+                </div>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-facebook">
+                    <img src="/static/img/btns_share/facebook.png">
+                  </a>
+                  페이스북
                 </div>
               </div>
               <div class="row">
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(3)">카카오스토리</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-kakaostory">
+                    <img src="/static/img/btns_share/kakaostory.png">
+                  </a>
+                  카카오스토리
                 </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(4)">텔레그램</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-band">
+                    <img src="/static/img/btns_share/band.png">
+                  </a>
+                  밴드
                 </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(5)">페이스북</button>
+                <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-twitter">
+                    <img src="/static/img/btns_share/twitter.png">
+                  </a>
+                  트위터
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(6)">인스타그램</button>
-                </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(7)">포스퀘어</button>
-                </div>
-                <div class="col-xs-4">
-                  <button type="button" class="btn btn-default" onclick="shareAndCloseModalDlg(8)">트위터</button>
-                </div>
+                <!-- <div class="col-xs-3 button-share">
+                  <a href="#" id="btn-share-etc">
+                    <img src="/static/img/btns_share/etc.png">
+                  </a>
+                  기타
+                </div> -->
               </div>
             </div>
           </div>
@@ -289,6 +308,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/app.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8&"></script>
+    <script src="http://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script language="javascript">
       'use strict';
 
@@ -337,7 +357,7 @@
         $('#____phopllink____').hide();
 
         setTimeout(function() {
-          if (new Date - openAt < 4000) {
+          if (new Date - openAt < 5000) {
             if (window.confirm('PHOPL 앱이 설치되어 있지 않습니다.\n설치 페이지로 이동하시겠습니까?')) {
               if (uagentLow.search('android') > -1) {
                 console.info('in timer : android');
@@ -350,7 +370,7 @@
               }
             }
           }
-        }, 2000);
+        }, 4000);
 
         if(uagentLow.search('android') > -1){
           console.info('android');
@@ -392,6 +412,55 @@
         });
         $(this).find('#full-image').attr('src', $(event.relatedTarget).data('image-src'));
       });
+
+      function registerShareFunc(fnc, selector) {
+        console.log('registerShareFunc');
+        var uagentLow = navigator.userAgent.toLocaleLowerCase();
+        if(uagentLow.search('android') > -1 || uagentLow.search('iphone') > -1){
+          console.log('카카오 공유 기능이 추가됨', uagentLow);
+          fnc(selector);
+        } else {
+          console.log('클릭 이벤트 추가됨');
+          $(selector).on('click', function() {
+            alert('죄송합니다. 모바일 기기에서만 지원하는 기능입니다.');
+          });
+        }
+      }
+
+      function shareAlbumWithKakaotalk(selector) {
+        console.log('shareAlbumWithKakaotalk');
+        // // 사용할 앱의 JavaScript 키를 설정해 주세요.
+        Kakao.init('45828a631ac6ffb24c489e39bd0ac47b');
+        // // 카카오톡 링크 버튼을 생성합니다. 처음 한번만 호출하면 됩니다.
+        Kakao.Link.createTalkLinkButton({
+          container: selector,
+          label: '{{ etc.desc }}',
+          image: {
+            src: '{{ uplace.userPost.image.url_summarized }}',
+            width: '300',
+            height: '300'
+          },
+          webButton: {
+            text: 'PHOPL에서 보기',
+            url: '{{ etc.url }}' // 앱 설정의 웹 플랫폼에 등록한 도메인의 URL이어야 합니다.
+          }
+        });
+      }
+
+      function shareAlbumWithLine(selector) {}
+      function shareAlbumWithTelegram(selector) {}
+      function shareAlbumWithFacebook(selector) {}
+      function shareAlbumWithKakaostory(selector) {}
+      function shareAlbumWithBand(selector) {}
+      function shareAlbumWithTwitter(selector) {}
+
+      registerShareFunc(shareAlbumWithKakaotalk, '#btn-share-kakaotalk');
+      registerShareFunc(shareAlbumWithLine, '#btn-share-line');
+      registerShareFunc(shareAlbumWithTelegram, '#btn-share-telegram');
+      registerShareFunc(shareAlbumWithFacebook, '#btn-share-facebook');
+      registerShareFunc(shareAlbumWithKakaostory, '#btn-share-kakaostory');
+      registerShareFunc(shareAlbumWithBand, '#btn-share-band');
+      registerShareFunc(shareAlbumWithTwitter, '#btn-share-twitter');
 
       //  Part for Google Analytics
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

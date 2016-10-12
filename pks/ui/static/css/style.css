@@ -80,3 +80,13 @@ body {
   margin-top: 20px;
   text-align: center;
 }
+.button-share {
+  font-size: 12px;
+  padding-right: 0px;
+  margin-bottom: 10px;
+}
+.button-share img{
+  width: 46px;
+  height: 46px;
+  display: block;
+}
