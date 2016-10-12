@@ -357,6 +357,13 @@ class Image(Content):
             summary.parent.mkdir(parents=True)
         file.write_bytes(r.content)
 
+    @property
+    def is_local(self):
+        url = self.url_for_access
+        if url.startswith(SERVER_HOST):
+            return True
+        return False
+
 
 class RawFile(models.Model):
     id = models.UUIDField(primary_key=True, default=None)
@@ -554,6 +561,8 @@ class AzurePrediction(models.Model):
         if not self.img or not self.img.url_for_access:
             return None
         if self.img.url_for_access.startswith('http://192.'):
+            return None
+        if not self.img.is_local:
             return None
 
         api_key = ['d91fa94bcd484158a74d9463826b689c',

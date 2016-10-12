@@ -503,11 +503,11 @@ class RawFileTest(APITestBase):
         pil4_1 = PIL_Image.open(rf4.file.path)
         self.assertEqual(pil4_1.size, (4160, 2340))
         rf4.task()
-        self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
+        self.assertEqual(rf4.mhash, UUID('f34bb180-a108-e20f-4167-2b734c497f0f'))
         pil4_2 = PIL_Image.open(rf4.file.path)
         self.assertEqual(pil4_2.size, (1280, 720))
 
         rf4.task()
-        self.assertEqual(rf4.mhash, UUID('11d2db89-67e0-d22a-d294-94ce76ef0e56'))
+        self.assertEqual(rf4.mhash, UUID('f34bb180-a108-e20f-4167-2b734c497f0f'))
         pil4_3 = PIL_Image.open(rf4.file.path)
         self.assertEqual(pil4_3.size, (1280, 720))

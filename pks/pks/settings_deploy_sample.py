@@ -16,8 +16,10 @@ SERVER_HOST = 'http://phopl.com'
 # If true, Unit Tests will remove all media files
 WORK_ENVIRONMENT = False
 
-# REDIS SERVER
-REDIS_SERVER_IP = '127.0.0.1'
-
 # DISABLE no-free API
 DISABLE_NO_FREE_API = True
+
+# Deployment Info
+DB_SERVER_INFO = ('127.0.0.1', '', 'pks_user', 'pass')
+REDIS_SERVER_INFO = ('127.0.0.1', '6379',)
+RABBITMQ_SERVER_INFO = ('127.0.0.1', '5672',)

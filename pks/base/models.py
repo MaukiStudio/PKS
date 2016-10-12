@@ -282,7 +282,7 @@ class Content(models.Model):
         summary = Path(self.path_summarized)
         if not Path(self.path_summarized).parent.exists():
             summary.parent.mkdir(parents=True)
-        file.write_text(r.text)
+        file.write_text(r.text, 'utf8')
         self._cache_accessed = r.text.replace('\r', '')
 
     def access_local(self, source):

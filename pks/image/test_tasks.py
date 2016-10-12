@@ -16,7 +16,7 @@ class TaskTest(APITestBase):
         test_data = 'http://blogthumb2.naver.net/20160302_285/mardukas_1456922688406bYGAH_JPEG/DSC07301.jpg'
         img, is_created = Image.get_or_create_smart(test_data)
         img = Image.objects.get(id=img.id)
-        self.assertEqual(img.dhash, 12116166)
+        self.assertEqual(img.dhash, 11973959L)
         self.assertEqual(img.phash, UUID('0017c0a8-a6ed-a0c5-1230-8ef6eb5176fe'))
         self.assertNotEqual(img.azure, None)
 

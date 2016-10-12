@@ -96,7 +96,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.request',
             ],
         },
     },
@@ -121,10 +120,10 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'pks',
-        'USER': 'pks_user',
-        'PASSWORD': 'pass',
-        'HOST': 'localhost',
-        'PORT': '',
+        'USER': DB_SERVER_INFO[2],
+        'PASSWORD': DB_SERVER_INFO[3],
+        'HOST': DB_SERVER_INFO[0],
+        'PORT': DB_SERVER_INFO[1],
     }
 }
 
@@ -197,7 +196,7 @@ VD_SESSION_KEY = 'vd_session_key'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://%s:6379/1' % REDIS_SERVER_IP,
+        'LOCATION': 'redis://%s:%s/1' % REDIS_SERVER_INFO,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',

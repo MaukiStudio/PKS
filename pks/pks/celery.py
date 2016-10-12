@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from celery import Celery
+from pks.settings import RABBITMQ_SERVER_INFO
 
 
 app = Celery(
     'pks',
-    broker='amqp://guest:guest@localhost:5672//',
+    broker='amqp://guest:guest@%s:%s//' % RABBITMQ_SERVER_INFO,
     backend='rpc://',
     include=[
         'pks.tasks',
