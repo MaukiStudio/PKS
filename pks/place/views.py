@@ -184,6 +184,7 @@ class UserPlaceViewset(BaseViewset):
         #######################################
         serializer = self.get_serializer(uplace)
         cache_expire_ru(vd, 'uplaces')
+        cache_expire_ru(vd, uplace.post_cache_name)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -192,6 +193,10 @@ class UserPlaceViewset(BaseViewset):
         vd = self.vd
         if not vd:
             raise NotImplementedError
+
+        # remove cache
+        cache_expire_ru(vd, 'uplaces')
+        cache_expire_ru(vd, instance.post_cache_name)
 
         # 장소화 안된 경우 완전 삭제
         if not instance.place:
@@ -203,9 +208,6 @@ class UserPlaceViewset(BaseViewset):
             instance.save()
             pb = PostBase('{"notes": [{"content": "delete"}]}')
             pp = PostPiece.create_smart(instance, pb, is_drop=True)
-
-        # remove cache
-        cache_expire_ru(vd, 'uplaces')
 
     @list_route(methods=['get'])
     def regions(self, request):
