@@ -447,12 +447,11 @@
         console.log('registerShareFunc');
         var uagentLow = navigator.userAgent.toLocaleLowerCase();
         if(uagentLow.search('android') > -1 || uagentLow.search('iphone') > -1){
-          console.log('카카오 공유 기능이 추가됨', uagentLow);
           fnc(selector);
         } else {
           console.log('클릭 이벤트 추가됨');
           $(selector).on('click', function() {
-            alert('죄송합니다. 모바일 기기에서만 지원하는 기능입니다.');
+            alert('죄송합니다. 모바일 기기에서 지원되는 기능입니다.');
           });
         }
       }
@@ -490,7 +489,7 @@
       }
       function shareAlbumWithKakaostory(selector) {
         // 사용할 앱의 JavaScript 키를 설정해 주세요.
-        Kakao.init('45828a631ac6ffb24c489e39bd0ac47b');
+        // Kakao.init('45828a631ac6ffb24c489e39bd0ac47b');
         // 스토리 공유 버튼을 생성합니다.
         Kakao.Story.createShareButton({
           container: selector,
