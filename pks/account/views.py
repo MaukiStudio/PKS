@@ -158,9 +158,14 @@ class VDViewset(ModelViewSet):
         aid = self.kwargs['pk']
         if unicode(aid) == 'myself':
             vd_id = self.request.session[VD_SESSION_KEY]
-        else:
-            vd_id = self.request.user.aid2id(aid)
-        return VD.objects.get(id=vd_id)
+            return VD.objects.get(id=vd_id)
+        return super(VDViewset, self).get_object()
+
+    @detail_route(methods=['get'])
+    def ru(self, request, pk=None):
+        vd = self.get_object()
+        serializer = RealUserSerializer(vd.realOwner)
+        return Response(serializer.data)
 
 
 class RealUserViewset(ModelViewSet):
@@ -180,7 +185,7 @@ class RealUserViewset(ModelViewSet):
     def vds(self, request, pk=None):
         ru = self.get_object()
         vd_id = self.request.session[VD_SESSION_KEY]
-        serializer = VDSerializer(ru.vds.exclude(id=vd_id), many=True)
+        serializer = VDSerializer(ru.vds.all(), many=True)
         return Response(serializer.data)
 
 

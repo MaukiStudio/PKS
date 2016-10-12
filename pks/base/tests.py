@@ -66,6 +66,7 @@ class APITestBase(APITestCase):
         result = InMemoryUploadedFile(ff, None, img_file_name, 'image/jpeg', ff.size, None, None)
         return result
 
+    @classmethod
     def uploadFile(self, file_name):
         f = open('image/samples/%s' % file_name, 'rb')
         ff = File(f)
