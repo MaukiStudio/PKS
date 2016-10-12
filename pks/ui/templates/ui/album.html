@@ -471,7 +471,8 @@
         });
       }
       function shareAlbumWithTwitter(selector) {
-
+        $(selector).attr('href', 'https://twitter.com/intent/tweet?text=' + encodeURI('{{ etc.desc }}' + ' From: 포플(PHOPL) ' + '{{ dec.url}}'));
+        $(selector).attr('data-size', 'large');
       }
       // function shareAlbumWithLine(selector) {}
       // function shareAlbumWithTelegram(selector) {}
@@ -481,7 +482,7 @@
       registerShareFunc(shareAlbumWithKakaotalk, '#btn-share-kakaotalk');
       shareAlbumWithFacebook('#btn-share-facebook');
       shareAlbumWithKakaostory('#btn-share-kakaostory');
-      registerShareFunc(shareAlbumWithTwitter, '#btn-share-twitter');
+      shareAlbumWithTwitter('#btn-share-twitter');
       // registerShareFunc(shareAlbumWithBand, '#btn-share-band');
       // registerShareFunc(shareAlbumWithLine, '#btn-share-line');
       // registerShareFunc(shareAlbumWithTelegram, '#btn-share-telegram');
