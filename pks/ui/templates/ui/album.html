@@ -288,6 +288,15 @@
                   기타
                 </div>
               </div> -->
+              <div class="row">
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">URL</span>
+                  <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1" value="{{ etc.url }}">
+                </div>
+              </div>
+              <div class="row">
+              이 주소를 복사해서 직접 공유하셔도 됩니다.
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -461,9 +470,11 @@
           text: '{{ etc.desc }}'
         });
       }
+      function shareAlbumWithTwitter(selector) {
+
+      }
       // function shareAlbumWithLine(selector) {}
       // function shareAlbumWithTelegram(selector) {}
-      // function shareAlbumWithTwitter(selector) {}
       // function shareAlbumWithBand(selector) {}
 
 
