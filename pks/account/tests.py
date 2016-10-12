@@ -270,7 +270,8 @@ class VDViewSetTest(FunctionalTestAfterLoginBase):
         self.assertEqual(len(result['results']), 1)
 
     def test_vds_detail(self):
-        aid = self.vd.aid
+        #aid = self.vd.aid
+        aid = self.vd.id
         response = self.client.get('/vds/%s/' % aid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         result = json_loads(response.content)
@@ -336,7 +337,7 @@ class RealUserViewsetTest(FunctionalTestAfterLoginBase):
         response = self.client.get('/rus/myself/vds/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         vds = json_loads(response.content)
-        self.assertEqual(len(vds), 0)   # Login VD 는 포함되지 않음
+        self.assertEqual(len(vds), 1)   # Login VD 도 포함
 
         '''
         self.client.post('/vds/register/', dict(email='gulby@maukistudio.com'))
