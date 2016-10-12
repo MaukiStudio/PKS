@@ -476,7 +476,16 @@
           }, function(response){});
         });
       }
-      function shareAlbumWithKakaostory(selector) {}
+      function shareAlbumWithKakaostory(selector) {
+        // 사용할 앱의 JavaScript 키를 설정해 주세요.
+        Kakao.init('45828a631ac6ffb24c489e39bd0ac47b');
+        // 스토리 공유 버튼을 생성합니다.
+        Kakao.Story.createShareButton({
+          container: selector,
+          url: '{{ etc.url }}',
+          text: '{{ etc.desc }}'
+        });
+      }
       function shareAlbumWithBand(selector) {}
       function shareAlbumWithTwitter(selector) {}
 
