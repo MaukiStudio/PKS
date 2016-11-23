@@ -103,8 +103,8 @@
         {% if forloop.counter0|divisibleby:3 %}
           <div class="row image-container">
         {% endif %}
-          <div class="col-xs-4">
-            <a class="thumbnail" href="#" data-toggle="modal" data-target="#modalImageViewer" data-image-src="{{ image.url_for_access }}">
+          <div class="col-xs-4 no-padding">
+            <a class="thumbnail no-border" href="#" data-toggle="modal" data-target="#modalImageViewer" data-image-src="{{ image.url_for_access }}">
               <img src="{{ image.url_summarized }}">
               <!--img src="{{ image.url_for_access }}"-->
             </a>
@@ -204,6 +204,17 @@
           </div>
         </div>
       </div>
+    </div>
+    <!-- Custom Modal for Image Viewer -->
+    <div id="boxes">
+      <div id="image-viewer" class="window">
+        <b>Testing of Modal Window</b>
+        <!-- close button is defined as close class -->
+        <a href="#" class="close">Close it</a>
+      </div>
+
+      <!-- Do  not remove div#mask, because you'll need ti to fill the whole screen -->
+      <div id="mask"></div>
     </div>
 
     <!-- Modal for Map -->
