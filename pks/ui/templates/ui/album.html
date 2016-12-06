@@ -18,6 +18,7 @@
 
     <!-- 부트스트랩 -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/fotorama.css" rel="stylesheet">
     <!-- 기타 스타일 시트 -->
     <link href="/static/css/style.css" rel="stylesheet">
 
@@ -104,7 +105,8 @@
           <div class="row image-container">
         {% endif %}
           <div class="col-xs-4 no-padding">
-            <a class="thumbnail no-border" href="#" data-toggle="modal" data-target="#modalImageViewer" data-image-src="{{ image.url_for_access }}">
+            <a href="#" class="thumbnail no-border" onclick="showSlide({{ forloop.counter0 }})">
+            <!-- <a class="thumbnail no-border" href="#" data-toggle="modal" data-target="#modalImageViewer" data-image-src="{{ image.url_for_access }}"> -->
               <img src="{{ image.url_summarized }}">
               <!--img src="{{ image.url_for_access }}"-->
             </a>
@@ -205,16 +207,18 @@
         </div>
       </div>
     </div>
-    <!-- Custom Modal for Image Viewer -->
-    <div id="boxes">
-      <div id="image-viewer" class="window">
-        <b>Testing of Modal Window</b>
-        <!-- close button is defined as close class -->
-        <a href="#" class="close">Close it</a>
-      </div>
 
-      <!-- Do  not remove div#mask, because you'll need ti to fill the whole screen -->
-      <div id="mask"></div>
+    <!-- Custom Modal for Image Viewer -->
+    <div id="image-viewer" class="iviewer">
+      <div class="iviewer-content">
+        <div class="iviewer-header">
+          <span class="iviewer-close glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </div>
+        <div class="iviewer-body">
+          <div id="fotorama" class="fotorama" data-nav="thumbs" data-auto="false" data-width="100%" data-height="100%">
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Modal for Map -->
@@ -325,6 +329,7 @@
     <script src="/static/js/app.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8&"></script>
     <script src="http://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    <script src="/static/js/fotorama.js"></script>
     <script language="javascript">
       'use strict';
 
@@ -506,6 +511,54 @@
 
       ga('create', 'UA-81895826-1', 'auto');
       ga('send', 'pageview');
+    </script>
+    <script>
+      'use strict';
+      var iviewer;
+      var fotoramaDiv;
+      var fotorama;
+
+      function showSlide(index) {
+        iviewer.style.display = 'block';
+        fotorama = fotoramaDiv.data('fotorama');
+        if (fotorama === undefined) {
+          console.log('fotorama is undefined.');
+          setTimeout(function() {
+            showSlide(index);
+          }, 100);
+        } else {
+          console.log('fotorama is available.', fotorama);
+          fotorama.show(index);
+        }
+      }
+      function setUpImageViewer(index) {
+        iviewer = document.getElementById('image-viewer');
+        var span = document.getElementsByClassName('iviewer-close')[0];
+
+        span.onclick = function() {
+          iviewer.style.display = 'none';
+        }
+      }
+      jQuery(document).ready(function($) {
+        setUpImageViewer();
+        fotoramaDiv = $('#fotorama').fotorama({
+          data: [
+          {% for image in uplace.userPost.images %}
+            {
+              img: '{{ image.url_for_access }}',
+              thumb: '{{ image.url_summarized }}'
+            },
+          {% endfor %}
+          ]
+        });
+        // fotorama = fotoramaDiv.data('fotorama');
+        // $('.fotorama').on('fotorama:ready', function (e, fotorama) {
+        //   console.log('ready', e.type, fotorama.activeIndex);
+        //   fotorama = fotoramaDiv.data('fotorama');
+        //   console.log('ready fotorama', fotorama);
+        // });
+      });
+
     </script>
   </body>
 </html>
