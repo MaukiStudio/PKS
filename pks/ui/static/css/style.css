@@ -177,3 +177,8 @@ body {
 #image-viewer {
   z-index: 2000;
 }
+
+.app-name {
+  color:#ff0066;
+  font-weight:bold;
+}
