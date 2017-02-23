@@ -56,7 +56,7 @@
         getImageHeight: getImageHeight
       }
     }])
-    .controller('albumCtrl', function($scope, $q, $ionicPlatform, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, $ionicPopover, $ionicHistory, DOMHelper) {
+    .controller('albumCtrl', function($scope, $q, $http, $ionicPlatform, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, $ionicPopover, $ionicHistory, DOMHelper) {
       //공유하기 URL 주소
       $scope.shareData = {
         url : '{{ etc.url}}',
