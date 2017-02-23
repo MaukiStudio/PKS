@@ -76,3 +76,5 @@ result.html
 test.html
 profile
 celeryd.pid
+
+!/pks/ui/static/
