@@ -9,12 +9,12 @@
             <img src="/static/img/share/kakaotalk.png" ng-click="shareLink('kakaotalk')">
             <img src="/static/img/share/facebook.png" ng-click="shareLink('facebook')">
             <img src="/static/img/share/kakaostory.png" ng-click="shareLink('kakaostory')">
-            <img src="/static/img/share/line.png" ng-click="shareLink('naverline')"> 
+            <img src="/static/img/share/line.png" ng-click="shareLink('naverline')">
             <img src="/static/img/share/twitter.png" ng-click="shareLink('twitter')">
         </div>
         <!--SNS목록 @-->
         <div class="copy-link">
-            <input type="text" class="copy-text" value="{{shareData.url}}">
+            <input type="text" class="copy-text" value="{$shareData.url$}">
             <div class="copy-description">위 주소를 복사해서 직접 공유하셔도 됩니다.</div>
         </div>
         <!--주소값 copy-->
