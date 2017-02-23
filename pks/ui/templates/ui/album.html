@@ -466,12 +466,13 @@
       };
 
       $scope.take = function() {
-        RemoteAPIService.takeIplace($scope.post.uplace_uuid)
-        .then(function(result) {
-          console.log('album.take()', result);
-        }, function(err) {
-          console.error(err);
-        });
+        // RemoteAPIService.takeIplace($scope.post.uplace_uuid)
+        // .then(function(result) {
+        //   console.log('album.take()', result);
+        // }, function(err) {
+        //   console.error(err);
+        // });
+        save();
       }
 
       //앱런칭, 이미지저장
@@ -600,7 +601,7 @@
         <ion-footer-bar>
           <div class="button-bar" style="margin-top:5px;">
             <a class="button button-stable" ng-click="showMap()" ng-show="post.lonLat">지도</a>
-            <a class="button button-stable" ng-click="save()">저장</a>
+            <a class="button button-stable" ng-click="take()">저장</a>
             <a class="button button-stable" ng-click="openShareModal()">공유</a>
           </div>
         </ion-footer-bar>
