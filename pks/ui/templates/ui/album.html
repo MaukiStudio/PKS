@@ -58,14 +58,11 @@
       }
     }])
     .controller('albumCtrl', function($scope, $q, $ionicPlatform, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, $ionicPopover, $ionicHistory, DOMHelper) {
-      console.log("albumCtrl()");
-      //서버에서 넣어주시면 됩니다.
-
       //공유하기 URL 주소
       $scope.shareData = {
-        url : 'http://itbox.kr',
-        desc : '공유설명',
-        image : 'http://itbox.kr/images/portfolio/homedeco_logo.png'
+        url : '{{ etc.url}}',
+        desc : '{{ etc.desc }}',
+        image : '{{ uplace.userPost.image.url_summarized }}'
       };
 
       //프로필 정보
@@ -85,18 +82,14 @@
           notes: [
             {% for note in uplace.userPost.notes %}
               {% if not note.is_only_for_tag %}
-                { content: '', datetime: '{{ note.timestamp}}'},
+                { content: '', datetime: '{{ note.timestamp}}', timestring: getTimeString({{ note.timestamp}})},
               {% endif %}
             {% endfor %}
-            // { content:'asfasdf', datetime:'asdfasdf'},
-            // { content:'asfasdf', datetime:'asdfasdf'},
           ],
           tags: [
             {% for tag in uplace.userPost.tags %}
               { content: '{{ tag.content }}' },
             {% endfor %}
-            // { content: 'tag1' },
-            // { content: 'tag2' }
           ]
         },
         addrs: ['{{ uplace.placePost.addr }}'],
@@ -104,7 +97,6 @@
           lat: {{ uplace.placePost.lonLat.y |default:37.391009}},
           lon: {{ uplace.placePost.lonLat.x |default:127.076961}}
         }
-        // addrs: ['서울시 강남구 삼성동']
       };
 
       //이미지
@@ -112,36 +104,6 @@
         {% for image in uplace.userPost.images %}
           {summary: '{{ image.url_summarized }}', content: '{{ image.url_for_access }}'},
         {% endfor %}
-        // {summary: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg',
-        // content: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg'},
-        // {summary: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9',
-        // content: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9'},
-        // {summary:'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg',
-        // content: 'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg'},
-        // {summary: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582',
-        // content: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582' },
-        // {summary: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971',
-        // content: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971'},
-        // {summary: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg',
-        // content: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg'},
-        // {summary: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9',
-        // content: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9'},
-        // {summary:'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg',
-        // content: 'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg'},
-        // {summary: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582',
-        // content: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582' },
-        // {summary: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971',
-        // content: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971'},
-        // {summary: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg',
-        // content: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg'},
-        // {summary: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9',
-        // content: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9'},
-        // {summary:'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg',
-        // content: 'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg'},
-        // {summary: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582',
-        // content: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582' },
-        // {summary: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971',
-        // content: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971'},
       ];
 
       //관련정보
@@ -182,7 +144,25 @@
 
       //////////////////////////////////////////////////////////////////////////////
       //  Private Methods
-      //////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
+      function getTimeString(timestamp) {
+        var timegap = (Date.now() - timestamp) / 1000;
+        if (timegap < 3600) {
+          var min = parseInt(timegap / 60);
+          if (min < 5) {
+            return '방금';
+          } else {
+            return parseInt(timegap / 60) + '분전';
+          }
+        } else if (timegap < 24 * 3600) {
+          return parseInt(timegap / 3600) + '시간전';
+        } else if (timegap < 7 * 24 * 3600){
+          return parseInt(timegap / 86400) + '일전';
+        } else {
+          return new Date(timestamp).toLocaleDateString();
+        }
+      }
+
       function save(uplace_uuid, nickname) {
         var openAt = new Date;
         var uagentLow = navigator.userAgent.toLocaleLowerCase();
@@ -551,7 +531,7 @@
           <div class="note " ng-repeat="note in post.userPost.notes">
                 <div class="padding">
                 <span class="content">{$note.content$}</span>
-                <span class="time">{$note.datetime$}</span>
+                <span class="time">{$note.timestring$}</span>
                 </div>
           </div>
           <!-- 이미지 영역 -->
