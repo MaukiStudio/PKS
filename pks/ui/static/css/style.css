@@ -91,6 +91,7 @@
 /*공유하기 모달 */
 .modal-share {
   max-width: 350px;
+  margin: 0 auto;
 }
 
 .modal-share h4{
