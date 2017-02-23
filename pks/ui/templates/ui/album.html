@@ -25,132 +25,122 @@
 
   <!--단순로직 -->
   <script>
-      angular.module('phopl', ['ionic'])
-      .config(function($interpolateProvider) {
-          $interpolateProvider.startSymbol('{$');
-          $interpolateProvider.endSymbol('$}');
-      })
-      .run(function($ionicPlatform, $window, $state, $ionicHistory, $rootScope) {
-        console.log("run()");
-      })
+    angular.module('phopl', ['ionic'])
+    .config(function($interpolateProvider) {
+        $interpolateProvider.startSymbol('{$');
+        $interpolateProvider.endSymbol('$}');
+    })
+    .run(function($ionicPlatform, $window, $state, $ionicHistory, $rootScope) {
+      console.log("run()");
+    })
 
-      .factory('DOMHelper', [function() {
-        function getImageHeight(elem, cols, padding) {
-          cols = cols || 3;
-          padding = (padding === null) ? 5 : padding;
+    .factory('DOMHelper', [function() {
+      function getImageHeight(elem, cols, padding) {
+        cols = cols || 3;
+        padding = (padding === null) ? 5 : padding;
 
-          if (!elem) {
-            return 0;
-          }
-
-          var elems = document.getElementsByClassName(elem);
-          console.log('elems[' + elem + '].length : ' + elems.length);
-          for (var i = 0; i < elems.length; i++) {
-            console.log('elems[' + elem + '].clientWidth : ' + elems[i].clientWidth);
-            if (elems[i].clientWidth) {
-              return parseInt((elems[i].clientWidth - (cols + 1) * padding) / cols);
-            }
-          }
+        if (!elem) {
           return 0;
         }
 
-        return {
-          getImageHeight: getImageHeight
+        var elems = document.getElementsByClassName(elem);
+        console.log('elems[' + elem + '].length : ' + elems.length);
+        for (var i = 0; i < elems.length; i++) {
+          console.log('elems[' + elem + '].clientWidth : ' + elems[i].clientWidth);
+          if (elems[i].clientWidth) {
+            return parseInt((elems[i].clientWidth - (cols + 1) * padding) / cols);
+          }
         }
-      }])
-      .factory('daumSearchService', ['$q', '$http', function($q, $http) {
-        function convertToSaveURL(url) {
-          // if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-          //   return url;
-          // } else {
-          //   return url.replace('https://apis.daum.net', '/daum');
-          // }
-          return url;
-        }
+        return 0;
+      }
 
-        function search(keyword) {
-          var deferred = $q.defer();
+      return {
+        getImageHeight: getImageHeight
+      }
+    }])
+    .factory('daumSearchService', ['$q', '$http', function($q, $http) {
+      function search(keyword) {
+        var deferred = $q.defer();
 
-          $http({
-            method: 'GET',
-            url: convertToSaveURL('https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json')
-          })
-          .then(function(response) {
-            // console.dir(response.data);
-            deferred.resolve(response.data.channel.item);
-          }, function(err) {
-            console.error(err);
-            deferred.reject(err);
-          });
+        $http({
+          method: 'GET',
+          url: 'https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json'
+        })
+        .then(function(response) {
+          // console.dir(response.data);
+          deferred.resolve(response.data.channel.item);
+        }, function(err) {
+          console.error(err);
+          deferred.reject(err);
+        });
 
-          return deferred.promise;
-        }
+        return deferred.promise;
+      }
 
-        return {
-          search: search
-        };
-      }])
-      .controller('albumCtrl', function($scope, $q, $ionicPlatform, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, $ionicPopover, $ionicHistory, DOMHelper, daumSearchService) {
-        console.log("albumCtrl()");
+      return {
+        search: search
+      };
+    }])
+    .controller('albumCtrl', function($scope, $q, $ionicPlatform, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, $ionicPopover, $ionicHistory, DOMHelper, daumSearchService) {
+      console.log("albumCtrl()");
 
-        //서버에서 넣어주시면 됩니다.
+      //서버에서 넣어주시면 됩니다.
 
-        //프로필 정보
-        $scope.profileImg = '{{ ru.data.profileImg }}';
-        $scope.nickname = '{{ ru.nickname }}';
+      //프로필 정보
+      $scope.profileImg = '{{ ru.data.profileImg }}';
+      $scope.nickname = '{{ ru.nickname }}';
 
-        //포스트
-        $scope.uplace_uuid = '{{ uplace.uuid }}'; //UUID
-        $scope.uplace_name = '{{ uplace.placePost.name }}';
+      //포스트
+      $scope.uplace_uuid = '{{ uplace.uuid }}'; //UUID
+      $scope.uplace_name = '{{ uplace.placePost.name }}';
 
-        $scope.post = {
-          datetime:'{{ etc.datetime_desc }}',
-          // name: '{{ uplace.placePost.name }}',
-          name: '둘둘치킨',
-          userPost: {
-            notes: [
-              // {% for note in uplace.userPost.notes %}
-              //   {% if not note.is_only_for_tag %}
-              //     { content: '{{ note.content }}', datetime: '{{ note.datetime_desc}}'},
-              //   {% endif %}
-              // {% endfor %}
-              { content:'asfasdf', datetime:'asdfasdf'},
-              { content:'asfasdf', datetime:'asdfasdf'},
-            ],
-            tags: [
-              // {% for tag in uplace.userPost.tags %}
-              //   { content: '{{ tag.content }}' },
-              // {% endfor %}
-              { content: 'tag1' },
-              { content: 'tag2' }
-            ]
-          },
-          // addrs: ['{{ uplace.placePost.addr }}']
-          addrs: ['서울시 강남구 삼성동']
-        }
+      $scope.post = {
+        datetime:'{{ etc.datetime_desc }}',
+        // name: '{{ uplace.placePost.name }}',
+        name: '둘둘치킨',
+        userPost: {
+          notes: [
+            {% for note in uplace.userPost.notes %}
+              {% if not note.is_only_for_tag %}
+                { content: '{{ note.content }}', datetime: '{{ note.datetime_desc}}'},
+              {% endif %}
+            {% endfor %}
+            // { content:'asfasdf', datetime:'asdfasdf'},
+            // { content:'asfasdf', datetime:'asdfasdf'},
+          ],
+          tags: [
+            {% for tag in uplace.userPost.tags %}
+              { content: '{{ tag.content }}' },
+            {% endfor %}
+            // { content: 'tag1' },
+            // { content: 'tag2' }
+          ]
+        },
+        addrs: ['{{ uplace.placePost.addr }}']
+        // addrs: ['서울시 강남구 삼성동']
+      };
 
-        //이미지
-        $scope.attachedImages = [
-          {summary: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg',
-           content: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg'},
-          {summary: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9',
-          content: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9'},
-          {summary:'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg',
-          content: 'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg'},
-          {summary: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582',
-          content: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582' },
-          {summary: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971',
-          content: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971'},
-        ];
+      //이미지
+      $scope.attachedImages = [
+        {summary: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg',
+         content: 'http://image.chosun.com/sitedata/image/201312/13/2013121302159_0.jpg'},
+        {summary: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9',
+        content: 'http://cfile227.uf.daum.net/image/192ABF3350BC88EB224FF9'},
+        {summary:'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg',
+        content: 'http://pds25.egloos.com/pds/201207/23/96/e0063996_500c1d8f0a41d.jpg'},
+        {summary: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582',
+        content: 'http://cfile28.uf.tistory.com/image/240FD148543CB20803D582' },
+        {summary: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971',
+        content: 'http://cfile2.uf.tistory.com/image/2551564D54CC3B5128C971'},
+      ];
 
-        //관련정보
-        $scope.searchResults = [
-          {title:'치킨엔맥쥬', author:'치맥', description:'치킨은진리', link:'http://naver.com'},
-          {title:'한방통닭', author:'통닭', description:'통닭은반반', link:'http://www.daum.net'}
-        ]
-        //서버에서 넣어주시면 됩니다. @
+      //관련정보
+      $scope.searchResults = [
+        {title:'치킨엔맥쥬', author:'치맥', description:'치킨은진리', link:'http://naver.com'},
+        {title:'한방통닭', author:'통닭', description:'통닭은반반', link:'http://www.daum.net'}
+      ];
 
-       var result = this;
+      var result = this;
 
       $scope.showAll = false;
       $scope.zoomMin = 1;
@@ -340,10 +330,7 @@
           console.error(err);
         });
       }
-
-
-      });
-
+    });
   </script>
   <!--단순로직 @-->
 
