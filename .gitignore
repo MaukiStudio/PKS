@@ -77,4 +77,4 @@ test.html
 profile
 celeryd.pid
 
-!/pks/ui/static/
+!/pks/ui/static/lib/
