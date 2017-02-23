@@ -85,7 +85,7 @@
           notes: [
             {% for note in uplace.userPost.notes %}
               {% if not note.is_only_for_tag %}
-                { content: '{{ note.content }}', datetime: '{{ note.timestamp}}'},
+                { content: '', datetime: '{{ note.timestamp}}'},
               {% endif %}
             {% endfor %}
             // { content:'asfasdf', datetime:'asdfasdf'},
