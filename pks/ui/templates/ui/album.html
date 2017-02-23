@@ -186,7 +186,12 @@
                 location.replace('https://itunes.apple.com/kr/app/solibada-myujig-mujehan-eum/id346528006?mt=8'); //마우키 앱 경로로 변경필요
               } else {
                 console.info('in timer : not ios, not android');
-                location.href = 'market://details?id=com.mauki.phopl&hl=ko';
+                //  다시 브라우저에 따라 분기
+                if (uagentLow.match(/chrome/)) {
+                  location.href = 'intent://scan/#Intent;scheme=redpigScheme;package=com.android.chrome;end';
+                } else {
+                  location.href = 'market://details?id=com.mauki.phopl&hl=ko';
+                }
               }
             }
           }
