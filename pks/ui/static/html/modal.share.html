@@ -1,0 +1,26 @@
+<ion-modal-view class="ion-nifty-modal modal-share">
+    <div class="ion-modal-content-custom">
+      <ion-content class="padding">
+         <h4> 공유하기 </h4>
+        <div class="share-close-button ion-close-round" ng-click="closeShareModal()"></div>
+
+        <!--SNS목록 -->
+        <div class="sns-list">
+            <img src="img/share/kakaotalk.png" ng-click="shareLink('kakaotalk')">
+            <img src="img/share/facebook.png" ng-click="shareLink('facebook')">
+            <img src="img/share/kakaostory.png" ng-click="shareLink('kakaostory')">
+            <img src="img/share/line.png" ng-click="shareLink('naverline')"> 
+            <img src="img/share/twitter.png" ng-click="shareLink('twitter')">
+        </div>
+        <!--SNS목록 @-->
+        <div class="copy-link">
+            <input type="text" class="copy-text" value="{{shareData.url}}">
+            <div class="copy-description">위 주소를 복사해서 직접 공유하셔도 됩니다.</div>
+        </div>
+        <!--주소값 copy-->
+
+        <!--주소값 copy@-->
+        <!--<button class="button button-full button-positive" ng-click="closeShareModal()">Close Modal</button>-->
+      </ion-content>
+    </div>
+  </ion-modal-view>
