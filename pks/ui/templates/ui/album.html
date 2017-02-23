@@ -258,7 +258,7 @@
 
       $scope.showImagesWithFullScreen = function(index) {
         $scope.activeSlide = index;
-        $ionicModal.fromTemplateUrl('modal.images.html', {
+        $ionicModal.fromTemplateUrl('/static/html/modal.images.html', {
           scope: $scope
         }).then(function(modal) {
           $scope.modalImages = modal;
