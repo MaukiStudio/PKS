@@ -78,3 +78,4 @@ profile
 celeryd.pid
 
 !/pks/ui/static/lib/
+!/pks/ui/static/lib/jquery/dist/
