@@ -24,7 +24,6 @@
     <script src="/static/lib/ionic/js/ionic.bundle.min.js"></script>
     <script src="http://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="/static/js/share.js"></script>
-    <!-- <script src="js/app.js"></script> -->
     <script>
     angular.module('phopl', ['ionic'])
     .config(function($interpolateProvider) {
@@ -316,36 +315,55 @@
 
       function makeKeyword() {
         var keyword = '';
-        if ($scope.post.placePost) {
-          var region = $scope.post.placePost.addr2 || $scope.post.placePost.addr1 || $scope.post.placePost.addr3 || null;
-          if (region) {
-            var region_items = region.content.split(' ');
-            var loopCount = region_items.length >= 4 ? 4 : region_items.length;
-            for (var i = 1; i < loopCount; i++) {
-              keyword += region_items[i] + '+';
-            }
+        var placeName = $scope.uplace_name || '';
+        var placeAddr = $scope.post.addrs[0] || '';
+
+        if (placeAddr && placeAddr !== '') {
+          var region_items = placeAddr.split(' ');
+          var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+          for (var i = 1; i < loopCount; i++) {
+            keyword += region_items[i] + '+';
           }
 
-          keyword += ($scope.post.placePost.name.content || $scope.post.userPost.name.content);
+          keyword += placeName;
           console.log('Calculated keyword : ', keyword);
           keyword = encodeURI(keyword);
           console.log('URL encoded keyword : ', keyword);
         }
         return keyword;
+      };
+
+      function search(keyword) {
+        var deferred = $q.defer();
+
+        $http({
+          method: 'JSONP',
+          url: 'https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&callback=JSON_CALLBACK&q=' + keyword + '&output=json'
+        })
+        .then(function(response) {
+          // console.dir(response.data);
+          deferred.resolve(response.data.channel.item);
+        }, function(err) {
+          console.error(err);
+          deferred.reject(err);
+        });
+
+        return deferred.promise;
       }
 
       function getDaumResult() {
         var keyword = makeKeyword();
         if (keyword !== '') {
-          daumSearchService.search(keyword)
+          search(keyword)
           .then(function(items) {
-            $scope.searchResults = items;
-            for (var i = 0; i < $scope.searchResults.length; i++) {
-              $scope.searchResults[i].title = $scope.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
-              $scope.searchResults[i].description = $scope.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+            $scope.searchResults = [];
+            for (var i = 0; i < items.length / 2; i++) {
+              items[i].title = items[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+              items[i].description = items[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+              items[i].description = items[i].description.substr(0, items[i].description.length/2) + '...';
+              $scope.searchResults.push(items[i]);
             }
             // console.dir($scope.searchResults);
-
           }, function(err) {
             $scope.searchResults = [];
             $scope.searchResults.push({
@@ -358,8 +376,7 @@
           });
         }
       }
-
-
+      getDaumResult();
 
       //////////////////////////////////////////////////////////////////////////////
       //  Public Methods
