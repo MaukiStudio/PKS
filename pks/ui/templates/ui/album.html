@@ -5,13 +5,13 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <title>{{ etc.title }}</title>
-    <meta name="description" content="{{ etc.desc }}" />
+    <meta name="description" content="{{ etc.desc|escapejs }}" />
     <meta name="keywords" content="{% for tag in uplace.userPost.tags %}{{ tag.content }}, {% endfor %}" />
     <meta property="og:title" content="{{ etc.title }}" />
     <meta property="og:image" content="{{ uplace.userPost.image.url_summarized }}" />
     <meta property="og:site_name" content="사진 공유 서비스 포플(PHOPL)" />
     <meta property="og:url" content="{{ etc.url }}" />
-    <meta property="og:description" content="{{ etc.desc }}" />
+    <meta property="og:description" content="{{ etc.desc|escapejs }}" />
 
 
     <!-- compiled css output -->
