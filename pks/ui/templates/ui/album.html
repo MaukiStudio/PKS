@@ -79,8 +79,8 @@
 
       $scope.post = {
         datetime:'{{ etc.datetime_desc }}',
-        // name: '{{ uplace.placePost.name }}',
         name: '{{ uplace.placePost.name }}',
+        // name: '둘둘치킨',
         userPost: {
           notes: [
             {% for note in uplace.userPost.notes %}
@@ -499,7 +499,7 @@
 
       //공유하기
       $scope.openShareModal = function(animation) {
-        $ionicModal.fromTemplateUrl('modal.share.html', {
+        $ionicModal.fromTemplateUrl('/static/html/modal.share.html', {
           scope: $scope,
           animation: animation
         }).then(function(modal) {
