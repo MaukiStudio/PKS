@@ -73,7 +73,7 @@ function sendSns(sns, url, txt, img)
 					height:300
 				},
 				webButton:{
-					text:'Link',
+					text:'PHOPL에서 보기',
 					url:url
 				},
 				installTalk:false
