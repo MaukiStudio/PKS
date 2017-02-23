@@ -61,7 +61,7 @@
       //공유하기 URL 주소
       $scope.shareData = {
         url : '{{ etc.url}}',
-        desc : '{{ etc.desc }}',
+        desc : '{{ etc.desc|escapejs }}',
         image : '{{ uplace.userPost.image.url_summarized }}'
       };
 
@@ -82,7 +82,7 @@
           notes: [
             {% for note in uplace.userPost.notes %}
               {% if not note.is_only_for_tag %}
-                { content: '', datetime: '{{ note.timestamp}}', timestring: getTimeString({{ note.timestamp}})},
+                { content: '{{ note.content|escapejs }}', datetime: '{{ note.timestamp}}', timestring: getTimeString({{ note.timestamp}})},
               {% endif %}
             {% endfor %}
           ],
