@@ -1,16 +1,32 @@
 <ion-modal-view class="image-modal transparent" on-swipe-down="closeImages()">
-  <ion-header-bar class="bar-positive" align-title="center">
-    <h1 class="title">사진보기</h1>
-    <button class="button button-clear button-icon ion-ios-close-empty" ng-click="closeImages()"></button>
-	</ion-header-bar>
   <ion-content>
-    <ion-slide-box active-slide="activeSlide">
+
+
+    <ion-slide-box active-slide="activeSlide" class="modal-slide-box" show-pager="false">
       <ion-slide ng-repeat="image in attachedImages">
 
-        <ion-scroll direction="xy" scrollbar-x="false" scrollbar-y="false" zooming="true" min-zoom="{$zoomMin$}" style="width:100%;height:100%" delegate-handle="scrollHandle{$$index$}" on-scroll="updateSlideStatus(activeSlide)" on-release="updateSlideStatus(activeSlide)">
+        <ion-scroll direction="xy" overflow-scroll="false" scrollbar-x="false" scrollbar-y="false" zooming="true" min-zoom="1"  style="width:100%;height:100%">
           <div class="image" style="background-image: url({$image.content$})"></div>
+            <!--<img src="{$image.content$}" style="width: 2000px; height: 2000px">-->
+
         </ion-scroll>
+
       </ion-slide>
     </ion-slide-box>
+
+    <!-- 이미지정보 -->
+    <div class="modal-description">
+      {{ ru.nickname }}
+      <br>
+      <span class="location">{{ uplace.placePost.name }}</span>
+      <br>
+    </div>
+    <!-- 이미지정보 @-->
+
+    <!--닫기버튼 -->
+    <!-- <div class="modal-button modal-download-button ion-archive" ng-click="saveImage('uplace_uuid','nickname')"></div> -->
+    <div class="modal-button modal-close-button ion-close-round" ng-click="closeImages()"></div>
+    <!--닫기버튼 @-->
+
   </ion-content>
 </ion-modal-view>
