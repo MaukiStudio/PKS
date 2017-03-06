@@ -191,7 +191,7 @@
                 }
               } else if (uagentLow.search('iphone') > -1) {
                 console.info('in timer : ios');
-                location.replace('https://itunes.apple.com/us/app/포플-phopl/id1208901608?l=ko&ls=1&mt=8'); //마우키 앱 경로로 변경필요
+                location.replace('https://itunes.apple.com/kr/app/포플-phopl/id1208901608?l=ko&ls=1&mt=8'); //마우키 앱 경로로 변경필요
               } else {
                 console.info('in timer : not ios, not android');
               }
@@ -597,8 +597,10 @@
 
 
            <!--앱 다운로드 링크 -->
-          <nav class="navbar navbar-default" ng-click="saveImage()">
+          <!-- <nav class="navbar navbar-default" ng-click="saveImage()"> -->
+          <nav class="navbar navbar-default">
             <div class="container-fluid">
+              <a id="app-download-link" href="https://itunes.apple.com/kr/app/포플-phopl/id1208901608">
               <div class="navbar-header app-download-button" >
                   <div class="navbar-brand">
                   <img alt="Brand" src="/static/img/icon.png" height="45" width="45">
@@ -609,6 +611,7 @@
                 </p>
                 <!--<button type="button" class="btn btn-default navbar-btn" onclick="hideAppBanner()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>-->
               </div>
+              </a>
             </div>
           </nav>
           <div style="clear:both;"></div>
