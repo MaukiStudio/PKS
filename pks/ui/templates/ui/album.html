@@ -191,7 +191,7 @@
                 }
               } else if (uagentLow.search('iphone') > -1) {
                 console.info('in timer : ios');
-                location.replace('https://itunes.apple.com/kr/app/apple-store/id1208901608'); //마우키 앱 경로로 변경필요
+                location.href = 'itms://itunes.apple.com/kr/app/id1208901608'; //마우키 앱 경로로 변경필요
               } else {
                 console.info('in timer : not ios, not android');
               }
