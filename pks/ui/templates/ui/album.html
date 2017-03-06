@@ -545,6 +545,17 @@
 
     </script>
     <script>
+      var downloadLink = document.getElementById('app-download-link');
+      var uagentLow = navigator.userAgent.toLocaleLowerCase();
+      if (~uagentLow.indexOf('iphone')) {
+        downloadLink.setAttribute('href', 'https://itunes.apple.com/kr/app/포플-phopl/id1208901608');
+      } else if (~uagentLow.indexOf('android')) {
+        downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
+      } else {
+        downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
+      }
+    </script>
+    <script>
       //  Part for Google Analytics
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -600,7 +611,7 @@
           <!-- <nav class="navbar navbar-default" ng-click="saveImage()"> -->
           <nav class="navbar navbar-default">
             <div class="container-fluid">
-              <a id="app-download-link" href="https://itunes.apple.com/kr/app/포플-phopl/id1208901608">
+              <a id="app-download-link" href="#">
               <div class="navbar-header app-download-button" >
                   <div class="navbar-brand">
                   <img alt="Brand" src="/static/img/icon.png" height="45" width="45">
