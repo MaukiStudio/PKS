@@ -388,6 +388,19 @@
       }
       getDaumResult();
 
+      function setDownloadLink() {
+        var downloadLink = document.getElementById('app-download-link');
+        var uagentLow = navigator.userAgent.toLocaleLowerCase();
+        if (~uagentLow.indexOf('iphone')) {
+          downloadLink.setAttribute('href', 'https://itunes.apple.com/kr/app/포플-phopl/id1208901608');
+        } else if (~uagentLow.indexOf('android')) {
+          downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
+        } else {
+          downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
+        }
+      }
+      setDownloadLink();
+
       //////////////////////////////////////////////////////////////////////////////
       //  Public Methods
       //////////////////////////////////////////////////////////////////////////////
@@ -543,17 +556,6 @@
       }
     });
 
-    </script>
-    <script>
-      var downloadLink = document.getElementById('app-download-link');
-      var uagentLow = navigator.userAgent.toLocaleLowerCase();
-      if (~uagentLow.indexOf('iphone')) {
-        downloadLink.setAttribute('href', 'https://itunes.apple.com/kr/app/포플-phopl/id1208901608');
-      } else if (~uagentLow.indexOf('android')) {
-        downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
-      } else {
-        downloadLink.setAttribute('href', 'https://play.google.com/store/apps/details?id=com.mauki.phopl');
-      }
     </script>
     <script>
       //  Part for Google Analytics
