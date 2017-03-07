@@ -43,7 +43,7 @@ def get_proper_uplaces_qs(vd, qs=None):
     def helper(vd, qs=None):
         qs = get_valid_uplaces_qs(qs)
         qs = qs.filter(vd_id__in=vd.realOwner_vd_ids)
-        qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
+        #qs = qs.exclude(id__in=vd.realOwner_duplicated_uplace_ids)
         return qs
     result, is_created = cache_get_or_create(vd, 'uplaces', None, helper, vd, qs)
     return result

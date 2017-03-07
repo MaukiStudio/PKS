@@ -297,7 +297,7 @@ class UserPlace(models.Model):
     @property
     def total_pps(self):
         if not self._cache_total_pps:
-            if not self.place or self.is_bounded:
+            if not self.place or self.is_bounded or True:
                 self._cache_total_pps = self.pps.all().order_by('id')
             else:
                 qs1 = self.place.pps.filter(vd__in=self.vd_ids)
