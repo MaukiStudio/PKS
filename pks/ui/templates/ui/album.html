@@ -631,9 +631,9 @@
             <div class="item item-divider" ng-show="searchResults.length > 0">
               관련 정보
             </div>
-            <div class="item item-divider" ng-show="searchResults.length == 0">
+            <!-- <div class="item item-divider" ng-show="searchResults.length == 0">
               관련 정보 없음
-            </div>
+            </div> -->
             <a ng-repeat="result in searchResults | limitTo: 5 track by $index" class="item" ng-click="openLink(result.link)">
               <h2>{$result.title$}</h2>
               <h3>{$result.author$}</h3>
