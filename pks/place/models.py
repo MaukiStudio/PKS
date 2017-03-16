@@ -206,8 +206,8 @@ class UserPlace(models.Model):
         # TODO : uplace 좀 더 찾기...
         if pb.uplace_uuid:
             uplace = cls.get_from_uuid(pb.uplace_uuid)
-        if not uplace and place:
-            uplace = UserPlace.objects.filter(vd_id__in=vd.realOwner_vd_ids, place=place).order_by('id').first()
+        #if not uplace and place:
+        #    uplace = UserPlace.objects.filter(vd_id__in=vd.realOwner_vd_ids, place=place).order_by('id').first()
 
         lonLat = (place and place.lonLat) or pb.lonLat or (uplace and uplace.lonLat)
 
