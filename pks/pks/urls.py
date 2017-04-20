@@ -56,6 +56,7 @@ def redirect_to_google_shortener(request, key):
 
 
 urlpatterns = [
+    url(r'^$', include('home.urls')),
     url(r'^', include(router.urls)),
     url(r'^g/(?P<key>.+)', redirect_to_google_shortener, name='diaries'),
 
@@ -66,5 +67,4 @@ urlpatterns = [
     url(r'^admin/filebrowser/', include(fb_site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^$', include('home.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
