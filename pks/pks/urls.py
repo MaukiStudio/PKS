@@ -66,4 +66,5 @@ urlpatterns = [
     url(r'^admin/filebrowser/', include(fb_site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'', include('home.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
