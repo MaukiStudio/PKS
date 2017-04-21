@@ -6,6 +6,22 @@
     <title>PHOPL</title>
   </head>
   <body>
-    <img src="/static/img/phopl_intro.png" alt="포플 소개" width="100%">
+    <!-- <img id="phopl-intro-img" src="/static/img/phopl_intro.png" alt="포플 소개" width="100%"> -->
+    <img id="phopl-intro-img" src="" alt="포플 소개" width="100%">
+    <script>
+      function init() {
+        const uagentLow = navigator.userAgent.toLocaleLowerCase();
+    		console.info('agent info: ' + uagentLow);
+        var folderRoot = '';
+        var scriptTag = null;
+    		if (~uagentLow.indexOf('iphone') || ~uagentLow.indexOf('android')) {
+          document.querySelector('#phopl-intro-img').src = '/static/img/phopl_intro_mobile.png'
+    		} else {
+          document.querySelector('#phopl-intro-img').src = '/static/img/phopl_intro_pc.png'
+    		}
+      }
+      init();
+
+    </script>
   </body>
 </html>
